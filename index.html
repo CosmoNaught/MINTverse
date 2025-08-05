@@ -438,47 +438,47 @@
                 
                 <div class="code-section">
                     <pre><code><span class="comment"># Install MINTer (automatically installs all dependencies)</span>
-                        <span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
 
-                        <span class="comment"># Core functionality</span>
-                        <span class="function">library</span>(MINTer)
-                        <span class="function">library</span>(dplyr)   <span class="comment"># Pretty console tables</span>
-                        
-                        results &lt;- <span class="function">run_mint_scenarios</span>(
-                          <span class="comment"># —— Net combination settings ——</span>
-                          <span class="parameter">res_use</span>      = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),
-                          <span class="parameter">py_only</span>      = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),
-                          <span class="parameter">py_pbo</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),
-                          <span class="parameter">py_pyrrole</span>   = <span class="function">c</span>(<span class="number">0.00</span>, <span class="number">0.05</span>, <span class="number">0.00</span>),
-                          <span class="parameter">py_ppf</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.10</span>, <span class="number">0.15</span>),
-                        
-                          <span class="comment"># —— Malaria-environment settings ——</span>
-                          <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),
-                          <span class="parameter">Q0_vec</span>         = <span class="function">c</span>(<span class="number">0.65</span>, <span class="number">0.75</span>, <span class="number">0.85</span>),
-                          <span class="parameter">phi_vec</span>        = <span class="function">c</span>(<span class="number">0.45</span>, <span class="number">0.65</span>, <span class="number">0.75</span>),
-                          <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),
-                          <span class="parameter">routine_vec</span>    = <span class="function">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),
-                          <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>),
-                          <span class="parameter">irs_future_vec</span> = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.50</span>),
-                          <span class="parameter">lsm_vec</span>        = <span class="function">c</span>(<span class="number">0.05</span>, <span class="number">0.45</span>, <span class="number">0.85</span>),
-                          <span class="parameter">year_start</span>     = <span class="number">2</span>,
-                          <span class="parameter">year_end</span>       = <span class="number">5</span>
-                        )
-                        
-                        <span class="comment"># ——— Save CSVs ———</span>
-                        <span class="function">write.csv</span>(results$prevalence, <span class="string">"results_prevalence.csv"</span>, <span class="parameter">row.names</span> = FALSE)
-                        <span class="function">write.csv</span>(results$cases,       <span class="string">"results_cases.csv"</span>,       <span class="parameter">row.names</span> = FALSE)
-                        
-                        <span class="comment"># Pretty cases table</span>
-                        results$cases |&gt;
-                          <span class="function">transmute</span>(year,
-                                    cases = ensemble_cases_per_1000,
-                                    scenario)
-                        
-                        <span class="comment"># Prevalence plots</span>
-                        <span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
-                        </div>
-                        
+<span class="comment"># Core functionality</span>
+<span class="function">library</span>(MINTer)
+<span class="function">library</span>(dplyr)   <span class="comment"># Pretty console tables</span>
+
+results &lt;- <span class="function">run_mint_scenarios</span>(
+  <span class="comment"># —— Net combination settings ——</span>
+  <span class="parameter">res_use</span>      = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),
+  <span class="parameter">py_only</span>      = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),
+  <span class="parameter">py_pbo</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),
+  <span class="parameter">py_pyrrole</span>   = <span class="function">c</span>(<span class="number">0.00</span>, <span class="number">0.05</span>, <span class="number">0.00</span>),
+  <span class="parameter">py_ppf</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.10</span>, <span class="number">0.15</span>),
+
+  <span class="comment"># —— Malaria-environment settings ——</span>
+  <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),
+  <span class="parameter">Q0_vec</span>         = <span class="function">c</span>(<span class="number">0.65</span>, <span class="number">0.75</span>, <span class="number">0.85</span>),
+  <span class="parameter">phi_vec</span>        = <span class="function">c</span>(<span class="number">0.45</span>, <span class="number">0.65</span>, <span class="number">0.75</span>),
+  <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),
+  <span class="parameter">routine_vec</span>    = <span class="function">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),
+  <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>),
+  <span class="parameter">irs_future_vec</span> = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.50</span>),
+  <span class="parameter">lsm_vec</span>        = <span class="function">c</span>(<span class="number">0.05</span>, <span class="number">0.45</span>, <span class="number">0.85</span>),
+  <span class="parameter">year_start</span>     = <span class="number">2</span>,
+  <span class="parameter">year_end</span>       = <span class="number">5</span>
+)
+
+<span class="comment"># ——— Save CSVs ———</span>
+<span class="function">write.csv</span>(results$prevalence, <span class="string">"results_prevalence.csv"</span>, <span class="parameter">row.names</span> = FALSE)
+<span class="function">write.csv</span>(results$cases,       <span class="string">"results_cases.csv"</span>,       <span class="parameter">row.names</span> = FALSE)
+
+<span class="comment"># Pretty cases table</span>
+results$cases |&gt;
+  <span class="function">transmute</span>(year,
+            cases = ensemble_cases_per_1000,
+            scenario)
+
+<span class="comment"># Prevalence plots</span>
+<span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
+</div>
+
             </div>
         </section>
 
