@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINTverse - Fast Malaria Intervention Modeling</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --bg-dark: #111827;
+            --bg-card: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --accent: #8b5cf6;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><g fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"><circle cx="600" cy="300" r="100"/><circle cx="600" cy="300" r="200"/><circle cx="600" cy="300" r="300"/></g></svg>') center/cover;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 2rem;
+        }
+
+        .badges {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.4);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .code-section {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+            border: 1px solid #30363d;
+        }
+
+        pre {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #e6edf3;
+        }
+
+        code {
+            font-family: inherit;
+        }
+
+        .comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        .function {
+            color: #d2a8ff;
+        }
+
+        .string {
+            color: #a5d6ff;
+        }
+
+        .number {
+            color: #79c0ff;
+        }
+
+        .parameter {
+            color: #ffa657;
+        }
+
+        .workflow {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 3rem;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-width: 150px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: scale(1.05);
+            background: #2d3748;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .cta {
+            background: var(--gradient);
+            padding: 60px 0;
+            text-align: center;
+            margin-top: 4rem;
+            border-radius: 12px;
+        }
+
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .button {
+            display: inline-block;
+            background: white;
+            color: var(--primary-dark);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .parameters-table {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: rgba(255,255,255,0.05);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .section-title { font-size: 2rem; }
+            .cards { grid-template-columns: 1fr; }
+            .workflow-steps { flex-direction: column; }
+            .arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>MINTverse</h1>
+            <p class="tagline">Fast, lightweight malaria intervention modeling for R</p>
+            <div class="badges">
+                <div class="badge">🚀 Lightning Fast</div>
+                <div class="badge">🧠 Neural Networks</div>
+                <div class="badge">📊 XGBoost & Random Forest</div>
+                <div class="badge">🔬 Research-Ready</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Package Overview -->
+        <section class="section">
+            <h2 class="section-title">The MINTverse Ecosystem</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>🎯 MINTer</h3>
+                    <p>The main R package that orchestrates the entire modeling pipeline. Provides the simple <code>run_mint_scenarios()</code> function for end-to-end analysis.</p>
+                    <ul class="feature-list">
+                        <li>One-function workflow</li>
+                        <li>Handles bed net combinations</li>
+                        <li>Projects future interventions</li>
+                        <li>Automatic visualization</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📈 estiMINT</h3>
+                    <p>Converts field prevalence data into EIR estimates and predicts annual case incidence using machine learning.</p>
+                    <ul class="feature-list">
+                        <li>XGBoost & Random Forest models</li>
+                        <li>Prevalence → EIR conversion</li>
+                        <li>Case incidence predictions</li>
+                        <li>Pre-trained models included</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🧠 MINTe</h3>
+                    <p>Neural network time series forecasting using LSTM and GRU architectures for prevalence predictions.</p>
+                    <ul class="feature-list">
+                        <li>LSTM & GRU networks</li>
+                        <li>GPU acceleration</li>
+                        <li>Automatic hyperparameter tuning</li>
+                        <li>Time series specialists</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflow -->
+        <section class="section">
+            <div class="workflow">
+                <h2 class="section-title">How It Works</h2>
+                <div class="workflow-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <strong>Field Data</strong>
+                        <p>Prevalence & Coverage</p>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <strong>estiMINT</strong>
+                        <p>Convert to EIR</p>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <strong>MINTe</strong>
+                        <p>Neural Networks</p>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <strong>Results</strong>
+                        <p>Prevalence & Cases</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section class="section">
+            <h2 class="section-title">Quick Start</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">
+                Get predictions in seconds with just one function call
+            </p>
+            
+            <div class="code-section">
+                <pre><code><span class="comment"># Install MINTer (includes all dependencies)</span>
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
+
+<span class="comment"># Load the package</span>
+<span class="function">library</span>(MINTer)
+
+<span class="comment"># Run comprehensive scenarios with one function</span>
+results <- MINTer::<span class="function">run_mint_scenarios</span>(
+  <span class="comment"># Net combination settings</span>
+  <span class="parameter">res_use</span>        = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),   <span class="comment"># Current resistance</span>
+  <span class="parameter">res_future</span>     = <span class="function">c</span>(<span class="number">0.60</span>, <span class="number">0.75</span>, <span class="number">0.50</span>),   <span class="comment"># Future resistance</span>
+  <span class="parameter">py_only</span>        = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),   <span class="comment"># Pyrethroid-only nets</span>
+  <span class="parameter">py_pbo</span>         = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),   <span class="comment"># Pyrethroid-PBO nets</span>
+  <span class="parameter">py_pyrrole</span>     = <span class="function">c</span>(<span class="number">0.00</span>, <span class="number">0.05</span>, <span class="number">0.00</span>),   <span class="comment"># Pyrethroid-pyrrole</span>
+  <span class="parameter">py_ppf</span>         = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.10</span>, <span class="number">0.15</span>),   <span class="comment"># Pyrethroid-PPF</span>
+  
+  <span class="comment"># Malaria environment settings</span>
+  <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),   <span class="comment"># Current prevalence</span>
+  <span class="parameter">Q0_vec</span>         = <span class="function">c</span>(<span class="number">0.65</span>, <span class="number">0.75</span>, <span class="number">0.85</span>),   <span class="comment"># Human blood index</span>
+  <span class="parameter">phi_vec</span>        = <span class="function">c</span>(<span class="number">0.45</span>, <span class="number">0.65</span>, <span class="number">0.75</span>),   <span class="comment"># Bites in bed</span>
+  <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),            <span class="comment"># Seasonality</span>
+  <span class="parameter">routine_vec</span>    = <span class="function">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),            <span class="comment"># Routine distribution</span>
+  <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>),   <span class="comment"># Current IRS coverage</span>
+  <span class="parameter">irs_future_vec</span> = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.50</span>),   <span class="comment"># Future IRS coverage</span>
+  <span class="parameter">lsm_vec</span>        = <span class="function">c</span>(<span class="number">0.05</span>, <span class="number">0.45</span>, <span class="number">0.85</span>)    <span class="comment"># LSM coverage</span>
+)
+
+<span class="comment"># Save results</span>
+<span class="function">write.csv</span>(results$prevalence, <span class="string">"results_prevalence.csv"</span>, <span class="parameter">row.names</span> = FALSE)
+<span class="function">write.csv</span>(results$cases, <span class="string">"results_cases.csv"</span>, <span class="parameter">row.names</span> = FALSE)
+
+<span class="comment"># Create beautiful visualizations</span>
+<span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
+            </div>
+        </section>
+
+        <!-- Parameters -->
+        <section class="section">
+            <h2 class="section-title">Key Parameters</h2>
+            <div class="parameters-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Range</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>res_use</code></td>
+                            <td>Current pyrethroid resistance level</td>
+                            <td>0-1</td>
+                            <td>0.30 (30% resistance)</td>
+                        </tr>
+                        <tr>
+                            <td><code>res_future</code></td>
+                            <td>Projected resistance after intervention</td>
+                            <td>0-1</td>
+                            <td>0.60 (60% resistance)</td>
+                        </tr>
+                        <tr>
+                            <td><code>py_only</code></td>
+                            <td>Proportion of pyrethroid-only nets</td>
+                            <td>0-1</td>
+                            <td>0.40 (40% of nets)</td>
+                        </tr>
+                        <tr>
+                            <td><code>prev_vec</code></td>
+                            <td>Current malaria prevalence (PfPR2-10)</td>
+                            <td>0-1</td>
+                            <td>0.20 (20% prevalence)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Q0_vec</code></td>
+                            <td>Human blood index (anthropophagy)</td>
+                            <td>0.5-0.9</td>
+                            <td>0.65</td>
+                        </tr>
+                        <tr>
+                            <td><code>phi_vec</code></td>
+                            <td>Proportion of bites occurring in bed</td>
+                            <td>0-1</td>
+                            <td>0.45</td>
+                        </tr>
+                        <tr>
+                            <td><code>irs_vec</code></td>
+                            <td>Current IRS household coverage</td>
+                            <td>0-1</td>
+                            <td>0.10 (10% coverage)</td>
+                        </tr>
+                        <tr>
+                            <td><code>lsm_vec</code></td>
+                            <td>Larval source management coverage</td>
+                            <td>0-1</td>
+                            <td>0.05 (5% coverage)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <div class="cta">
+            <h2>Ready to Model Malaria Interventions?</h2>
+            <p style="margin-bottom: 2rem;">Join researchers worldwide using MINTverse for rapid intervention analysis</p>
+            <a href="https://github.com/CosmoNaught/MINTer" class="button">Get Started on GitHub</a>
+            <a href="https://github.com/CosmoNaught/MINTer/wiki" class="button">Read Documentation</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>MINTverse © 2024 | Built with ❤️ for malaria researchers</p>
+            <p style="margin-top: 1rem;">
+                <a href="https://github.com/CosmoNaught/MINTer" style="color: var(--primary); text-decoration: none;">MINTer</a> •
+                <a href="https://github.com/CosmoNaught/estiMINT" style="color: var(--primary); text-decoration: none;">estiMINT</a> •
+                <a href="https://github.com/CosmoNaught/minte" style="color: var(--primary); text-decoration: none;">MINTe</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
