@@ -31,9 +31,53 @@
             scroll-behavior: smooth;
         }
 
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
         .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 100px 0;
+            padding: 120px 0 80px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -76,28 +120,6 @@
             margin-bottom: 2rem;
         }
 
-        .badges {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-
-        .badge {
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .badge:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
         .section {
             padding: 80px 0;
         }
@@ -109,105 +131,134 @@
             color: var(--text-primary);
         }
 
-        .cards {
+        .quick-links {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-bottom: 4rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
         }
 
-        .card {
+        .quick-link {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .quick-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .quick-link h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-link p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Package Sections */
+        .package-section {
             background: var(--bg-card);
             border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            padding: 3rem;
+            margin: 2rem 0;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 12px rgba(0,0,0,0.4);
-            border-color: var(--primary);
+        .package-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .card h3 {
+        .package-title {
+            font-size: 2rem;
             color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
 
-        .card p {
+        .package-subtitle {
             color: var(--text-secondary);
-            margin-bottom: 1rem;
+            font-size: 1.1rem;
         }
 
-        .feature-list {
-            list-style: none;
-            margin-top: 1rem;
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .feature-list li {
-            padding: 0.5rem 0;
-            color: var(--text-secondary);
-            position: relative;
-            padding-left: 1.5rem;
+        .github-link:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
         }
 
-        .feature-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .feature-card h4 {
             color: var(--secondary);
-            font-weight: bold;
+            margin-bottom: 0.5rem;
         }
 
         .code-section {
             background: #0d1117;
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
             overflow-x: auto;
             border: 1px solid #30363d;
         }
 
         pre {
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             line-height: 1.5;
             color: #e6edf3;
         }
 
-        code {
-            font-family: inherit;
-        }
+        .comment { color: #8b949e; }
+        .function { color: #d2a8ff; }
+        .string { color: #a5d6ff; }
+        .number { color: #79c0ff; }
+        .parameter { color: #ffa657; }
 
-        .comment {
-            color: #8b949e;
-            font-style: italic;
-        }
-
-        .function {
-            color: #d2a8ff;
-        }
-
-        .string {
-            color: #a5d6ff;
-        }
-
-        .number {
-            color: #79c0ff;
-        }
-
-        .parameter {
-            color: #ffa657;
-        }
-
-        .workflow {
-            background: var(--bg-card);
+        .workflow-diagram {
+            background: var(--bg-dark);
             border-radius: 12px;
-            padding: 3rem;
-            margin: 3rem 0;
+            padding: 2rem;
+            margin: 2rem 0;
             text-align: center;
         }
 
@@ -215,103 +266,68 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 2rem;
+            gap: 1rem;
             margin: 2rem 0;
             flex-wrap: wrap;
         }
 
         .step {
-            background: var(--bg-dark);
-            padding: 1.5rem;
+            background: var(--bg-card);
+            padding: 1rem;
             border-radius: 8px;
-            min-width: 150px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .step:hover {
-            transform: scale(1.05);
-            background: #2d3748;
-        }
-
-        .step-number {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            min-width: 120px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .arrow {
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: var(--primary);
         }
 
-        .cta {
-            background: var(--gradient);
-            padding: 60px 0;
-            text-align: center;
-            margin-top: 4rem;
-            border-radius: 12px;
+        .installation-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
-        .cta h2 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .button {
-            display: inline-block;
-            background: white;
-            color: var(--primary-dark);
-            padding: 1rem 2rem;
+        .tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        .tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
         }
 
-        .parameters-table {
-            overflow-x: auto;
-            margin: 2rem 0;
-        }
-
-        table {
+        .spec-table {
             width: 100%;
+            margin: 1rem 0;
             border-collapse: collapse;
-            background: var(--bg-card);
-            border-radius: 8px;
-            overflow: hidden;
         }
 
-        th, td {
-            padding: 1rem;
+        .spec-table th, .spec-table td {
+            padding: 0.75rem;
             text-align: left;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        th {
-            background: rgba(255,255,255,0.05);
-            font-weight: 600;
+        .spec-table th {
             color: var(--primary);
+            font-weight: 600;
         }
 
-        tr:hover {
-            background: rgba(255,255,255,0.02);
+        .alert {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
         }
 
         .footer {
@@ -319,231 +335,384 @@
             padding: 3rem 0;
             color: var(--text-secondary);
             border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 4rem;
         }
 
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
-            .section-title { font-size: 2rem; }
-            .cards { grid-template-columns: 1fr; }
+            .nav-links { gap: 1rem; font-size: 0.9rem; }
+            .package-header { flex-direction: column; }
             .workflow-steps { flex-direction: column; }
             .arrow { transform: rotate(90deg); }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">MINTverse</div>
+            <div class="nav-links">
+                <a href="#overview">Overview</a>
+                <a href="#quickstart">Quick Start</a>
+                <a href="#minter">MINTer</a>
+                <a href="#estimint">estiMINT</a>
+                <a href="#minte">MINTe</a>
+                <a href="https://github.com/CosmoNaught" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
     <!-- Hero Section -->
     <div class="hero">
         <div class="container">
             <h1>MINTverse</h1>
-            <p class="tagline">Fast, lightweight malaria intervention modeling for R</p>
-            <div class="badges">
-                <div class="badge">🚀 Lightning Fast</div>
-                <div class="badge">🧠 Neural Networks</div>
-                <div class="badge">📊 XGBoost & Random Forest</div>
-                <div class="badge">🔬 Research-Ready</div>
+            <p class="tagline">Malaria INTervention emulation ecosystem in R</p>
+            <p style="font-size: 1.1rem; margin-top: 2rem; opacity: 0.9;">
+                Fast, lightweight emulation of malariasimulation models using machine learning
+            </p>
+            
+            <div class="quick-links">
+                <a href="#minter" class="quick-link">
+                    <h3>🎯 MINTer</h3>
+                    <p>Main orchestration package</p>
+                </a>
+                <a href="#estimint" class="quick-link">
+                    <h3>📈 estiMINT</h3>
+                    <p>Prevalence → EIR conversion</p>
+                </a>
+                <a href="#minte" class="quick-link">
+                    <h3>🧠 MINTe</h3>
+                    <p>Neural network predictions</p>
+                </a>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="container">
-        <!-- Package Overview -->
-        <section class="section">
-            <h2 class="section-title">The MINTverse Ecosystem</h2>
-            <div class="cards">
-                <div class="card">
-                    <h3>🎯 MINTer</h3>
-                    <p>The main R package that orchestrates the entire modeling pipeline. Provides the simple <code>run_mint_scenarios()</code> function for end-to-end analysis.</p>
-                    <ul class="feature-list">
-                        <li>One-function workflow</li>
-                        <li>Handles bed net combinations</li>
-                        <li>Projects future interventions</li>
-                        <li>Automatic visualization</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h3>📈 estiMINT</h3>
-                    <p>Converts field prevalence data into EIR estimates and predicts annual case incidence using machine learning.</p>
-                    <ul class="feature-list">
-                        <li>XGBoost & Random Forest models</li>
-                        <li>Prevalence → EIR conversion</li>
-                        <li>Case incidence predictions</li>
-                        <li>Pre-trained models included</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h3>🧠 MINTe</h3>
-                    <p>Neural network time series forecasting using LSTM and GRU architectures for prevalence predictions.</p>
-                    <ul class="feature-list">
-                        <li>LSTM & GRU networks</li>
-                        <li>GPU acceleration</li>
-                        <li>Automatic hyperparameter tuning</li>
-                        <li>Time series specialists</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Workflow -->
-        <section class="section">
-            <div class="workflow">
-                <h2 class="section-title">How It Works</h2>
-                <div class="workflow-steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <strong>Field Data</strong>
-                        <p>Prevalence & Coverage</p>
-                    </div>
-                    <div class="arrow">→</div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <strong>estiMINT</strong>
-                        <p>Convert to EIR</p>
-                    </div>
-                    <div class="arrow">→</div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <strong>MINTe</strong>
-                        <p>Neural Networks</p>
-                    </div>
-                    <div class="arrow">→</div>
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <strong>Results</strong>
-                        <p>Prevalence & Cases</p>
+        <!-- Overview Section -->
+        <section id="overview" class="section">
+            <h2 class="section-title">Why MINTverse?</h2>
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                    Traditional malaria simulation models can take hours or days to run complex scenarios. 
+                    MINTverse provides instant predictions using pre-trained machine learning models, 
+                    enabling rapid intervention planning and what-if analysis.
+                </p>
+                
+                <div class="workflow-diagram">
+                    <h3>Complete Pipeline in One Function</h3>
+                    <div class="workflow-steps">
+                        <div class="step">
+                            <strong>Field Data</strong><br>
+                            <small>Prevalence & Coverage</small>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="step">
+                            <strong>EIR Estimation</strong><br>
+                            <small>XGBoost/RF</small>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="step">
+                            <strong>Predictions</strong><br>
+                            <small>LSTM/GRU</small>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="step">
+                            <strong>Results</strong><br>
+                            <small>Prevalence & Cases</small>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Quick Start -->
-        <section class="section">
+        <!-- Quick Start Section -->
+        <section id="quickstart" class="section">
             <h2 class="section-title">Quick Start</h2>
-            <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">
-                Get predictions in seconds with just one function call
-            </p>
-            
-            <div class="code-section">
-                <pre><code><span class="comment"># Install MINTer (includes all dependencies)</span>
+            <div style="max-width: 900px; margin: 0 auto;">
+                <p style="text-align: center; margin-bottom: 2rem;">
+                    Get predictions in seconds with just one function call
+                </p>
+                
+                <div class="code-section">
+                    <pre><code><span class="comment"># Install MINTer (automatically installs all dependencies)</span>
 <span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
 
 <span class="comment"># Load the package</span>
 <span class="function">library</span>(MINTer)
 
 <span class="comment"># Run comprehensive scenarios with one function</span>
-results <- MINTer::<span class="function">run_mint_scenarios</span>(
-  <span class="comment"># Net combination settings</span>
-  <span class="parameter">res_use</span>        = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),   <span class="comment"># Current resistance</span>
-  <span class="parameter">res_future</span>     = <span class="function">c</span>(<span class="number">0.60</span>, <span class="number">0.75</span>, <span class="number">0.50</span>),   <span class="comment"># Future resistance</span>
-  <span class="parameter">py_only</span>        = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),   <span class="comment"># Pyrethroid-only nets</span>
-  <span class="parameter">py_pbo</span>         = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),   <span class="comment"># Pyrethroid-PBO nets</span>
-  <span class="parameter">py_pyrrole</span>     = <span class="function">c</span>(<span class="number">0.00</span>, <span class="number">0.05</span>, <span class="number">0.00</span>),   <span class="comment"># Pyrethroid-pyrrole</span>
-  <span class="parameter">py_ppf</span>         = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.10</span>, <span class="number">0.15</span>),   <span class="comment"># Pyrethroid-PPF</span>
+results <- <span class="function">run_mint_scenarios</span>(
+  <span class="comment"># Net type distribution (must sum to ≤1)</span>
+  <span class="parameter">res_use</span>        = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),
+  <span class="parameter">py_only</span>        = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),
+  <span class="parameter">py_pbo</span>         = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),
   
-  <span class="comment"># Malaria environment settings</span>
-  <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),   <span class="comment"># Current prevalence</span>
-  <span class="parameter">Q0_vec</span>         = <span class="function">c</span>(<span class="number">0.65</span>, <span class="number">0.75</span>, <span class="number">0.85</span>),   <span class="comment"># Human blood index</span>
-  <span class="parameter">phi_vec</span>        = <span class="function">c</span>(<span class="number">0.45</span>, <span class="number">0.65</span>, <span class="number">0.75</span>),   <span class="comment"># Bites in bed</span>
-  <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),            <span class="comment"># Seasonality</span>
-  <span class="parameter">routine_vec</span>    = <span class="function">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),            <span class="comment"># Routine distribution</span>
-  <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>),   <span class="comment"># Current IRS coverage</span>
-  <span class="parameter">irs_future_vec</span> = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.50</span>),   <span class="comment"># Future IRS coverage</span>
-  <span class="parameter">lsm_vec</span>        = <span class="function">c</span>(<span class="number">0.05</span>, <span class="number">0.45</span>, <span class="number">0.85</span>)    <span class="comment"># LSM coverage</span>
+  <span class="comment"># Transmission settings</span>
+  <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),
+  <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),
+  
+  <span class="comment"># Coverage levels</span>
+  <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>)
+  <span class="comment"># ... see documentation for all parameters</span>
 )
 
-<span class="comment"># Save results</span>
-<span class="function">write.csv</span>(results$prevalence, <span class="string">"results_prevalence.csv"</span>, <span class="parameter">row.names</span> = FALSE)
-<span class="function">write.csv</span>(results$cases, <span class="string">"results_cases.csv"</span>, <span class="parameter">row.names</span> = FALSE)
-
-<span class="comment"># Create beautiful visualizations</span>
+<span class="comment"># Results include both prevalence and case predictions</span>
 <span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
+                </div>
             </div>
         </section>
 
-        <!-- Parameters -->
-        <section class="section">
-            <h2 class="section-title">Key Parameters</h2>
-            <div class="parameters-table">
+        <!-- MINTer Section -->
+        <section id="minter" class="package-section">
+            <div class="package-header">
+                <div>
+                    <h2 class="package-title">MINTer</h2>
+                    <p class="package-subtitle">Malaria INTervention emulator in R</p>
+                </div>
+                <a href="https://github.com/CosmoNaught/MINTer" target="_blank" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+
+            <p style="margin-bottom: 2rem;">
+                MINTer is the main orchestration package that brings together the entire MINTverse ecosystem. 
+                It provides a simple, unified interface for running complex malaria intervention scenarios.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>✨ Direct Emulation</h4>
+                    <p>Predict prevalence or clinical cases in seconds using pre-trained neural networks</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔄 Full Pipeline Mode</h4>
+                    <p>Run malariasimulation, store in DuckDB, then emulate for benchmarking</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🐍 Python-Free</h4>
+                    <p>Python/Torch configured automatically via reticulate - no manual setup</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔗 Integration</h4>
+                    <p>Seamlessly integrates estiMINT for prevalence→EIR conversion</p>
+                </div>
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--primary);">Key Functions</h3>
+            
+            <div class="spec-table">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            <th>Description</th>
-                            <th>Range</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>res_use</code></td>
-                            <td>Current pyrethroid resistance level</td>
-                            <td>0-1</td>
-                            <td>0.30 (30% resistance)</td>
-                        </tr>
-                        <tr>
-                            <td><code>res_future</code></td>
-                            <td>Projected resistance after intervention</td>
-                            <td>0-1</td>
-                            <td>0.60 (60% resistance)</td>
-                        </tr>
-                        <tr>
-                            <td><code>py_only</code></td>
-                            <td>Proportion of pyrethroid-only nets</td>
-                            <td>0-1</td>
-                            <td>0.40 (40% of nets)</td>
-                        </tr>
-                        <tr>
-                            <td><code>prev_vec</code></td>
-                            <td>Current malaria prevalence (PfPR2-10)</td>
-                            <td>0-1</td>
-                            <td>0.20 (20% prevalence)</td>
-                        </tr>
-                        <tr>
-                            <td><code>Q0_vec</code></td>
-                            <td>Human blood index (anthropophagy)</td>
-                            <td>0.5-0.9</td>
-                            <td>0.65</td>
-                        </tr>
-                        <tr>
-                            <td><code>phi_vec</code></td>
-                            <td>Proportion of bites occurring in bed</td>
-                            <td>0-1</td>
-                            <td>0.45</td>
-                        </tr>
-                        <tr>
-                            <td><code>irs_vec</code></td>
-                            <td>Current IRS household coverage</td>
-                            <td>0-1</td>
-                            <td>0.10 (10% coverage)</td>
-                        </tr>
-                        <tr>
-                            <td><code>lsm_vec</code></td>
-                            <td>Larval source management coverage</td>
-                            <td>0-1</td>
-                            <td>0.05 (5% coverage)</td>
-                        </tr>
-                    </tbody>
+                    <tr>
+                        <th>Function</th>
+                        <th>Purpose</th>
+                        <th>Returns</th>
+                    </tr>
+                    <tr>
+                        <td><code>run_mint_scenarios()</code></td>
+                        <td>Main function - runs complete analysis pipeline</td>
+                        <td>List with prevalence and case predictions</td>
+                    </tr>
+                    <tr>
+                        <td><code>run_malaria_emulator()</code></td>
+                        <td>Direct neural network predictions</td>
+                        <td>Data frame with time series predictions</td>
+                    </tr>
+                    <tr>
+                        <td><code>create_scenarios()</code></td>
+                        <td>Create intervention scenario specifications</td>
+                        <td>Scenario data frame</td>
+                    </tr>
+                    <tr>
+                        <td><code>create_scenario_plots()</code></td>
+                        <td>Generate publication-ready visualizations</td>
+                        <td>ggplot2 figures saved to disk</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--primary);">Installation</h3>
+            <div class="code-section">
+                <pre><code><span class="comment"># Install from GitHub</span>
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
+
+<span class="comment"># Optional: Install companion packages</span>
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/segMINT"</span>)  <span class="comment"># Database helper</span>
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/estiMINT"</span>) <span class="comment"># Auto-installed with MINTer</span></code></pre>
+            </div>
+        </section>
+
+        <!-- estiMINT Section -->
+        <section id="estimint" class="package-section">
+            <div class="package-header">
+                <div>
+                    <h2 class="package-title">estiMINT</h2>
+                    <p class="package-subtitle">Machine learning models for EIR estimation and case prediction</p>
+                </div>
+                <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+
+            <p style="margin-bottom: 2rem;">
+                estiMINT provides fast, transparent machine learning models for converting field prevalence data 
+                into entomological inoculation rates (EIR) and predicting annual case incidence.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎯 EIR Estimation</h4>
+                    <p>Convert prevalence + coverage data into initial EIR values</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Case Prediction</h4>
+                    <p>Project annual cases per 1000 population for years 3-6</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🚀 Pre-trained Models</h4>
+                    <p>Ships with validated XGBoost and Random Forest models</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔧 Customizable</h4>
+                    <p>Train your own models on simulation outputs</p>
+                </div>
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--primary);">Model Performance</h3>
+            <div class="alert">
+                <strong>Validation Metrics (held-out test data):</strong><br>
+                • EIR models: RMSE < 15 bites/person/year (R² > 0.95)<br>
+                • Case models: RMSE < 25 cases/1000/year (R² > 0.95)
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--primary);">Example Usage</h3>
+            <div class="code-section">
+                <pre><code><span class="comment"># Load pre-trained models</span>
+pretrained <- <span class="function">load_pretrained_eir_models</span>()
+
+<span class="comment"># Estimate EIR from field data</span>
+field_data <- <span class="function">data.frame</span>(
+  <span class="parameter">prevalence</span> = <span class="number">0.35</span>,
+  <span class="parameter">itn_use</span>    = <span class="number">0.40</span>,
+  <span class="parameter">irs_use</span>    = <span class="number">0.15</span>
+  <span class="comment"># ... other parameters</span>
+)
+
+eir_estimate <- <span class="function">predict_initial_eir</span>(
+  pretrained$ensemble, 
+  field_data, 
+  pretrained$feature_cols
+)</code></pre>
+            </div>
+        </section>
+
+        <!-- MINTe Section -->
+        <section id="minte" class="package-section">
+            <div class="package-header">
+                <div>
+                    <h2 class="package-title">MINTe</h2>
+                    <p class="package-subtitle">Neural network time series forecasting</p>
+                </div>
+                <a href="https://github.com/CosmoNaught/minte" target="_blank" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+
+            <p style="margin-bottom: 2rem;">
+                MINTe is a Python package providing RNN models (GRU and LSTM) for time series forecasting 
+                of malaria prevalence. It features automatic hyperparameter tuning and GPU acceleration.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🧠 Neural Networks</h4>
+                    <p>LSTM and GRU architectures optimized for malaria time series</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ GPU Support</h4>
+                    <p>CUDA acceleration for fast training and inference</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔬 Hyperparameter Tuning</h4>
+                    <p>Automatic optimization with Optuna</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📈 Rich Metrics</h4>
+                    <p>Comprehensive evaluation with R², RMSE, MAE</p>
+                </div>
+            </div>
+
+            <div class="alert" style="margin: 2rem 0;">
+                <strong>Note:</strong> MINTe is automatically called by MINTer when needed. 
+                Python dependencies are installed automatically via reticulate on first use.
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--primary);">Architecture Details</h3>
+            <div class="spec-table">
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Input Features</td>
+                        <td>30-day rolling windows of intervention parameters</td>
+                    </tr>
+                    <tr>
+                        <td>LSTM Layers</td>
+                        <td>2 layers, 128-256 hidden units, dropout 0.2</td>
+                    </tr>
+                    <tr>
+                        <td>GRU Layers</td>
+                        <td>2 layers, 128-256 hidden units, dropout 0.2</td>
+                    </tr>
+                    <tr>
+                        <td>Training</td>
+                        <td>Adam optimizer, early stopping, learning rate scheduling</td>
+                    </tr>
                 </table>
             </div>
         </section>
 
-        <!-- Call to Action -->
-        <div class="cta">
-            <h2>Ready to Model Malaria Interventions?</h2>
-            <p style="margin-bottom: 2rem;">Join researchers worldwide using MINTverse for rapid intervention analysis</p>
-            <a href="https://github.com/CosmoNaught/MINTer" class="button">Get Started on GitHub</a>
-            <a href="https://github.com/CosmoNaught/MINTer/wiki" class="button">Read Documentation</a>
-        </div>
+        <!-- Additional Resources -->
+        <section class="section">
+            <h2 class="section-title">Resources & Support</h2>
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <p style="margin-bottom: 2rem;">
+                    MINTverse is actively developed and maintained. For questions, bug reports, or contributions:
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">
+                        Report Issues
+                    </a>
+                    <a href="https://github.com/CosmoNaught/MINTer/wiki" class="github-link">
+                        Documentation Wiki
+                    </a>
+                    <a href="mailto:your-email@example.com" class="github-link">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>MINTverse © 2024 | Built with ❤️ for malaria researchers</p>
-            <p style="margin-top: 1rem;">
-                <a href="https://github.com/CosmoNaught/MINTer" style="color: var(--primary); text-decoration: none;">MINTer</a> •
-                <a href="https://github.com/CosmoNaught/estiMINT" style="color: var(--primary); text-decoration: none;">estiMINT</a> •
-                <a href="https://github.com/CosmoNaught/minte" style="color: var(--primary); text-decoration: none;">MINTe</a>
+            <p>MINTverse © 2024 | Built for malaria intervention research</p>
+            <p style="margin-top: 0.5rem; opacity: 0.7;">
+                Fast emulation of malariasimulation models using machine learning
             </p>
         </div>
     </footer>
