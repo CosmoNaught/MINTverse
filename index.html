@@ -937,37 +937,83 @@ case_results &lt;- <span class="function">build_case_models</span>(
                 <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.8rem">
                     <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">Report Issues</a>
                     <a href="https://github.com/CosmoNaught/MINTer/wiki" class="github-link">Documentation Wiki</a>
-                    <a href="mailto:your-email@example.com" class="github-link">Contact</a>
+                    <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">Contact</a>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="footer">
+    <!-- ABOUT & CONTACT -->
+    <section id="contact" class="section">
+        <h2 class="section-title">About me & contact</h2>
         <div class="container">
-            <p>MINTverse © 2025 • Built for malaria intervention research</p>
-            <p style="opacity:.75;margin-top:.3rem">Fast emulation of malariasimulation models using machine learning</p>
+          <div class="feature-grid">
+            <div class="feature-card">
+                <h3 style="margin-bottom:.4rem">About</h3>
+                <p><strong>Cosmo Santoni</strong> — applied mathematics & machine learning researcher at Imperial College London. I build decision-ready epidemic models that turn complex simulations into fast, reliable tools for policy and program delivery.</p>
+                
+                <p>My work has informed the UK government’s COVID-19 response (SPI-M-O/SAGE) and Global Fund malaria strategies. I design PyTorch/R/Julia emulators that <em>dramatically reduce</em> compute and time-to-insight for malaria programmes, and I ship production-quality research software with strong DevOps, testing, and reproducibility standards.</p>
+                
+                <p class="muted">PhD (Applied Mathematics), Imperial College London — Deep learning surrogate modelling & graph neural networks for infectious disease (supervisors: Oliver J. Watson, Thomas C. Churcher).</p>
+                
+                <div class="feature-card" style="margin-top:.75rem">
+                  <h4 style="margin-bottom:.35rem">What I bring</h4>
+                  <ul style="margin-left:1rem">
+                    <li><strong>Policy impact:</strong> Contributor to government-used reports; co-author on <em>Lancet Public Health</em> and <em>Nature Communications</em>; talks/workshops with MSF, WHO, Public Health Canada, data.org.</li>
+                    <li><strong>Technical depth:</strong> PyTorch, TensorFlow, RStan, Julia SciML; Bayesian inference & ML at scale (CPU/GPU, HPC); data engineering with DuckDB; Python/R/Julia; CI, tests, coverage.</li>
+                    <li><strong>Product mindset:</strong> Creator of the MINTverse (MINTer, estiMINT, MINTe) for dashboard-ready outputs and reproducible pipelines used in real policy workflows.</li>
+                    <li><strong>Engineering leadership:</strong> Set team OSS standards, code review practices, packaging, and release governance; teach programming, testing, and I/O validation.</li>
+                  </ul>
+                </div>
+                
+                <p class="muted" style="margin-top:.5rem">
+                Selected recognition: SPI-M-O Award for Modelling & Data Support (on behalf of SAGE). 
+                Publications include <em>Lancet Public Health</em>, <em>Nature Communications</em>; additional work under review.
+                </p>
+                
+            </div>
+            <div class="feature-card">
+              <h3 style="margin-bottom:.4rem">Contact</h3>
+              <p>Email: <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
+                <a href="mailto:santonicosmo@gmail.com" class="github-link">santonicosmo@gmail.com</a></p>
+              <p>GitHub: <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener" class="github-link">CosmoNaught</a></p>
+              <p>LinkedIn: <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener" class="github-link">Cosmo Santoni</a></p>
+              <p><a class="github-link" href="YOUR-CV.pdf" target="_blank" rel="noopener">Download CV</a></p>
+            </div>
+          </div>
         </div>
-    </footer>
-
-    <!-- Tiny JS: copy buttons -->
-    <script>
+      </section>
+  
+      <footer class="footer">
+        <div class="container">
+          <p>MINTverse © 2025 • Built for malaria intervention research</p>
+          <p style="opacity:.75;margin-top:.3rem">Fast emulation of malariasimulation models using machine learning</p>
+        </div>
+      </footer>
+  
+      <!-- Copy buttons (accessible) -->
+      <div id="copy-status" class="sr-only" aria-live="polite"></div>
+      <script>
         (function(){
-            document.querySelectorAll('.code-section').forEach(sec=>{
-                const btn = sec.querySelector('.copy-btn');
-                const code = sec.querySelector('pre');
-                if(btn && code){
-                    btn.addEventListener('click', async ()=>{
-                        try{
-                            await navigator.clipboard.writeText(code.innerText);
-                            const old = btn.textContent;
-                            btn.textContent = 'Copied!';
-                            setTimeout(()=>btn.textContent = old, 1500);
-                        }catch(e){ btn.textContent = 'Failed'; }
-                    });
-                }
+          // Make the "Copy" buttons work for all .code-section blocks
+          document.querySelectorAll('.copy-btn').forEach(btn=>{
+            btn.addEventListener('click', async ()=>{
+              const wrapper = btn.closest('.code-section');
+              const codeEl = wrapper ? wrapper.querySelector('pre, code') : null;
+              if(!codeEl) return;
+              try{
+                await navigator.clipboard.writeText(codeEl.innerText.trim());
+                const prev = btn.textContent;
+                btn.textContent = 'Copied!';
+                document.getElementById('copy-status').textContent = 'Code copied to clipboard';
+                setTimeout(()=>{ btn.textContent = prev; }, 1500);
+              }catch(e){
+                btn.textContent = 'Failed';
+              }
             });
+          });
         })();
-    </script>
-</body>
-</html>
+      </script>
+    </body>
+  </html>
+  
