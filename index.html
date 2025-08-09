@@ -1,570 +1,973 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MINTverse — Fast Malaria Intervention Modeling</title>
-  <meta name="description" content="MINTverse is an ML‑powered ecosystem for rapid malaria intervention modeling. Includes MINTer (R), estiMINT (R), and MINTe (Python)." />
-  <meta name="author" content="Cosmo" />
-  <link rel="canonical" href="https://your-domain.example/mintverse" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MINTverse - Fast Malaria Intervention Modeling</title>
+    <meta name="description" content="MINTverse: a dashboard-ready, machine-learning suite for fast malaria intervention modeling—MINTer (R orchestration), estiMINT (EIR & cases ML), and MINTe (Python RNNs).">
+    <style>
+        :root{
+            --primary:#2563eb;
+            --primary-dark:#1e40af;
+            --secondary:#10b981;
+            --bg-dark:#111827;
+            --bg-card:#1f2937;
+            --text-primary:#f9fafb;
+            --text-secondary:#d1d5db;
+            --accent:#8b5cf6;
+            --muted:#6b7280;
+            --ring: rgba(37,99,235,.45);
+            --gradient: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            --glass: rgba(255,255,255,0.08);
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+            background:var(--bg-dark);
+            color:var(--text-primary);
+            line-height:1.6;
+            scroll-behavior:smooth;
+        }
 
-  <!-- Open Graph / Twitter -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="MINTverse — Fast Malaria Intervention Modeling" />
-  <meta property="og:description" content="ML emulators for malaria: prevalence → EIR, case forecasts, and full pipelines in R & Python." />
-  <meta property="og:image" content="https://your-domain.example/og-mintverse.png" />
-  <meta name="twitter:card" content="summary_large_image" />
+        /* Nav */
+        nav{
+            position:fixed;inset:0 0 auto 0;z-index:1000;
+            background:rgba(17,24,39,.9);backdrop-filter:blur(10px);
+            border-bottom:1px solid rgba(255,255,255,.08);
+            padding:.85rem 0;
+        }
+        .nav-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+        .nav-logo{font-weight:800;font-size:1.25rem;letter-spacing:.2px;color:var(--primary)}
+        .nav-links{display:flex;gap:1.4rem;align-items:center}
+        .nav-links a{color:var(--text-primary);text-decoration:none;opacity:.9;transition:.25s}
+        .nav-links a:hover{color:var(--primary)}
 
-  <style>
-    :root {
-      --primary: #3b82f6;           /* blue-500 */
-      --primary-600: #2563eb;       /* blue-600 */
-      --primary-700: #1d4ed8;       /* blue-700 */
-      --secondary: #10b981;         /* emerald-500 */
-      --accent: #a78bfa;            /* violet-400 */
-      --ring: rgba(59, 130, 246, .35);
+        /* Hero */
+        .hero{
+            background:var(--gradient);padding:120px 0 80px;position:relative;overflow:hidden;text-align:center;
+        }
+        .hero::before{
+            content:"";position:absolute;inset:0;
+            background:
+              radial-gradient(600px 280px at 50% -10%,rgba(255,255,255,.22),transparent 60%),
+              url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><g fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"><circle cx="600" cy="300" r="120"/><circle cx="600" cy="300" r="240"/><circle cx="600" cy="300" r="360"/></g></svg>') center/cover no-repeat;
+            animation:pulse 5s ease-in-out infinite;
+        }
+        @keyframes pulse{0%,100%{opacity:.65}50%{opacity:.35}}
+        .container{max-width:1200px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+        h1{font-size:3.25rem;margin-bottom:.6rem;font-weight:900;text-shadow:2px 2px 4px rgba(0,0,0,.25)}
+        .tagline{font-size:1.15rem;opacity:.95}
+        .quick-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:2rem 0 0}
+        .quick-link{
+            display:block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+            border-radius:14px;padding:1.1rem 1.2rem;text-decoration:none;color:#fff;transition:.25s
+        }
+        .quick-link:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(0,0,0,.28)}
 
-      --bg: #0b1220;                /* deep navy */
-      --bg-soft: #111827;           /* gray-900 */
-      --bg-elev: #1f2937;           /* gray-800 */
-      --text: #f9fafb;              /* gray-50 */
-      --muted: #cbd5e1;             /* slate-300 */
+        /* Sections */
+        .section{padding:80px 0}
+        .section-title{text-align:center;font-size:2.25rem;margin-bottom:2.2rem}
+        .package-section{
+            background:var(--bg-card);border-radius:14px;padding:2.5rem;border:1px solid rgba(255,255,255,.08);margin:2rem 0
+        }
+        .package-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+        .package-title{font-size:2rem;color:var(--primary);font-weight:800}
+        .package-subtitle{color:var(--text-secondary)}
+        .github-link{
+            display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);
+            border-radius:10px;padding:.55rem 1rem;text-decoration:none;color:var(--text-primary);transition:.25s
+        }
+        .github-link:hover{background:var(--primary);transform:translateY(-2px)}
+        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0 1.6rem}
+        .feature-card{background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.1rem}
+        .feature-card h4{color:var(--secondary);margin-bottom:.35rem}
 
-      --shadow-1: 0 10px 25px rgba(0,0,0,.35);
-      --shadow-2: 0 20px 35px rgba(0,0,0,.4);
-      --radius: 14px;
-    }
+        /* Code blocks + copy */
+        .code-section{
+            position:relative;background:#0d1117;border-radius:12px;padding:1rem 1rem 1.1rem;margin:1.1rem 0;overflow:auto;border:1px solid #30363d
+        }
+        pre{font-family:Consolas,Monaco,'Courier New',monospace;font-size:.92rem;line-height:1.5;color:#e6edf3}
+        .comment{color:#8b949e}.function{color:#d2a8ff}.string{color:#a5d6ff}.number{color:#79c0ff}.parameter{color:#ffa657}
+        .copy-btn{
+            position:absolute;top:.6rem;right:.6rem;border:none;border-radius:8px;padding:.4rem .6rem;
+            background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:.8rem;transition:.2s
+        }
+        .copy-btn:hover{background:rgba(255,255,255,.16)}
+        .badge{
+            display:inline-block;padding:.18rem .5rem;border-radius:999px;font-size:.75rem;
+            background:rgba(37,99,235,.18);border:1px solid rgba(37,99,235,.35);color:#dbeafe
+        }
+        .stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;margin:1rem 0 1.25rem}
+        .stat{background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem}
+        .stat .value{font-size:1.35rem;font-weight:800}
+        .alert{
+            background:rgba(139,92,246,.09);border:1px solid var(--accent);border-radius:12px;padding:1rem;margin:1.2rem 0
+        }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
+        /* New PRO Workflow (replaces the old flat boxes) */
+        .workflow-diagram{
+            background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+            border:1px solid rgba(255,255,255,.09);
+            border-radius:16px;padding:1.6rem;margin:2rem 0;position:relative;overflow:hidden;
+        }
+        .flow-rail{
+            display:flex;gap:1.2rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:.5rem
+        }
+        .flow-connector{
+            width:64px;height:4px;border-radius:999px;background:linear-gradient(90deg,rgba(37,99,235,.7),rgba(139,92,246,.7));
+            box-shadow:0 0 18px var(--ring)
+        }
+        .flow-step{
+            min-width:170px;background:radial-gradient(240px 120px at 50% 0, rgba(37,99,235,.15),transparent),
+                       var(--bg-card);
+            border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1rem;text-align:left;
+            box-shadow:0 10px 30px rgba(0,0,0,.25);
+        }
+        .flow-icon{
+            width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:.5rem;
+            background:linear-gradient(135deg, rgba(37,99,235,.85), rgba(139,92,246,.85));
+            box-shadow:0 6px 16px rgba(37,99,235,.3), inset 0 0 0 1px rgba(255,255,255,.18)
+        }
+        .flow-step h4{margin-bottom:.2rem}
+        .flow-step small{color:var(--text-secondary)}
 
-    /* --- Layout & Containers --- */
-    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
-    .section { padding: 88px 0; }
-    .section-tight { padding: 56px 0; }
+        /* EstiMINT extras */
+        .pill-row{display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0 .9rem}
+        .pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.25rem .55rem;font-size:.78rem}
+        .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+        .mini-table{width:100%;border-collapse:collapse;font-size:.95rem;margin-top:.6rem}
+        .mini-table th,.mini-table td{border-bottom:1px solid rgba(255,255,255,.1);padding:.55rem .4rem;text-align:left}
+        .mini-table th{color:#bfdbfe}
 
-    /* --- Top Nav --- */
-    .skip { position: absolute; left: -999px; top: -999px; }
-    .skip:focus { left: 12px; top: 12px; background: #fff; color:#111; padding: 8px 12px; border-radius: 6px; }
+        .footer{text-align:center;padding:3rem 0;color:var(--text-secondary);border-top:1px solid rgba(255,255,255,.08);margin-top:3rem}
 
-    nav {
-      position: sticky; top: 0; z-index: 50;
-      backdrop-filter: blur(8px);
-      background: rgba(11, 18, 32, .7);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .nav-wrap { display:flex; align-items:center; justify-content:space-between; padding: 14px 0; }
-    .brand { display:flex; gap:12px; align-items:center; font-weight:800; letter-spacing:.4px; }
-    .brand .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--accent)); box-shadow: var(--shadow-1); }
-    .brand span { font-size: 1.05rem; }
-    .nav-links { display:flex; gap: 18px; align-items:center; }
-    .nav-links a { color: var(--text); text-decoration:none; opacity:.85; font-size:.95rem; }
-    .nav-links a:hover { opacity: 1; }
-    .btn { display:inline-flex; align-items:center; gap:10px; text-decoration:none; padding:10px 14px; border-radius: 999px; font-weight: 600; border:1px solid rgba(255,255,255,.1); }
-    .btn.primary { background: var(--primary-600); border-color: transparent; box-shadow: 0 6px 14px rgba(37, 99, 235, .35); }
-    .btn.primary:hover { background: var(--primary-700); }
-    .btn.ghost:hover { border-color: rgba(255,255,255,.25); }
-    .theme-toggle { cursor:pointer; border-radius: 999px; padding: 8px 10px; border:1px solid rgba(255,255,255,.12); background: transparent; color: var(--text); }
-
-    /* --- Hero --- */
-    .hero {
-      position: relative; overflow:hidden; background: radial-gradient(1200px 600px at 70% -10%, rgba(167,139,250,.22), transparent),
-                                         radial-gradient(1200px 700px at -10% -10%, rgba(59,130,246,.18), transparent);
-    }
-    .hero:before {
-      content:""; position:absolute; inset:0; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400"><g fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"><circle cx="400" cy="200" r="80"/><circle cx="400" cy="200" r="160"/><circle cx="400" cy="200" r="240"/></g></svg>') center/cover; opacity:.7; animation: pulse 6s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:.25} }
-
-    .hero-grid { display:grid; grid-template-columns: 1.2fr .8fr; gap: 28px; align-items:center; }
-    .eyebrow { color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-size: .8rem; }
-    h1.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.1; margin: 10px 0 14px; font-weight: 900; }
-    .hero-sub { font-size: clamp(1.05rem, 1.7vw, 1.2rem); color: #e5e7eb; opacity:.95; }
-    .cta-row { margin-top: 22px; display:flex; gap:12px; flex-wrap: wrap; }
-    .hero-card { background: rgba(17, 24, 39, .85); border:1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-1); }
-
-    /* --- Pill stats --- */
-    .pill-row { display:flex; gap: 10px; flex-wrap:wrap; margin-top: 16px; }
-    .pill { font-size: .82rem; border-radius: 999px; padding:6px 10px; border:1px solid rgba(255,255,255,.14); color:#e5e7eb; }
-
-    /* --- Cards & grids --- */
-    .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    .grid-2 { display:grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .card { background: var(--bg-elev); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-1); }
-    .card h3 { margin: 0 0 10px; font-size: 1.25rem; }
-
-    .kicker { color: var(--muted); font-weight:600; letter-spacing:.04em; text-transform: uppercase; font-size:.8rem; }
-    .section-title { font-size: clamp(1.6rem, 2.6vw, 2rem); margin: 0 0 8px; font-weight: 800; }
-    .section-desc { color: #d1d5db; margin: 0 0 22px; }
-
-    /* --- Code blocks --- */
-    .code { position: relative; background: #0d1117; border:1px solid #2f3540; border-radius: 12px; padding: 14px; overflow:auto; }
-    .code pre { margin:0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: .92rem; color: #e6edf3; line-height: 1.55; }
-    .copy { position:absolute; top: 10px; right: 10px; background: #111827; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius: 8px; cursor:pointer; }
-    .copy:hover { border-color: rgba(255,255,255,.28); }
-
-    /* --- Tables --- */
-    table { width:100%; border-collapse: collapse; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08); text-align:left; }
-    th { color: #bfdbfe; font-weight: 700; }
-
-    /* --- Badges --- */
-    .badge { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid rgba(255,255,255,.15); border-radius: 999px; font-size:.85rem; }
-
-    /* --- Workflow --- */
-    .workflow { display:flex; gap:10px; align-items:center; flex-wrap: wrap; justify-content:center; }
-    .step { background: var(--bg-elev); border:1px solid rgba(255,255,255,.08); padding: 12px 14px; border-radius: 10px; min-width: 130px; text-align:center; }
-    .arrow { color: var(--primary); font-weight: 900; }
-
-    /* --- Footer --- */
-    footer { border-top: 1px solid rgba(255,255,255,.1); }
-
-    /* --- Responsive --- */
-    @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
-  </style>
+        @media (max-width:768px){
+            h1{font-size:2.4rem}
+            .nav-links{gap:.9rem;font-size:.94rem}
+            .flow-connector{width:36px}
+        }
+    </style>
 </head>
 <body>
-  <a href="#main" class="skip">Skip to content</a>
-
-  <!-- Nav -->
-  <nav>
-    <div class="container nav-wrap">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <span>MINTverse</span>
-      </div>
-      <div class="nav-links" role="navigation" aria-label="Primary">
-        <a href="#overview">Overview</a>
-        <a href="#quickstart">Quick Start</a>
-        <a href="#packages">Packages</a>
-        <a href="#performance">Performance</a>
-        <a href="#demos">Demos</a>
-        <a href="#hire">Hire</a>
-        <a class="btn ghost" href="https://github.com/CosmoNaught" target="_blank" rel="noopener">GitHub</a>
-        <button class="theme-toggle" id="themeBtn" title="Toggle color theme" aria-label="Toggle color theme">🌗</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <header class="hero section">
-    <div class="container hero-grid">
-      <div>
-        <div class="eyebrow">Malaria Intervention Emulation</div>
-        <h1 class="hero-title">Fast, transparent ML for malaria planning.</h1>
-        <p class="hero-sub">The <strong>MINTverse</strong> ecosystem turns routine surveillance & coverage inputs into <em>EIR estimates</em>, <em>prevalence forecasts</em>, and <em>annual case projections</em>—in seconds. Built for research & policy workflows in R and Python.</p>
-        <div class="cta-row">
-          <a class="btn primary" href="#quickstart">Get Started</a>
-          <a class="btn ghost" href="#packages">Explore Packages</a>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">MINTverse</div>
+            <div class="nav-links">
+                <a href="#overview">Overview</a>
+                <a href="#quickstart">Quick Start</a>
+                <a href="#minter">MINTer</a>
+                <a href="#estimint">estiMINT</a>
+                <a href="#minte">MINTe</a>
+                <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener">GitHub</a>
+            </div>
         </div>
-        <div class="pill-row" aria-label="Key highlights">
-          <span class="pill">R & Python</span>
-          <span class="pill">DuckDB native</span>
-          <span class="pill">GPU optional</span>
-          <span class="pill">MIT Licensed</span>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="container">
+            <h1>MINTverse</h1>
+            <p class="tagline">Malaria INTervention emulation ecosystem in R</p>
+            <p style="opacity:.9;margin-top:.6rem">Fast, lightweight emulation of malariasimulation models using machine learning</p>
+            <div class="quick-links">
+                <a href="#minter" class="quick-link"><h3>🎯 MINTer</h3><p>Main orchestration package</p></a>
+                <a href="#estimint" class="quick-link"><h3>📈 estiMINT</h3><p>Prevalence → EIR & cases</p></a>
+                <a href="#minte" class="quick-link"><h3>🧠 MINTe</h3><p>Neural network predictions</p></a>
+            </div>
         </div>
-      </div>
-      <div class="hero-card" aria-label="One‑line pipeline">
-        <div class="kicker">One function, full pipeline</div>
-        <div class="code">
-          <button class="copy" data-copy="#mint-pipeline">Copy</button>
-<pre id="mint-pipeline"><code># R: from prevalence + coverage → EIR → predictions
-results &lt;- run_mint_scenarios(
-  prev_vec = c(0.20, 0.40), Q0_vec = c(0.65, 0.75), phi_vec = c(0.45, 0.65),
-  itn_future = c(0.6, 0.8), irs_future_vec = c(0.4, 0.5)
+    </header>
+
+    <main class="container">
+        <!-- Overview -->
+        <section id="overview" class="section">
+            <h2 class="section-title">Why MINTverse?</h2>
+            <div style="max-width:900px;margin:0 auto;text-align:center">
+                <p style="font-size:1.1rem;margin-bottom:1.2rem">
+                    Traditional malaria simulation models can take hours or days. MINTverse gives you instant predictions
+                    with pre-trained ML—ideal for rapid intervention planning, what-if analysis, and dashboard integration.
+                </p>
+
+                <!-- New PRO workflow -->
+                <div class="workflow-diagram" aria-label="End-to-end pipeline">
+                    <div class="badge">Complete Pipeline</div>
+                    <div class="flow-rail" style="margin-top:1rem">
+                        <div class="flow-step">
+                            <div class="flow-icon">🧪</div>
+                            <h4>Field Data</h4>
+                            <small>Prevalence & coverage</small>
+                            <div class="pill-row">
+                                <div class="pill">PfPR2-10</div><div class="pill">ITN/IRS</div><div class="pill">Seasonality</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector" role="presentation"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧮</div>
+                            <h4>EIR Estimation</h4>
+                            <small>XGBoost / RF</small>
+                            <div class="pill-row"><div class="pill">EIR₀</div><div class="pill">Uncertainty</div></div>
+                        </div>
+                        <div class="flow-connector" role="presentation"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧠</div>
+                            <h4>Predictions</h4>
+                            <small>LSTM / GRU</small>
+                            <div class="pill-row"><div class="pill">Prevalence</div><div class="pill">Cases/1000</div></div>
+                        </div>
+                        <div class="flow-connector" role="presentation"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">📊</div>
+                            <h4>Outputs</h4>
+                            <small>Dashboard-ready</small>
+                            <div class="pill-row"><div class="pill">CSV/Parquet</div><div class="pill">Plots</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section id="quickstart" class="section">
+            <h2 class="section-title">Quick Start</h2>
+            <div style="max-width:900px;margin:0 auto">
+                <p style="text-align:center;margin-bottom:1rem">Get predictions in seconds with one call</p>
+                <div class="code-section">
+                    <button class="copy-btn" aria-label="Copy code">Copy</button>
+<pre><code><span class="comment"># Install MINTer (automatically installs all dependencies)</span>
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
+
+<span class="comment"># Core functionality</span>
+<span class="function">library</span>(MINTer)
+<span class="function">library</span>(dplyr)   <span class="comment"># Pretty console tables</span>
+
+results &lt;- <span class="function">run_mint_scenarios</span>(
+  <span class="comment"># —— Net combination settings ——</span>
+  <span class="parameter">res_use</span>      = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),
+  <span class="parameter">py_only</span>      = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),
+  <span class="parameter">py_pbo</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),
+  <span class="parameter">py_pyrrole</span>   = <span class="function">c</span>(<span class="number">0.00</span>, <span class="number">0.05</span>, <span class="number">0.00</span>),
+  <span class="parameter">py_ppf</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.10</span>, <span class="number">0.15</span>),
+
+  <span class="comment"># —— Malaria-environment settings ——</span>
+  <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),
+  <span class="parameter">Q0_vec</span>         = <span class="function">c</span>(<span class="number">0.65</span>, <span class="number">0.75</span>, <span class="number">0.85</span>),
+  <span class="parameter">phi_vec</span>        = <span class="function">c</span>(<span class="number">0.45</span>, <span class="number">0.65</span>, <span class="number">0.75</span>),
+  <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),
+  <span class="parameter">routine_vec</span>    = <span class="function">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),
+  <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>),
+  <span class="parameter">irs_future_vec</span> = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.50</span>),
+  <span class="parameter">lsm_vec</span>        = <span class="function">c</span>(<span class="number">0.05</span>, <span class="number">0.45</span>, <span class="number">0.85</span>),
+  <span class="parameter">year_start</span>     = <span class="number">2</span>,
+  <span class="parameter">year_end</span>       = <span class="number">5</span>
 )
-create_scenario_plots(results$cases)
-</code></pre>
-        </div>
-        <div class="kicker" style="margin-top:10px">Orchestrated by <strong>MINTer</strong> with <strong>estiMINT</strong> + <strong>MINTe</strong>.</div>
-      </div>
-    </div>
-  </header>
 
-  <main id="main">
-    <!-- Overview -->
-    <section id="overview" class="section">
-      <div class="container">
-        <div class="grid-2">
-          <div>
-            <div class="kicker">Why MINTverse</div>
-            <h2 class="section-title">Model tomorrow in seconds—not days.</h2>
-            <p class="section-desc">Agent‑based simulations are powerful yet slow. MINTverse offers <em>drop‑in emulators</em> validated on malariasimulation outputs. Use it to initialize simulations, generate counter‑factuals, and support rapid scenario planning.</p>
-            <div class="workflow" aria-label="Workflow diagram">
-              <div class="step"><strong>Field data</strong><br/><small>prevalence & coverage</small></div>
-              <div class="arrow">→</div>
-              <div class="step"><strong>estiMINT</strong><br/><small>EIR estimation</small></div>
-              <div class="arrow">→</div>
-              <div class="step"><strong>MINTe/MINTer</strong><br/><small>prevalence & cases</small></div>
-              <div class="arrow">→</div>
-              <div class="step"><strong>Decisions</strong><br/><small>what‑ifs & planning</small></div>
+<span class="comment"># ——— Save CSVs ———</span>
+<span class="function">write.csv</span>(results$prevalence, <span class="string">"results_prevalence.csv"</span>, <span class="parameter">row.names</span> = FALSE)
+<span class="function">write.csv</span>(results$cases,       <span class="string">"results_cases.csv"</span>,       <span class="parameter">row.names</span> = FALSE)
+
+<span class="comment"># Pretty cases table</span>
+results$cases |&gt;
+  <span class="function">transmute</span>(year, cases = ensemble_cases_per_1000, scenario)
+
+<span class="comment"># Prevalence plots</span>
+<span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
+                </div>
             </div>
-          </div>
-          <div class="card">
-            <h3 style="margin-top:0">Highlights</h3>
-            <ul style="margin:0 0 6px 18px">
-              <li>Prevalence → <strong>EIR</strong> (XGBoost / Random Forest)</li>
-              <li>Annual <strong>cases per 1000</strong> (ensemble)</li>
-              <li><strong>LSTM/GRU</strong> prevalence forecasting</li>
-              <li><strong>DuckDB</strong> I/O, tidy R APIs, CLI for Python</li>
-              <li>Designed for <strong>reproducible</strong> academic work</li>
-            </ul>
-            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
-              <span class="badge">📦 MIT License</span>
-              <span class="badge">🧪 Tested on held‑out sets</span>
-              <span class="badge">🧰 Works offline after install</span>
+        </section>
+
+        <!-- MINTer -->
+        <section id="minter" class="package-section">
+            <div class="package-header">
+              <div>
+                <h2 class="package-title">MINTer</h2>
+                <p class="package-subtitle">Malaria INTervention emulator in R — the orchestrator of the MINTverse stack</p>
+              </div>
+              <a href="https://github.com/CosmoNaught/MINTer" target="_blank" rel="noopener" class="github-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>
+                View on GitHub
+              </a>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          
+            <p style="margin-bottom:1.1rem">
+              <span class="badge">Orchestration • Reproducible • Dashboard-ready</span>
+              <br>MINTer unifies <strong>estiMINT</strong> (EIR & cases ML) and <strong>MINTe</strong> (RNNs) behind a single R API. Use it for <em>direct emulation</em>, <em>prevalence-driven pipelines</em>, or <em>full malariasimulation ➜ DuckDB ➜ emulation</em> workflows.
+            </p>
+          
+            <!-- Three lanes: how you run MINTer -->
+            <div class="workflow-diagram" aria-label="MINTer orchestration modes">
+              <div class="badge">How you run it</div>
+          
+              <!-- Lane A -->
+              <div class="flow-rail" style="margin-top:1rem">
+                <div class="flow-step">
+                  <div class="flow-icon">⚡</div>
+                  <h4>Direct Emulation</h4><small>fastest path</small>
+                  <div class="pill-row"><div class="pill">create_scenarios()</div><div class="pill">run_malaria_emulator()</div></div>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🧠</div>
+                  <h4>RNNs</h4><small>LSTM / GRU</small>
+                  <div class="pill-row"><div class="pill">prevalence</div><div class="pill">cases</div></div>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">📊</div>
+                  <h4>Outputs</h4><small>tidy data, plots</small>
+                </div>
+              </div>
+          
+              <!-- Lane B -->
+              <div class="flow-rail">
+                <div class="flow-step">
+                  <div class="flow-icon">🧪</div>
+                  <h4>Prevalence input</h4><small>field PfPR + context</small>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🧮</div>
+                  <h4>estiMINT</h4><small>EIR₀ + cases</small>
+                  <div class="pill-row"><div class="pill">XGBoost</div><div class="pill">RF</div></div>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🧠</div>
+                  <h4>MINTer</h4><small>time-series forecasts</small>
+                </div>
+              </div>
+          
+              <!-- Lane C -->
+              <div class="flow-rail">
+                <div class="flow-step">
+                  <div class="flow-icon">🧬</div>
+                  <h4>malariasimulation</h4><small>native runs</small>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🗄️</div>
+                  <h4>segMINT</h4><small>DuckDB ingest</small>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🧩</div>
+                  <h4>MINTer</h4><small>counter-factuals & benchmarking</small>
+                </div>
+              </div>
+            </div>
+          
+            <div class="feature-grid">
+              <div class="feature-card"><h4>🔁 Counter-factual sweeps</h4><p>Grid or LHS over ITN/IRS/LSM/EIR and generate scenario tables in seconds.</p></div>
+              <div class="feature-card"><h4>📦 Dashboard-ready</h4><p>Tidy outputs with stable column names for Shiny/Quarto/Streamlit.</p></div>
+              <div class="feature-card"><h4>🧪 Prevalence-driven</h4><p>Use field PfPR2-10 → EIR via estiMINT, then forecast prevalence/cases.</p></div>
+              <div class="feature-card"><h4>🧰 Python-free UX</h4><p><code>reticulate</code> prepares Torch automatically; no manual setup.</p></div>
+            </div>
+          
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">API surface (core)</h3>
+            <div class="feature-card" style="padding:0">
+              <table class="mini-table">
+                <tr><th>Function</th><th>Purpose</th><th>Returns</th></tr>
+                <tr><td><code>run_mint_scenarios()</code></td><td>Full pipeline (prevalence-driven or direct)</td><td>List: <code>$prevalence</code>, <code>$cases</code></td></tr>
+                <tr><td><code>run_malaria_emulator()</code></td><td>RNN predictions from scenarios or DuckDB</td><td>Time-series data frame</td></tr>
+                <tr><td><code>create_scenarios()</code></td><td>Builds intervention scenarios</td><td>Data frame</td></tr>
+                <tr><td><code>create_malariasim_scenarios()</code></td><td>LHS design for native sims</td><td>CSV / data frame</td></tr>
+                <tr><td><code>create_scenario_plots()</code></td><td>Publication-grade plots</td><td>Saved ggplot objects</td></tr>
+              </table>
+            </div>
+          
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Recipes</h3>
+          
+            <!-- Direct emulation -->
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code>library(MINTer)
+          
+          sc &lt;- create_scenarios(
+            eir = c(2, 20, 120),
+            itn_use = c(0.3, 0.6, 0.8),
+            irs_use = c(0.1, 0.3, 0.6),
+            lsm = c(0.05, 0.4, 0.8),
+            seasonal = c(0,1,1),
+            routine = c(0,0,1)
+          )
+          
+          prev &lt;- run_malaria_emulator(scenarios = sc, predictor = "prevalence", model_types = c("LSTM","GRU"))
+          cases &lt;- run_malaria_emulator(scenarios = sc, predictor = "cases")
+          create_scenario_plots(prev,  output_dir = "plots")
+          create_scenario_plots(cases, output_dir = "plots")</code></pre>
+            </div>
+          
+            <!-- Prevalence-driven with estiMINT -->
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code># Prevalence-driven pipeline (field PfPR → EIR → forecasts)
+          res &lt;- run_mint_scenarios(
+            prev_vec    = c(0.2, 0.35, 0.55),
+            Q0_vec      = c(0.65, 0.75, 0.80),
+            phi_vec     = c(0.45, 0.60, 0.70),
+            itn_use     = c(0.30, 0.50, 0.80),
+            irs_vec     = c(0.10, 0.35, 0.60),
+            lsm_vec     = c(0.05, 0.40, 0.80),
+            season_vec  = c(0,1,1),
+            routine_vec = c(0,0,1)
+          )
+          write.csv(res$prevalence, "out_prevalence.csv", row.names = FALSE)
+          write.csv(res$cases,       "out_cases.csv",       row.names = FALSE)</code></pre>
+            </div>
+          
+            <!-- Full pipeline w/ segMINT -->
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code>library(MINTer); library(segMINT)
+          
+          # After running malariasimulation externally:
+          segMINT::create_database(
+            dir = "Data/Database", file_name = "malariasim.duckdb",
+            table_name = "sim_results", data_dir = "Data/Simout"
+          )
+          
+          # Counter-factuals on param_index=5
+          cf &lt;- run_malaria_emulator(
+            db_path = "Data/Database/malariasim.duckdb",
+            param_index = 5,
+            predictor = "cases",
+            counterfactual = list(eir = c(0.5, 60, 300))
+          )</code></pre>
+            </div>
+          
+            <!-- Batch sweeps -->
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code># Batch sweep: 3x3x3 grid
+          grid &lt;- expand.grid(
+            itn_use = c(0.3,0.6,0.9),
+            irs_use = c(0.0,0.3,0.6),
+            lsm     = c(0.0,0.4,0.8)
+          )
+          grid$eir &lt;- 35  # fixed baseline
+          em &lt;- run_malaria_emulator(scenarios = grid, predictor = "cases")
+          head(em)</code></pre>
+            </div>
+          
+            <div class="alert"><strong>Confidence intervals:</strong> Use <code>estiMINT::predict_annual_cases(..., return_intervals = TRUE)</code> on MINTer-produced scenario frames when you need 95% prediction intervals for cases.</div>
+          
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Installation</h3>
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+          devtools::install_github("CosmoNaught/MINTer")
+          devtools::install_github("CosmoNaught/segMINT")
+          devtools::install_github("CosmoNaught/estiMINT")
+          
+          # First library() call may build Torch; allow ~1 min.
+          library(MINTer)</code></pre>
+            </div>
+          </section>
+          
 
-    <!-- Quick Start -->
-    <section id="quickstart" class="section">
-      <div class="container">
-        <div class="kicker">Quick Start</div>
-        <h2 class="section-title">Install & predict in minutes</h2>
-        <div class="grid-2">
-          <div class="card">
-            <h3>R (MINTer + estiMINT)</h3>
-            <div class="code">
-              <button class="copy" data-copy="#r-install">Copy</button>
-<pre id="r-install"><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
-devtools::install_github("CosmoNaught/MINTer")
-devtools::install_github("CosmoNaught/estiMINT")  # EIR + cases
-# Optional DB helper
-devtools::install_github("CosmoNaught/segMINT")
+        <!-- estiMINT (EXPANDED) -->
+        <section id="estimint" class="package-section">
+            <div class="package-header">
+                <div>
+                    <h2 class="package-title">estiMINT</h2>
+                    <p class="package-subtitle">Machine-learning models for EIR estimation and annual case prediction</p>
+                </div>
+                <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" rel="noopener" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>
+                    View on GitHub
+                </a>
+            </div>
 
-library(MINTer)
-results &lt;- run_mint_scenarios(
-  prev_vec = c(0.2,0.4,0.6), Q0_vec = c(0.65,0.75,0.85),
-  phi_vec = c(0.45,0.65,0.75), irs_future_vec = c(0.2,0.4,0.5)
+            <p style="margin-bottom:1rem">
+                <span class="badge">Dashboard-ready ML suite for public health</span>
+                <br/>estiMINT translates routine surveillance and coverage data into <strong>initial EIR (EIR₀)</strong> and <strong>annual clinical cases per 1000</strong>.
+                Built from the MINTverse pipelines, it’s drop-in friendly for <em>malariasimulation</em> outputs and fast enough for interactive dashboards.
+            </p>
+
+            <!-- What it predicts -->
+            <div class="grid-2">
+                <div class="feature-card">
+                    <h4>🎯 What estiMINT predicts</h4>
+                    <ul style="margin-left:1rem">
+                        <li><strong>EIR₀</strong> from prevalence + context</li>
+                        <li><strong>Cases per 1000</strong> for years 0–5 (with scenario years 2–5 commonly used)</li>
+                        <li>Optional <strong>prediction intervals</strong> for cases</li>
+                    </ul>
+                    <div class="stat-cards">
+                        <div class="stat"><div class="value">EIR: R² ≈ 0.90</div><div class="muted">XGBoost / RF</div></div>
+                        <div class="stat"><div class="value">Cases: R² ≈ 0.92–0.93</div><div class="muted">XGBoost / RF</div></div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>🧩 Why it’s special</h4>
+                    <ul style="margin-left:1rem">
+                        <li><strong>Non-linear covariates</strong>: seasonality, ITN/IRS, biting behaviour</li>
+                        <li><strong>Zero-inflation aware</strong> case models (Tweedie / √-transform)</li>
+                        <li><strong>Retrainable</strong> in one command when new sims land</li>
+                        <li><strong>Governed & versioned</strong> model artifacts for reproducibility</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Model zoo -->
+            <h3 style="margin:1.2rem 0 .4rem;color:var(--primary)">Model Zoo</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>EIR — XGBoost</h4>
+                    <div class="pill-row"><div class="pill">log₁₀(EIR+1)</div><div class="pill">MSE objective</div></div>
+                    <p>Wide EIR coverage, handles extremes gracefully.</p>
+                    <div class="stat-cards">
+                        <div class="stat"><div class="value">RMSE 35.08</div><div class="muted">R² 0.903 • r 0.951</div></div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>EIR — Random Forest</h4>
+                    <div class="pill-row"><div class="pill">log₁₀(EIR+1)</div><div class="pill">1–2k trees</div></div>
+                    <p>Strong robustness with natural uncertainty feel.</p>
+                    <div class="stat-cards">
+                        <div class="stat"><div class="value">RMSE 36.85</div><div class="muted">R² 0.893 • r 0.947</div></div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>Cases — XGBoost (Tweedie)</h4>
+                    <div class="pill-row"><div class="pill">Tweedie ~1.15</div><div class="pill">Dynamic weights</div></div>
+                    <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
+                    <div class="stat-cards">
+                        <div class="stat"><div class="value">RMSE 0.265</div><div class="muted">R² 0.926 • r 0.963</div></div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>Cases — Random Forest</h4>
+                    <div class="pill-row"><div class="pill">√-transform</div><div class="pill">LHS tuning</div></div>
+                    <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
+                    <div class="stat-cards">
+                        <div class="stat"><div class="value">RMSE 0.277</div><div class="muted">R² 0.919 • r 0.959</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- When to use what -->
+            <div class="feature-card">
+                <h4>🧭 When to use which model</h4>
+                <table class="mini-table">
+                    <tr><th>Need</th><th>Pick</th><th>Why</th></tr>
+                    <tr><td>Fast, general EIR</td><td>XGBoost</td><td>Stable across intensity range</td></tr>
+                    <tr><td>Robust EIR with uncertainty feel</td><td>Random Forest</td><td>Ensemble stability</td></tr>
+                    <tr><td>Cases with many zeros</td><td>XGBoost (Tweedie)</td><td>Handles zero-inflation natively</td></tr>
+                    <tr><td>Outlier-heavy cases</td><td>Random Forest</td><td>Resilient to extremes</td></tr>
+                </table>
+            </div>
+
+            <!-- EstiMINT workflow (distinct visual) -->
+            <div class="workflow-diagram" aria-label="estiMINT internal flow">
+                <div class="badge">estiMINT Flow</div>
+                <div class="flow-rail" style="margin-top:1rem">
+                    <div class="flow-step">
+                        <div class="flow-icon">🧾</div>
+                        <h4>Inputs</h4><small>Prevalence + coverage</small>
+                        <div class="pill-row"><div class="pill">PfPR</div><div class="pill">ITN/IRS</div><div class="pill">Q0, ϕ</div></div>
+                    </div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📐</div>
+                        <h4>EIR Models</h4><small>XGBoost / RF</small>
+                        <div class="pill-row"><div class="pill">EIR₀</div></div>
+                    </div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📉</div>
+                        <h4>Case Models</h4><small>Tweedie / RF</small>
+                        <div class="pill-row"><div class="pill">cases / 1000</div><div class="pill">PI (opt.)</div></div>
+                    </div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🧩</div>
+                        <h4>Outputs</h4><small>Dashboard-ready</small>
+                        <div class="pill-row"><div class="pill">tidy data</div><div class="pill">plots</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example usage -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Example: EIR → Cases</h3>
+            <div class="code-section">
+                <button class="copy-btn" aria-label="Copy code">Copy</button>
+<pre><code><span class="comment"># Load pre-trained EIR models</span>
+<span class="function">library</span>(estiMINT)
+pretrained &lt;- <span class="function">load_pretrained_eir_models</span>()
+
+<span class="comment"># Estimate EIR from field data</span>
+new_data &lt;- <span class="function">data.frame</span>(
+  <span class="parameter">prevalence</span>=<span class="number">0.35</span>,
+  <span class="parameter">dn0_use</span>=<span class="number">0.30</span>,
+  <span class="parameter">Q0</span>=<span class="number">0.75</span>,
+  <span class="parameter">phi_bednets</span>=<span class="number">0.60</span>,
+  <span class="parameter">seasonal</span>=<span class="number">1</span>,
+  <span class="parameter">routine</span>=<span class="number">0</span>,
+  <span class="parameter">itn_use</span>=<span class="number">0.40</span>,
+  <span class="parameter">irs_use</span>=<span class="number">0.15</span>
 )
-create_scenario_plots(results$prevalence)
-</code></pre>
-            </div>
-          </div>
-          <div class="card">
-            <h3>Python (MINTe)</h3>
-            <div class="code">
-              <button class="copy" data-copy="#py-install">Copy</button>
-<pre id="py-install"><code>pip install -e .  # from the cloned repo (when published: pip install minte)
 
-from minte import MalariaForecast
-f = MalariaForecast(db_path="data.duckdb", predictor="cases", window_size=30)
-results = f.run(param_limit=1000, sim_limit=8, output_dir="results")
-print(results["gru"]["test_metrics"]["r2"])  # R^2 for GRU
-</code></pre>
+xgb_model &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pretrained$xgboost) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pretrained$xgboost)) pretrained$xgboost$model else pretrained$xgboost
+rf_model  &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pretrained$rf_model) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pretrained$rf_model)) pretrained$rf_model$model else pretrained$rf_model
+
+eir_xgb &lt;- <span class="function">predict_initial_eir</span>(xgb_model, new_data, pretrained$feature_cols)
+eir_rf  &lt;- <span class="function">predict_initial_eir</span>(rf_model,  new_data, pretrained$feature_cols)
+eir_ens &lt;- (eir_xgb + eir_rf) / <span class="number">2</span>
+
+<span class="comment"># Cases per 1000 (year 3 example)</span>
+pc &lt;- <span class="function">load_pretrained_case_models</span>()
+xgbc &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pc$xgboost_cases) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pc$xgboost_cases)) pc$xgboost_cases$model else pc$xgboost_cases
+rfc  &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pc$rf_cases) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pc$rf_cases)) pc$rf_cases$model else pc$rf_cases
+
+scenarios &lt;- <span class="function">transform</span>(new_data, eir=eir_ens, year=<span class="number">3</span>)
+cases_x &lt;- <span class="function">predict_annual_cases</span>(xgbc, scenarios, pc$feature_cols)
+cases_r &lt;- <span class="function">predict_annual_cases</span>(rfc,  scenarios, pc$feature_cols)
+cases_ensemble &lt;- (cases_x + cases_r)/<span class="number">2</span></code></pre>
             </div>
-          </div>
+
+            <!-- Performance (correct numbers) -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Performance (held-out test)</h3>
+            <div class="feature-card" style="padding:0">
+                <table class="mini-table">
+                    <tr><th>Task</th><th>Model</th><th>RMSE</th><th>R²</th><th>Correlation</th></tr>
+                    <tr><td>EIR</td><td>XGBoost</td><td>35.08</td><td>0.903</td><td>0.951</td></tr>
+                    <tr><td>EIR</td><td>Random Forest</td><td>36.85</td><td>0.893</td><td>0.947</td></tr>
+                    <tr><td>Cases</td><td>XGBoost (Tweedie)</td><td>0.265</td><td>0.926</td><td>0.963</td></tr>
+                    <tr><td>Cases</td><td>Random Forest</td><td>0.277</td><td>0.919</td><td>0.959</td></tr>
+                </table>
+            </div>
+
+            <!-- Governance & dashboards -->
+            <div class="grid-2" style="margin-top:1rem">
+                <div class="feature-card">
+                    <h4>🗂️ Reproducibility & Model Management</h4>
+                    <ul style="margin-left:1rem">
+                        <li>Versioned releases <code>models-YYYYMMDD-HHMMSS-hash</code></li>
+                        <li>SHA checksums & local cache controls</li>
+                        <li>Immutable tags for auditability</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>📺 Dashboard-ready Outputs</h4>
+                    <ul style="margin-left:1rem">
+                        <li>Tidy data frames for Shiny / Quarto / Streamlit</li>
+                        <li>Stable column names across versions</li>
+                        <li>Scales to batch scenarios for program dashboards</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Installation -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Installation</h3>
+            <div class="code-section">
+                <button class="copy-btn" aria-label="Copy code">Copy</button>
+<pre><code><span class="comment"># Install from GitHub</span>
+<span class="function">install.packages</span>(<span class="string">"devtools"</span>)
+<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/estiMINT"</span>)
+
+<span class="comment"># Dependencies auto-install: xgboost, ranger, duckdb, data.table, future, progressr, piggyback</span>
+<span class="comment"># Requires R &gt;= 4.2</span></code></pre>
+            </div>
+
+            <!-- Advanced Usage / Training -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Advanced Usage & Training</h3>
+            <p>Load from pretrained artifacts, local files, or in-session training results. Train complete pipelines with stratified evaluation and dynamic case weighting.</p>
+            <div class="code-section">
+                <button class="copy-btn" aria-label="Copy code">Copy</button>
+<pre><code><span class="comment"># Train case models with advanced features</span>
+case_results &lt;- <span class="function">build_case_models</span>(
+  <span class="parameter">db_path</span>=<span class="string">"simulation.duckdb"</span>,
+  <span class="parameter">param_limit</span>=<span class="number">8192</span>,
+  <span class="parameter">sim_limit</span>=<span class="number">8</span>,
+  <span class="parameter">tune_hyperparams</span>=TRUE,
+  <span class="parameter">use_case_weights</span>=TRUE,
+  <span class="parameter">weight_power</span>=<span class="number">0.75</span>,
+  <span class="parameter">stratified_eval</span>=TRUE
+)</code></pre>
+            </div>
+        </section>
+
+        <!-- MINTe -->
+        <section id="minte" class="package-section">
+            <div class="package-header">
+              <div>
+                <h2 class="package-title">MINTe</h2>
+                <p class="package-subtitle">Python RNNs (GRU/LSTM) for malaria prevalence & cases forecasting</p>
+              </div>
+              <a href="https://github.com/CosmoNaught/minte" target="_blank" rel="noopener" class="github-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>
+                View on GitHub
+              </a>
+            </div>
+          
+            <p style="margin-bottom:1rem">
+              <span class="badge">GPU-ready • Tunable • DuckDB-native</span>
+              <br>MINTe provides <strong>GRU</strong> and <strong>LSTM</strong> sequence models with rolling windows, optional cyclical time encoding, early stopping, and hyper-parameter optimization. Train via Python API or a simple <code>minte</code> CLI; deploy as artifacts that MINTer can call through <code>reticulate</code>.
+            </p>
+          
+            <!-- Architecture -->
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h4>🧱 Architecture</h4>
+                <ul style="margin-left:1rem">
+                  <li>Lookback windows: <code>window_size</code> (e.g., 30)</li>
+                  <li>Encoders: <strong>GRU</strong> or <strong>LSTM</strong>, 1–N layers</li>
+                  <li>Regularisation: dropout, weight decay</li>
+                  <li>Optimiser: Adam + LR scheduling, early stopping</li>
+                </ul>
+              </div>
+              <div class="feature-card">
+                <h4>🧰 Data & I/O</h4>
+                <ul style="margin-left:1rem">
+                  <li>Reads DuckDB table (simulation outputs)</li>
+                  <li>Predictor: <code>prevalence</code> or <code>cases</code></li>
+                  <li>Artifacts saved under <code>output_dir</code></li>
+                  <li>Reload with <code>load_models()</code> for inference</li>
+                </ul>
+              </div>
+              <div class="feature-card">
+                <h4>⚡ Performance UX</h4>
+                <ul style="margin-left:1rem">
+                  <li>CUDA (optional) for training/inference</li>
+                  <li><code>num_workers</code> for data loading</li>
+                  <li>Large-batch modes for big datasets</li>
+                </ul>
+              </div>
+            </div>
+          
+            <!-- MINTe flow -->
+            <div class="workflow-diagram" aria-label="MINTe training flow">
+              <div class="badge">Training flow</div>
+              <div class="flow-rail" style="margin-top:1rem">
+                <div class="flow-step">
+                  <div class="flow-icon">🗄️</div>
+                  <h4>DuckDB</h4><small>simulation_results</small>
+                  <div class="pill-row"><div class="pill">features</div><div class="pill">targets</div></div>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🧪</div>
+                  <h4>Preprocess</h4><small>windows & masks</small>
+                  <div class="pill-row"><div class="pill">lookback</div><div class="pill">min_prevalence</div></div>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">🧠</div>
+                  <h4>Train</h4><small>GRU / LSTM</small>
+                  <div class="pill-row"><div class="pill">HPO (Optuna)</div><div class="pill">early stop</div></div>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-step">
+                  <div class="flow-icon">📦</div>
+                  <h4>Artifacts</h4><small>load_models()</small>
+                  <div class="pill-row"><div class="pill">metrics</div><div class="pill">checkpoints</div></div>
+                </div>
+              </div>
+            </div>
+          
+            <!-- Quick start (Python API) -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Quick Start (Python API)</h3>
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code>from minte import MalariaForecast
+          
+          f = MalariaForecast(
+              db_path="path/to/data.duckdb",
+              table_name="simulation_results",
+              predictor="cases",      # or "prevalence"
+              window_size=30,
+              device="cuda"           # or "cpu"
+          )
+          
+          results = f.run(
+              param_limit=1000,
+              sim_limit=10,
+              output_dir="results/experiment"
+          )
+          
+          print("GRU R²:",  results["gru"]["test_metrics"]["r2"])
+          print("LSTM R²:", results["lstm"]["test_metrics"]["r2"])</code></pre>
+            </div>
+          
+            <!-- CLI -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">CLI Recipes</h3>
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code># Basic training (cases)
+          minte \
+            --db-path data.duckdb \
+            --table-name simulation_results \
+            --predictor cases \
+            --window-size 30 \
+            --param-limit 2048 \
+            --sim-limit 8 \
+            --output-dir results/cases
+          
+          # Add cyclical time encoding (seasonality)
+          minte \
+            --db-path data.duckdb \
+            --predictor prevalence \
+            --use-cyclical-time \
+            --window-size 30 \
+            --output-dir results/prevalence_cyc
+          
+          # Hyperparameter tuning (6h / 100 trials)
+          minte \
+            --db-path data.duckdb \
+            --predictor cases \
+            --run-tuning \
+            --tuning-trials 100 \
+            --tuning-timeout 21600 \
+            --output-dir results/tuned
+          
+          # Multi-GPU (data parallel)
+          CUDA_VISIBLE_DEVICES=0,1 minte \
+            --db-path data.duckdb \
+            --device cuda \
+            --batch-size 8192 \
+            --output-dir results/mgpu</code></pre>
+            </div>
+          
+            <!-- Detailed usage highlights -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Detailed Usage</h3>
+            <div class="feature-card" style="padding:0">
+              <table class="mini-table">
+                <tr><th>Setting</th><th>What it does</th><th>When to change</th></tr>
+                <tr><td><code>window_size</code></td><td>Sequence length for the RNN</td><td>Increase for slower dynamics; decrease for speed</td></tr>
+                <tr><td><code>min_prevalence</code></td><td>Filters tiny signals in training</td><td>Raise for noisy low-transmission areas</td></tr>
+                <tr><td><code>use_cyclical_time</code></td><td>Adds sin/cos time encoding</td><td>Strong seasonality settings</td></tr>
+                <tr><td><code>hidden_size</code>, <code>num_layers</code></td><td>Model capacity</td><td>Scale with data volume</td></tr>
+                <tr><td><code>batch_size</code>, <code>num_workers</code></td><td>I/O and compute throughput</td><td>Tune for your CPU/GPU</td></tr>
+              </table>
+            </div>
+          
+            <!-- Load / Predict -->
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code># Load and predict
+          from minte import MalariaForecast
+          import numpy as np
+          
+          f = MalariaForecast(db_path="path/to/data.duckdb", predictor="cases")
+          f.load_models("results/experiment/trained_models")
+          
+          X = np.random.randn(100, 15).astype(np.float32)   # timesteps × features
+          yhat = f.predict(X, model_type="gru")</code></pre>
+            </div>
+          
+            <!-- Data schema -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Data Schema (DuckDB)</h3>
+            <div class="feature-card" style="padding:0">
+              <table class="mini-table">
+                <tr><th>Column</th><th>Purpose</th></tr>
+                <tr><td><code>parameter_index</code>, <code>simulation_index</code></td><td>Grouping keys</td></tr>
+                <tr><td><code>timesteps</code></td><td>Time axis (days)</td></tr>
+                <tr><td><code>n_detect_lm_0_1825</code>, <code>n_age_0_1825</code></td><td>Prevalence numerators/denominators</td></tr>
+                <tr><td><code>n_inc_clinical_0_36500</code>, <code>n_age_0_36500</code></td><td>Cases numerators/denominators</td></tr>
+                <tr><td>Covariates (eir, dn0_use, dn0_future, Q0, phi_bednets, seasonal, routine, itn_use, irs_use, itn_future, irs_future, lsm)</td><td>Static/slow inputs</td></tr>
+              </table>
+            </div>
+          
+            <!-- Tuning -->
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Hyper-parameter Tuning</h3>
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code>results = f.run(
+              param_limit=2048,
+              sim_limit=8,
+              run_tuning=True,
+              tuning_trials=50,
+              tuning_timeout=3600*6,
+              output_dir="results/tuned",
+              tuning_output_dir="tuning_trials"
+          )
+          
+          # Later: reuse tuned parameters
+          results = f.run(
+              use_tuned_parameters=True,
+              tuning_output_dir="tuning_trials"
+          )</code></pre>
+            </div>
+          
+            <!-- Ops tips -->
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h4>🔒 Reproducibility</h4>
+                <p>Set <code>seed</code> in <code>MalariaForecast(...)</code>. Keep driver, CUDA & PyTorch versions stable across runs.</p>
+              </div>
+              <div class="feature-card">
+                <h4>🧭 Troubleshooting</h4>
+                <ul style="margin-left:1rem">
+                  <li>OOM → reduce <code>batch_size</code>, <code>hidden_size</code>, or layers</li>
+                  <li>Slow I/O → move DuckDB to SSD, raise <code>num_workers</code></li>
+                  <li>Weak fit → try <code>run_tuning=True</code>, increase <code>lookback</code>, enable <code>use_cyclical_time</code></li>
+                </ul>
+              </div>
+              <div class="feature-card">
+                <h4>📝 Logging</h4>
+                <div class="code-section" style="margin:0">
+                  <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code>import logging
+          logging.getLogger('minte').setLevel(logging.DEBUG)</code></pre>
+                </div>
+              </div>
+            </div>
+          
+            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Installation</h3>
+            <div class="code-section">
+              <button class="copy-btn" aria-label="Copy code">Copy</button>
+          <pre><code># From source
+          git clone https://github.com/CosmoNaught/minte.git
+          cd minte
+          python -m venv venv
+          source venv/bin/activate  # Windows: venv\Scripts\activate
+          pip install -e .
+          
+          # Verify
+          python -c "import minte; print(minte.__version__)"</code></pre>
+            </div>
+          </section>
+          
+
+        <!-- Resources -->
+        <section class="section">
+            <h2 class="section-title">Resources & Support</h2>
+            <div style="text-align:center;max-width:800px;margin:0 auto">
+                <p>MINTverse is actively developed. For questions, bugs, or contributions:</p>
+                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.8rem">
+                    <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">Report Issues</a>
+                    <a href="https://github.com/CosmoNaught/MINTer/wiki" class="github-link">Documentation Wiki</a>
+                    <a href="mailto:your-email@example.com" class="github-link">Contact</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>MINTverse © 2025 • Built for malaria intervention research</p>
+            <p style="opacity:.75;margin-top:.3rem">Fast emulation of malariasimulation models using machine learning</p>
         </div>
-      </div>
-    </section>
+    </footer>
 
-    <!-- Packages -->
-    <section id="packages" class="section">
-      <div class="container">
-        <div class="kicker">Ecosystem</div>
-        <h2 class="section-title">The MINTverse packages</h2>
-
-        <div class="grid-3">
-          <div class="card">
-            <h3>MINTer (R)</h3>
-            <p>Main orchestration layer: direct emulation or full pipeline with malariasimulation → DuckDB → emulation. Handles plotting & scenario design.</p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">
-              <a class="btn ghost" href="https://github.com/CosmoNaught/MINTer" target="_blank" rel="noopener">View on GitHub</a>
-              <a class="btn primary" href="#demos">See demo</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>estiMINT (R)</h3>
-            <p>Gradient‑boosted trees & random forests to convert prevalence & coverage into initial EIR and project annual cases per 1000 (years 2–5).</p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">
-              <a class="btn ghost" href="https://github.com/CosmoNaught/estiMINT" target="_blank" rel="noopener">View on GitHub</a>
-              <a class="btn primary" href="#performance">See metrics</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>MINTe (Python)</h3>
-            <p>Efficient RNNs (GRU/LSTM) for prevalence time‑series. CLI and Python API, optional CUDA, and built‑in hyperparameter tuning.</p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">
-              <a class="btn ghost" href="https://github.com/CosmoNaught/minte" target="_blank" rel="noopener">View on GitHub</a>
-              <a class="btn primary" href="#demos">Try CLI</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Performance -->
-    <section id="performance" class="section">
-      <div class="container">
-        <div class="kicker">Validation</div>
-        <h2 class="section-title">Model performance (held‑out tests)</h2>
-        <p class="section-desc">Evaluated on malariasimulation‑derived training/test splits. Metrics are on held‑out test sets; ranges reflect typical performance across scenarios.</p>
-
-        <div class="grid-2">
-          <div class="card">
-            <h3>EIR estimation (estiMINT)</h3>
-            <table aria-label="EIR model metrics">
-              <thead>
-                <tr><th>Model</th><th>RMSE</th><th>MAE</th><th>R²</th><th>Correlation</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>XGBoost</td><td>35.08</td><td>18.10</td><td>0.903</td><td>0.951</td></tr>
-                <tr><td>Random Forest</td><td>36.85</td><td>17.81</td><td>0.893</td><td>0.947</td></tr>
-              </tbody>
-            </table>
-            <p style="margin-top:8px; color:#cbd5e1">Target: log₁₀(EIR+1) regression; robust to extreme values.</p>
-          </div>
-
-          <div class="card">
-            <h3>Cases per 1000 (estiMINT)</h3>
-            <table aria-label="Case model metrics">
-              <thead>
-                <tr><th>Model</th><th>RMSE</th><th>MAE</th><th>R²</th><th>Correlation</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>XGBoost (Tweedie)</td><td>0.265</td><td>0.067</td><td>0.926</td><td>0.963</td></tr>
-                <tr><td>Random Forest (√ transform)</td><td>0.277</td><td>0.079</td><td>0.919</td><td>0.959</td></tr>
-              </tbody>
-            </table>
-            <p style="margin-top:8px; color:#cbd5e1">Includes stratified evaluation across case quantiles; adaptive weighting for rare outcomes.</p>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:18px;">
-          <h3 style="margin-top:0">Prevalence forecasting (MINTe)</h3>
-          <p>GRU/LSTM sequence models with rolling windows, early stopping, and optional cyclical time encoding. Reports R², RMSE, and MAE on held‑out sequence segments. See repository for detailed benchmarks and tuning recipes.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Demos -->
-    <section id="demos" class="section">
-      <div class="container">
-        <div class="kicker">Demos</div>
-        <h2 class="section-title">Copy‑paste examples</h2>
-
-        <div class="grid-2">
-          <div class="card">
-            <h3>Direct emulation (R)</h3>
-            <div class="code">
-              <button class="copy" data-copy="#demo-r-1">Copy</button>
-<pre id="demo-r-1"><code>library(MINTer)
-scenarios &lt;- create_scenarios(
-  eir = c(5.2, 35.8, 180.5),
-  itn_use = c(0.25, 0.55, 0.85),
-  irs_use = c(0.10, 0.35, 0.70),
-  lsm = c(0.05, 0.45, 0.85)
-)
-results &lt;- run_malaria_emulator(scenarios, predictor = "prevalence", model_types = c("LSTM","GRU"))
-create_scenario_plots(results, output_dir = "output/plots")
-</code></pre>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Full pipeline (R + DuckDB)</h3>
-            <div class="code">
-              <button class="copy" data-copy="#demo-r-2">Copy</button>
-<pre id="demo-r-2"><code>library(MINTer); library(segMINT)
-# Run malariasimulation externally, then ingest:
-segMINT::create_database(dir = "Data/Database", file_name = "malariasim.duckdb",
-  table_name = "sim_results", data_dir = "Data/Simout")
-# Counter‑factuals on scenario 3
-cases &lt;- run_malaria_emulator(db_path = "Data/Database/malariasim.duckdb",
-  param_index = 3, predictor = "cases", counterfactual = list(eir = c(0.5, 60, 300)))
-</code></pre>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Python CLI (MINTe)</h3>
-            <div class="code">
-              <button class="copy" data-copy="#demo-cli">Copy</button>
-<pre id="demo-cli"><code>minte \
-  --db-path data.duckdb \
-  --table-name simulation_results \
-  --predictor cases \
-  --use-cyclical-time \
-  --window-size 30 \
-  --param-limit 2048 \
-  --sim-limit 8 \
-  --device cuda \
-  --output-dir results
-</code></pre>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Prevalence → EIR (estiMINT)</h3>
-            <div class="code">
-              <button class="copy" data-copy="#demo-estimint">Copy</button>
-<pre id="demo-estimint"><code>library(estiMINT)
-field &lt;- data.frame(
-  prevalence = c(0.20, 0.40), Q0 = c(0.65, 0.75), phi_bednets = c(0.45, 0.65),
-  itn_use = c(0.4, 0.6), irs_use = c(0.2, 0.4), seasonal = c(0,1), routine = c(0,0)
-)
-pretrained &lt;- load_pretrained_eir_models()
-xgb &lt;- if (is.list(pretrained$xgboost) & & "model" %in% names(pretrained$xgboost)) pretrained$xgboost$model else pretrained$xgboost
-pred &lt;- predict_initial_eir(xgb, field, pretrained$feature_cols)
-print(round(pred, 2))
-</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cite / Hire -->
-    <section id="hire" class="section">
-      <div class="container">
-        <div class="grid-2">
-          <div class="card">
-            <h3 style="margin-top:0">Cite & Acknowledge</h3>
-            <p>If MINTverse helped your research, please cite the software repositories:</p>
-            <div class="code">
-              <button class="copy" data-copy="#bibtex">Copy</button>
-<pre id="bibtex"><code>@misc{MINTer2025,
-  title = {MINTer: Malaria INTervention emulator in R},
-  author = {Cosmo},
-  year = {2025},
-  howpublished = {GitHub},
-  url = {https://github.com/CosmoNaught/MINTer}
-}
-@misc{estiMINT2025,
-  title = {estiMINT: EIR and case estimation models},
-  author = {Cosmo},
-  year = {2025},
-  howpublished = {GitHub},
-  url = {https://github.com/CosmoNaught/estiMINT}
-}
-@misc{MINTe2025,
-  title = {MINTe: Neural forecasting for malaria},
-  author = {Cosmo},
-  year = {2025},
-  howpublished = {GitHub},
-  url = {https://github.com/CosmoNaught/minte}
-}
-</code></pre>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3 style="margin-top:0">Work with me</h3>
-            <p>I collaborate with academic labs, NGOs, and public‑health teams on modeling & decision support. Typical engagements include:</p>
-            <ul style="margin: 0 0 10px 18px;">
-              <li>Rapid scenario analysis for ITN/IRS/LSM campaigns</li>
-              <li>Model validation & emulator deployment</li>
-              <li>Custom data pipelines (DuckDB, R, Python)</li>
-            </ul>
-            <div class="cta-row">
-              <a class="btn primary" href="mailto:your-email@example.com?subject=MINTverse%20collaboration" rel="noopener">Email me</a>
-              <a class="btn ghost" href="https://github.com/CosmoNaught" target="_blank" rel="noopener">GitHub profile</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="section-tight">
-    <div class="container" style="text-align:center; color:#cbd5e1;">
-      <div style="margin-bottom:6px;">MINTverse © 2025 • MIT License</div>
-      <div style="opacity:.8">Built for malaria intervention research • London, UK</div>
-    </div>
-  </footer>
-
-  <!-- JSON‑LD structured data (SoftwareApplication) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "MINTer",
-    "applicationCategory": "ScientificSoftware",
-    "operatingSystem": "Windows, macOS, Linux",
-    "softwareVersion": "latest",
-    "creator": {"@type": "Person", "name": "Cosmo"},
-    "url": "https://github.com/CosmoNaught/MINTer",
-    "description": "R package orchestrating malaria intervention emulation and pipelines.",
-    "license": "https://opensource.org/licenses/MIT"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "estiMINT",
-    "applicationCategory": "ScientificSoftware",
-    "operatingSystem": "Windows, macOS, Linux",
-    "softwareVersion": "latest",
-    "creator": {"@type": "Person", "name": "Cosmo"},
-    "url": "https://github.com/CosmoNaught/estiMINT",
-    "description": "ML models for EIR estimation and annual case prediction.",
-    "license": "https://opensource.org/licenses/MIT"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "MINTe",
-    "applicationCategory": "ScientificSoftware",
-    "operatingSystem": "Windows, macOS, Linux",
-    "softwareVersion": "latest",
-    "creator": {"@type": "Person", "name": "Cosmo"},
-    "url": "https://github.com/CosmoNaught/minte",
-    "description": "Python RNN models (GRU/LSTM) for malaria prevalence time‑series.",
-    "license": "https://opensource.org/licenses/MIT"
-  }
-  </script>
-
-  <script>
-    // Theme toggle (persist across visits)
-    (function(){
-      const btn = document.getElementById('themeBtn');
-      const key = 'mintverse-theme';
-      const set = (mode) => { document.documentElement.dataset.theme = mode; localStorage.setItem(key, mode); };
-      const current = localStorage.getItem(key) || 'dark';
-      set(current);
-      btn.addEventListener('click', () => set((localStorage.getItem(key) === 'dark') ? 'light' : 'dark'));
-    })();
-
-    // Copy buttons
-    document.querySelectorAll('.copy').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const sel = btn.getAttribute('data-copy');
-        const node = document.querySelector(sel);
-        if (!node) return;
-        const text = node.innerText;
-        navigator.clipboard.writeText(text).then(() => {
-          const prev = btn.textContent;
-          btn.textContent = 'Copied!';
-          setTimeout(() => btn.textContent = prev, 1400);
-        });
-      });
-    });
-  </script>
-
-  <style>
-    /* Simple light theme support */
-    html[data-theme='light'] body { background:#ffffff; color:#0b1220; }
-    html[data-theme='light'] nav { background: rgba(255,255,255,.85); border-bottom-color: rgba(17,24,39,.08); }
-    html[data-theme='light'] .card { background:#ffffff; border-color: rgba(17,24,39,.08); box-shadow: 0 14px 30px rgba(17,24,39,.06); }
-    html[data-theme='light'] .hero-card, html[data-theme='light'] .code { background: #0f172a; color:#e6edf3; }
-    html[data-theme='light'] .btn.ghost { border-color: rgba(17,24,39,.12); color:#0b1220; }
-    html[data-theme='light'] .pill { border-color: rgba(17,24,39,.14); color:#111827; }
-    html[data-theme='light'] .section-desc { color:#334155; }
-  </style>
+    <!-- Tiny JS: copy buttons -->
+    <script>
+        (function(){
+            document.querySelectorAll('.code-section').forEach(sec=>{
+                const btn = sec.querySelector('.copy-btn');
+                const code = sec.querySelector('pre');
+                if(btn && code){
+                    btn.addEventListener('click', async ()=>{
+                        try{
+                            await navigator.clipboard.writeText(code.innerText);
+                            const old = btn.textContent;
+                            btn.textContent = 'Copied!';
+                            setTimeout(()=>btn.textContent = old, 1500);
+                        }catch(e){ btn.textContent = 'Failed'; }
+                    });
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
