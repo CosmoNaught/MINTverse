@@ -191,11 +191,8 @@
         .hero::after{
             content:'';
             position:absolute;
-            /* push the whole halo box down a bit and keep it wide */
             inset: 6% -25% auto -25%;
-            /* let it run lower */
             height: 105%;
-            /* bigger ellipse + lower center */
             background: radial-gradient(1400px 680px at 50% 26%,
                 rgba(0,212,170,.35),
                 rgba(0,113,227,.22) 30%,
@@ -204,7 +201,7 @@
             opacity:.85;
             pointer-events:none;
             z-index:1;
-            animation: haloDrift 5s ease-in-out infinite alternate;
+            animation: haloDrift 8s ease-in-out infinite alternate;
         }
 
 
@@ -532,6 +529,25 @@
             z-index: 1;
         }
 
+        .section::after{
+            content:'';
+            position:absolute;
+            inset:-12% -25% -35% -25%;
+            background: radial-gradient(60% 40% at 50% 0,
+                        rgba(0,212,170,.10),
+                        rgba(0,113,227,.08) 35%,
+                        rgba(0,0,0,0) 70%);
+            filter: blur(28px);
+            opacity:.25;
+            pointer-events:none;
+            transition: opacity .6s ease;
+            z-index:0;
+        }
+        .section.visible .section-title { transform: translateY(0); opacity:1; }
+        .section.visible::after{ 
+            opacity:.42;
+        }
+
         .section-dark {
             background: #000;
         }
@@ -557,9 +573,45 @@
         .section-header {
             text-align: center;
             margin-bottom: 80px;
+            position: relative; 
+        }
+
+        .section-header::after{
+            content:'';
+            display:block;
+            width:0;
+            height:2px;
+            margin:14px auto 0;
+            background: linear-gradient(90deg, var(--green), var(--accent));
+            box-shadow: 0 0 20px rgba(0,212,170,.35);
+            transition: width .8s ease;
+        }
+        
+        .section.visible .section-header::after{
+            width: 140px;
+        }
+
+        .section::after{
+        content:'';
+        position:absolute;
+        inset:-12% -25% -35% -25%;
+        background: radial-gradient(60% 40% at 50% 0,
+                    rgba(0,212,170,.10),
+                    rgba(0,113,227,.08) 35%,
+                    rgba(0,0,0,0) 70%);
+        filter: blur(28px);
+        opacity:.25;
+        pointer-events:none;
+        transition: opacity .6s ease;
+        z-index:0;
+        }
+
+        .section.visible::after{
+            opacity:.42;
         }
 
         .section-title {
+            transform: translateY(6px); opacity:.85; transition: transform .6s, opacity .6s;
             font-size: clamp(36px, 6vw, 56px);
             font-weight: 700;
             letter-spacing: -0.03em;
@@ -569,6 +621,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
 
         .section-subtitle {
             font-size: 20px;
@@ -868,6 +921,7 @@
         .parameter { color: #ffa657; }
 
         .copy-btn {
+            transition: transform .2s, background .2s, box-shadow .2s;
             position: absolute;
             top: 14px;
             right: 16px;
@@ -1248,6 +1302,43 @@
 
         .quick-links .quick-link h3 { 
             font-size: clamp(16px, 2.2vw, 64px); 
+        }
+
+        #quickstart .code-section{
+            position:relative;
+            transform: translateY(10px) scale(.985);
+            transition: transform .6s cubic-bezier(.2,.65,.2,1), box-shadow .6s;
+            box-shadow: 0 12px 40px rgba(0,0,0,.55);
+        }
+        
+        #quickstart.visible .code-section{
+            transform: translateY(0) scale(1);
+            box-shadow: 0 30px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+        }
+            /* animated conic ring like your stat cards */
+        #quickstart .code-section::after{
+            content:'';
+            position:absolute;
+            inset:0;
+            padding:1px;
+            border-radius:16px;
+            background: conic-gradient(from 0deg, var(--green), var(--accent), var(--green));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity:.18;
+            pointer-events:none;
+            animation: spin 14s linear infinite;
+        }
+        
+        #quickstart.visible .code-section::after{ opacity:.33; }
+            @keyframes sweep {
+            from { background-position:-200% 0; }
+            to   { background-position:200% 0; }
+            }
+            #quickstart.visible .code-section pre{
+            background-image: linear-gradient(90deg, transparent, rgba(0,212,170,.05), transparent);
+            background-size: 200% 100%;
+            animation: sweep 1.8s ease 0.2s 1;
         }
 
     </style>
@@ -2390,17 +2481,14 @@ python -c "import minte; print(minte.__version__)"</code></pre>
             const navH = nav.offsetHeight || 0;
             const available = window.innerHeight - navH - padTop - padBottom;
 
-            wrapper.style.transform = 'scale(1)';        // measure natural height
+            wrapper.style.transform = 'scale(1)';
             const contentH = wrapper.offsetHeight;
-            const ratio = (available - 6) / contentH;    // how much space we have
-            const BONUS = 1.10;                          // +10%
+            const ratio = (available - 6) / contentH;
+            const BONUS = 1.10;
 
-            // If there's spare space, scale up to +10% (but never exceed available).
-            // If there's not, scale down to fit as before.
             const scale = ratio >= 1 ? Math.min(BONUS, ratio) : Math.max(0.01, ratio);
             wrapper.style.transform = `scale(${scale})`;
-
-            hero.style.minHeight = `100svh`;
+            hero.style.minHeight = '100svh';
         }
 
         // Run on load and when resized
