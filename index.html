@@ -190,11 +190,11 @@
             z-index: 1;
         }
         
-        @keyframes drift {
+        /* @keyframes drift {
             0% { transform: translate(0, 0) rotate(0deg); }
             100% { transform: translate(100px, 100px) rotate(1deg); }
         }
-    
+     */
         .hero::after{
             content:'';
             position:absolute;
@@ -707,7 +707,7 @@
             gap: 8px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 32px;
             padding: 12px 24px;
             text-decoration: none;
             color: white;
@@ -1076,28 +1076,123 @@
             background: linear-gradient(180deg, var(--green), var(--accent));
             border-radius: 2px;
         }
+        #contact .feature-grid{
+            align-items: start;     /* prevents all items in this grid from stretching */
+        /* align-items: flex-start; */
+        }
+
 
         /* Contact section specific styles */
-        #contact .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-            gap: 32px;
-            align-items: start;
+        #contact .feature-grid > .feature-card{
+            /* surface */
+            background:
+                radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+                #0b0b0d;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 20px;
+            border-width: var(--card-border-w);
+            box-shadow: 0 12px 40px rgba(0,0,0,.55);
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            transition: transform .4s cubic-bezier(.4,0,.2,1), box-shadow .4s, border-color .4s;
+        }
+
+        /* animated conic ring (same technique as hero/stat cards) */
+        #contact .feature-grid > .feature-card::before{
+            content:'';
+            position:absolute;
+            inset:0;
+            padding: var(--ring-w);
+            border-radius: 20px;
+            background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+            opacity:.18;
+            pointer-events:none;
+            transition: opacity .35s ease, transform 3.2s linear;
+        }
+
+            /* soft radial halo */
+        #contact .feature-grid > .feature-card::after{
+            content:'';
+            position:absolute;
+            inset:-0;
+            background: radial-gradient(60% 40% at 50% 0,
+                        rgba(0,212,170,.14),
+                        rgba(0,113,227,.10) 33%,
+                        rgba(0,0,0,0) 70%);
+            filter: blur(28px);
+            opacity:.40;
+            pointer-events:none;
+            transition: opacity .3s ease;
+            z-index:0;
+        }
+
+            /* lift + glow on hover */
+        #contact .feature-grid > .feature-card:hover{
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(0,212,170,.28);
+            box-shadow: 0 30px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+        }
+            /* #contact .feature-grid > .feature-card:hover::before{ opacity:.36; transform: rotate(12deg); } */
+            #contact .feature-grid > .feature-card:hover::after{  opacity:.65; }
+
+            /* animate in when section becomes visible (your IntersectionObserver already adds .visible) */
+            #contact.visible .feature-grid > .feature-card::before{ opacity:.28; }
+            #contact.visible .feature-grid > .feature-card::after{  opacity:.52; }
+
+            /* optional: subtle shimmering underline on the section header to match polish */
+            #contact .section-header::after{
+            height:2px;
+            box-shadow: 0 0 20px rgba(0,212,170,.35);
+        }
+
+            /* respect reduced motion */
+        @media (prefers-reduced-motion: reduce){
+            #contact .feature-grid > .feature-card,
+            #contact .feature-grid > .feature-card::before{
+                transition: none;
+        }
         }
 
         #contact .feature-card {
-            padding: 32px;
+                padding: 32px;
         }
 
-        #contact .h3-tight {
-            margin-bottom: 4px;
-            font-size: 28px;
-            padding-left: 0;
+            /* Contact bio heading: restore the left accent bar */
+        #contact .h3-tight{
+            position: relative;
+            padding-left: 20px;            /* make room for the bar */
         }
 
-        #contact .h3-tight::before {
-            display: none;
+        #contact .h3-tight::before{
+            content:'';
+            position:absolute;
+            left:0; top:50%;
+            transform: translateY(-50%);
+            width:4px; height:24px;
+            background: linear-gradient(180deg, var(--green), var(--accent));
+            border-radius: 2px;
+            display:block;                 /* override previous display:none */
         }
+
+            /* More breathing room in the contact details */
+        #contact .contact-card p{
+            margin: 14px 0;          /* vertical space between lines */
+            line-height: 1.75;       /* easier to read */
+            }
+        #contact .contact-card .cta-row{ margin-top: 28px; }
+
+            /* Put the 2nd email on its own line without touching your HTML */
+        #contact .contact-card p a + a{
+            display: block;
+            margin-top: 8px;
+        }
+
 
         #contact .subtitle {
             color: #86868b;
@@ -1200,6 +1295,49 @@
             margin-top: 20px;
             line-height: 1.6;
         }
+
+        /* Contact card links: no pills, subtle underline on hover */
+#contact .contact-card a.github-link{
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  text-decoration: none;
+  color: #e8e8ed;
+  opacity: .95;
+  position: relative;
+  display: inline;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#contact .contact-card a.github-link:hover{
+  opacity: 1;
+  background: transparent !important;
+}
+
+/* animated underline to match site aesthetic */
+#contact .contact-card a.github-link::after{
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  transition: width .25s ease;
+  opacity: .9;
+}
+
+#contact .contact-card a.github-link:hover::after,
+#contact .contact-card a.github-link:focus-visible::after{
+  width: 100%;
+}
+
+/* small QoL tweaks */
+#contact .contact-card a{ overflow-wrap: anywhere; }    /* long emails don’t overflow */
+#contact .contact-card p a + a{ display: block; margin-top: 6px; } /* 2nd*
+
 
         /* Footer */
         footer {
@@ -1898,45 +2036,45 @@ library(MINTer)</code></pre>
                     <div class="feature-card">
                         <h4>EIR — XGBoost</h4>
                         <p>Wide EIR coverage, handles extremes gracefully.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 35.08</div><div class="muted">R² 0.903 • r 0.951</div></div>
+                        </div>
                         <div class="pill-row">
                             <div class="pill">log₁₀(EIR+1)</div>
                             <div class="pill">MSE objective</div>
-                        </div>
-                        <div class="stat-cards">
-                            <div class="stat"><div class="value">RMSE 35.08</div><div class="muted">R² 0.903 • r 0.951</div></div>
                         </div>
                     </div>
                     <div class="feature-card">
                         <h4>EIR — Random Forest</h4>
                         <p>Strong robustness with natural uncertainty feel.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 36.85</div><div class="muted">R² 0.893 • r 0.947</div></div>
+                        </div>
                         <div class="pill-row">
                             <div class="pill">log₁₀(EIR+1)</div>
                             <div class="pill">1–2k trees</div>
-                        </div>
-                        <div class="stat-cards">
-                            <div class="stat"><div class="value">RMSE 36.85</div><div class="muted">R² 0.893 • r 0.947</div></div>
                         </div>
                     </div>
                     <div class="feature-card">
                         <h4>Cases — XGBoost (Tweedie)</h4>
                         <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 0.265</div><div class="muted">R² 0.926 • r 0.963</div></div>
+                        </div>
                         <div class="pill-row">
                             <div class="pill">Tweedie ~1.15</div>
                             <div class="pill">Dynamic weights</div>
-                        </div>
-                        <div class="stat-cards">
-                            <div class="stat"><div class="value">RMSE 0.265</div><div class="muted">R² 0.926 • r 0.963</div></div>
                         </div>
                     </div>
                     <div class="feature-card">
                         <h4>Cases — Random Forest</h4>
                         <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 0.277</div><div class="muted">R² 0.919 • r 0.959</div></div>
+                        </div>
                         <div class="pill-row">
                             <div class="pill">√-transform</div>
                             <div class="pill">LHS tuning</div>
-                        </div>
-                        <div class="stat-cards">
-                            <div class="stat"><div class="value">RMSE 0.277</div><div class="muted">R² 0.919 • r 0.959</div></div>
                         </div>
                     </div>
                 </div>
@@ -2362,7 +2500,9 @@ python -c "import minte; print(minte.__version__)"</code></pre>
             <section class="section fade-in">
                 <div class="section-header">
                     <h2 class="section-title">Resources & Support</h2>
-                    <p class="section-subtitle"> Actively developed. Questions, bugs, contributions:</p>
+                    <p class="section-subtitle"> Actively developed with love, from London</p>
+                    <p class="section-subtitle"> Questions, issues & contributions:</p>
+
                 </div>
                 <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
                     <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">Report Issues</a>
@@ -2421,11 +2561,11 @@ python -c "import minte; print(minte.__version__)"</code></pre>
                 </div>
 
                 <!-- Right column: contact -->
-                <div class="feature-card">
+                <div class="feature-card contact-card">
                     <h3 style="margin-bottom:12px">Contact</h3>
-                    <p>Based in London, UK • Open to roles, collaborations & consulting</p>
+                    <p class="subtitle">Based in London, UK • Open to roles, collaborations & consulting </p>
                     <p>Email: 
-                        <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
+                        <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a> 
                         <a href="mailto:santonicosmo@gmail.com" class="github-link">santonicosmo@gmail.com</a>
                     </p>
                     <p>GitHub: <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener" class="github-link">CosmoNaught</a></p>
