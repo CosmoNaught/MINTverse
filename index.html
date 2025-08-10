@@ -78,7 +78,14 @@
             border-radius:10px;padding:.55rem 1rem;text-decoration:none;color:var(--text-primary);transition:.25s
         }
         .github-link:hover{background:var(--primary);transform:translateY(-2px)}
-        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0 1.6rem}
+        #contact .feature-grid{
+        display:flex;           /* override grid just in this section */
+        flex-wrap:wrap;
+        gap:1rem;
+        align-items:flex-start; /* don't stretch to tallest */
+        }
+        #contact .feature-card{flex:1 1 320px;height:auto;}
+
         .feature-card{background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.1rem}
         .feature-card h4{color:var(--secondary);margin-bottom:.35rem}
 
@@ -97,7 +104,31 @@
             display:inline-block;padding:.18rem .5rem;border-radius:999px;font-size:.75rem;
             background:rgba(37,99,235,.18);border:1px solid rgba(37,99,235,.35);color:#dbeafe
         }
-        .stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;margin:1rem 0 1.25rem}
+        /* Stack this band anywhere on the page */
+        .stat-cards.stat-cards--stack{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:.9rem;
+        margin:1rem 0 1.25rem;
+        }
+        .stat-cards.stat-cards--stack .stat{
+        display:block;
+        text-align:center;
+        padding:1.1rem;
+        background:var(--bg-dark);
+        border:1px solid rgba(255,255,255,.08);
+        border-radius:12px;
+        }
+        .stat-cards.stat-cards--stack .value{
+        font-size:1.6rem;
+        font-weight:800;
+        line-height:1.05;
+        margin-bottom:.15rem;
+        }
+        .stat-cards.stat-cards--stack .muted{ color:var(--text-secondary); text-align:center; }
+        .stat-cards.stat-cards--stack small{ opacity:.9; }
+
+
         .stat{background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem}
         .stat .value{font-size:1.35rem;font-weight:800}
         .alert{
@@ -178,6 +209,43 @@
         </div>
     </header>
 
+    <div class="container" style="margin-top:.6rem">
+        <div style="display:flex;justify-content:center">
+          <div style="display:flex;gap:.6rem;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.35rem .7rem;">
+            <span style="opacity:.9">Built by <strong>Cosmo Santoni</strong>, Imperial College London</span>
+            <span aria-hidden="true" style="opacity:.35">•</span>
+            <a href="#contact" class="github-link" style="padding:.15rem .5rem;border-radius:999px">About & contact</a>
+            <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity" class="github-link" style="padding:.15rem .5rem;border-radius:999px">Work with me</a>
+          </div>
+        </div>
+      </div>
+      
+        <!-- Key stats (Overview) -->
+        <div class="container" style="margin-top:.6rem">
+            <div style="max-width:900px;margin:0 auto">
+              <div class="stat-cards stat-cards--stack" role="group" aria-label="Key performance stats">
+                <div class="stat">
+                  <div class="value">~200,000×</div>
+                  <div class="muted">faster than baseline sims</div>
+                </div>
+                <div class="stat">
+                  <div class="value">~82k/sec</div>
+                  <div class="muted">emulations on laptop GPU<br><small>(4096 every 0.05s)</small></div>
+                </div>
+                <div class="stat">
+                  <div class="value">64.3B+</div>
+                  <div class="muted">feature–time values via DuckDB<br>
+                    <small>(2^17 params × 8 realisations × 4,380 days × 14 covariates)</small>
+                  </div>
+                </div>
+              </div>
+              <p class="muted" style="text-align:center;margin-top:.4rem">
+                Current replay: 131,076 time-series in ~90s — trained on 3.125% of a ~4.19M-series dataset.
+              </p>
+            </div>
+          </div>
+          
+        
     <main class="container">
         <!-- Overview -->
         <section id="overview" class="section">
@@ -943,46 +1011,96 @@ case_results &lt;- <span class="function">build_case_models</span>(
         </section>
     </main>
 
-    <!-- ABOUT & CONTACT -->
-    <section id="contact" class="section">
-        <h2 class="section-title">About me & contact</h2>
-        <div class="container">
-          <div class="feature-grid">
-            <div class="feature-card">
-                <h3 style="margin-bottom:.4rem">About</h3>
-                <p><strong>Cosmo Santoni</strong> — applied mathematics & machine learning researcher at Imperial College London. I build decision-ready epidemic models that turn complex simulations into fast, reliable tools for policy and program delivery.</p>
-                
-                <p>My work has informed the UK government’s COVID-19 response (SPI-M-O/SAGE) and Global Fund malaria strategies. I design PyTorch/R/Julia emulators that <em>dramatically reduce</em> compute and time-to-insight for malaria programmes, and I ship production-quality research software with strong DevOps, testing, and reproducibility standards.</p>
-                
-                <p class="muted">PhD (Applied Mathematics), Imperial College London — Deep learning surrogate modelling & graph neural networks for infectious disease (supervisors: Oliver J. Watson, Thomas C. Churcher).</p>
-                
-                <div class="feature-card" style="margin-top:.75rem">
-                  <h4 style="margin-bottom:.35rem">What I bring</h4>
-                  <ul style="margin-left:1rem">
-                    <li><strong>Policy impact:</strong> Contributor to government-used reports; co-author on <em>Lancet Public Health</em> and <em>Nature Communications</em>; talks/workshops with MSF, WHO, Public Health Canada, data.org.</li>
-                    <li><strong>Technical depth:</strong> PyTorch, TensorFlow, RStan, Julia SciML; Bayesian inference & ML at scale (CPU/GPU, HPC); data engineering with DuckDB; Python/R/Julia; CI, tests, coverage.</li>
-                    <li><strong>Product mindset:</strong> Creator of the MINTverse (MINTer, estiMINT, MINTe) for dashboard-ready outputs and reproducible pipelines used in real policy workflows.</li>
-                    <li><strong>Engineering leadership:</strong> Set team OSS standards, code review practices, packaging, and release governance; teach programming, testing, and I/O validation.</li>
-                  </ul>
-                </div>
-                
-                <p class="muted" style="margin-top:.5rem">
-                Selected recognition: SPI-M-O Award for Modelling & Data Support (on behalf of SAGE). 
-                Publications include <em>Lancet Public Health</em>, <em>Nature Communications</em>; additional work under review.
-                </p>
-                
-            </div>
-            <div class="feature-card">
-              <h3 style="margin-bottom:.4rem">Contact</h3>
-              <p>Email: <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
-                <a href="mailto:santonicosmo@gmail.com" class="github-link">santonicosmo@gmail.com</a></p>
-              <p>GitHub: <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener" class="github-link">CosmoNaught</a></p>
-              <p>LinkedIn: <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener" class="github-link">Cosmo Santoni</a></p>
-              <p><a class="github-link" href="YOUR-CV.pdf" target="_blank" rel="noopener">Download CV</a></p>
+<!-- REPLACE your existing ABOUT & CONTACT section with this block -->
+<section id="contact" class="section">
+    <h2 class="section-title">About me & contact</h2>
+    <div class="container">
+  
+      <!-- Local styles scoped to this section only -->
+      <style>
+        #contact .h3-tight{margin-bottom:.25rem}
+        #contact .subtitle{color:var(--text-secondary);opacity:.95;margin:.1rem 0 .6rem}
+        #contact .tick-list{list-style:none;margin:.2rem 0 0;padding:0}
+        #contact .tick-list li{position:relative;padding-left:1.25rem;margin:.32rem 0}
+        #contact .tick-list li::before{content:"✔";position:absolute;left:0;top:.05rem;opacity:.65}
+        #contact .chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0 .2rem}
+        #contact .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.22rem .6rem;font-size:.8rem}
+        #contact .cta-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+        #contact .btn-primary{display:inline-flex;align-items:center;gap:.4rem;background:var(--primary);color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.5rem .85rem;text-decoration:none;transition:.2s}
+        #contact .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+        #contact .btn-ghost{display:inline-flex;align-items:center;gap:.4rem;background:var(--bg-dark);color:var(--text-primary);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.5rem .85rem;text-decoration:none;transition:.2s}
+        #contact .btn-ghost:hover{background:rgba(255,255,255,.06)}
+        #contact .small-muted{color:var(--muted);font-size:.9rem;margin-top:.45rem}
+      </style>
+  
+      <div class="feature-grid">
+        <!-- Left column: bio -->
+        <div class="feature-card">
+          <h3 class="h3-tight">Cosmo Santoni</h3>
+          <p class="subtitle">Applied mathematics & machine learning researcher • Imperial College London</p>
+  
+          <p>I turn heavy epidemiological models into fast, decision‑ready tools. My work has supported the UK government’s COVID‑19 response and informed Global Fund malaria strategies. I build deep‑learning emulators (PyTorch/R/Julia) that compress hours‑long agent‑based simulations into instant forecasts—and I ship the tooling with tests, CI, and reproducible releases.</p>
+  
+          <div class="feature-card" style="margin-top:.85rem">
+            <h4 style="margin-bottom:.35rem">Selected impact</h4>
+            <ul class="tick-list">
+              <li>SPI‑M‑O Award for Modelling & Data Support (on behalf of SAGE).</li>
+              <li>Co‑author on <em>The Lancet Public Health</em> and <em>Nature Communications</em>.</li>
+              <li>Talks/workshops with MSF, WHO, Public Health Canada, and data.org.</li>
+            </ul>
+          </div>
+  
+        
+          <div class="feature-card" style="margin-top:.85rem">
+            <h4 style="margin-bottom:.35rem">What I bring</h4>
+            <ul class="tick-list">
+              <li><strong>Product thinking:</strong> creator of the <strong>MINTverse</strong> (MINTer, estiMINT, MINTe) for dashboard‑ready outputs and reproducible pipelines.</li>
+              <li><strong>Technical depth:</strong> PyTorch, TensorFlow, RStan, Julia SciML; Bayesian inference; HPC on CPU/GPU; data engineering with DuckDB.</li>
+              <li><strong>Engineering leadership:</strong> OSS standards, code review, packaging and release governance; I teach testing and I/O validation.</li>
+            </ul>
+            <div class="chips">
+              <span class="chip">PyTorch</span><span class="chip">R / Tidyverse</span><span class="chip">Julia SciML</span><span class="chip">RStan</span><span class="chip">Bayesian ML</span><span class="chip">DuckDB</span><span class="chip">HPC (CPU/GPU)</span><span class="chip">CI & testing</span>
             </div>
           </div>
+  
+          <p class="small-muted">PhD (Applied Mathematics), Imperial College London — <em>Deep learning surrogate modelling & graph neural networks for infectious disease</em> (supervisors: Oliver J. Watson, Thomas C. Churcher).</p>
         </div>
-      </section>
+  
+        <!-- Right column: contact -->
+        <div class="feature-card">
+          <h3 style="margin-bottom:.4rem">Contact</h3>
+          <p>Based in London, UK • Open to roles, collaborations & consulting</p>
+          <p>Email: 
+            <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
+            <a href="mailto:santonicosmo@gmail.com" class="github-link">santonicosmo@gmail.com</a>
+          </p>
+          <p>GitHub: <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener" class="github-link">CosmoNaught</a></p>
+          <p>LinkedIn: <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener" class="github-link">Cosmo Santoni</a></p>
+          <div class="cta-row">
+            <a class="btn-primary" href="mailto:cosmo.santoni@imperial.ac.uk?subject=Opportunities%20%2F%20collaboration">Work with me</a>
+            <a class="btn-ghost" href="#" onclick="downloadCV(); return false;">Download CV</a>
+            <script>
+            async function downloadCV(){
+            const url = "https://raw.githubusercontent.com/CosmoNaught/MINTverse/main/Cosmo%20Santoni%20CV.pdf";
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "Cosmo_Santoni_CV.pdf";
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(a.href);
+            a.remove();
+            }
+            </script>
+
+          </div>
+          <p class="small-muted">Prefer phone? I’m happy to share a number on request.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
   
       <footer class="footer">
         <div class="container">
