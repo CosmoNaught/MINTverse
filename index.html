@@ -23,8 +23,8 @@
             --text-gradient: linear-gradient(90deg, #fff 0%, #86868b 100%);
             --primary: #00d4aa;
             --primary-dark: #00a085;
-            --card-border-w: 2px;   /* outer border thickness (was 1px) */
-            --ring-w: 2px;          /* animated ring thickness (was 1px) */
+            --card-border-w: 1px;   /* outer border thickness (was 1px) */
+            --ring-w: 4px;          /* animated ring thickness (was 1px) */
             --title-glow-a: rgba(0,212,170,.40); /* green glow */
             --title-glow-b: rgba(0,113,227,.28); /* blue glow */
             --title-deck:   rgba(0,0,0,.55);     /* tight dark edge */
@@ -331,14 +331,9 @@
             content:'';
             position:absolute;
             inset:0;
-            padding:1px;
+            padding: var(--ring-w);      /* already 2px; keep consistent */
             border-radius:20px;
-            background: conic-gradient(
-            from .25turn,
-            var(--green) 0deg,
-            var(--accent) 180deg,
-            var(--green) 359.9deg, var(--green) 360deg
-        );
+            background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
             -webkit-mask:
                 linear-gradient(#000 0 0) content-box,
                 linear-gradient(#000 0 0);
@@ -347,6 +342,7 @@
                     opacity:.25; transition: opacity .35s ease;
             padding: var(--ring-w);
             border-radius: 20px;   
+            opacity: .6;   
             pointer-events:none;
             animation: spin 12s linear infinite;
         }
@@ -354,13 +350,14 @@
         .quick-link::after{
             content:'';
             position:absolute;
-            inset:-20% -20% -40% -20%;
+            inset: -25% -30% -50% -30%;  /* wider glow like stat cards */
             background: radial-gradient(60% 40% at 50% 0,
                         rgba(0,212,170,.12),
                         rgba(0,113,227,.10) 33%,
                         rgba(0,0,0,0) 70%);
-            filter: blur(24px);
-            opacity:.35;
+            filter: blur(26px);
+            opacity:.45;
+            transition: opacity .25s ease;
             pointer-events:none;
             z-index:0;
         }
@@ -375,7 +372,7 @@
             border-color: rgba(0,212,170,0.28);
         }
 
-        .quick-link:hover::before{ opacity:.5; }
+        .quick-link:hover::before{ opacity:.7; }
 
         .quick-link h3 {
             font-size: 24px;
@@ -1428,23 +1425,23 @@
     <section class="hero">
         <div class="hero-content">
             <h1>MINTverse</h1>
-            <p class="hero-subtitle">Malaria Intervention Emulation ecosystem in Python & R</p>
-            <p class="hero-description">Fast, lightweight emulation of malariasimulation models using deep learning</p>
-            
+            <p class="hero-subtitle">From hours-long simulations to millisecond forecasts.</p>
+            <p class="hero-description">Deep-learning surrogates for <em>malariasimulation</em>, packaged for Python & R and ready for dashboards.</p>
+
             <div class="quick-links">
-                <a href="#minter" class="quick-link">
-                    <h3>MINTer</h3>
-                    <p>R orchestrator. One API for the stack.</p>
-                </a>
-                <a href="#estimint" class="quick-link">
-                    <h3>estiMINT</h3>
-                    <p>Harnessing XGBoost and Random Forest Powered Prediction Power</p>
-                    <p>Prevalence → EIR & Malaria Incidence Forecasting</p>
-                </a>
-                <a href="#minte" class="quick-link">
-                    <h3>MINTe</h3>
-                    <p>Powwering Cutting Edge CUDA Ready Recurrent Temporal Neural Network Predictions</p>
-                </a>
+            <a href="#minter" class="quick-link">
+                <h3>MINTer</h3>
+                <p>The R orchestrator. One API across MINTer, estiMINT, and MINTe. Tidy outputs by default.</p>
+            </a>
+            <a href="#estimint" class="quick-link">
+                <h3>estiMINT</h3>
+                <p>Prevalence + coverage → <strong>EIR₀</strong> and <strong>cases per 1000</strong> using XGBoost and Random Forest.</p>
+                <p>Fast enough for interactive what-ifs, retrainable in one command.</p>
+            </a>
+            <a href="#minte" class="quick-link">
+                <h3>MINTe</h3>
+                <p>CUDA-ready GRU/LSTM time-series models for prevalence and cases. Load, predict, ship.</p>
+            </a>
             </div>
 
             <div class="author-banner">
@@ -1464,7 +1461,7 @@
                 <div class="stat-card">
                     <span class="stat-number">~82k/sec</span>
                     <span class="stat-label">emulations on laptop GPU
-                        <small>(4096 multi-threaded CUDA computations every 0.05s)</small>
+                        <small>(4096 batched multi-threaded CUDA computations every 0.05s)</small>
                     </span>
                 </div>
                 <div class="stat-card">
@@ -1535,8 +1532,37 @@
                         </div>
                     </div>
                 </div>
-            </section>
 
+                <div class="workflow-diagram">
+                    <div class="badge">Engineering Guarantees</div>
+                    <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔒 Reproducible by default</h4>
+                        <p>Frozen model artifacts (<code>models-YYYYMMDD-HHMMSS-hash</code>), checksums, pinned dependencies, seeded training, and deterministic inference paths.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧾 Schema contracts</h4>
+                        <p>Versioned, strict column names and types; boundary I/O validation for CSV/Parquet/DuckDB so dashboards don’t break across releases.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧪 Tested end-to-end</h4>
+                        <p>Unit + integration tests, golden outputs to catch regressions, CI across Linux/macOS/Windows, and GPU/CPU parity checks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚡ Performance budgets</h4>
+                        <p>Documented p50/p95 latency & throughput; batch-safe APIs; CUDA acceleration with graceful CPU fallback and sensible defaults.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📈 Observability</h4>
+                        <p>Structured logging (<code>minte</code> logger), timing hooks, and reproducible benchmarking scripts to track drift and speed.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔐 Data hygiene</h4>
+                        <p>No PII required; local-first processing; cache controls; zero telemetry by default to keep simulations isolated and auditable.</p>
+                    </div>
+                    </div>
+                </div>
+            </section>
             <!-- Quick Start Section -->
             <section id="quickstart" class="section fade-in">
                 <div class="section-header">
