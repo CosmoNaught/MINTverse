@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>MINTverse - Transform Global Health at Scale</title>
-    <meta name="description" content="MINTverse: a dashboard-ready, machine-learning suite for fast malaria intervention modeling—MINTer (R orchestration), estiMINT (EIR & cases ML), and MINTe (Python RNNs).">
+    <meta name="description" content="MINTverse: a dashboard-ready, suite of deep-learning emulators for malaria interventions. Run instant forecasts with MINTer (R), estiMINT (EIR & cases ML), and MINTe (Python RNNs)..">
     <style>
         :root {
             --black: #000000;
@@ -23,6 +23,11 @@
             --text-gradient: linear-gradient(90deg, #fff 0%, #86868b 100%);
             --primary: #00d4aa;
             --primary-dark: #00a085;
+            --card-border-w: 2px;   /* outer border thickness (was 1px) */
+            --ring-w: 2px;          /* animated ring thickness (was 1px) */
+            --title-glow-a: rgba(0,212,170,.40); /* green glow */
+            --title-glow-b: rgba(0,113,227,.28); /* blue glow */
+            --title-deck:   rgba(0,0,0,.55);     /* tight dark edge */
         }
 
         * {
@@ -310,6 +315,7 @@
             -webkit-backdrop-filter: none;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
+            border-width: var(--card-border-w);
             padding: 32px;
             text-decoration: none;
             color: #fff;
@@ -327,14 +333,20 @@
             inset:0;
             padding:1px;
             border-radius:20px;
-            background: conic-gradient(from 0deg,
-                        var(--green), var(--accent), var(--green));
+            background: conic-gradient(
+            from .25turn,
+            var(--green) 0deg,
+            var(--accent) 180deg,
+            var(--green) 359.9deg, var(--green) 360deg
+        );
             -webkit-mask:
                 linear-gradient(#000 0 0) content-box,
                 linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
                     mask-composite: exclude;
-            opacity:.35;
+                    opacity:.25; transition: opacity .35s ease;
+            padding: var(--ring-w);
+            border-radius: 20px;   
             pointer-events:none;
             animation: spin 12s linear infinite;
         }
@@ -353,14 +365,17 @@
             z-index:0;
         }
 
-        .quick-link:hover::before { left: auto; }
+        /* .quick-link:hover::before { left: auto; } */
 
         .quick-link:hover{
             background: var(--panel-bg);                 /* no revert */
             transform: translateY(-8px) scale(1.02);     /* keep the lift */
             border-color: rgba(0, 212, 170, 0.3);
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border-color: rgba(0,212,170,0.28);
         }
+
+        .quick-link:hover::before{ opacity:.5; }
 
         .quick-link h3 {
             font-size: 24px;
@@ -402,6 +417,7 @@
     -webkit-backdrop-filter: none;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
+            border-width: var(--card-border-w);
             padding: 32px;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -424,6 +440,8 @@
             -webkit-mask-composite: xor;
                     mask-composite: exclude;  /* show only the border */
             opacity:.6;
+            padding: var(--ring-w);       /* this controls ring thickness */
+            border-radius: 20px;     
             pointer-events:none;
             animation: spin 10s linear infinite;
             z-index:1;
@@ -1304,6 +1322,50 @@
             font-size: clamp(16px, 2.2vw, 64px); 
         }
 
+                /* Overview: lift + glow like Quick Start */
+        #overview .workflow-diagram{
+        position: relative;
+        transform: translateY(10px) scale(.985);
+        transition: transform .6s cubic-bezier(.2,.65,.2,1), box-shadow .6s;
+        box-shadow: 0 12px 40px rgba(0,0,0,.55);
+        }
+
+        #overview.visible .workflow-diagram{
+        transform: translateY(0) scale(1);
+        box-shadow: 0 30px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+        }
+
+        /* animated conic ring (match its 20px radius) */
+        #overview .workflow-diagram::after{
+        content:'';
+        position:absolute;
+        inset:0;
+        padding:1px;
+        border-radius:20px;
+        background: conic-gradient(from 0deg, var(--green), var(--accent), var(--green));
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        opacity:.18;
+        pointer-events:none;
+        animation: spin 14s linear infinite;
+        }
+        #overview.visible .workflow-diagram::after{ opacity:.33; }
+
+        /* subtle motion along the connectors so it feels “alive” */
+        @keyframes flowPulse { 
+        0% { background-position: 0 0; } 
+        100% { background-position: 200% 0; } 
+        }
+        #overview.visible .flow-connector{
+        background: linear-gradient(90deg,
+                    rgba(0,212,170,.12) 0%,
+                    rgba(0,212,170,.6) 50%,
+                    rgba(0,212,170,.12) 100%);
+        background-size: 200% 100%;
+        animation: flowPulse 2.6s ease-in-out infinite;
+        }
+
+
         #quickstart .code-section{
             position:relative;
             transform: translateY(10px) scale(.985);
@@ -1372,7 +1434,7 @@
             <div class="quick-links">
                 <a href="#minter" class="quick-link">
                     <h3>MINTer</h3>
-                    <p>Primary orchestration package</p>
+                    <p>R orchestrator. One API for the stack.</p>
                 </a>
                 <a href="#estimint" class="quick-link">
                     <h3>estiMINT</h3>
@@ -1381,7 +1443,7 @@
                 </a>
                 <a href="#minte" class="quick-link">
                     <h3>MINTe</h3>
-                    <p>Powwering Cutting Edge Recurrent Temporal Neural Network Predictions</p>
+                    <p>Powwering Cutting Edge CUDA Ready Recurrent Temporal Neural Network Predictions</p>
                 </a>
             </div>
 
@@ -1397,7 +1459,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="stat-number">~200,000×</span>
-                    <span class="stat-label">faster than baseline sims</span>
+                    <span class="stat-label">faster than native agent-based sims</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-number">~82k/sec</span>
@@ -1412,8 +1474,7 @@
                 </div>
             </div>
             <p class="muted" style="text-align:center;margin-top:20px">
-                Current replay: 131,076 time-series in ~90s — trained on 3.125% of a ~4.19M-series dataset.
-            </p>
+                Current replay: 131,076 time series in ~90 s — trained on 3.1% of a 4.19M-series dataset.            </p>
         </div>
     </section>
 
@@ -1424,8 +1485,8 @@
                 <div class="section-header">
                     <h2 class="section-title">Why MINTverse?</h2>
                     <p class="section-subtitle">
-                        Traditional malaria simulation models can take hours or days. MINTverse gives you instant predictions
-                        with pre-trained ML—ideal for rapid intervention planning, what-if analysis, and dashboard integration.
+                        Traditional malaria simulation models can take hours or days. MINTverse delivers instant predictions
+                        with pre-trained deep-learning models, ideal for rapid intervention planning, what-if analysis, and dashboard integration.
                     </p>
                 </div>
 
@@ -1620,14 +1681,14 @@ results$cases |&gt;
                         <div class="flow-step">
                             <div class="flow-icon">🧩</div>
                             <h4>MINTer</h4>
-                            <small>counter-factuals & benchmarking</small>
+                            <small>counterfactuals & benchmarking</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <h4>🔁 Counter-factual sweeps</h4>
+                        <h4>🔁 counterfactual sweeps</h4>
                         <p>Grid or LHS over ITN/IRS/LSM/EIR and generate scenario tables in seconds.</p>
                     </div>
                     <div class="feature-card">
@@ -1707,7 +1768,7 @@ segMINT::create_database(
   table_name = "sim_results", data_dir = "Data/Simout"
 )
 
-<span class="comment"># Counter-factuals on param_index=5</span>
+<span class="comment"># counterfactuals on param_index=5</span>
 cf &lt;- run_malaria_emulator(
   db_path = "Data/Database/malariasim.duckdb",
   param_index = 5,
@@ -1752,7 +1813,7 @@ library(MINTer)</code></pre>
                 <div class="package-header">
                     <div>
                         <h2 class="package-title">estiMINT</h2>
-                        <p class="package-subtitle">Machine-learning models for EIR estimation and annual case prediction</p>
+                        <p class="package-subtitle">Deep learning models for EIR estimation and annual case prediction</p>
                     </div>
                     <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" class="github-link">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -2263,7 +2324,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
             <section class="section fade-in">
                 <div class="section-header">
                     <h2 class="section-title">Resources & Support</h2>
-                    <p class="section-subtitle">MINTverse is actively developed. For questions, bugs, or contributions:</p>
+                    <p class="section-subtitle"> Actively developed. Questions, bugs, contributions:</p>
                 </div>
                 <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
                     <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">Report Issues</a>
@@ -2285,7 +2346,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
                 <!-- Left column: bio -->
                 <div class="feature-card">
                     <h3 class="h3-tight">Cosmo Santoni, PhD Candidate</h3>
-                    <p class="subtitle">Applied mathematics & machine learning researcher • Imperial College London</p>
+                    <p class="subtitle">Applied Mathematics & Deep Learning Researcher • Imperial College London</p>
 
                     <p>I turn heavy epidemiological models into fast, decision‑ready tools. My work has supported the UK government's COVID‑19 response and informed Global Fund malaria strategies. I build deep‑learning emulators (PyTorch/R/Julia) that compress hours‑long agent‑based simulations into instant forecasts—and I ship the tooling with tests, CI, and reproducible releases.</p>
 
@@ -2344,7 +2405,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
     <footer>
         <div class="container">
             <p>MINTverse © 2025 • Built for malaria intervention research</p>
-            <p style="opacity:.75;margin-top:8px">Fast emulation of malariasimulation models using machine learning</p>
+            <p style="opacity:.75;margin-top:8px">Fast emulation of malariasimulation models using deep learning</p>
         </div>
     </footer>
 
