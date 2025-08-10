@@ -3,183 +3,1243 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>MINTverse - Fast Malaria Intervention Modeling</title>
+    <title>MINTverse - Transform Global Health at Scale</title>
     <meta name="description" content="MINTverse: a dashboard-ready, machine-learning suite for fast malaria intervention modeling—MINTer (R orchestration), estiMINT (EIR & cases ML), and MINTe (Python RNNs).">
     <style>
-        :root{
-        --primary:#2dd4bf;           /* mint */
-        --primary-dark:#0f766e;       /* mint (dark) */
-        --secondary:#86efac;          /* soft green */
-        --bg-dark:#070b0a;            /* near-black with green hint */
-        --bg-card:#0c1513;            /* deep card */
-        --text-primary:#ecfdf5;       /* mintish white */
-        --text-secondary:#cbd5d1;
-        --accent:#22d3ee;             /* cyan pop */
-        --muted:#7a918d;
-        --ring: rgba(45,212,191,.45);
-        --gradient: linear-gradient(135deg,#0ea5e9 0%,#22d3ee 30%,#2dd4becb 62%,#10b981 100%);
-        --glass: rgba(255,255,255,0.06);
-}
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-            background:var(--bg-dark);
-            color:var(--text-primary);
-            line-height:1.6;
-            scroll-behavior:smooth;
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-100: #f5f5f7;
+            --gray-200: #e8e8ed;
+            --gray-300: #d2d2d7;
+            --gray-400: #86868b;
+            --gray-500: #515154;
+            --gray-900: #1d1d1f;
+            --accent: #0071e3;
+            --accent-glow: #0051a2;
+            --green: #00d4aa;
+            --red: #ff375f;
+            --gradient: linear-gradient(180deg, #000 0%, #000 50%, #0a0a0a 100%);
+            --text-gradient: linear-gradient(90deg, #fff 0%, #86868b 100%);
+            --primary: #00d4aa;
+            --primary-dark: #00a085;
         }
 
-        /* Nav */
-        nav{
-            position:fixed;inset:0 0 auto 0;z-index:1000;
-            background:rgba(17,24,39,.9);backdrop-filter:blur(10px);
-            border-bottom:1px solid rgba(255,255,255,.08);
-            padding:.85rem 0;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .nav-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
-        .nav-logo{font-weight:800;font-size:1.25rem;letter-spacing:.2px;color:var(--primary)}
-        .nav-links{display:flex;gap:1.4rem;align-items:center}
-        .nav-links a{color:var(--text-primary);text-decoration:none;opacity:.9;transition:.25s}
-        .nav-links a:hover{color:var(--primary)}
 
-        /* Hero */
-        .hero{
-            background:var(--gradient);padding:120px 0 80px;position:relative;overflow:hidden;text-align:center;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .hero::before{
-            content:"";position:absolute;inset:0;
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation - Apple style */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        nav.scrolled {
+            background: rgba(0, 0, 0, 0.98);
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 22px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, #fff 0%, #00d4aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #f5f5f7;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            font-weight: 400;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--green);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: var(--accent);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-cta::after {
+            display: none !important;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-glow);
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);
+        }
+
+        /* Hero - Netflix/Apple hybrid */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
             background:
-              radial-gradient(600px 280px at 50% -10%,rgba(255,255,255,.22),transparent 60%),
-              url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><g fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"><circle cx="600" cy="300" r="120"/><circle cx="600" cy="300" r="240"/><circle cx="600" cy="300" r="360"/></g></svg>') center/cover no-repeat;
-            animation:pulse 5s ease-in-out infinite;
-        }
-        @keyframes pulse{0%,100%{opacity:.65}50%{opacity:.35}}
-        .container{max-width:1200px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
-        h1{font-size:3.25rem;margin-bottom:.6rem;font-weight:900;text-shadow:2px 2px 4px rgba(0,0,0,.25)}
-        .tagline{font-size:1.15rem;opacity:.95}
-        .quick-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:2rem 0 0}
-        .quick-link{
-            display:block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
-            border-radius:14px;padding:1.1rem 1.2rem;text-decoration:none;color:#fff;transition:.25s
-        }
-        .quick-link:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(0,0,0,.28)}
-
-        /* Sections */
-        .section{padding:80px 0}
-        .section-title{text-align:center;font-size:2.25rem;margin-bottom:2.2rem}
-        .package-section{
-            background:var(--bg-card);border-radius:14px;padding:2.5rem;border:1px solid rgba(255,255,255,.08);margin:2rem 0
-        }
-        .package-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
-        .package-title{font-size:2rem;color:var(--primary);font-weight:800}
-        .package-subtitle{color:var(--text-secondary)}
-        .github-link{
-            display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);
-            border-radius:10px;padding:.55rem 1rem;text-decoration:none;color:var(--text-primary);transition:.25s
-        }
-        .github-link:hover{background:var(--primary);transform:translateY(-2px)}
-        #contact .feature-grid{
-        display:flex;           /* override grid just in this section */
-        flex-wrap:wrap;
-        gap:1rem;
-        align-items:flex-start; /* don't stretch to tallest */
-        }
-        #contact .feature-card{flex:1 1 320px;height:auto;}
-
-        .feature-card{background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.1rem}
-        .feature-card h4{color:var(--secondary);margin-bottom:.35rem}
-
-        /* Code blocks + copy */
-        .code-section{
-            position:relative;background:#0d1117;border-radius:12px;padding:1rem 1rem 1.1rem;margin:1.1rem 0;overflow:auto;border:1px solid #30363d
-        }
-        pre{font-family:Consolas,Monaco,'Courier New',monospace;font-size:.92rem;line-height:1.5;color:#e6edf3}
-        .comment{color:#8b949e}.function{color:#d2a8ff}.string{color:#a5d6ff}.number{color:#79c0ff}.parameter{color:#ffa657}
-        .copy-btn{
-            position:absolute;top:.6rem;right:.6rem;border:none;border-radius:8px;padding:.4rem .6rem;
-            background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:.8rem;transition:.2s
-        }
-        .copy-btn:hover{background:rgba(255,255,255,.16)}
-        .badge{
-            display:inline-block;padding:.18rem .5rem;border-radius:999px;font-size:.75rem;
-            background:rgba(37,99,235,.18);border:1px solid rgba(37,99,235,.35);color:#dbeafe
-        }
-        /* Stack this band anywhere on the page */
-        .stat-cards.stat-cards--stack{
-        display:grid;
-        grid-template-columns:1fr;
-        gap:.9rem;
-        margin:1rem 0 1.25rem;
-        }
-        .stat-cards.stat-cards--stack .stat{
-        display:block;
-        text-align:center;
-        padding:1.1rem;
-        background:var(--bg-dark);
-        border:1px solid rgba(255,255,255,.08);
-        border-radius:12px;
-        }
-        .stat-cards.stat-cards--stack .value{
-        font-size:1.6rem;
-        font-weight:800;
-        line-height:1.05;
-        margin-bottom:.15rem;
-        }
-        .stat-cards.stat-cards--stack .muted{ color:var(--text-secondary); text-align:center; }
-        .stat-cards.stat-cards--stack small{ opacity:.9; }
-
-
-        .stat{background:var(--bg-dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem}
-        .stat .value{font-size:1.35rem;font-weight:800}
-        .alert{
-            background:rgba(139,92,246,.09);border:1px solid var(--accent);border-radius:12px;padding:1rem;margin:1.2rem 0
+            radial-gradient(ellipse 1200px 600px at 50% -15%, rgba(0,212,170,.18) 0%, rgba(0,212,170,0) 45%),
+            radial-gradient(ellipse 1200px 600px at 50% -15%, rgba(0,113,227,.14) 0%, rgba(0,113,227,0) 55%),
+            linear-gradient(135deg, #000 0%, #0a0a0a 50%, #000 100%);
+            overflow: hidden;
+            padding: 120px 0 80px;
+            isolation: isolate;
         }
 
-        /* New PRO Workflow (replaces the old flat boxes) */
-        .workflow-diagram{
-            background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-            border:1px solid rgba(255,255,255,.09);
-            border-radius:16px;padding:1.6rem;margin:2rem 0;position:relative;overflow:hidden;
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: drift 30s linear infinite;
+            pointer-events: none;
+            z-index: 1;
         }
-        .flow-rail{
-            display:flex;gap:1.2rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:.5rem
+        
+        @keyframes drift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(1deg); }
         }
-        .flow-connector{
-            width:64px;height:4px;border-radius:999px;background:linear-gradient(90deg,rgba(37,99,235,.7),rgba(139,92,246,.7));
-            box-shadow:0 0 18px var(--ring)
+        
+        .hero::after{
+            content:'';
+            position:absolute;
+            inset: 0 -25% auto -25%;
+            height:85%;
+            background: radial-gradient(1100px 520px at 50% 12%,
+              rgba(0,212,170,.35),
+              rgba(0,113,227,.22) 30%,
+              rgba(0,0,0,0) 70%);
+  filter: blur(48px);
+  opacity: .85;
+            pointer-events:none;
+            z-index:1;
+            animation: haloDrift 5s ease-in-out infinite alternate;
         }
-        .flow-step{
-            min-width:170px;background:radial-gradient(240px 120px at 50% 0, rgba(37,99,235,.15),transparent),
-                       var(--bg-card);
-            border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1rem;text-align:left;
-            box-shadow:0 10px 30px rgba(0,0,0,.25);
-        }
-        .flow-icon{
-            width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:.5rem;
-            background:linear-gradient(135deg, rgba(37,99,235,.85), rgba(139,92,246,.85));
-            box-shadow:0 6px 16px rgba(37,99,235,.3), inset 0 0 0 1px rgba(255,255,255,.18)
-        }
-        .flow-step h4{margin-bottom:.2rem}
-        .flow-step small{color:var(--text-secondary)}
 
-        /* EstiMINT extras */
-        .pill-row{display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0 .9rem}
-        .pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.25rem .55rem;font-size:.78rem}
-        .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
-        .mini-table{width:100%;border-collapse:collapse;font-size:.95rem;margin-top:.6rem}
-        .mini-table th,.mini-table td{border-bottom:1px solid rgba(255,255,255,.1);padding:.55rem .4rem;text-align:left}
-        .mini-table th{color:#bfdbfe}
-
-        .footer{text-align:center;padding:3rem 0;color:var(--text-secondary);border-top:1px solid rgba(255,255,255,.08);margin-top:3rem}
-
-        @media (max-width:768px){
-            h1{font-size:2.4rem}
-            .nav-links{gap:.9rem;font-size:.94rem}
-            .flow-connector{width:36px}
+        @keyframes haloDrift{
+            from{ transform: translateY(0) scale(1); opacity:.55; }
+            to  { transform: translateY(12px) scale(1.03); opacity:.8; }
         }
+
+        nav{ border-bottom:1px solid rgba(255,255,255,.06); }
+        
+        nav::after{
+        content:'';
+        position:absolute;
+        left:0; right:0; bottom:-1px; height:1px;
+        background: linear-gradient(90deg, transparent, var(--green), var(--accent), transparent);
+        opacity:.65;
+        pointer-events:none;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            max-width: 1200px;
+            padding: 0 20px;
+            animation: heroFadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes heroFadeIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.02);
+            }
+        }
+
+        h1 {
+            font-size: clamp(56px, 10vw, 120px);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 30px;
+            background: linear-gradient(180deg, #ffffff 0%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(20px, 3vw, 32px);
+            font-weight: 400;
+            color: #86868b;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: #d2d2d7;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        /* Quick links - Apple style cards */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 40px auto;
+            max-width: 1000px;
+        }
+
+        .quick-link {
+            --panel-bg:
+            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%) #0b0b0d;  
+            background: var(--panel-bg);
+            backdrop-filter: none;       /* kill glass effect so it's its own surface */
+            -webkit-backdrop-filter: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 32px;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            isolation: isolate;
+            overflow: visible;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+        }
+
+        .quick-link::before{
+            content:'';
+            position:absolute;
+            inset:0;
+            padding:1px;
+            border-radius:20px;
+            background: conic-gradient(from 0deg,
+                        var(--green), var(--accent), var(--green));
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+            opacity:.35;
+            pointer-events:none;
+            animation: spin 12s linear infinite;
+        }
+
+        .quick-link::after{
+            content:'';
+            position:absolute;
+            inset:-20% -20% -40% -20%;
+            background: radial-gradient(60% 40% at 50% 0,
+                        rgba(0,212,170,.12),
+                        rgba(0,113,227,.10) 33%,
+                        rgba(0,0,0,0) 70%);
+            filter: blur(24px);
+            opacity:.35;
+            pointer-events:none;
+            z-index:0;
+        }
+
+        .quick-link:hover::before { left: auto; }
+
+        .quick-link:hover{
+            background: var(--panel-bg);                 /* no revert */
+            transform: translateY(-8px) scale(1.02);     /* keep the lift */
+            border-color: rgba(0, 212, 170, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .quick-link h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .quick-link p {
+            color: #86868b;
+            font-size: 15px;
+        }
+
+        /* Stats - Netflix style cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin: 60px auto 0;
+            max-width: 1000px;
+            animation: statsSlideUp 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+        }
+
+        @keyframes statsSlideUp {
+            0% { 
+                opacity: 0; 
+                transform: translateY(40px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .stat-card {
+            background:
+    radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+    #0b0b0d;            backdrop-filter: blur(20px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            isolation: isolate;
+            overflow: visible;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+        }
+        .stat-card::before{
+            content:'';
+            position:absolute;
+            inset:0;
+            padding:1px;                 /* thickness of the ring */
+            border-radius:20px;          /* match .stat-card radius */
+            background: conic-gradient(from 0deg at 50% 50%,
+                        var(--green), var(--accent), var(--green));
+            -webkit-mask: 
+                linear-gradient(#000 0 0) content-box, 
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;  /* show only the border */
+            opacity:.6;
+            pointer-events:none;
+            animation: spin 10s linear infinite;
+            z-index:1;
+        }
+
+        .stat-card::after{
+            content:'';
+            position:absolute;
+            inset:-25% -30% -50% -30%;
+            background: radial-gradient(60% 40% at 50% 0,
+                        rgba(0,212,170,.16),
+                        rgba(0,113,227,.12) 33%,
+                        rgba(0,0,0,0) 70%);
+            filter: blur(26px);
+            opacity:.45;
+            pointer-events:none;
+            z-index:0;
+            transition: opacity .25s ease;
+        }
+
+        .stat-card:hover::after{ 
+            opacity:.7;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 170, 0.2);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--green) 0%, #00ffcc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-label small {
+            display: block;
+            font-size: 12px;
+            opacity: 0.8;
+            text-transform: none;
+            margin-top: 4px;
+        }
+
+        /* Author banner */
+        .author-banner {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .author-banner-content {
+            display: inline-flex;
+            gap: 12px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 10px 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .author-banner-content a {
+            color: white;
+            text-decoration: none;
+            padding: 4px 12px;
+            border-radius: 999px;
+            transition: background 0.3s;
+        }
+
+        .author-banner-content a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Product showcase sections */
+        .section {
+            padding: 120px 0;
+            position: relative;
+            background: #000;
+            z-index: 10;
+            isolation: isolate;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(180deg, #000 0%, transparent 100%);
+            z-index: 1;
+        }
+
+        .section-dark {
+            background: #000;
+        }
+
+        .section-gradient {
+            background: linear-gradient(180deg, #000 0%, #0a0a0a 50%, #000 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 22px;
+            position: relative;
+            z-index: 2;
+        }
+
+        main {
+            position: relative;
+            z-index: 10;
+            background: #000;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #fff 0%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            color: #86868b;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Package sections - Premium cards */
+        .package-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 60px;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .package-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--green), var(--accent));
+            border-radius: 24px;
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: -1;
+        }
+
+        .package-section:hover::before {
+            opacity: 0.15;
+        }
+
+        .package-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .package-title {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--green) 0%, #00ffcc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .package-subtitle {
+            font-size: 18px;
+            color: #86868b;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 12px 24px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .github-link:hover {
+            background: var(--green);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+            border-color: var(--green);
+        }
+
+        /* Feature cards - Apple style */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card h4 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--green);
+        }
+
+        .feature-card p {
+            color: #d2d2d7;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .feature-card ul {
+            margin-left: 20px;
+            color: #d2d2d7;
+        }
+
+        .feature-card ul li {
+            margin: 8px 0;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: rgba(37, 99, 235, 0.15);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: #93c5fd;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Workflow diagram - IMPROVED */
+        .workflow-diagram {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 48px 32px;
+            margin: 48px 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .flow-rail {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+            margin-top: 32px;
+            position: relative;
+            min-height: 140px;
+        }
+
+        .flow-connector {
+            flex: 0 0 60px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 212, 170, 0.3) 0%, rgba(0, 212, 170, 0.6) 50%, rgba(0, 212, 170, 0.3) 100%);
+            position: relative;
+            margin: 0 -8px;
+            z-index: 1;
+        }
+
+        .flow-connector::after {
+            content: '▶';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--green);
+            font-size: 10px;
+        }
+
+        .flow-step {
+            flex: 0 0 auto;
+            min-width: 160px;
+            max-width: 200px;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), transparent),
+                        rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flow-step:hover {
+            transform: translateY(-8px);
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), transparent),
+                        rgba(0, 0, 0, 0.8);
+            border-color: rgba(0, 212, 170, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.15);
+        }
+
+        .flow-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(0, 113, 227, 0.2));
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            font-size: 24px;
+        }
+
+        .flow-step h4 {
+            margin-bottom: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .flow-step small {
+            color: #86868b;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Pills */
+        .pill-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* Code preview - Monaco style */
+        .code-section {
+            position: relative;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 32px 24px 24px;
+            margin: 32px 0;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+
+        .code-section::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 20px;
+            display: flex;
+            gap: 6px;
+            width: 52px;
+            height: 12px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="52" height="12"><circle cx="6" cy="6" r="5" fill="%23ff5f57"/><circle cx="22" cy="6" r="5" fill="%23ffbd2e"/><circle cx="38" cy="6" r="5" fill="%2328c940"/></svg>') no-repeat;
+        }
+
+        pre {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e6edf3;
+            margin: 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+        }
+
+        .comment { color: #8b949e; }
+        .function { color: #d2a8ff; }
+        .string { color: #a5d6ff; }
+        .number { color: #79c0ff; }
+        .parameter { color: #ffa657; }
+
+        .copy-btn {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: scale(1.05);
+        }
+
+        /* Tables */
+        .mini-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .mini-table th,
+        .mini-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 14px 12px;
+            text-align: left;
+        }
+
+        .mini-table th {
+            color: #93c5fd;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .mini-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* Alert */
+        .alert {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin: 32px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert::before {
+            content: '💡';
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            font-size: 18px;
+        }
+
+        .alert strong {
+            color: #c4b5fd;
+        }
+
+        .alert {
+            padding-left: 56px;
+        }
+
+        /* Stats */
+        .stat {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .muted {
+            color: #86868b;
+            font-size: 13px;
+        }
+
+        /* Section headers styling */
+        h3 {
+            font-size: 32px;
+            font-weight: 600;
+            margin: 48px 0 24px;
+            color: var(--green);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--green), var(--accent));
+            border-radius: 2px;
+        }
+
+        /* Contact section specific styles */
+        #contact .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 32px;
+            align-items: start;
+        }
+
+        #contact .feature-card {
+            padding: 32px;
+        }
+
+        #contact .h3-tight {
+            margin-bottom: 4px;
+            font-size: 28px;
+            padding-left: 0;
+        }
+
+        #contact .h3-tight::before {
+            display: none;
+        }
+
+        #contact .subtitle {
+            color: #86868b;
+            margin: 8px 0 20px;
+            font-size: 16px;
+        }
+
+        #contact .tick-list {
+            list-style: none;
+            margin: 12px 0;
+            padding: 0;
+        }
+
+        #contact .tick-list li {
+            position: relative;
+            padding-left: 28px;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        #contact .tick-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        #contact .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        #contact .chip {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        #contact .chip:hover {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+
+        #contact .cta-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        #contact .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #000;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        #contact .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        #contact .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 24px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        #contact .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #contact .small-muted {
+            color: #7a918d;
+            font-size: 14px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-copyright {
+            color: #515154;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            h1 {
+                font-size: 48px;
+            }
+
+            .hero-subtitle {
+                font-size: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .package-section {
+                padding: 32px 20px;
+            }
+
+            .flow-rail {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .flow-connector {
+                width: 2px;
+                height: 40px;
+                flex: 0 0 40px;
+                margin: -10px 0;
+            }
+
+            .flow-connector::after {
+                content: '▼';
+                right: 50%;
+                bottom: -8px;
+                top: auto;
+                transform: translateX(50%);
+            }
+
+            #contact .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Loading animation */
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green) 0%, var(--accent) 100%);
+            transform-origin: left;
+            animation: loadingBar 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            z-index: 10000;
+        }
+
+        @keyframes loadingBar {
+            0% { 
+                transform: scaleX(0); 
+                opacity: 1;
+            }
+            90% { 
+                transform: scaleX(1); 
+                opacity: 1;
+            }
+            100% { 
+                transform: scaleX(1); 
+                opacity: 0;
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .quick-links .quick-link h3 {
+            padding-left: 0;
+        }
+
+        .quick-links .quick-link h3::before {
+            content: none;
+        }
+
+        .quick-links .quick-link h3 {
+            font-size: clamp(64px, 2.2vw, 16px); /* tweak these bounds to taste */
+            padding-left: 0;                      /* from earlier */
+        }
+
     </style>
 </head>
 <body>
+    <div class="loading-bar"></div>
+
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
@@ -190,118 +1250,136 @@
                 <a href="#minter">MINTer</a>
                 <a href="#estimint">estiMINT</a>
                 <a href="#minte">MINTe</a>
-                <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener">GitHub</a>
+                <a href="#contact">Contact</a>
+                <a href="https://github.com/CosmoNaught" target="_blank" class="nav-cta">GitHub</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <header class="hero">
-        <div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
             <h1>MINTverse</h1>
-            <p class="tagline">Malaria INTervention emulation ecosystem in R</p>
-            <p style="opacity:.9;margin-top:.6rem">Fast, lightweight emulation of malariasimulation models using machine learning</p>
+            <p class="hero-subtitle">Malaria INTervention emulation ecosystem in R</p>
+            <p class="hero-description">Fast, lightweight emulation of malariasimulation models using machine learning</p>
+            
             <div class="quick-links">
-                <a href="#minter" class="quick-link"><h3>🎯 MINTer</h3><p>Main orchestration package</p></a>
-                <a href="#estimint" class="quick-link"><h3>📈 estiMINT</h3><p>Prevalence → EIR & cases</p></a>
-                <a href="#minte" class="quick-link"><h3>🧠 MINTe</h3><p>Neural network predictions</p></a>
+                <a href="#minter" class="quick-link">
+                    <h3>MINTer</h3>
+                    <p>Primary orchestration package</p>
+                </a>
+                <a href="#estimint" class="quick-link">
+                    <h3>estiMINT</h3>
+                    <p>Harnessing XGBoost and Random Forest Powered Prediction Power</p>
+                    <p>Prevalence → EIR & Malaria Incidence Forecasting</p>
+                </a>
+                <a href="#minte" class="quick-link">
+                    <h3>MINTe</h3>
+                    <p>Powwering Cutting Edge Recurrent Temporal Neural Network Predictions</p>
+                </a>
             </div>
-        </div>
-    </header>
 
-    <div class="container" style="margin-top:.6rem">
-        <div style="display:flex;justify-content:center">
-          <div style="display:flex;gap:.6rem;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.35rem .7rem;">
-            <span style="opacity:.9">Built by <strong>Cosmo Santoni</strong>, Imperial College London</span>
-            <span aria-hidden="true" style="opacity:.35">•</span>
-            <a href="#contact" class="github-link" style="padding:.15rem .5rem;border-radius:999px">About & contact</a>
-            <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity" class="github-link" style="padding:.15rem .5rem;border-radius:999px">Work with me</a>
-          </div>
-        </div>
-      </div>
-      
-        <!-- Key stats (Overview) -->
-        <div class="container" style="margin-top:.6rem">
-            <div style="max-width:900px;margin:0 auto">
-              <div class="stat-cards stat-cards--stack" role="group" aria-label="Key performance stats">
-                <div class="stat">
-                  <div class="value">~200,000×</div>
-                  <div class="muted">faster than baseline sims</div>
+            <div class="author-banner">
+                <div class="author-banner-content">
+                    <span style="opacity:.9">Built by <strong>Cosmo Santoni</strong>, Imperial College London</span>
+                    <span aria-hidden="true" style="opacity:.35">•</span>
+                    <a href="#contact">About & Contact</a>
+                    <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity">Work with me</a>
                 </div>
-                <div class="stat">
-                  <div class="value">~82k/sec</div>
-                  <div class="muted">emulations on laptop GPU<br><small>(4096 every 0.05s)</small></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">~200,000×</span>
+                    <span class="stat-label">faster than baseline sims</span>
                 </div>
-                <div class="stat">
-                  <div class="value">64.3B+</div>
-                  <div class="muted">feature–time values via DuckDB<br>
-                    <small>(2^17 params × 8 realisations × 4,380 days × 14 covariates)</small>
-                  </div>
+                <div class="stat-card">
+                    <span class="stat-number">~82k/sec</span>
+                    <span class="stat-label">emulations on laptop GPU
+                        <small>(4096 multi-threaded CUDA computations every 0.05s)</small>
+                    </span>
                 </div>
-              </div>
-              <p class="muted" style="text-align:center;margin-top:.4rem">
+                <div class="stat-card">
+                    <span class="stat-number">64.3B+</span>
+                    <span class="stat-label">feature–time values via DuckDB
+                    </span>
+                </div>
+            </div>
+            <p class="muted" style="text-align:center;margin-top:20px">
                 Current replay: 131,076 time-series in ~90s — trained on 3.125% of a ~4.19M-series dataset.
-              </p>
-            </div>
-          </div>
-          
-        
-    <main class="container">
-        <!-- Overview -->
-        <section id="overview" class="section">
-            <h2 class="section-title">Why MINTverse?</h2>
-            <div style="max-width:900px;margin:0 auto;text-align:center">
-                <p style="font-size:1.1rem;margin-bottom:1.2rem">
-                    Traditional malaria simulation models can take hours or days. MINTverse gives you instant predictions
-                    with pre-trained ML—ideal for rapid intervention planning, what-if analysis, and dashboard integration.
-                </p>
+            </p>
+        </div>
+    </section>
 
-                <!-- New PRO workflow -->
-                <div class="workflow-diagram" aria-label="End-to-end pipeline">
+    <main>
+        <div class="container">
+            <!-- Overview Section -->
+            <section id="overview" class="section fade-in">
+                <div class="section-header">
+                    <h2 class="section-title">Why MINTverse?</h2>
+                    <p class="section-subtitle">
+                        Traditional malaria simulation models can take hours or days. MINTverse gives you instant predictions
+                        with pre-trained ML—ideal for rapid intervention planning, what-if analysis, and dashboard integration.
+                    </p>
+                </div>
+
+                <div class="workflow-diagram">
                     <div class="badge">Complete Pipeline</div>
-                    <div class="flow-rail" style="margin-top:1rem">
+                    <div class="flow-rail">
                         <div class="flow-step">
                             <div class="flow-icon">🧪</div>
                             <h4>Field Data</h4>
                             <small>Prevalence & coverage</small>
                             <div class="pill-row">
-                                <div class="pill">PfPR2-10</div><div class="pill">ITN/IRS</div><div class="pill">Seasonality</div>
+                                <div class="pill">PfPR2-10</div>
+                                <div class="pill">ITN/IRS</div>
+                                <div class="pill">Seasonality</div>
                             </div>
                         </div>
-                        <div class="flow-connector" role="presentation"></div>
+                        <div class="flow-connector"></div>
                         <div class="flow-step">
                             <div class="flow-icon">🧮</div>
                             <h4>EIR Estimation</h4>
                             <small>XGBoost / RF</small>
-                            <div class="pill-row"><div class="pill">EIR₀</div><div class="pill">Uncertainty</div></div>
+                            <div class="pill-row">
+                                <div class="pill">EIR₀</div>
+                                <div class="pill">Uncertainty</div>
+                            </div>
                         </div>
-                        <div class="flow-connector" role="presentation"></div>
+                        <div class="flow-connector"></div>
                         <div class="flow-step">
                             <div class="flow-icon">🧠</div>
                             <h4>Predictions</h4>
                             <small>LSTM / GRU</small>
-                            <div class="pill-row"><div class="pill">Prevalence</div><div class="pill">Cases/1000</div></div>
+                            <div class="pill-row">
+                                <div class="pill">Prevalence</div>
+                                <div class="pill">Cases/1000</div>
+                            </div>
                         </div>
-                        <div class="flow-connector" role="presentation"></div>
+                        <div class="flow-connector"></div>
                         <div class="flow-step">
                             <div class="flow-icon">📊</div>
                             <h4>Outputs</h4>
                             <small>Dashboard-ready</small>
-                            <div class="pill-row"><div class="pill">CSV/Parquet</div><div class="pill">Plots</div></div>
+                            <div class="pill-row">
+                                <div class="pill">CSV/Parquet</div>
+                                <div class="pill">Plots</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Quick Start -->
-        <section id="quickstart" class="section">
-            <h2 class="section-title">Quick Start</h2>
-            <div style="max-width:900px;margin:0 auto">
-                <p style="text-align:center;margin-bottom:1rem">Get predictions in seconds with one call</p>
+            <!-- Quick Start Section -->
+            <section id="quickstart" class="section fade-in">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Start</h2>
+                    <p class="section-subtitle">Get predictions in seconds with one call</p>
+                </div>
+
                 <div class="code-section">
-                    <button class="copy-btn" aria-label="Copy code">Copy</button>
-<pre><code><span class="comment"># Install MINTer (automatically installs all dependencies)</span>
+                    <button class="copy-btn">Copy</button>
+                    <pre><code><span class="comment"># Install MINTer (automatically installs all dependencies)</span>
 <span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
 
 <span class="comment"># Core functionality</span>
@@ -340,326 +1418,387 @@ results$cases |&gt;
 <span class="comment"># Prevalence plots</span>
 <span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- MINTer -->
-        <section id="minter" class="package-section">
-            <div class="package-header">
-              <div>
-                <h2 class="package-title">MINTer</h2>
-                <p class="package-subtitle">Malaria INTervention emulator in R — the orchestrator of the MINTverse stack</p>
-              </div>
-              <a href="https://github.com/CosmoNaught/MINTer" target="_blank" rel="noopener" class="github-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>
-                View on GitHub
-              </a>
-            </div>
-          
-            <p style="margin-bottom:1.1rem">
-              <span class="badge">Orchestration • Reproducible • Dashboard-ready</span>
-              <br>MINTer unifies <strong>estiMINT</strong> (EIR & cases ML) and <strong>MINTe</strong> (RNNs) behind a single R API. Use it for <em>direct emulation</em>, <em>prevalence-driven pipelines</em>, or <em>full malariasimulation ➜ DuckDB ➜ emulation</em> workflows.
-            </p>
-          
-            <!-- Three lanes: how you run MINTer -->
-            <div class="workflow-diagram" aria-label="MINTer orchestration modes">
-              <div class="badge">How you run it</div>
-          
-              <!-- Lane A -->
-              <div class="flow-rail" style="margin-top:1rem">
-                <div class="flow-step">
-                  <div class="flow-icon">⚡</div>
-                  <h4>Direct Emulation</h4><small>fastest path</small>
-                  <div class="pill-row"><div class="pill">create_scenarios()</div><div class="pill">run_malaria_emulator()</div></div>
+            <!-- MINTer Section -->
+            <section id="minter" class="package-section fade-in">
+                <div class="package-header">
+                    <div>
+                        <h2 class="package-title">MINTer</h2>
+                        <p class="package-subtitle">Malaria INTervention emulator in R — the orchestrator of the MINTverse stack</p>
+                    </div>
+                    <a href="https://github.com/CosmoNaught/MINTer" target="_blank" class="github-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
                 </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🧠</div>
-                  <h4>RNNs</h4><small>LSTM / GRU</small>
-                  <div class="pill-row"><div class="pill">prevalence</div><div class="pill">cases</div></div>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">📊</div>
-                  <h4>Outputs</h4><small>tidy data, plots</small>
-                </div>
-              </div>
-          
-              <!-- Lane B -->
-              <div class="flow-rail">
-                <div class="flow-step">
-                  <div class="flow-icon">🧪</div>
-                  <h4>Prevalence input</h4><small>field PfPR + context</small>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🧮</div>
-                  <h4>estiMINT</h4><small>EIR₀ + cases</small>
-                  <div class="pill-row"><div class="pill">XGBoost</div><div class="pill">RF</div></div>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🧠</div>
-                  <h4>MINTer</h4><small>time-series forecasts</small>
-                </div>
-              </div>
-          
-              <!-- Lane C -->
-              <div class="flow-rail">
-                <div class="flow-step">
-                  <div class="flow-icon">🧬</div>
-                  <h4>malariasimulation</h4><small>native runs</small>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🗄️</div>
-                  <h4>segMINT</h4><small>DuckDB ingest</small>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🧩</div>
-                  <h4>MINTer</h4><small>counter-factuals & benchmarking</small>
-                </div>
-              </div>
-            </div>
-          
-            <div class="feature-grid">
-              <div class="feature-card"><h4>🔁 Counter-factual sweeps</h4><p>Grid or LHS over ITN/IRS/LSM/EIR and generate scenario tables in seconds.</p></div>
-              <div class="feature-card"><h4>📦 Dashboard-ready</h4><p>Tidy outputs with stable column names for Shiny/Quarto/Streamlit.</p></div>
-              <div class="feature-card"><h4>🧪 Prevalence-driven</h4><p>Use field PfPR2-10 → EIR via estiMINT, then forecast prevalence/cases.</p></div>
-              <div class="feature-card"><h4>🧰 Python-free UX</h4><p><code>reticulate</code> prepares Torch automatically; no manual setup.</p></div>
-            </div>
-          
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">API surface (core)</h3>
-            <div class="feature-card" style="padding:0">
-              <table class="mini-table">
-                <tr><th>Function</th><th>Purpose</th><th>Returns</th></tr>
-                <tr><td><code>run_mint_scenarios()</code></td><td>Full pipeline (prevalence-driven or direct)</td><td>List: <code>$prevalence</code>, <code>$cases</code></td></tr>
-                <tr><td><code>run_malaria_emulator()</code></td><td>RNN predictions from scenarios or DuckDB</td><td>Time-series data frame</td></tr>
-                <tr><td><code>create_scenarios()</code></td><td>Builds intervention scenarios</td><td>Data frame</td></tr>
-                <tr><td><code>create_malariasim_scenarios()</code></td><td>LHS design for native sims</td><td>CSV / data frame</td></tr>
-                <tr><td><code>create_scenario_plots()</code></td><td>Publication-grade plots</td><td>Saved ggplot objects</td></tr>
-              </table>
-            </div>
-          
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Recipes</h3>
-          
-            <!-- Direct emulation -->
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code>library(MINTer)
-          
-          sc &lt;- create_scenarios(
-            eir = c(2, 20, 120),
-            itn_use = c(0.3, 0.6, 0.8),
-            irs_use = c(0.1, 0.3, 0.6),
-            lsm = c(0.05, 0.4, 0.8),
-            seasonal = c(0,1,1),
-            routine = c(0,0,1)
-          )
-          
-          prev &lt;- run_malaria_emulator(scenarios = sc, predictor = "prevalence", model_types = c("LSTM","GRU"))
-          cases &lt;- run_malaria_emulator(scenarios = sc, predictor = "cases")
-          create_scenario_plots(prev,  output_dir = "plots")
-          create_scenario_plots(cases, output_dir = "plots")</code></pre>
-            </div>
-          
-            <!-- Prevalence-driven with estiMINT -->
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code># Prevalence-driven pipeline (field PfPR → EIR → forecasts)
-          res &lt;- run_mint_scenarios(
-            prev_vec    = c(0.2, 0.35, 0.55),
-            Q0_vec      = c(0.65, 0.75, 0.80),
-            phi_vec     = c(0.45, 0.60, 0.70),
-            itn_use     = c(0.30, 0.50, 0.80),
-            irs_vec     = c(0.10, 0.35, 0.60),
-            lsm_vec     = c(0.05, 0.40, 0.80),
-            season_vec  = c(0,1,1),
-            routine_vec = c(0,0,1)
-          )
-          write.csv(res$prevalence, "out_prevalence.csv", row.names = FALSE)
-          write.csv(res$cases,       "out_cases.csv",       row.names = FALSE)</code></pre>
-            </div>
-          
-            <!-- Full pipeline w/ segMINT -->
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code>library(MINTer); library(segMINT)
-          
-          # After running malariasimulation externally:
-          segMINT::create_database(
-            dir = "Data/Database", file_name = "malariasim.duckdb",
-            table_name = "sim_results", data_dir = "Data/Simout"
-          )
-          
-          # Counter-factuals on param_index=5
-          cf &lt;- run_malaria_emulator(
-            db_path = "Data/Database/malariasim.duckdb",
-            param_index = 5,
-            predictor = "cases",
-            counterfactual = list(eir = c(0.5, 60, 300))
-          )</code></pre>
-            </div>
-          
-            <!-- Batch sweeps -->
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code># Batch sweep: 3x3x3 grid
-          grid &lt;- expand.grid(
-            itn_use = c(0.3,0.6,0.9),
-            irs_use = c(0.0,0.3,0.6),
-            lsm     = c(0.0,0.4,0.8)
-          )
-          grid$eir &lt;- 35  # fixed baseline
-          em &lt;- run_malaria_emulator(scenarios = grid, predictor = "cases")
-          head(em)</code></pre>
-            </div>
-          
-            <div class="alert"><strong>Confidence intervals:</strong> Use <code>estiMINT::predict_annual_cases(..., return_intervals = TRUE)</code> on MINTer-produced scenario frames when you need 95% prediction intervals for cases.</div>
-          
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Installation</h3>
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
-          devtools::install_github("CosmoNaught/MINTer")
-          devtools::install_github("CosmoNaught/segMINT")
-          devtools::install_github("CosmoNaught/estiMINT")
-          
-          # First library() call may build Torch; allow ~1 min.
-          library(MINTer)</code></pre>
-            </div>
-          </section>
-          
 
-        <!-- estiMINT (EXPANDED) -->
-        <section id="estimint" class="package-section">
-            <div class="package-header">
-                <div>
-                    <h2 class="package-title">estiMINT</h2>
-                    <p class="package-subtitle">Machine-learning models for EIR estimation and annual case prediction</p>
+                <p style="margin-bottom:32px">
+                    <span class="badge">Orchestration • Reproducible • Dashboard-ready</span>
+                    <br><br>MINTer unifies <strong>estiMINT</strong> (EIR & cases ML) and <strong>MINTe</strong> (RNNs) behind a single R API. Use it for <em>direct emulation</em>, <em>prevalence-driven pipelines</em>, or <em>full malariasimulation ➜ DuckDB ➜ emulation</em> workflows.
+                </p>
+
+                <div class="workflow-diagram">
+                    <div class="badge">How you run it</div>
+                    
+                    <!-- Lane A -->
+                    <div class="flow-rail">
+                        <div class="flow-step">
+                            <div class="flow-icon">⚡</div>
+                            <h4>Direct Emulation</h4>
+                            <small>fastest path</small>
+                            <div class="pill-row">
+                                <div class="pill">create_scenarios()</div>
+                                <div class="pill">run_malaria_emulator()</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧠</div>
+                            <h4>RNNs</h4>
+                            <small>LSTM / GRU</small>
+                            <div class="pill-row">
+                                <div class="pill">prevalence</div>
+                                <div class="pill">cases</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">📊</div>
+                            <h4>Outputs</h4>
+                            <small>tidy data, plots</small>
+                        </div>
+                    </div>
+
+                    <!-- Lane B -->
+                    <div class="flow-rail">
+                        <div class="flow-step">
+                            <div class="flow-icon">🧪</div>
+                            <h4>Prevalence input</h4>
+                            <small>field PfPR + context</small>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧮</div>
+                            <h4>estiMINT</h4>
+                            <small>EIR₀ + cases</small>
+                            <div class="pill-row">
+                                <div class="pill">XGBoost</div>
+                                <div class="pill">RF</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧠</div>
+                            <h4>MINTer</h4>
+                            <small>time-series forecasts</small>
+                        </div>
+                    </div>
+
+                    <!-- Lane C -->
+                    <div class="flow-rail">
+                        <div class="flow-step">
+                            <div class="flow-icon">🧬</div>
+                            <h4>malariasimulation</h4>
+                            <small>native runs</small>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🗄️</div>
+                            <h4>segMINT</h4>
+                            <small>DuckDB ingest</small>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧩</div>
+                            <h4>MINTer</h4>
+                            <small>counter-factuals & benchmarking</small>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" rel="noopener" class="github-link">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>
-                    View on GitHub
-                </a>
-            </div>
 
-            <p style="margin-bottom:1rem">
-                <span class="badge">Dashboard-ready ML suite for public health</span>
-                <br/>estiMINT translates routine surveillance and coverage data into <strong>initial EIR (EIR₀)</strong> and <strong>annual clinical cases per 1000</strong>.
-                Built from the MINTverse pipelines, it’s drop-in friendly for <em>malariasimulation</em> outputs and fast enough for interactive dashboards.
-            </p>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔁 Counter-factual sweeps</h4>
+                        <p>Grid or LHS over ITN/IRS/LSM/EIR and generate scenario tables in seconds.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📦 Dashboard-ready</h4>
+                        <p>Tidy outputs with stable column names for Shiny/Quarto/Streamlit.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧪 Prevalence-driven</h4>
+                        <p>Use field PfPR2-10 → EIR via estiMINT, then forecast prevalence/cases.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧰 Python-free UX</h4>
+                        <p><code>reticulate</code> prepares Torch automatically; no manual setup.</p>
+                    </div>
+                </div>
 
-            <!-- What it predicts -->
-            <div class="grid-2">
+                <h3>API surface (core)</h3>
+                <div class="feature-card" style="padding:0">
+                    <table class="mini-table">
+                        <tr><th>Function</th><th>Purpose</th><th>Returns</th></tr>
+                        <tr><td><code>run_mint_scenarios()</code></td><td>Full pipeline (prevalence-driven or direct)</td><td>List: <code>$prevalence</code>, <code>$cases</code></td></tr>
+                        <tr><td><code>run_malaria_emulator()</code></td><td>RNN predictions from scenarios or DuckDB</td><td>Time-series data frame</td></tr>
+                        <tr><td><code>create_scenarios()</code></td><td>Builds intervention scenarios</td><td>Data frame</td></tr>
+                        <tr><td><code>create_malariasim_scenarios()</code></td><td>LHS design for native sims</td><td>CSV / data frame</td></tr>
+                        <tr><td><code>create_scenario_plots()</code></td><td>Publication-grade plots</td><td>Saved ggplot objects</td></tr>
+                    </table>
+                </div>
+
+                <h3>Recipes</h3>
+
+                <!-- Direct emulation -->
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code>library(MINTer)
+
+sc &lt;- create_scenarios(
+  eir = c(2, 20, 120),
+  itn_use = c(0.3, 0.6, 0.8),
+  irs_use = c(0.1, 0.3, 0.6),
+  lsm = c(0.05, 0.4, 0.8),
+  seasonal = c(0,1,1),
+  routine = c(0,0,1)
+)
+
+prev &lt;- run_malaria_emulator(scenarios = sc, predictor = "prevalence", model_types = c("LSTM","GRU"))
+cases &lt;- run_malaria_emulator(scenarios = sc, predictor = "cases")
+create_scenario_plots(prev,  output_dir = "plots")
+create_scenario_plots(cases, output_dir = "plots")</code></pre>
+                </div>
+
+                <!-- Prevalence-driven with estiMINT -->
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code><span class="comment"># Prevalence-driven pipeline (field PfPR → EIR → forecasts)</span>
+res &lt;- run_mint_scenarios(
+  prev_vec    = c(0.2, 0.35, 0.55),
+  Q0_vec      = c(0.65, 0.75, 0.80),
+  phi_vec     = c(0.45, 0.60, 0.70),
+  itn_use     = c(0.30, 0.50, 0.80),
+  irs_vec     = c(0.10, 0.35, 0.60),
+  lsm_vec     = c(0.05, 0.40, 0.80),
+  season_vec  = c(0,1,1),
+  routine_vec = c(0,0,1)
+)
+write.csv(res$prevalence, "out_prevalence.csv", row.names = FALSE)
+write.csv(res$cases,       "out_cases.csv",       row.names = FALSE)</code></pre>
+                </div>
+
+                <!-- Full pipeline w/ segMINT -->
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code>library(MINTer); library(segMINT)
+
+<span class="comment"># After running malariasimulation externally:</span>
+segMINT::create_database(
+  dir = "Data/Database", file_name = "malariasim.duckdb",
+  table_name = "sim_results", data_dir = "Data/Simout"
+)
+
+<span class="comment"># Counter-factuals on param_index=5</span>
+cf &lt;- run_malaria_emulator(
+  db_path = "Data/Database/malariasim.duckdb",
+  param_index = 5,
+  predictor = "cases",
+  counterfactual = list(eir = c(0.5, 60, 300))
+)</code></pre>
+                </div>
+
+                <!-- Batch sweeps -->
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code><span class="comment"># Batch sweep: 3x3x3 grid</span>
+grid &lt;- expand.grid(
+  itn_use = c(0.3,0.6,0.9),
+  irs_use = c(0.0,0.3,0.6),
+  lsm     = c(0.0,0.4,0.8)
+)
+grid$eir &lt;- 35  <span class="comment"># fixed baseline</span>
+em &lt;- run_malaria_emulator(scenarios = grid, predictor = "cases")
+head(em)</code></pre>
+                </div>
+
+                <div class="alert">
+                    <strong>Confidence intervals:</strong> Use <code>estiMINT::predict_annual_cases(..., return_intervals = TRUE)</code> on MINTer-produced scenario frames when you need 95% prediction intervals for cases.
+                </div>
+
+                <h3>Installation</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+devtools::install_github("CosmoNaught/MINTer")
+devtools::install_github("CosmoNaught/segMINT")
+devtools::install_github("CosmoNaught/estiMINT")
+
+<span class="comment"># First library() call may build Torch; allow ~1 min.</span>
+library(MINTer)</code></pre>
+                </div>
+            </section>
+
+            <!-- estiMINT Section -->
+            <section id="estimint" class="package-section fade-in">
+                <div class="package-header">
+                    <div>
+                        <h2 class="package-title">estiMINT</h2>
+                        <p class="package-subtitle">Machine-learning models for EIR estimation and annual case prediction</p>
+                    </div>
+                    <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" class="github-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+
+                <p style="margin-bottom:32px">
+                    <span class="badge">Dashboard-ready ML suite for public health</span>
+                    <br><br>estiMINT translates routine surveillance and coverage data into <strong>initial EIR (EIR₀)</strong> and <strong>annual clinical cases per 1000</strong>.
+                    Built from the MINTverse pipelines, it's drop-in friendly for <em>malariasimulation</em> outputs and fast enough for interactive dashboards.
+                </p>
+
+                <!-- What it predicts -->
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>🎯 What estiMINT predicts</h4>
+                        <ul>
+                            <li><strong>EIR₀</strong> from prevalence + context</li>
+                            <li><strong>Cases per 1000</strong> for years 0–5 (with scenario years 2–5 commonly used)</li>
+                            <li>Optional <strong>prediction intervals</strong> for cases</li>
+                        </ul>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">EIR: R² ≈ 0.90</div><div class="muted">XGBoost / RF</div></div>
+                            <div class="stat"><div class="value">Cases: R² ≈ 0.92–0.93</div><div class="muted">XGBoost / RF</div></div>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧩 Why it's special</h4>
+                        <ul>
+                            <li><strong>Non-linear covariates</strong>: seasonality, ITN/IRS, biting behaviour</li>
+                            <li><strong>Zero-inflation aware</strong> case models (Tweedie / √-transform)</li>
+                            <li><strong>Retrainable</strong> in one command when new sims land</li>
+                            <li><strong>Governed & versioned</strong> model artifacts for reproducibility</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Model zoo -->
+                <h3>Model Zoo</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>EIR — XGBoost</h4>
+                        <div class="pill-row">
+                            <div class="pill">log₁₀(EIR+1)</div>
+                            <div class="pill">MSE objective</div>
+                        </div>
+                        <p>Wide EIR coverage, handles extremes gracefully.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 35.08</div><div class="muted">R² 0.903 • r 0.951</div></div>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>EIR — Random Forest</h4>
+                        <div class="pill-row">
+                            <div class="pill">log₁₀(EIR+1)</div>
+                            <div class="pill">1–2k trees</div>
+                        </div>
+                        <p>Strong robustness with natural uncertainty feel.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 36.85</div><div class="muted">R² 0.893 • r 0.947</div></div>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cases — XGBoost (Tweedie)</h4>
+                        <div class="pill-row">
+                            <div class="pill">Tweedie ~1.15</div>
+                            <div class="pill">Dynamic weights</div>
+                        </div>
+                        <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 0.265</div><div class="muted">R² 0.926 • r 0.963</div></div>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cases — Random Forest</h4>
+                        <div class="pill-row">
+                            <div class="pill">√-transform</div>
+                            <div class="pill">LHS tuning</div>
+                        </div>
+                        <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
+                        <div class="stat-cards">
+                            <div class="stat"><div class="value">RMSE 0.277</div><div class="muted">R² 0.919 • r 0.959</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- When to use what -->
                 <div class="feature-card">
-                    <h4>🎯 What estiMINT predicts</h4>
-                    <ul style="margin-left:1rem">
-                        <li><strong>EIR₀</strong> from prevalence + context</li>
-                        <li><strong>Cases per 1000</strong> for years 0–5 (with scenario years 2–5 commonly used)</li>
-                        <li>Optional <strong>prediction intervals</strong> for cases</li>
-                    </ul>
-                    <div class="stat-cards">
-                        <div class="stat"><div class="value">EIR: R² ≈ 0.90</div><div class="muted">XGBoost / RF</div></div>
-                        <div class="stat"><div class="value">Cases: R² ≈ 0.92–0.93</div><div class="muted">XGBoost / RF</div></div>
-                    </div>
+                    <h4>🧭 When to use which model</h4>
+                    <table class="mini-table">
+                        <tr><th>Need</th><th>Pick</th><th>Why</th></tr>
+                        <tr><td>Fast, general EIR</td><td>XGBoost</td><td>Stable across intensity range</td></tr>
+                        <tr><td>Robust EIR with uncertainty feel</td><td>Random Forest</td><td>Ensemble stability</td></tr>
+                        <tr><td>Cases with many zeros</td><td>XGBoost (Tweedie)</td><td>Handles zero-inflation natively</td></tr>
+                        <tr><td>Outlier-heavy cases</td><td>Random Forest</td><td>Resilient to extremes</td></tr>
+                    </table>
                 </div>
-                <div class="feature-card">
-                    <h4>🧩 Why it’s special</h4>
-                    <ul style="margin-left:1rem">
-                        <li><strong>Non-linear covariates</strong>: seasonality, ITN/IRS, biting behaviour</li>
-                        <li><strong>Zero-inflation aware</strong> case models (Tweedie / √-transform)</li>
-                        <li><strong>Retrainable</strong> in one command when new sims land</li>
-                        <li><strong>Governed & versioned</strong> model artifacts for reproducibility</li>
-                    </ul>
-                </div>
-            </div>
 
-            <!-- Model zoo -->
-            <h3 style="margin:1.2rem 0 .4rem;color:var(--primary)">Model Zoo</h3>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4>EIR — XGBoost</h4>
-                    <div class="pill-row"><div class="pill">log₁₀(EIR+1)</div><div class="pill">MSE objective</div></div>
-                    <p>Wide EIR coverage, handles extremes gracefully.</p>
-                    <div class="stat-cards">
-                        <div class="stat"><div class="value">RMSE 35.08</div><div class="muted">R² 0.903 • r 0.951</div></div>
+                <!-- EstiMINT workflow -->
+                <div class="workflow-diagram">
+                    <div class="badge">estiMINT Flow</div>
+                    <div class="flow-rail">
+                        <div class="flow-step">
+                            <div class="flow-icon">🧾</div>
+                            <h4>Inputs</h4>
+                            <small>Prevalence + coverage</small>
+                            <div class="pill-row">
+                                <div class="pill">PfPR</div>
+                                <div class="pill">ITN/IRS</div>
+                                <div class="pill">Q0, ϕ</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">📐</div>
+                            <h4>EIR Models</h4>
+                            <small>XGBoost / RF</small>
+                            <div class="pill-row">
+                                <div class="pill">EIR₀</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">📉</div>
+                            <h4>Case Models</h4>
+                            <small>Tweedie / RF</small>
+                            <div class="pill-row">
+                                <div class="pill">cases / 1000</div>
+                                <div class="pill">PI (opt.)</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧩</div>
+                            <h4>Outputs</h4>
+                            <small>Dashboard-ready</small>
+                            <div class="pill-row">
+                                <div class="pill">tidy data</div>
+                                <div class="pill">plots</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="feature-card">
-                    <h4>EIR — Random Forest</h4>
-                    <div class="pill-row"><div class="pill">log₁₀(EIR+1)</div><div class="pill">1–2k trees</div></div>
-                    <p>Strong robustness with natural uncertainty feel.</p>
-                    <div class="stat-cards">
-                        <div class="stat"><div class="value">RMSE 36.85</div><div class="muted">R² 0.893 • r 0.947</div></div>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <h4>Cases — XGBoost (Tweedie)</h4>
-                    <div class="pill-row"><div class="pill">Tweedie ~1.15</div><div class="pill">Dynamic weights</div></div>
-                    <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
-                    <div class="stat-cards">
-                        <div class="stat"><div class="value">RMSE 0.265</div><div class="muted">R² 0.926 • r 0.963</div></div>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <h4>Cases — Random Forest</h4>
-                    <div class="pill-row"><div class="pill">√-transform</div><div class="pill">LHS tuning</div></div>
-                    <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
-                    <div class="stat-cards">
-                        <div class="stat"><div class="value">RMSE 0.277</div><div class="muted">R² 0.919 • r 0.959</div></div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- When to use what -->
-            <div class="feature-card">
-                <h4>🧭 When to use which model</h4>
-                <table class="mini-table">
-                    <tr><th>Need</th><th>Pick</th><th>Why</th></tr>
-                    <tr><td>Fast, general EIR</td><td>XGBoost</td><td>Stable across intensity range</td></tr>
-                    <tr><td>Robust EIR with uncertainty feel</td><td>Random Forest</td><td>Ensemble stability</td></tr>
-                    <tr><td>Cases with many zeros</td><td>XGBoost (Tweedie)</td><td>Handles zero-inflation natively</td></tr>
-                    <tr><td>Outlier-heavy cases</td><td>Random Forest</td><td>Resilient to extremes</td></tr>
-                </table>
-            </div>
-
-            <!-- EstiMINT workflow (distinct visual) -->
-            <div class="workflow-diagram" aria-label="estiMINT internal flow">
-                <div class="badge">estiMINT Flow</div>
-                <div class="flow-rail" style="margin-top:1rem">
-                    <div class="flow-step">
-                        <div class="flow-icon">🧾</div>
-                        <h4>Inputs</h4><small>Prevalence + coverage</small>
-                        <div class="pill-row"><div class="pill">PfPR</div><div class="pill">ITN/IRS</div><div class="pill">Q0, ϕ</div></div>
-                    </div>
-                    <div class="flow-connector"></div>
-                    <div class="flow-step">
-                        <div class="flow-icon">📐</div>
-                        <h4>EIR Models</h4><small>XGBoost / RF</small>
-                        <div class="pill-row"><div class="pill">EIR₀</div></div>
-                    </div>
-                    <div class="flow-connector"></div>
-                    <div class="flow-step">
-                        <div class="flow-icon">📉</div>
-                        <h4>Case Models</h4><small>Tweedie / RF</small>
-                        <div class="pill-row"><div class="pill">cases / 1000</div><div class="pill">PI (opt.)</div></div>
-                    </div>
-                    <div class="flow-connector"></div>
-                    <div class="flow-step">
-                        <div class="flow-icon">🧩</div>
-                        <h4>Outputs</h4><small>Dashboard-ready</small>
-                        <div class="pill-row"><div class="pill">tidy data</div><div class="pill">plots</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Example usage -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Example: EIR → Cases</h3>
-            <div class="code-section">
-                <button class="copy-btn" aria-label="Copy code">Copy</button>
-<pre><code><span class="comment"># Load pre-trained EIR models</span>
+                <!-- Example usage -->
+                <h3>Example: EIR → Cases</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code><span class="comment"># Load pre-trained EIR models</span>
 <span class="function">library</span>(estiMINT)
 pretrained &lt;- <span class="function">load_pretrained_eir_models</span>()
 
@@ -691,58 +1830,58 @@ scenarios &lt;- <span class="function">transform</span>(new_data, eir=eir_ens, y
 cases_x &lt;- <span class="function">predict_annual_cases</span>(xgbc, scenarios, pc$feature_cols)
 cases_r &lt;- <span class="function">predict_annual_cases</span>(rfc,  scenarios, pc$feature_cols)
 cases_ensemble &lt;- (cases_x + cases_r)/<span class="number">2</span></code></pre>
-            </div>
-
-            <!-- Performance (correct numbers) -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Performance (held-out test)</h3>
-            <div class="feature-card" style="padding:0">
-                <table class="mini-table">
-                    <tr><th>Task</th><th>Model</th><th>RMSE</th><th>R²</th><th>Correlation</th></tr>
-                    <tr><td>EIR</td><td>XGBoost</td><td>35.08</td><td>0.903</td><td>0.951</td></tr>
-                    <tr><td>EIR</td><td>Random Forest</td><td>36.85</td><td>0.893</td><td>0.947</td></tr>
-                    <tr><td>Cases</td><td>XGBoost (Tweedie)</td><td>0.265</td><td>0.926</td><td>0.963</td></tr>
-                    <tr><td>Cases</td><td>Random Forest</td><td>0.277</td><td>0.919</td><td>0.959</td></tr>
-                </table>
-            </div>
-
-            <!-- Governance & dashboards -->
-            <div class="grid-2" style="margin-top:1rem">
-                <div class="feature-card">
-                    <h4>🗂️ Reproducibility & Model Management</h4>
-                    <ul style="margin-left:1rem">
-                        <li>Versioned releases <code>models-YYYYMMDD-HHMMSS-hash</code></li>
-                        <li>SHA checksums & local cache controls</li>
-                        <li>Immutable tags for auditability</li>
-                    </ul>
                 </div>
-                <div class="feature-card">
-                    <h4>📺 Dashboard-ready Outputs</h4>
-                    <ul style="margin-left:1rem">
-                        <li>Tidy data frames for Shiny / Quarto / Streamlit</li>
-                        <li>Stable column names across versions</li>
-                        <li>Scales to batch scenarios for program dashboards</li>
-                    </ul>
-                </div>
-            </div>
 
-            <!-- Installation -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Installation</h3>
-            <div class="code-section">
-                <button class="copy-btn" aria-label="Copy code">Copy</button>
-<pre><code><span class="comment"># Install from GitHub</span>
+                <!-- Performance -->
+                <h3>Performance (held-out test)</h3>
+                <div class="feature-card" style="padding:0">
+                    <table class="mini-table">
+                        <tr><th>Task</th><th>Model</th><th>RMSE</th><th>R²</th><th>Correlation</th></tr>
+                        <tr><td>EIR</td><td>XGBoost</td><td>35.08</td><td>0.903</td><td>0.951</td></tr>
+                        <tr><td>EIR</td><td>Random Forest</td><td>36.85</td><td>0.893</td><td>0.947</td></tr>
+                        <tr><td>Cases</td><td>XGBoost (Tweedie)</td><td>0.265</td><td>0.926</td><td>0.963</td></tr>
+                        <tr><td>Cases</td><td>Random Forest</td><td>0.277</td><td>0.919</td><td>0.959</td></tr>
+                    </table>
+                </div>
+
+                <!-- Governance & dashboards -->
+                <div class="grid-2" style="margin-top:32px">
+                    <div class="feature-card">
+                        <h4>🗂️ Reproducibility & Model Management</h4>
+                        <ul>
+                            <li>Versioned releases <code>models-YYYYMMDD-HHMMSS-hash</code></li>
+                            <li>SHA checksums & local cache controls</li>
+                            <li>Immutable tags for auditability</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📺 Dashboard-ready Outputs</h4>
+                        <ul>
+                            <li>Tidy data frames for Shiny / Quarto / Streamlit</li>
+                            <li>Stable column names across versions</li>
+                            <li>Scales to batch scenarios for program dashboards</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Installation -->
+                <h3>Installation</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code><span class="comment"># Install from GitHub</span>
 <span class="function">install.packages</span>(<span class="string">"devtools"</span>)
 <span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/estiMINT"</span>)
 
 <span class="comment"># Dependencies auto-install: xgboost, ranger, duckdb, data.table, future, progressr, piggyback</span>
-<span class="comment"># Requires R &gt;= 4.2</span></code></pre>
-            </div>
+<span class="comment"># Requires R >= 4.2</span></code></pre>
+                </div>
 
-            <!-- Advanced Usage / Training -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Advanced Usage & Training</h3>
-            <p>Load from pretrained artifacts, local files, or in-session training results. Train complete pipelines with stratified evaluation and dynamic case weighting.</p>
-            <div class="code-section">
-                <button class="copy-btn" aria-label="Copy code">Copy</button>
-<pre><code><span class="comment"># Train case models with advanced features</span>
+                <!-- Advanced Usage / Training -->
+                <h3>Advanced Usage & Training</h3>
+                <p>Load from pretrained artifacts, local files, or in-session training results. Train complete pipelines with stratified evaluation and dynamic case weighting.</p>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code><span class="comment"># Train case models with advanced features</span>
 case_results &lt;- <span class="function">build_case_models</span>(
   <span class="parameter">db_path</span>=<span class="string">"simulation.duckdb"</span>,
   <span class="parameter">param_limit</span>=<span class="number">8192</span>,
@@ -752,335 +1891,363 @@ case_results &lt;- <span class="function">build_case_models</span>(
   <span class="parameter">weight_power</span>=<span class="number">0.75</span>,
   <span class="parameter">stratified_eval</span>=TRUE
 )</code></pre>
-            </div>
-        </section>
+                </div>
+            </section>
 
-        <!-- MINTe -->
-        <section id="minte" class="package-section">
-            <div class="package-header">
-              <div>
-                <h2 class="package-title">MINTe</h2>
-                <p class="package-subtitle">Python RNNs (GRU/LSTM) for malaria prevalence & cases forecasting</p>
-              </div>
-              <a href="https://github.com/CosmoNaught/minte" target="_blank" rel="noopener" class="github-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>
-                View on GitHub
-              </a>
-            </div>
-          
-            <p style="margin-bottom:1rem">
-              <span class="badge">GPU-ready • Tunable • DuckDB-native</span>
-              <br>MINTe provides <strong>GRU</strong> and <strong>LSTM</strong> sequence models with rolling windows, optional cyclical time encoding, early stopping, and hyper-parameter optimization. Train via Python API or a simple <code>minte</code> CLI; deploy as artifacts that MINTer can call through <code>reticulate</code>.
-            </p>
-          
-            <!-- Architecture -->
-            <div class="feature-grid">
-              <div class="feature-card">
-                <h4>🧱 Architecture</h4>
-                <ul style="margin-left:1rem">
-                  <li>Lookback windows: <code>window_size</code> (e.g., 30)</li>
-                  <li>Encoders: <strong>GRU</strong> or <strong>LSTM</strong>, 1–N layers</li>
-                  <li>Regularisation: dropout, weight decay</li>
-                  <li>Optimiser: Adam + LR scheduling, early stopping</li>
-                </ul>
-              </div>
-              <div class="feature-card">
-                <h4>🧰 Data & I/O</h4>
-                <ul style="margin-left:1rem">
-                  <li>Reads DuckDB table (simulation outputs)</li>
-                  <li>Predictor: <code>prevalence</code> or <code>cases</code></li>
-                  <li>Artifacts saved under <code>output_dir</code></li>
-                  <li>Reload with <code>load_models()</code> for inference</li>
-                </ul>
-              </div>
-              <div class="feature-card">
-                <h4>⚡ Performance UX</h4>
-                <ul style="margin-left:1rem">
-                  <li>CUDA (optional) for training/inference</li>
-                  <li><code>num_workers</code> for data loading</li>
-                  <li>Large-batch modes for big datasets</li>
-                </ul>
-              </div>
-            </div>
-          
-            <!-- MINTe flow -->
-            <div class="workflow-diagram" aria-label="MINTe training flow">
-              <div class="badge">Training flow</div>
-              <div class="flow-rail" style="margin-top:1rem">
-                <div class="flow-step">
-                  <div class="flow-icon">🗄️</div>
-                  <h4>DuckDB</h4><small>simulation_results</small>
-                  <div class="pill-row"><div class="pill">features</div><div class="pill">targets</div></div>
+            <!-- MINTe Section -->
+            <section id="minte" class="package-section fade-in">
+                <div class="package-header">
+                    <div>
+                        <h2 class="package-title">MINTe</h2>
+                        <p class="package-subtitle">Python RNNs (GRU/LSTM) for malaria prevalence & cases forecasting</p>
+                    </div>
+                    <a href="https://github.com/CosmoNaught/minte" target="_blank" class="github-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
                 </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🧪</div>
-                  <h4>Preprocess</h4><small>windows & masks</small>
-                  <div class="pill-row"><div class="pill">lookback</div><div class="pill">min_prevalence</div></div>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">🧠</div>
-                  <h4>Train</h4><small>GRU / LSTM</small>
-                  <div class="pill-row"><div class="pill">HPO (Optuna)</div><div class="pill">early stop</div></div>
-                </div>
-                <div class="flow-connector"></div>
-                <div class="flow-step">
-                  <div class="flow-icon">📦</div>
-                  <h4>Artifacts</h4><small>load_models()</small>
-                  <div class="pill-row"><div class="pill">metrics</div><div class="pill">checkpoints</div></div>
-                </div>
-              </div>
-            </div>
-          
-            <!-- Quick start (Python API) -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Quick Start (Python API)</h3>
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code>from minte import MalariaForecast
-          
-          f = MalariaForecast(
-              db_path="path/to/data.duckdb",
-              table_name="simulation_results",
-              predictor="cases",      # or "prevalence"
-              window_size=30,
-              device="cuda"           # or "cpu"
-          )
-          
-          results = f.run(
-              param_limit=1000,
-              sim_limit=10,
-              output_dir="results/experiment"
-          )
-          
-          print("GRU R²:",  results["gru"]["test_metrics"]["r2"])
-          print("LSTM R²:", results["lstm"]["test_metrics"]["r2"])</code></pre>
-            </div>
-          
-            <!-- CLI -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">CLI Recipes</h3>
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code># Basic training (cases)
-          minte \
-            --db-path data.duckdb \
-            --table-name simulation_results \
-            --predictor cases \
-            --window-size 30 \
-            --param-limit 2048 \
-            --sim-limit 8 \
-            --output-dir results/cases
-          
-          # Add cyclical time encoding (seasonality)
-          minte \
-            --db-path data.duckdb \
-            --predictor prevalence \
-            --use-cyclical-time \
-            --window-size 30 \
-            --output-dir results/prevalence_cyc
-          
-          # Hyperparameter tuning (6h / 100 trials)
-          minte \
-            --db-path data.duckdb \
-            --predictor cases \
-            --run-tuning \
-            --tuning-trials 100 \
-            --tuning-timeout 21600 \
-            --output-dir results/tuned
-          
-          # Multi-GPU (data parallel)
-          CUDA_VISIBLE_DEVICES=0,1 minte \
-            --db-path data.duckdb \
-            --device cuda \
-            --batch-size 8192 \
-            --output-dir results/mgpu</code></pre>
-            </div>
-          
-            <!-- Detailed usage highlights -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Detailed Usage</h3>
-            <div class="feature-card" style="padding:0">
-              <table class="mini-table">
-                <tr><th>Setting</th><th>What it does</th><th>When to change</th></tr>
-                <tr><td><code>window_size</code></td><td>Sequence length for the RNN</td><td>Increase for slower dynamics; decrease for speed</td></tr>
-                <tr><td><code>min_prevalence</code></td><td>Filters tiny signals in training</td><td>Raise for noisy low-transmission areas</td></tr>
-                <tr><td><code>use_cyclical_time</code></td><td>Adds sin/cos time encoding</td><td>Strong seasonality settings</td></tr>
-                <tr><td><code>hidden_size</code>, <code>num_layers</code></td><td>Model capacity</td><td>Scale with data volume</td></tr>
-                <tr><td><code>batch_size</code>, <code>num_workers</code></td><td>I/O and compute throughput</td><td>Tune for your CPU/GPU</td></tr>
-              </table>
-            </div>
-          
-            <!-- Load / Predict -->
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code># Load and predict
-          from minte import MalariaForecast
-          import numpy as np
-          
-          f = MalariaForecast(db_path="path/to/data.duckdb", predictor="cases")
-          f.load_models("results/experiment/trained_models")
-          
-          X = np.random.randn(100, 15).astype(np.float32)   # timesteps × features
-          yhat = f.predict(X, model_type="gru")</code></pre>
-            </div>
-          
-            <!-- Data schema -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Data Schema (DuckDB)</h3>
-            <div class="feature-card" style="padding:0">
-              <table class="mini-table">
-                <tr><th>Column</th><th>Purpose</th></tr>
-                <tr><td><code>parameter_index</code>, <code>simulation_index</code></td><td>Grouping keys</td></tr>
-                <tr><td><code>timesteps</code></td><td>Time axis (days)</td></tr>
-                <tr><td><code>n_detect_lm_0_1825</code>, <code>n_age_0_1825</code></td><td>Prevalence numerators/denominators</td></tr>
-                <tr><td><code>n_inc_clinical_0_36500</code>, <code>n_age_0_36500</code></td><td>Cases numerators/denominators</td></tr>
-                <tr><td>Covariates (eir, dn0_use, dn0_future, Q0, phi_bednets, seasonal, routine, itn_use, irs_use, itn_future, irs_future, lsm)</td><td>Static/slow inputs</td></tr>
-              </table>
-            </div>
-          
-            <!-- Tuning -->
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Hyper-parameter Tuning</h3>
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code>results = f.run(
-              param_limit=2048,
-              sim_limit=8,
-              run_tuning=True,
-              tuning_trials=50,
-              tuning_timeout=3600*6,
-              output_dir="results/tuned",
-              tuning_output_dir="tuning_trials"
-          )
-          
-          # Later: reuse tuned parameters
-          results = f.run(
-              use_tuned_parameters=True,
-              tuning_output_dir="tuning_trials"
-          )</code></pre>
-            </div>
-          
-            <!-- Ops tips -->
-            <div class="feature-grid">
-              <div class="feature-card">
-                <h4>🔒 Reproducibility</h4>
-                <p>Set <code>seed</code> in <code>MalariaForecast(...)</code>. Keep driver, CUDA & PyTorch versions stable across runs.</p>
-              </div>
-              <div class="feature-card">
-                <h4>🧭 Troubleshooting</h4>
-                <ul style="margin-left:1rem">
-                  <li>OOM → reduce <code>batch_size</code>, <code>hidden_size</code>, or layers</li>
-                  <li>Slow I/O → move DuckDB to SSD, raise <code>num_workers</code></li>
-                  <li>Weak fit → try <code>run_tuning=True</code>, increase <code>lookback</code>, enable <code>use_cyclical_time</code></li>
-                </ul>
-              </div>
-              <div class="feature-card">
-                <h4>📝 Logging</h4>
-                <div class="code-section" style="margin:0">
-                  <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code>import logging
-          logging.getLogger('minte').setLevel(logging.DEBUG)</code></pre>
-                </div>
-              </div>
-            </div>
-          
-            <h3 style="margin:1.2rem 0 .6rem;color:var(--primary)">Installation</h3>
-            <div class="code-section">
-              <button class="copy-btn" aria-label="Copy code">Copy</button>
-          <pre><code># From source
-          git clone https://github.com/CosmoNaught/minte.git
-          cd minte
-          python -m venv venv
-          source venv/bin/activate  # Windows: venv\Scripts\activate
-          pip install -e .
-          
-          # Verify
-          python -c "import minte; print(minte.__version__)"</code></pre>
-            </div>
-          </section>
-          
 
-        <!-- Resources -->
-        <section class="section">
-            <h2 class="section-title">Resources & Support</h2>
-            <div style="text-align:center;max-width:800px;margin:0 auto">
-                <p>MINTverse is actively developed. For questions, bugs, or contributions:</p>
-                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.8rem">
+                <p style="margin-bottom:32px">
+                    <span class="badge">GPU-ready • Tunable • DuckDB-native</span>
+                    <br><br>MINTe provides <strong>GRU</strong> and <strong>LSTM</strong> sequence models with rolling windows, optional cyclical time encoding, early stopping, and hyper-parameter optimization. Train via Python API or a simple <code>minte</code> CLI; deploy as artifacts that MINTer can call through <code>reticulate</code>.
+                </p>
+
+                <!-- Architecture -->
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🧱 Architecture</h4>
+                        <ul>
+                            <li>Lookback windows: <code>window_size</code> (e.g., 30)</li>
+                            <li>Encoders: <strong>GRU</strong> or <strong>LSTM</strong>, 1–N layers</li>
+                            <li>Regularisation: dropout, weight decay</li>
+                            <li>Optimiser: Adam + LR scheduling, early stopping</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧰 Data & I/O</h4>
+                        <ul>
+                            <li>Reads DuckDB table (simulation outputs)</li>
+                            <li>Predictor: <code>prevalence</code> or <code>cases</code></li>
+                            <li>Artifacts saved under <code>output_dir</code></li>
+                            <li>Reload with <code>load_models()</code> for inference</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚡ Performance UX</h4>
+                        <ul>
+                            <li>CUDA (optional) for training/inference</li>
+                            <li><code>num_workers</code> for data loading</li>
+                            <li>Large-batch modes for big datasets</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- MINTe flow -->
+                <div class="workflow-diagram">
+                    <div class="badge">Training flow</div>
+                    <div class="flow-rail">
+                        <div class="flow-step">
+                            <div class="flow-icon">🗄️</div>
+                            <h4>DuckDB</h4>
+                            <small>simulation_results</small>
+                            <div class="pill-row">
+                                <div class="pill">features</div>
+                                <div class="pill">targets</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧪</div>
+                            <h4>Preprocess</h4>
+                            <small>windows & masks</small>
+                            <div class="pill-row">
+                                <div class="pill">lookback</div>
+                                <div class="pill">min_prevalence</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">🧠</div>
+                            <h4>Train</h4>
+                            <small>GRU / LSTM</small>
+                            <div class="pill-row">
+                                <div class="pill">HPO (Optuna)</div>
+                                <div class="pill">early stop</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector"></div>
+                        <div class="flow-step">
+                            <div class="flow-icon">📦</div>
+                            <h4>Artifacts</h4>
+                            <small>load_models()</small>
+                            <div class="pill-row">
+                                <div class="pill">metrics</div>
+                                <div class="pill">checkpoints</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick start (Python API) -->
+                <h3>Quick Start (Python API)</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code>from minte import MalariaForecast
+
+f = MalariaForecast(
+    db_path="path/to/data.duckdb",
+    table_name="simulation_results",
+    predictor="cases",      # or "prevalence"
+    window_size=30,
+    device="cuda"           # or "cpu"
+)
+
+results = f.run(
+    param_limit=1000,
+    sim_limit=10,
+    output_dir="results/experiment"
+)
+
+print("GRU R²:",  results["gru"]["test_metrics"]["r2"])
+print("LSTM R²:", results["lstm"]["test_metrics"]["r2"])</code></pre>
+                </div>
+
+                <!-- CLI -->
+                <h3>CLI Recipes</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code># Basic training (cases)
+minte \
+  --db-path data.duckdb \
+  --table-name simulation_results \
+  --predictor cases \
+  --window-size 30 \
+  --param-limit 2048 \
+  --sim-limit 8 \
+  --output-dir results/cases
+
+# Add cyclical time encoding (seasonality)
+minte \
+  --db-path data.duckdb \
+  --predictor prevalence \
+  --use-cyclical-time \
+  --window-size 30 \
+  --output-dir results/prevalence_cyc
+
+# Hyperparameter tuning (6h / 100 trials)
+minte \
+  --db-path data.duckdb \
+  --predictor cases \
+  --run-tuning \
+  --tuning-trials 100 \
+  --tuning-timeout 21600 \
+  --output-dir results/tuned
+
+# Multi-GPU (data parallel)
+CUDA_VISIBLE_DEVICES=0,1 minte \
+  --db-path data.duckdb \
+  --device cuda \
+  --batch-size 8192 \
+  --output-dir results/mgpu</code></pre>
+                </div>
+
+                <!-- Detailed usage highlights -->
+                <h3>Detailed Usage</h3>
+                <div class="feature-card" style="padding:0">
+                    <table class="mini-table">
+                        <tr><th>Setting</th><th>What it does</th><th>When to change</th></tr>
+                        <tr><td><code>window_size</code></td><td>Sequence length for the RNN</td><td>Increase for slower dynamics; decrease for speed</td></tr>
+                        <tr><td><code>min_prevalence</code></td><td>Filters tiny signals in training</td><td>Raise for noisy low-transmission areas</td></tr>
+                        <tr><td><code>use_cyclical_time</code></td><td>Adds sin/cos time encoding</td><td>Strong seasonality settings</td></tr>
+                        <tr><td><code>hidden_size</code>, <code>num_layers</code></td><td>Model capacity</td><td>Scale with data volume</td></tr>
+                        <tr><td><code>batch_size</code>, <code>num_workers</code></td><td>I/O and compute throughput</td><td>Tune for your CPU/GPU</td></tr>
+                    </table>
+                </div>
+
+                <!-- Load / Predict -->
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code># Load and predict
+from minte import MalariaForecast
+import numpy as np
+
+f = MalariaForecast(db_path="path/to/data.duckdb", predictor="cases")
+f.load_models("results/experiment/trained_models")
+
+X = np.random.randn(100, 15).astype(np.float32)   # timesteps × features
+yhat = f.predict(X, model_type="gru")</code></pre>
+                </div>
+
+                <!-- Data schema -->
+                <h3>Data Schema (DuckDB)</h3>
+                <div class="feature-card" style="padding:0">
+                    <table class="mini-table">
+                        <tr><th>Column</th><th>Purpose</th></tr>
+                        <tr><td><code>parameter_index</code>, <code>simulation_index</code></td><td>Grouping keys</td></tr>
+                        <tr><td><code>timesteps</code></td><td>Time axis (days)</td></tr>
+                        <tr><td><code>n_detect_lm_0_1825</code>, <code>n_age_0_1825</code></td><td>Prevalence numerators/denominators</td></tr>
+                        <tr><td><code>n_inc_clinical_0_36500</code>, <code>n_age_0_36500</code></td><td>Cases numerators/denominators</td></tr>
+                        <tr><td>Covariates (eir, dn0_use, dn0_future, Q0, phi_bednets, seasonal, routine, itn_use, irs_use, itn_future, irs_future, lsm)</td><td>Static/slow inputs</td></tr>
+                    </table>
+                </div>
+
+                <!-- Tuning -->
+                <h3>Hyper-parameter Tuning</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code>results = f.run(
+    param_limit=2048,
+    sim_limit=8,
+    run_tuning=True,
+    tuning_trials=50,
+    tuning_timeout=3600*6,
+    output_dir="results/tuned",
+    tuning_output_dir="tuning_trials"
+)
+
+# Later: reuse tuned parameters
+results = f.run(
+    use_tuned_parameters=True,
+    tuning_output_dir="tuning_trials"
+)</code></pre>
+                </div>
+
+                <!-- Ops tips -->
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔒 Reproducibility</h4>
+                        <p>Set <code>seed</code> in <code>MalariaForecast(...)</code>. Keep driver, CUDA & PyTorch versions stable across runs.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🧭 Troubleshooting</h4>
+                        <ul>
+                            <li>OOM → reduce <code>batch_size</code>, <code>hidden_size</code>, or layers</li>
+                            <li>Slow I/O → move DuckDB to SSD, raise <code>num_workers</code></li>
+                            <li>Weak fit → try <code>run_tuning=True</code>, increase <code>lookback</code>, enable <code>use_cyclical_time</code></li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📝 Logging</h4>
+                        <div class="code-section" style="margin:0">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>import logging
+logging.getLogger('minte').setLevel(logging.DEBUG)</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Installation</h3>
+                <div class="code-section">
+                    <button class="copy-btn">Copy</button>
+                    <pre><code># From source
+git clone https://github.com/CosmoNaught/minte.git
+cd minte
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -e .
+
+# Verify
+python -c "import minte; print(minte.__version__)"</code></pre>
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section class="section fade-in">
+                <div class="section-header">
+                    <h2 class="section-title">Resources & Support</h2>
+                    <p class="section-subtitle">MINTverse is actively developed. For questions, bugs, or contributions:</p>
+                </div>
+                <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
                     <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">Report Issues</a>
                     <a href="https://github.com/CosmoNaught/MINTer/wiki" class="github-link">Documentation Wiki</a>
                     <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">Contact</a>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 
-<!-- REPLACE your existing ABOUT & CONTACT section with this block -->
-<section id="contact" class="section">
-    <h2 class="section-title">About me & contact</h2>
-    <div class="container">
-  
-      <!-- Local styles scoped to this section only -->
-      <style>
-        #contact .h3-tight{margin-bottom:.25rem}
-        #contact .subtitle{color:var(--text-secondary);opacity:.95;margin:.1rem 0 .6rem}
-        #contact .tick-list{list-style:none;margin:.2rem 0 0;padding:0}
-        #contact .tick-list li{position:relative;padding-left:1.25rem;margin:.32rem 0}
-        #contact .tick-list li::before{content:"✔";position:absolute;left:0;top:.05rem;opacity:.65}
-        #contact .chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0 .2rem}
-        #contact .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.22rem .6rem;font-size:.8rem}
-        #contact .cta-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
-        #contact .btn-primary{display:inline-flex;align-items:center;gap:.4rem;background:var(--primary);color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.5rem .85rem;text-decoration:none;transition:.2s}
-        #contact .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
-        #contact .btn-ghost{display:inline-flex;align-items:center;gap:.4rem;background:var(--bg-dark);color:var(--text-primary);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.5rem .85rem;text-decoration:none;transition:.2s}
-        #contact .btn-ghost:hover{background:rgba(255,255,255,.06)}
-        #contact .small-muted{color:var(--muted);font-size:.9rem;margin-top:.45rem}
-      </style>
-  
-      <div class="feature-grid">
-        <!-- Left column: bio -->
-        <div class="feature-card">
-          <h3 class="h3-tight">Cosmo Santoni</h3>
-          <p class="subtitle">Applied mathematics & machine learning researcher • Imperial College London</p>
-  
-          <p>I turn heavy epidemiological models into fast, decision‑ready tools. My work has supported the UK government’s COVID‑19 response and informed Global Fund malaria strategies. I build deep‑learning emulators (PyTorch/R/Julia) that compress hours‑long agent‑based simulations into instant forecasts—and I ship the tooling with tests, CI, and reproducible releases.</p>
-  
-          <div class="feature-card" style="margin-top:.85rem">
-            <h4 style="margin-bottom:.35rem">Selected impact</h4>
-            <ul class="tick-list">
-              <li>SPI‑M‑O Award for Modelling & Data Support (on behalf of SAGE).</li>
-              <li>Co‑author on <em>The Lancet Public Health</em> and <em>Nature Communications</em>.</li>
-              <li>Talks/workshops with MSF, WHO, Public Health Canada, and data.org.</li>
-            </ul>
-          </div>
-  
-        
-          <div class="feature-card" style="margin-top:.85rem">
-            <h4 style="margin-bottom:.35rem">What I bring</h4>
-            <ul class="tick-list">
-              <li><strong>Product thinking:</strong> creator of the <strong>MINTverse</strong> (MINTer, estiMINT, MINTe) for dashboard‑ready outputs and reproducible pipelines.</li>
-              <li><strong>Technical depth:</strong> PyTorch, TensorFlow, RStan, Julia SciML; Bayesian inference; HPC on CPU/GPU; data engineering with DuckDB.</li>
-              <li><strong>Engineering leadership:</strong> OSS standards, code review, packaging and release governance; I teach testing and I/O validation.</li>
-            </ul>
-            <div class="chips">
-              <span class="chip">PyTorch</span><span class="chip">R / Tidyverse</span><span class="chip">Julia SciML</span><span class="chip">RStan</span><span class="chip">Bayesian ML</span><span class="chip">DuckDB</span><span class="chip">HPC (CPU/GPU)</span><span class="chip">CI & testing</span>
+    <!-- Contact Section -->
+    <section id="contact" class="section section-gradient fade-in">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About me & contact</h2>
             </div>
-          </div>
-  
-          <p class="small-muted">PhD (Applied Mathematics), Imperial College London — <em>Deep learning surrogate modelling & graph neural networks for infectious disease</em> (supervisors: Oliver J. Watson, Thomas C. Churcher).</p>
+
+            <div class="feature-grid">
+                <!-- Left column: bio -->
+                <div class="feature-card">
+                    <h3 class="h3-tight">Cosmo Santoni</h3>
+                    <p class="subtitle">Applied mathematics & machine learning researcher • Imperial College London</p>
+
+                    <p>I turn heavy epidemiological models into fast, decision‑ready tools. My work has supported the UK government's COVID‑19 response and informed Global Fund malaria strategies. I build deep‑learning emulators (PyTorch/R/Julia) that compress hours‑long agent‑based simulations into instant forecasts—and I ship the tooling with tests, CI, and reproducible releases.</p>
+
+                    <div class="feature-card" style="margin-top:20px">
+                        <h4 style="margin-bottom:12px">Selected impact</h4>
+                        <ul class="tick-list">
+                            <li>SPI‑M‑O Award for Modelling & Data Support (on behalf of SAGE).</li>
+                            <li>Co‑author on <em>The Lancet Public Health</em> and <em>Nature Communications</em>.</li>
+                            <li>Talks/workshops with MSF, WHO, Public Health Canada, and data.org.</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card" style="margin-top:20px">
+                        <h4 style="margin-bottom:12px">What I bring</h4>
+                        <ul class="tick-list">
+                            <li><strong>Product thinking:</strong> creator of the <strong>MINTverse</strong> (MINTer, estiMINT, MINTe) for dashboard‑ready outputs and reproducible pipelines.</li>
+                            <li><strong>Technical depth:</strong> PyTorch, TensorFlow, RStan, Julia SciML; Bayesian inference; HPC on CPU/GPU; data engineering with DuckDB.</li>
+                            <li><strong>Engineering leadership:</strong> OSS standards, code review, packaging and release governance; I teach testing and I/O validation.</li>
+                        </ul>
+                        <div class="chips">
+                            <span class="chip">PyTorch</span>
+                            <span class="chip">R / Tidyverse</span>
+                            <span class="chip">Julia SciML</span>
+                            <span class="chip">RStan</span>
+                            <span class="chip">Bayesian ML</span>
+                            <span class="chip">DuckDB</span>
+                            <span class="chip">HPC (CPU/GPU)</span>
+                            <span class="chip">CI & testing</span>
+                        </div>
+                    </div>
+
+                    <p class="small-muted">PhD (Applied Mathematics), Imperial College London — <em>Deep learning surrogate modelling & graph neural networks for infectious disease</em> (supervisors: Oliver J. Watson, Thomas C. Churcher).</p>
+                </div>
+
+                <!-- Right column: contact -->
+                <div class="feature-card">
+                    <h3 style="margin-bottom:12px">Contact</h3>
+                    <p>Based in London, UK • Open to roles, collaborations & consulting</p>
+                    <p>Email: 
+                        <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
+                        <a href="mailto:santonicosmo@gmail.com" class="github-link">santonicosmo@gmail.com</a>
+                    </p>
+                    <p>GitHub: <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener" class="github-link">CosmoNaught</a></p>
+                    <p>LinkedIn: <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener" class="github-link">Cosmo Santoni</a></p>
+                    <div class="cta-row">
+                        <a class="btn-primary" href="mailto:cosmo.santoni@imperial.ac.uk?subject=Opportunities%20%2F%20collaboration">Work with me</a>
+                        <a class="btn-ghost" href="#" onclick="downloadCV(); return false;">Download CV</a>
+                    </div>
+                    <p class="small-muted">Prefer phone? I'm happy to share a number on request.</p>
+                </div>
+            </div>
         </div>
-  
-        <!-- Right column: contact -->
-        <div class="feature-card">
-          <h3 style="margin-bottom:.4rem">Contact</h3>
-          <p>Based in London, UK • Open to roles, collaborations & consulting</p>
-          <p>Email: 
-            <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
-            <a href="mailto:santonicosmo@gmail.com" class="github-link">santonicosmo@gmail.com</a>
-          </p>
-          <p>GitHub: <a href="https://github.com/CosmoNaught" target="_blank" rel="noopener" class="github-link">CosmoNaught</a></p>
-          <p>LinkedIn: <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener" class="github-link">Cosmo Santoni</a></p>
-          <div class="cta-row">
-            <a class="btn-primary" href="mailto:cosmo.santoni@imperial.ac.uk?subject=Opportunities%20%2F%20collaboration">Work with me</a>
-            <a class="btn-ghost" href="#" onclick="downloadCV(); return false;">Download CV</a>
-            <script>
-            async function downloadCV(){
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>MINTverse © 2025 • Built for malaria intervention research</p>
+            <p style="opacity:.75;margin-top:8px">Fast emulation of malariasimulation models using machine learning</p>
+        </div>
+    </footer>
+
+    <!-- Copy status for accessibility -->
+    <div id="copy-status" class="sr-only" aria-live="polite"></div>
+
+    <script>
+        // CV Download function
+        async function downloadCV() {
             const url = "https://raw.githubusercontent.com/CosmoNaught/MINTverse/main/Cosmo%20Santoni%20CV.pdf";
             const res = await fetch(url);
             const blob = await res.blob();
@@ -1091,47 +2258,84 @@ case_results &lt;- <span class="function">build_case_models</span>(
             a.click();
             URL.revokeObjectURL(a.href);
             a.remove();
-            }
-            </script>
+        }
 
-          </div>
-          <p class="small-muted">Prefer phone? I’m happy to share a number on request.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-  
-      <footer class="footer">
-        <div class="container">
-          <p>MINTverse © 2025 • Built for malaria intervention research</p>
-          <p style="opacity:.75;margin-top:.3rem">Fast emulation of malariasimulation models using machine learning</p>
-        </div>
-      </footer>
-  
-      <!-- Copy buttons (accessible) -->
-      <div id="copy-status" class="sr-only" aria-live="polite"></div>
-      <script>
-        (function(){
-          // Make the "Copy" buttons work for all .code-section blocks
-          document.querySelectorAll('.copy-btn').forEach(btn=>{
-            btn.addEventListener('click', async ()=>{
-              const wrapper = btn.closest('.code-section');
-              const codeEl = wrapper ? wrapper.querySelector('pre, code') : null;
-              if(!codeEl) return;
-              try{
-                await navigator.clipboard.writeText(codeEl.innerText.trim());
-                const prev = btn.textContent;
-                btn.textContent = 'Copied!';
-                document.getElementById('copy-status').textContent = 'Code copied to clipboard';
-                setTimeout(()=>{ btn.textContent = prev; }, 1500);
-              }catch(e){
-                btn.textContent = 'Failed';
-              }
+        // Copy buttons functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const wrapper = btn.closest('.code-section');
+                const codeEl = wrapper ? wrapper.querySelector('pre, code') : null;
+                if (!codeEl) return;
+                try {
+                    await navigator.clipboard.writeText(codeEl.innerText.trim());
+                    const prev = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    document.getElementById('copy-status').textContent = 'Code copied to clipboard';
+                    setTimeout(() => { btn.textContent = prev; }, 1500);
+                } catch(e) {
+                    btn.textContent = 'Failed';
+                }
             });
-          });
-        })();
-      </script>
-    </body>
-  </html>
-  
+        });
+
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Parallax effect on scroll - more subtle
+        let ticking = false;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero');
+            if (parallax && scrolled < window.innerHeight) {
+                parallax.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        });
+
+        // Dynamic navigation background
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Remove loading bar after load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loadingBar = document.querySelector('.loading-bar');
+                if (loadingBar) {
+                    loadingBar.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingBar.style.display = 'none';
+                    }, 500);
+                }
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
