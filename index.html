@@ -28,6 +28,8 @@
             --title-glow-a: rgba(0,212,170,.40); /* green glow */
             --title-glow-b: rgba(0,113,227,.28); /* blue glow */
             --title-deck:   rgba(0,0,0,.55);     /* tight dark edge */
+            --flow-step-w: 200px;   /* pick a width you like */
+            --flow-step-h: 170px;   /* optional: consistent height */
         }
 
         * {
@@ -192,7 +194,7 @@
             0% { transform: translate(0, 0) rotate(0deg); }
             100% { transform: translate(100px, 100px) rotate(1deg); }
         }
-        
+    
         .hero::after{
             content:'';
             position:absolute;
@@ -208,7 +210,6 @@
             z-index:1;
             animation: haloDrift 8s ease-in-out infinite alternate;
         }
-
 
         @keyframes haloDrift{
             from{ transform: translateY(0) scale(1); opacity:.55; }
@@ -344,7 +345,6 @@
             border-radius: 20px;   
             opacity: .6;   
             pointer-events:none;
-            animation: spin 12s linear infinite;
         }
 
         .quick-link::after{
@@ -440,7 +440,6 @@
             padding: var(--ring-w);       /* this controls ring thickness */
             border-radius: 20px;     
             pointer-events:none;
-            animation: spin 10s linear infinite;
             z-index:1;
         }
 
@@ -802,6 +801,7 @@
             margin-top: 32px;
             position: relative;
             min-height: 140px;
+            align-items: stretch; 
         }
 
         .flow-connector {
@@ -811,6 +811,7 @@
             position: relative;
             margin: 0 -8px;
             z-index: 1;
+            align-self: center;  
         }
 
         .flow-connector::after {
@@ -824,9 +825,13 @@
         }
 
         .flow-step {
-            flex: 0 0 auto;
-            min-width: 160px;
-            max-width: 200px;
+            flex: 0 0 var(--flow-step-w);
+            width: var(--flow-step-w);
+            min-height: var(--flow-step-h);
+            min-width: 0;
+            max-width: none;
+            display: grid;
+            grid-auto-rows: min-content;
             background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), transparent),
                         rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -871,6 +876,14 @@
             font-size: 12px;
             display: block;
             margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px){
+            .flow-step{
+                flex-basis: 100%;
+                width: 100%;
+                min-height: auto;
+            }
         }
 
         /* Pills */
@@ -1344,7 +1357,6 @@
         -webkit-mask-composite: xor; mask-composite: exclude;
         opacity:.18;
         pointer-events:none;
-        animation: spin 14s linear infinite;
         }
         #overview.visible .workflow-diagram::after{ opacity:.33; }
 
@@ -1386,7 +1398,6 @@
             -webkit-mask-composite: xor; mask-composite: exclude;
             opacity:.18;
             pointer-events:none;
-            animation: spin 14s linear infinite;
         }
         
         #quickstart.visible .code-section::after{ opacity:.33; }
@@ -1449,6 +1460,7 @@
                     <span style="opacity:.9">Built by <strong>Cosmo Santoni</strong>, Imperial College London</span>
                     <span aria-hidden="true" style="opacity:.35">•</span>
                     <a href="#contact">About & Contact</a>
+                    <span aria-hidden="true" style="opacity:.35">•</span>
                     <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity">Work with me</a>
                 </div>
             </div>
@@ -1885,44 +1897,44 @@ library(MINTer)</code></pre>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <h4>EIR — XGBoost</h4>
+                        <p>Wide EIR coverage, handles extremes gracefully.</p>
                         <div class="pill-row">
                             <div class="pill">log₁₀(EIR+1)</div>
                             <div class="pill">MSE objective</div>
                         </div>
-                        <p>Wide EIR coverage, handles extremes gracefully.</p>
                         <div class="stat-cards">
                             <div class="stat"><div class="value">RMSE 35.08</div><div class="muted">R² 0.903 • r 0.951</div></div>
                         </div>
                     </div>
                     <div class="feature-card">
                         <h4>EIR — Random Forest</h4>
+                        <p>Strong robustness with natural uncertainty feel.</p>
                         <div class="pill-row">
                             <div class="pill">log₁₀(EIR+1)</div>
                             <div class="pill">1–2k trees</div>
                         </div>
-                        <p>Strong robustness with natural uncertainty feel.</p>
                         <div class="stat-cards">
                             <div class="stat"><div class="value">RMSE 36.85</div><div class="muted">R² 0.893 • r 0.947</div></div>
                         </div>
                     </div>
                     <div class="feature-card">
                         <h4>Cases — XGBoost (Tweedie)</h4>
+                        <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
                         <div class="pill-row">
                             <div class="pill">Tweedie ~1.15</div>
                             <div class="pill">Dynamic weights</div>
                         </div>
-                        <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
                         <div class="stat-cards">
                             <div class="stat"><div class="value">RMSE 0.265</div><div class="muted">R² 0.926 • r 0.963</div></div>
                         </div>
                     </div>
                     <div class="feature-card">
                         <h4>Cases — Random Forest</h4>
+                        <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
                         <div class="pill-row">
                             <div class="pill">√-transform</div>
                             <div class="pill">LHS tuning</div>
                         </div>
-                        <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
                         <div class="stat-cards">
                             <div class="stat"><div class="value">RMSE 0.277</div><div class="muted">R² 0.919 • r 0.959</div></div>
                         </div>
@@ -2372,7 +2384,8 @@ python -c "import minte; print(minte.__version__)"</code></pre>
                 <!-- Left column: bio -->
                 <div class="feature-card">
                     <h3 class="h3-tight">Cosmo Santoni, PhD Candidate</h3>
-                    <p class="subtitle">Applied Mathematics & Deep Learning Researcher • Imperial College London</p>
+                    <p class="subtitle">Applied Mathematics & Deep Learning Researcher </p>
+                    <p class="subtitle"> Imperial College London • I-X </p>
 
                     <p>I turn heavy epidemiological models into fast, decision‑ready tools. My work has supported the UK government's COVID‑19 response and informed Global Fund malaria strategies. I build deep‑learning emulators (PyTorch/R/Julia) that compress hours‑long agent‑based simulations into instant forecasts—and I ship the tooling with tests, CI, and reproducible releases.</p>
 
