@@ -143,7 +143,7 @@
 
         /* Hero - Netflix/Apple hybrid */
         .hero {
-            min-height: 100vh;
+            min-height: 100svh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -153,11 +153,23 @@
             radial-gradient(ellipse 1200px 600px at 50% -15%, rgba(0,113,227,.14) 0%, rgba(0,113,227,0) 55%),
             linear-gradient(135deg, #000 0%, #0a0a0a 50%, #000 100%);
             overflow: hidden;
-            padding: 120px 0 80px;
+            padding: 96px 0 56px;
             isolation: isolate;
         }
 
-        
+
+        @media (max-height: 800px) {
+            .hero { padding: 72px 0 40px; }
+            .hero-description { font-size: 16px; }
+            .quick-links { gap: 16px; }
+            .stat-card { padding: 24px; }
+        }
+
+        .hero-scale {
+            transform-origin: top center;
+            will-change: transform;
+        }
+
         .hero::before {
             content: '';
             position: absolute;
@@ -179,18 +191,22 @@
         .hero::after{
             content:'';
             position:absolute;
-            inset: 0 -25% auto -25%;
-            height:85%;
-            background: radial-gradient(1100px 520px at 50% 12%,
-              rgba(0,212,170,.35),
-              rgba(0,113,227,.22) 30%,
-              rgba(0,0,0,0) 70%);
-  filter: blur(48px);
-  opacity: .85;
+            /* push the whole halo box down a bit and keep it wide */
+            inset: 6% -25% auto -25%;
+            /* let it run lower */
+            height: 105%;
+            /* bigger ellipse + lower center */
+            background: radial-gradient(1400px 680px at 50% 26%,
+                rgba(0,212,170,.35),
+                rgba(0,113,227,.22) 30%,
+                rgba(0,0,0,0) 72%);
+            filter: blur(56px);
+            opacity:.85;
             pointer-events:none;
             z-index:1;
             animation: haloDrift 5s ease-in-out infinite alternate;
         }
+
 
         @keyframes haloDrift{
             from{ transform: translateY(0) scale(1); opacity:.55; }
@@ -285,7 +301,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
-            margin: 40px auto;
+            margin: 28px auto;
             max-width: 1000px;
         }
 
@@ -365,7 +381,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 24px;
-            margin: 60px auto 0;
+            margin: 40px auto 0;
             max-width: 1000px;
             animation: statsSlideUp 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
         }
@@ -470,7 +486,7 @@
         .author-banner {
             display: flex;
             justify-content: center;
-            margin-top: 40px;
+            margin-top: 28px;
         }
 
         .author-banner-content {
@@ -1230,9 +1246,8 @@
             content: none;
         }
 
-        .quick-links .quick-link h3 {
-            font-size: clamp(64px, 2.2vw, 16px); /* tweak these bounds to taste */
-            padding-left: 0;                      /* from earlier */
+        .quick-links .quick-link h3 { 
+            font-size: clamp(16px, 2.2vw, 64px); 
         }
 
     </style>
@@ -2336,6 +2351,63 @@ python -c "import minte; print(minte.__version__)"</code></pre>
                 }
             }, 1500);
         });
+
+        // --- Ensure hero fits in the initial viewport ---
+        function ensureHeroWrapper() {
+            const hc = document.querySelector('.hero-content');
+            if (!hc) return null;
+            if (!hc.querySelector('.hero-scale')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'hero-scale';
+            // move all current children into the wrapper
+            while (hc.firstChild) wrapper.appendChild(hc.firstChild);
+            hc.appendChild(wrapper);
+            }
+            return hc.querySelector('.hero-scale');
+        }
+
+        function ensureHeroWrapper() {
+            const hc = document.querySelector('.hero-content');
+            if (!hc) return null;
+            if (!hc.querySelector('.hero-scale')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'hero-scale';
+            while (hc.firstChild) wrapper.appendChild(hc.firstChild);
+            hc.appendChild(wrapper);
+            }
+            return hc.querySelector('.hero-scale');
+        }
+
+        function fitHero() {
+            const nav = document.querySelector('nav');
+            const hero = document.querySelector('.hero');
+            const wrapper = ensureHeroWrapper();
+            if (!nav || !hero || !wrapper) return;
+
+            const styles = getComputedStyle(hero);
+            const padTop = parseFloat(styles.paddingTop) || 0;
+            const padBottom = parseFloat(styles.paddingBottom) || 0;
+            const navH = nav.offsetHeight || 0;
+            const available = window.innerHeight - navH - padTop - padBottom;
+
+            wrapper.style.transform = 'scale(1)';        // measure natural height
+            const contentH = wrapper.offsetHeight;
+            const ratio = (available - 6) / contentH;    // how much space we have
+            const BONUS = 1.10;                          // +10%
+
+            // If there's spare space, scale up to +10% (but never exceed available).
+            // If there's not, scale down to fit as before.
+            const scale = ratio >= 1 ? Math.min(BONUS, ratio) : Math.max(0.01, ratio);
+            wrapper.style.transform = `scale(${scale})`;
+
+            hero.style.minHeight = `100svh`;
+        }
+
+        // Run on load and when resized
+        window.addEventListener('load', fitHero);
+        window.addEventListener('resize', () => 
+        window.requestAnimationFrame(fitHero)
+        );
     </script>
 </body>
 </html>
