@@ -162,7 +162,7 @@
          .stat-card { padding: 24px; }
          }
          .hero-scale {
-         transform-origin: top center;
+         transform-origin:  50% 50%;
          will-change: transform;
          }
          .hero::before {
@@ -2491,8 +2491,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
       </footer>
             <div id="copy-status" class="sr-only" aria-live="polite"></div>
       <script>
-         // CV Download function
-         async function downloadCV() {
+                 async function downloadCV() {
              const url = "https://raw.githubusercontent.com/CosmoNaught/MINTverse/main/Cosmo%20Santoni%20CV.pdf";
              const res = await fetch(url);
              const blob = await res.blob();
@@ -2505,8 +2504,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              a.remove();
          }
          
-         // Copy buttons functionality
-         document.querySelectorAll('.copy-btn').forEach(btn => {
+                 document.querySelectorAll('.copy-btn').forEach(btn => {
              btn.addEventListener('click', async () => {
                  const wrapper = btn.closest('.code-section');
                  const codeEl = wrapper ? wrapper.querySelector('pre, code') : null;
@@ -2523,8 +2521,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              });
          });
          
-         // Smooth scroll animations
-         const observerOptions = {
+                 const observerOptions = {
              threshold: 0.1,
              rootMargin: '0px 0px -100px 0px'
          };
@@ -2541,17 +2538,14 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              observer.observe(el);
          });
          
-         // Parallax effect on scroll - more subtle
-         let ticking = false;
+                 let ticking = false;
          function updateParallax() {
          const hero = document.querySelector('.hero');
          if (!hero) { ticking = false; return; }
          
-         // Disable parallax on small viewports / fluid mode
-         const inFluid = hero.classList.contains('hero-fluid') || window.innerWidth < 1024;
+                 const inFluid = hero.classList.contains('hero-fluid') || window.innerWidth < 1024;
          if (inFluid) {
-         hero.style.transform = '';   // reset so it can't overlap sections
-         ticking = false;
+         hero.style.transform = '';           ticking = false;
          return;
          }
          
@@ -2572,8 +2566,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              }
          });
          
-         // Dynamic navigation background
-         window.addEventListener('scroll', () => {
+                 window.addEventListener('scroll', () => {
              const nav = document.querySelector('nav');
              if (window.scrollY > 100) {
                  nav.classList.add('scrolled');
@@ -2582,8 +2575,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              }
          });
          
-         // Remove loading bar after load
-         window.addEventListener('load', () => {
+                 window.addEventListener('load', () => {
              setTimeout(() => {
                  const loadingBar = document.querySelector('.loading-bar');
                  if (loadingBar) {
@@ -2595,10 +2587,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              }, 1500);
          });
          
-         // --- fluid/scale mode switch ---
-         const HERO_BREAK_W = 1200;   // tweak to taste
-         const HERO_BREAK_H = 800;    // tweak to taste
-         
+                 const HERO_BREAK_W = 1200;           const HERO_BREAK_H = 800;            
          function isFluidWanted() {
          return (window.innerWidth < HERO_BREAK_W) || (window.innerHeight < HERO_BREAK_H);
          }
@@ -2611,8 +2600,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
          if (isFluidWanted()) {
          hero.classList.add('hero-fluid');
          wrapper.style.transform = '';
-         hero.style.transform = '';      // ← reset parallax shift
-         } else {
+         hero.style.transform = '';              } else {
          hero.classList.remove('hero-fluid');
          fitHero();
          }
@@ -2620,15 +2608,13 @@ python -c "import minte; print(minte.__version__)"</code></pre>
          
          
          
-         // --- Ensure hero fits in the initial viewport ---
-         function ensureHeroWrapper() {
+                 function ensureHeroWrapper() {
              const hc = document.querySelector('.hero-content');
              if (!hc) return null;
              if (!hc.querySelector('.hero-scale')) {
              const wrapper = document.createElement('div');
              wrapper.className = 'hero-scale';
-             // move all current children into the wrapper
-             while (hc.firstChild) wrapper.appendChild(hc.firstChild);
+                         while (hc.firstChild) wrapper.appendChild(hc.firstChild);
              hc.appendChild(wrapper);
              }
              return hc.querySelector('.hero-scale');
@@ -2636,50 +2622,44 @@ python -c "import minte; print(minte.__version__)"</code></pre>
          
          
          function fitHero() {
-         const nav = document.querySelector('nav');
-         const hero = document.querySelector('.hero');
-         const wrapper = ensureHeroWrapper();
-         if (!nav || !hero || !wrapper) return;
-         
-         // NEW: only scale on large viewports
-         const largeEnough = window.innerWidth >= 1200 && window.innerHeight >= 800;
-         if (!largeEnough) {
-         wrapper.style.transform = '';   // no scaling
-         return;
+            const nav = document.querySelector('nav');
+            const hero = document.querySelector('.hero');
+            const wrapper = ensureHeroWrapper();
+            if (!nav || !hero || !wrapper) return;
+            
+                       const largeEnough = window.innerWidth >= 1200 && window.innerHeight >= 800;
+            if (!largeEnough) {
+            wrapper.style.transform = '';              return;
+            }
+            
+            const styles = getComputedStyle(hero);
+            const padTop = parseFloat(styles.paddingTop) || 0;
+            const padBottom = parseFloat(styles.paddingBottom) || 0;
+            const navH = nav.offsetHeight || 0;
+            const available = window.innerHeight - navH - padTop - padBottom;
+            
+            wrapper.style.transform = 'scale(1)';           
+            const contentH = wrapper.offsetHeight;
+            const ratio = (available - 6) / contentH;
+            const scale = ratio >= 1 ? Math.min(1.10, ratio) : Math.max(0.01, ratio);
+
+            const scaledH = contentH * scale;
+            const offset = Math.max(0, (available - scaledH) / 2);
+
+            wrapper.style.transform = `translateY(${offset}px) scale(${scale})`;
+
          }
          
-         // existing scaling math…
-         const styles = getComputedStyle(hero);
-         const padTop = parseFloat(styles.paddingTop) || 0;
-         const padBottom = parseFloat(styles.paddingBottom) || 0;
-         const navH = nav.offsetHeight || 0;
-         const available = window.innerHeight - navH - padTop - padBottom;
-         
-         wrapper.style.transform = 'scale(1)';
-         const contentH = wrapper.offsetHeight;
-         const ratio = (available - 6) / contentH;
-         const BONUS = 1.10;
-         const scale = ratio >= 1 ? Math.min(BONUS, ratio) : Math.max(0.01, ratio);
-         wrapper.style.transform = `scale(${scale})`;
-         hero.style.minHeight = '100svh';
-         }
-         
-         
-         
-         // Run on load and when resized
          window.addEventListener('load', () => {
-         fitHero();        // preserves your current first-paint look
-         applyHeroMode();  // in case we start small
-         });
+         fitHero();                applyHeroMode();          });
          window.addEventListener('resize', () => {
          window.requestAnimationFrame(() => {
-         applyHeroMode();  // toggles .hero-fluid and clears scale if needed
+         applyHeroMode();          
          if (!document.querySelector('.hero')?.classList.contains('hero-fluid')) {
          fitHero();
-         }
-         });
-         });
-         
+        }
+    });
+});         
       </script>
    </body>
 </html>
