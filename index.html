@@ -30,6 +30,7 @@
          --title-deck:   rgba(0,0,0,.55);     
          --flow-step-w: 200px;   
          --flow-step-h: 170px;   
+         --brand-text-gradient: linear-gradient(90deg, #fff 0%, var(--green) 100%);
          }
          * {
          margin: 0;
@@ -1718,6 +1719,14 @@
          animation-delay: 2.5s !important;  
          }
          .nav-logo { text-decoration: none; cursor: pointer; }
+         .gradient-brand-text{
+         background: var(--brand-text-gradient);
+         -webkit-background-clip: text;
+         -webkit-text-fill-color: transparent; /* Safari */
+         background-clip: text;
+         color: transparent;                   /* fallback */
+         }
+
       </style>
    </head>
    <body>
@@ -1726,7 +1735,7 @@
          <div class="intro-grid"></div>
          <div class="intro-halo"></div>
          <div class="intro-content">
-            <h1 class="intro-logo">MINTverse</h1>
+            <h1 class="intro-logo gradient-brand-text">MINTverse</h1>
             <div class="intro-tagline">
                <span>Hours-long simulations, now milliseconds.</span>
             </div>
@@ -1780,7 +1789,7 @@
       </nav>
       <section id="hero" class="hero">
          <div class="hero-content">
-            <h1>MINTverse</h1>
+            <h1 class="gradient-brand-text">MINTverse</h1>
             <p class="hero-subtitle">Hours-long simulations, now milliseconds.</p>
             <p class="hero-description">Deep-learning emulators for <em>malariasimulation</em> packaged for Python & R, ready for dashboards.</p>
             <div class="quick-links">
@@ -1831,7 +1840,7 @@
          <div class="container">
             <section id="overview" class="section fade-in">
                <div class="section-header">
-                  <h2 class="section-title">Why MINTverse?</h2>
+                  <h2 class="section-title">Why <span class="gradient-brand-text">MINTverse</span>?</h2>
                   <p class="section-subtitle">
                      Traditional malaria simulation models can take hours or days. MINTverse delivers instant predictions
                      with pre-trained deep-learning models, ideal for rapid intervention planning, what-if analysis, and dashboard integration.
