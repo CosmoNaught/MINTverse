@@ -280,7 +280,7 @@
          .hero-content { opacity: 0; transform: none !important; animation: none; }
          .scroll-scrub-section {
          position: relative;
-         height: 500vh;
+         height: 200vh;
          z-index: 100;
          }
          @media (max-width: 768px) { .scroll-scrub-section { height: 300vh; } }
@@ -386,21 +386,23 @@
          font-weight: 400;
          position: relative;
          }
-         .nav-links a::after {
-         content: '';
-         position: absolute;
-         bottom: -2px;
-         left: 0;
-         width: 0;
-         height: 1px;
-         background: var(--green);
-         transition: width 0.3s;
-         }
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  transition: width 0.3s;
+  opacity: 0.9;
+}
          .nav-links a:hover {
          opacity: 1;
          }
          .nav-links a:hover::after {
          width: 100%;
+         box-shadow: 0 0 15px rgba(0,212,170,.4);
          }
          .nav-cta {
          background: var(--accent);
@@ -1087,12 +1089,17 @@
          }
          .github-link--card:hover::after{ opacity:.7; }
 
-         .github-link:hover {
-         background: var(--green);
-         transform: translateY(-2px);
-         box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
-         border-color: var(--green);
-         }
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  transition: width 0.3s;
+  opacity: 1;  /* Full opacity for maximum brightness */
+}
          .feature-grid {
          display: grid;
          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1790,61 +1797,81 @@
 
                   /* Compact stat-card look for the navbar GitHub button */
          .nav-links .nav-cta {
-         --ring-w: 2px; /* thinner ring for small control */
-         background:
-            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-            #0b0b0d; /* same surface as .stat-card */
+         /* Remove the default nav-cta styles first */
+         background: none !important;
+         
+         /* Match stat-card surface */
+         background: radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+                     #0b0b0d !important;
+         
+         /* Core styling */
          color: #fff !important;
          border: 1px solid rgba(255,255,255,0.08);
-         border-radius: 14px;
-         padding: 8px 14px;            /* stays comfy inside a 52px navbar */
-         line-height: 1;               /* keeps height tight */
+         border-radius: 20px;  /* Match stat cards */
+         padding: 10px 20px;   /* Comfortable for nav but proportional */
+         font-size: 14px;
+         font-weight: 500;
+         text-decoration: none;
          position: relative;
          isolation: isolate;
-         box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-         transform: translateZ(0);
+         overflow: visible;
+         box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+         display: inline-flex;
+         align-items: center;
+         gap: 0;
+         
+         /* Ensure it doesn't get the nav underline */
+         opacity: 1 !important;
          }
 
-         /* ring */
-         .nav-links .nav-cta::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding: var(--ring-w);
-         border-radius:14px;
+         .nav-links .nav-cta::before {
+         content: '';
+         position: absolute;
+         inset: 0;
+         padding: 4px;  /* var(--ring-w) from stat cards */
+         border-radius: 20px;
          background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
-         -webkit-mask:
-            linear-gradient(#000 0 0) content-box,
+         -webkit-mask: 
+            linear-gradient(#000 0 0) content-box, 
             linear-gradient(#000 0 0);
          -webkit-mask-composite: xor;
          mask-composite: exclude;
-         opacity:.35;
-         pointer-events:none;
+         opacity: 0.6;
+         pointer-events: none;
+         z-index: 1;
          }
 
-         /* glow — re-enable ::after (it was disabled for underline suppression) */
-         .nav-links .nav-cta::after{
-         content:'';
-         display:block !important;
-         position:absolute;
-         inset:-40% -40% -60% -40%;
+         .nav-links .nav-cta::after {
+         content: '';
+         display: block !important;
+         position: absolute;
+         inset: -25% -30% -50% -30%;
          background: radial-gradient(60% 40% at 50% 0,
             rgba(0,212,170,.16),
             rgba(0,113,227,.12) 33%,
             rgba(0,0,0,0) 70%);
-         filter: blur(18px);
-         opacity:.35;
-         pointer-events:none;
-         z-index:-1;
+         filter: blur(26px);
+         opacity: 0.45;
+         pointer-events: none;
+         z-index: 0;
+         transition: opacity 0.25s ease;
          }
 
-         .nav-links .nav-cta:hover{
-         transform: translateY(-3px);
-         border-color: rgba(0,212,170,0.25);
-         box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+         .nav-links .nav-cta:hover {
+         border-color: rgba(0, 212, 170, 0.2);
+         box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+         background: radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+                     #0b0b0d !important;
          }
-         .nav-links .nav-cta:hover::after{ opacity:.6; }
-         .nav-links .nav-cta:active{ transform: translateY(-1px); }
+
+         .nav-links .nav-cta:hover::after {
+         opacity: 0.7;
+         }
+
+         .nav-links .nav-cta:active {
+         transform: translateY(-3px);
+         }
 
          /* Make ABOUT cards match CONTACT rimmed cards */
          #about .feature-grid > .feature-card,
@@ -1987,8 +2014,35 @@
 
          /* Optional: keep the tighter spacing in the Contact card */
          #contact .chips{ margin:12px 0 0; }
+         /* Smooth transition for nav links *//* Smooth transition for nav links */
+.nav-links a {
+  transition: opacity 0.3s, transform 0.3s;
+}
 
+/* Optional: Additional styling for active nav items */
+.nav-links a.nav-active {
+  opacity: 1 !important;
+}
 
+.nav-links a.nav-active::after {
+  width: 100% !important;
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(0,212,170,.35);
+}
+
+/* Ensure gradient text in nav is visible */
+.nav-links .gradient-brand-text {
+  background: var(--brand-text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 500;
+}
+
+/* Optional: Fade non-active links slightly */
+.nav-links a:not(.nav-active) {
+  opacity: 0.6;
+}
 
 
 
@@ -2010,7 +2064,7 @@
              <div class="title-cards">
                <div class="title-card" id="card1">
                  <h2>200,000× faster</h2>
-                 <p>Than any system before it.</p>
+                 <p>Than any agent-based system before it.</p>
                </div>
                <div class="title-card" id="card2">
                  <h2>82,000 predictions</h2>
@@ -3359,7 +3413,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
          let lastBeat = 0;
          let lastDir = 0;               
          let holdUntil = 0;
-         const HOLD_MS_FWD = 750;
+         const HOLD_MS_FWD = 200;
          const HOLD_MS_BACK = 450;
 
          function setBeat(i){
@@ -3639,6 +3693,124 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              });
            }
          });
+      // Navigation Active State Highlighting
+function initNavHighlighting() {
+  const sections = document.querySelectorAll('section[id], .section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  
+  // Store original link text
+  const linkOriginalText = new Map();
+  navLinks.forEach(link => {
+    linkOriginalText.set(link, link.innerHTML);
+  });
+  
+  // Flag to prevent observer updates during navigation
+  let isNavigating = false;
+  let navigationTimeout = null;
+  
+  // Function to update active link
+  function setActiveLink(activeId, immediate = false) {
+    // Skip if we're navigating and this isn't an immediate update
+    if (isNavigating && !immediate) return;
+    
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      const targetId = href ? href.substring(1) : '';
+      
+      if (targetId === activeId) {
+        // Add gradient to active link
+        if (!link.querySelector('.gradient-brand-text')) {
+          const originalText = linkOriginalText.get(link) || link.textContent;
+          link.innerHTML = `<span class="gradient-brand-text">${originalText}</span>`;
+          link.classList.add('nav-active');
+        }
+      } else {
+        // Remove gradient from inactive links
+        if (link.querySelector('.gradient-brand-text')) {
+          link.innerHTML = linkOriginalText.get(link) || link.textContent;
+          link.classList.remove('nav-active');
+        }
+      }
+    });
+  }
+  
+  // Intersection Observer to detect which section is in view
+  const observerOptions = {
+    rootMargin: '-20% 0px -70% 0px', // Trigger when section is in upper portion of viewport
+    threshold: 0
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    // Don't process during navigation
+    if (isNavigating) return;
+    
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        if (id) {
+          setActiveLink(id);
+        }
+      }
+    });
+  }, observerOptions);
+  
+  // Observe all sections
+  sections.forEach(section => {
+    if (section.getAttribute('id')) {
+      observer.observe(section);
+    }
+  });
+  
+  // Handle click events for immediate update
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        const targetId = href.substring(1);
+        
+        // Set navigation flag
+        isNavigating = true;
+        
+        // Immediately set the active link (bypass observer)
+        setActiveLink(targetId, true);
+        
+        // Clear any existing timeout
+        clearTimeout(navigationTimeout);
+        
+        // Re-enable observer after scroll completes (adjust timing as needed)
+        navigationTimeout = setTimeout(() => {
+          isNavigating = false;
+        }, 800); // 800ms should cover most smooth scroll animations
+      }
+    });
+  });
+  
+  // Also handle browser back/forward navigation
+  window.addEventListener('popstate', () => {
+    const hash = window.location.hash;
+    if (hash) {
+      const targetId = hash.substring(1);
+      isNavigating = true;
+      setActiveLink(targetId, true);
+      clearTimeout(navigationTimeout);
+      navigationTimeout = setTimeout(() => {
+        isNavigating = false;
+      }, 800);
+    }
+  });
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  initNavHighlighting();
+});
+
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  initNavHighlighting();
+});
+
       </script>
    </body>
 </html>
