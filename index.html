@@ -386,17 +386,17 @@
          font-weight: 400;
          position: relative;
          }
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--green), var(--accent));
-  transition: width 0.3s;
-  opacity: 0.9;
-}
+         .nav-links a::after {
+         content: '';
+         position: absolute;
+         bottom: -2px;
+         left: 0;
+         width: 0;
+         height: 1px;
+         background: linear-gradient(90deg, var(--green), var(--accent));
+         transition: width 0.3s;
+         opacity: 1;  /* Full opacity for maximum brightness */
+         }
          .nav-links a:hover {
          opacity: 1;
          }
@@ -1029,7 +1029,7 @@
          transition: all 0.3s;
          white-space: nowrap;
          }
-                  /* Make GitHub buttons look like .stat-card (no nth-child reveals) */
+         /* Make GitHub buttons look like .stat-card (no nth-child reveals) */
          .github-link--card {
          display: inline-flex;
          align-items: center;
@@ -1046,11 +1046,10 @@
          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
          /* match .stat-card surface */
          background:
-            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-            #0b0b0d;
+         radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+         #0b0b0d;
          border: 1px solid rgba(255,255,255,0.08);
          }
-
          /* stat-card ring + glow */
          .github-link--card::before{
          content:'';
@@ -1060,46 +1059,32 @@
          border-radius: 20px;
          background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
          -webkit-mask:
-            linear-gradient(#000 0 0) content-box,
-            linear-gradient(#000 0 0);
+         linear-gradient(#000 0 0) content-box,
+         linear-gradient(#000 0 0);
          -webkit-mask-composite: xor;
          mask-composite: exclude;
          opacity:.6;
          pointer-events:none;
          }
-
          .github-link--card::after{
          content:'';
          position:absolute;
          inset:-25% -30% -50% -30%;
          background: radial-gradient(60% 40% at 50% 0,
-            rgba(0,212,170,.16),
-            rgba(0,113,227,.12) 33%,
-            rgba(0,0,0,0) 70%);
+         rgba(0,212,170,.16),
+         rgba(0,113,227,.12) 33%,
+         rgba(0,0,0,0) 70%);
          filter: blur(26px);
          opacity:.45;
          pointer-events:none;
          transition: opacity .25s ease;
          z-index:0;
          }
-
          .github-link--card:hover {
          transform: translateY(-5px);
          border-color: rgba(0, 212, 170, 0.2);
          }
          .github-link--card:hover::after{ opacity:.7; }
-
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--green), var(--accent));
-  transition: width 0.3s;
-  opacity: 1;  /* Full opacity for maximum brightness */
-}
          .feature-grid {
          display: grid;
          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1277,7 +1262,7 @@
          gap: 6px;
          width: 52px;
          height: 12px;
-         background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+         background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>')
          }
          pre {
          font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
@@ -1794,16 +1779,13 @@
          color: transparent;                   /* fallback */
          }
          .section:last-of-type::after { content: none; }
-
-                  /* Compact stat-card look for the navbar GitHub button */
+         /* Compact stat-card look for the navbar GitHub button */
          .nav-links .nav-cta {
          /* Remove the default nav-cta styles first */
          background: none !important;
-         
          /* Match stat-card surface */
          background: radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-                     #0b0b0d !important;
-         
+         #0b0b0d !important;
          /* Core styling */
          color: #fff !important;
          border: 1px solid rgba(255,255,255,0.08);
@@ -1820,11 +1802,9 @@
          display: inline-flex;
          align-items: center;
          gap: 0;
-         
          /* Ensure it doesn't get the nav underline */
          opacity: 1 !important;
          }
-
          .nav-links .nav-cta::before {
          content: '';
          position: absolute;
@@ -1833,52 +1813,47 @@
          border-radius: 20px;
          background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
          -webkit-mask: 
-            linear-gradient(#000 0 0) content-box, 
-            linear-gradient(#000 0 0);
+         linear-gradient(#000 0 0) content-box, 
+         linear-gradient(#000 0 0);
          -webkit-mask-composite: xor;
          mask-composite: exclude;
          opacity: 0.6;
          pointer-events: none;
          z-index: 1;
          }
-
          .nav-links .nav-cta::after {
          content: '';
          display: block !important;
          position: absolute;
          inset: -25% -30% -50% -30%;
          background: radial-gradient(60% 40% at 50% 0,
-            rgba(0,212,170,.16),
-            rgba(0,113,227,.12) 33%,
-            rgba(0,0,0,0) 70%);
+         rgba(0,212,170,.16),
+         rgba(0,113,227,.12) 33%,
+         rgba(0,0,0,0) 70%);
          filter: blur(26px);
          opacity: 0.45;
          pointer-events: none;
          z-index: 0;
          transition: opacity 0.25s ease;
          }
-
          .nav-links .nav-cta:hover {
          border-color: rgba(0, 212, 170, 0.2);
          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
          background: radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-                     #0b0b0d !important;
+         #0b0b0d !important;
          }
-
          .nav-links .nav-cta:hover::after {
          opacity: 0.7;
          }
-
          .nav-links .nav-cta:active {
          transform: translateY(-3px);
          }
-
          /* Make ABOUT cards match CONTACT rimmed cards */
          #about .feature-grid > .feature-card,
          #about .feature-card .feature-card {
          background:
-            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-            #0b0b0d;
+         radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+         #0b0b0d;
          border: 1px solid rgba(255,255,255,.08);
          border-radius: 20px;
          border-width: var(--card-border-w);
@@ -1888,7 +1863,6 @@
          overflow: hidden;
          transition: transform .4s cubic-bezier(.4,0,.2,1), box-shadow .4s, border-color .4s;
          }
-
          /* ring */
          #about .feature-grid > .feature-card::before,
          #about .feature-card .feature-card::before{
@@ -1899,15 +1873,14 @@
          border-radius: 20px;
          background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
          -webkit-mask:
-            linear-gradient(#000 0 0) content-box,
-            linear-gradient(#000 0 0);
+         linear-gradient(#000 0 0) content-box,
+         linear-gradient(#000 0 0);
          -webkit-mask-composite: xor;
          mask-composite: exclude;
          opacity:.18;
          pointer-events:none;
          transition: opacity .35s ease, transform 3.2s linear;
          }
-
          /* glow */
          #about .feature-grid > .feature-card::after,
          #about .feature-card .feature-card::after{
@@ -1915,16 +1888,15 @@
          position:absolute;
          inset:0;
          background: radial-gradient(60% 40% at 50% 0,
-            rgba(0,212,170,.14),
-            rgba(0,113,227,.10) 33%,
-            rgba(0,0,0,0) 70%);
+         rgba(0,212,170,.14),
+         rgba(0,113,227,.10) 33%,
+         rgba(0,0,0,0) 70%);
          filter: blur(28px);
          opacity:.40;
          pointer-events:none;
          transition: opacity .3s ease;
          z-index:0;
          }
-
          /* hover & in-view states to match contact */
          #about .feature-grid > .feature-card:hover,
          #about .feature-card .feature-card:hover{
@@ -1934,18 +1906,15 @@
          }
          #about .feature-grid > .feature-card:hover::after,
          #about .feature-card .feature-card:hover::after{ opacity:.65; }
-
          #about.visible .feature-grid > .feature-card::before,
          #about.visible .feature-card .feature-card::before{ opacity:.28; }
          #about.visible .feature-grid > .feature-card::after,
          #about.visible .feature-card .feature-card::after{  opacity:.52; }
-
          /* Match the section underline thickness like contact (optional) */
          #about .section-header::after{
          height:2px;
          box-shadow: 0 0 20px rgba(0,212,170,.35);
          }
-
          /* Freeze About & Contact cards – no hover movement */
          #about .feature-grid > .feature-card:hover,
          #about .feature-card:hover,
@@ -1954,100 +1923,81 @@
          #contact .feature-card:hover {
          transform: none !important;
          }
-
          /* Contact scale + typography to match hero/cards */
          #contact .section-subtitle { margin-top: 8px; }
          #contact .feature-grid { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; }
-
          #contact .contact-card--xl {
          padding: 40px 36px;
          font-size: 16.5px;
          line-height: 1.75;
          }
-
          #contact .contact-card--xl h3 { font-size: 32px; }
          #contact .contact-card--xl .subtitle { font-size: 18px; }
-
          #contact .contact-meta { display:flex; gap:8px; flex-wrap:wrap; margin: 12px 0 8px; }
          #contact .contact-list { margin: 6px 0 10px; }
          #contact .contact-list .label {
          color: #7a918d; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px;
          }
-
          /* Stack emails/links neatly (you already have the +a rule; this completes it) */
          #contact .contact-card p a { display: block; }
-
          /* Slightly larger buttons for balance */
          #contact .btn-primary, #contact .btn-ghost { padding: 14px 24px; font-size: 15px; }
-
          /* No hover “breathe” on contact cards */
          #contact .feature-grid > .feature-card,
          #contact .feature-grid > .feature-card:hover { transform: none; }
-
          /* Secondary card polish */
          #contact .contact-side h4 { margin-bottom: 12px; }
          #contact .contact-side .tick-list li { margin: 8px 0; }
-
          .chips{
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-            margin:16px 0;
+         display:flex;
+         gap:8px;
+         flex-wrap:wrap;
+         margin:16px 0;
          }
          .chip{
-            display:inline-flex;
-            align-items:center;
-            padding:6px 14px;
-            border-radius:999px;
-            background: rgba(255,255,255,0.06);
-            border:1px solid rgba(255,255,255,0.10);
-            font-size:13px;
-            line-height:1;
-            color:#e8e8ed;
-            transition:background .2s, border-color .2s, transform .2s;
+         display:inline-flex;
+         align-items:center;
+         padding:6px 14px;
+         border-radius:999px;
+         background: rgba(255,255,255,0.06);
+         border:1px solid rgba(255,255,255,0.10);
+         font-size:13px;
+         line-height:1;
+         color:#e8e8ed;
+         transition:background .2s, border-color .2s, transform .2s;
          }
          .chip:hover{
-            background: rgba(0,212,170,0.10);
-            border-color: rgba(0,212,170,0.30);
-            transform: translateY(-1px);
+         background: rgba(0,212,170,0.10);
+         border-color: rgba(0,212,170,0.30);
+         transform: translateY(-1px);
          }
-
          /* Optional: keep the tighter spacing in the Contact card */
          #contact .chips{ margin:12px 0 0; }
          /* Smooth transition for nav links *//* Smooth transition for nav links */
-.nav-links a {
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-/* Optional: Additional styling for active nav items */
-.nav-links a.nav-active {
-  opacity: 1 !important;
-}
-
-.nav-links a.nav-active::after {
-  width: 100% !important;
-  opacity: 1;
-  box-shadow: 0 0 20px rgba(0,212,170,.35);
-}
-
-/* Ensure gradient text in nav is visible */
-.nav-links .gradient-brand-text {
-  background: var(--brand-text-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 500;
-}
-
-/* Optional: Fade non-active links slightly */
-.nav-links a:not(.nav-active) {
-  opacity: 0.6;
-}
-
-
-
-
-
+         .nav-links a {
+         transition: opacity 0.3s, transform 0.3s;
+         }
+         /* Optional: Additional styling for active nav items */
+         .nav-links a.nav-active {
+         opacity: 1 !important;
+         }
+         .nav-links a.nav-active::after {
+         width: 100% !important;
+         opacity: 1;
+         box-shadow: 0 0 20px rgba(0,212,170,.35);
+         }
+         /* Ensure gradient text in nav is visible */
+         .nav-links .gradient-brand-text {
+         background: var(--brand-text-gradient);
+         -webkit-background-clip: text;
+         -webkit-text-fill-color: transparent;
+         background-clip: text;
+         font-weight: 500;
+         }
+         /* Optional: Fade non-active links slightly */
+         .nav-links a:not(.nav-active) {
+         opacity: 0.6;
+         }
       </style>
    </head>
    <body>
@@ -2059,41 +2009,41 @@
             <h1 class="intro-logo gradient-brand-text">MINTverse</h1>
             <div class="intro-tagline">
                <span>Hours become milliseconds.</span>
-             </div>
-             <p class="intro-context">The future of epidemic modeling. Available now.</p>
-             <div class="title-cards">
+            </div>
+            <p class="intro-context">The future of epidemic modeling. Available now.</p>
+            <div class="title-cards">
                <div class="title-card" id="card1">
-                 <h2>200,000× faster</h2>
-                 <p>Than any agent-based system before it.</p>
+                  <h2>200,000× faster</h2>
+                  <p>Than any agent-based system before it.</p>
                </div>
                <div class="title-card" id="card2">
-                 <h2>82,000 predictions</h2>
-                 <p>Every second. On your laptop.</p>
+                  <h2>82,000 predictions</h2>
+                  <p>Every second. On your laptop.</p>
                </div>
                <div class="title-card" id="card3">
-                 <h2>64 billion data points</h2>
-                 <p>Instantly queryable.</p>
+                  <h2>64 billion data points</h2>
+                  <p>Instantly queryable.</p>
                </div>
-             </div>
-             </div>
-             <a href="#" class="skip-intro" onclick="skipIntro(); return false;">Skip movie</a>
-             </div>
-             <div class="scroll-scrub-section" id="scrollScrub" style="display: none;">
-               <div class="scroll-scrub-content">
-                 <div class="scrub-beat" id="beat1">
-                   <h2>One interface.</h2>
-                   <p>Every model. Every language. Every scenario.</p>
-                 </div>
-                 <div class="scrub-beat" id="beat2">
-                   <h2>Perfectly reproducible.</h2>
-                   <p>Today. Tomorrow. Always.</p>
-                 </div>
-                 <div class="scrub-beat" id="beat3">
-                   <h2>Ready to ship.</h2>
-                   <p>From research to production. Instantly.</p>
-                 </div>
-               </div>
-             </div>
+            </div>
+         </div>
+         <a href="#" class="skip-intro" onclick="skipIntro(); return false;">Skip movie</a>
+      </div>
+      <div class="scroll-scrub-section" id="scrollScrub" style="display: none;">
+         <div class="scroll-scrub-content">
+            <div class="scrub-beat" id="beat1">
+               <h2>One interface.</h2>
+               <p>Every model. Every language. Every scenario.</p>
+            </div>
+            <div class="scrub-beat" id="beat2">
+               <h2>Perfectly reproducible.</h2>
+               <p>Today. Tomorrow. Always.</p>
+            </div>
+            <div class="scrub-beat" id="beat3">
+               <h2>Ready to ship.</h2>
+               <p>From research to production. Instantly.</p>
+            </div>
+         </div>
+      </div>
       <nav id="mainNav">
          <div class="nav-container">
             <a href="#hero" class="nav-logo" aria-label="Back to hero">MINTverse</a>
@@ -2111,58 +2061,54 @@
       </nav>
       <section id="hero" class="hero">
          <div class="hero-content">
-           <h1 class="gradient-brand-text">MINTverse</h1>
-           <p class="hero-subtitle">200,000× faster. 99.8% accurate. Production ready.</p>
-           <p class="hero-description">Deep-learning emulators that transform 96-hour HPC jobs into 90-second laptop runs.<br>Built for researchers who ship.</p>
-           
-           <div class="quick-links">
-             <a href="#minter" class="quick-link">
-               <h3>MINTer</h3>
-               <p>Unified R interface orchestrating three deep-learning models. Zero-config deployment with tidy outputs and automatic GPU detection.</p>
-             </a>
-             <a href="#estimint" class="quick-link">
-               <h3>estiMINT</h3>
-               <p>XGBoost/RF ensemble achieving R²=0.92 for prevalence→EIR mapping. Sub-100ms inference with confidence intervals.</p>
-             </a>
-             <a href="#minte" class="quick-link">
-               <h3>MINTe</h3>
-               <p>Production GRU/LSTM with R²=0.998. 4096 parallel CUDA computations every 50ms. PyTorch to ONNX ready.</p>
-             </a>
-           </div>
-           
-           <div class="author-banner">
-             <div class="author-banner-content">
-               <span style="opacity:.9">Architecture • Implementation • Deployment by <strong>Cosmo Santoni</strong>, Imperial College London</span>
-               <span aria-hidden="true" style="opacity:.35">•</span>
-               <a href="#contact">About & Contact</a>
-               <span aria-hidden="true" style="opacity:.35">•</span>
-               <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity">Opportunities</a>
-             </div>
-           </div>
-           
-           <div class="stats-grid">
-             <div class="stat-card">
-               <span class="stat-number">200,000×</span>
-               <span class="stat-label">faster than malariasimulation<br>
-               <small>4096 parallel computations every 50ms</small></span>
-             </div>
-             <div class="stat-card">
-               <span class="stat-number">R²=0.998</span>
-               <span class="stat-label">LSTM accuracy on test set<br>
-               <small>131k series, 3.125% of training data</small></span>
-             </div>
-             <div class="stat-card">
-               <span class="stat-number">90 seconds</span>
-               <span class="stat-label">to process 96 hours of compute<br>
-               <small>On laptop RTX 40-series GPU</small></span>
-             </div>
-           </div>
-           
-           <p class="muted" style="text-align:center;margin-top:20px">
-             Production performance: 82,000 predictions/second. 64.3B time-series values indexed in DuckDB.
-           </p>
+            <h1 class="gradient-brand-text">MINTverse</h1>
+            <p class="hero-subtitle">200,000× faster. 99.8% accurate. Production ready.</p>
+            <p class="hero-description">Deep-learning emulators that transform 96-hour HPC jobs into 90-second laptop runs.<br>Built for researchers who ship.</p>
+            <div class="quick-links">
+               <a href="#minter" class="quick-link">
+                  <h3>MINTer</h3>
+                  <p>Unified R interface orchestrating three deep-learning models. Zero-config deployment with tidy outputs and automatic GPU detection.</p>
+               </a>
+               <a href="#estimint" class="quick-link">
+                  <h3>estiMINT</h3>
+                  <p>XGBoost/RF ensemble achieving R²=0.92 for prevalence→EIR mapping. Sub-100ms inference with confidence intervals.</p>
+               </a>
+               <a href="#minte" class="quick-link">
+                  <h3>MINTe</h3>
+                  <p>Production GRU/LSTM with R²=0.998. 4096 parallel CUDA computations every 50ms. PyTorch to ONNX ready.</p>
+               </a>
+            </div>
+            <div class="author-banner">
+               <div class="author-banner-content">
+                  <span style="opacity:.9">Architecture • Implementation • Deployment by <strong>Cosmo Santoni</strong>, Imperial College London</span>
+                  <span aria-hidden="true" style="opacity:.35">•</span>
+                  <a href="#contact">About & Contact</a>
+                  <span aria-hidden="true" style="opacity:.35">•</span>
+                  <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity">Opportunities</a>
+               </div>
+            </div>
+            <div class="stats-grid">
+               <div class="stat-card">
+                  <span class="stat-number">200,000×</span>
+                  <span class="stat-label">faster than malariasimulation<br>
+                  <small>4096 parallel computations every 50ms</small></span>
+               </div>
+               <div class="stat-card">
+                  <span class="stat-number">R²=0.998</span>
+                  <span class="stat-label">LSTM accuracy on test set<br>
+                  <small>131k series, 3.125% of training data</small></span>
+               </div>
+               <div class="stat-card">
+                  <span class="stat-number">90 seconds</span>
+                  <span class="stat-label">to process 96 hours of compute<br>
+                  <small>On laptop RTX 40-series GPU</small></span>
+               </div>
+            </div>
+            <p class="muted" style="text-align:center;margin-top:20px">
+               Production performance: 82,000 predictions/second. 64.3B time-series values indexed in DuckDB.
+            </p>
          </div>
-       </section>
+      </section>
       <main>
          <div class="container">
             <section id="overview" class="section fade-in">
@@ -2302,12 +2248,11 @@ results$cases |&gt;
                      <p class="package-subtitle">Malaria INTervention emulator in R — the orchestrator of the MINTverse stack</p>
                   </div>
                   <a href="https://github.com/CosmoNaught/MINTer"
-                  target="_blank"
-                  class="github-link github-link--card">
-                 <!-- svg -->
-                 View on GitHub
-               </a>
-               
+                     target="_blank"
+                     class="github-link github-link--card">
+                     <!-- svg -->
+                     View on GitHub
+                  </a>
                </div>
                <p style="margin-bottom:32px">
                   <span class="badge">Orchestration • Reproducible • Dashboard-ready</span>
@@ -3111,150 +3056,128 @@ python -c "import minte; print(minte.__version__)"</code></pre>
             </section>
          </div>
       </main>
-<!-- About -->
-<section id="about" class="section section-gradient fade-in">
-   <div class="container">
-     <div class="section-header">
-       <h2 class="section-title">The story</h2>
-       <p class="section-subtitle">From UK COVID response to 200,000× faster malaria modeling.</p>
-     </div>
- 
-     <div class="feature-grid">
-       <div class="feature-card">
-         <h3 class="h3-tight">Cosmo Santoni</h3>
-         <p class="subtitle">PhD Candidate in Applied Mathematics</p>
-         <p class="subtitle">Imperial College London • Turning research into production ML</p>
- 
-         <p style="margin: 20px 0; font-size: 17px; line-height: 1.7; color: #d2d2d7;">
-           Two years ago, I was running malaria simulations that took 96 hours on HPC clusters. Today, those same computations run in 90 seconds on my laptop. <strong style="color: var(--green);">That's a 200,000× speedup.</strong>
-         </p>
- 
-         <p style="margin: 20px 0; color: #d2d2d7;">
-           I don't just write papers—I ship production systems. <span class="gradient-brand-text">MINTverse</span></li> is actively used by governments and NGOs to make real-time decisions about malaria interventions. Before this, my COVID-19 models informed UK government policy through SAGE/SPI-M-O during the pandemic.
-         </p>
- 
-         <div class="feature-card" style="margin-top:24px; background: rgba(139, 92, 246, 0.03); border-color: rgba(139, 92, 246, 0.2);">
-           <h4 style="margin-bottom:16px; color: #c4b5fd;">Recognition & Impact</h4>
-           <ul class="tick-list">
-             <li><strong>SPI-M-O Award for Modelling & Data Support</strong> from UK Chief Scientific & Medical Officers</li>
-             <li>Published in <em>The Lancet Public Health</em> and <em>Nature Communications</em></li>
-             <li>Presented to WHO, MSF, Public Health Canada, and data.org</li>
-             <li>Models directly informed UK COVID-19 response and Global Fund malaria strategies</li>
-           </ul>
+      <!-- About -->
+      <section id="about" class="section section-gradient fade-in">
+         <div class="container">
+            <div class="section-header">
+               <h2 class="section-title">The story</h2>
+               <p class="section-subtitle">From UK COVID response to 200,000× faster malaria modeling.</p>
+            </div>
+            <div class="feature-grid">
+               <div class="feature-card">
+                  <h3 class="h3-tight">Cosmo Santoni</h3>
+                  <p class="subtitle">PhD Candidate in Applied Mathematics</p>
+                  <p class="subtitle">Imperial College London • Turning research into production ML</p>
+                  <p style="margin: 20px 0; font-size: 17px; line-height: 1.7; color: #d2d2d7;">
+                     Two years ago, I was running malaria simulations that took 96 hours on HPC clusters. Today, those same computations run in 90 seconds on my laptop. <strong style="color: var(--green);">That's a 200,000× speedup.</strong>
+                  </p>
+                  <p style="margin: 20px 0; color: #d2d2d7;">
+                     I don't just write papers—I ship production systems. <span class="gradient-brand-text">MINTverse</span></li> is actively used by governments and NGOs to make real-time decisions about malaria interventions. Before this, my COVID-19 models informed UK government policy through SAGE/SPI-M-O during the pandemic.
+                  </p>
+                  <div class="feature-card" style="margin-top:24px; background: rgba(139, 92, 246, 0.03); border-color: rgba(139, 92, 246, 0.2);">
+                     <h4 style="margin-bottom:16px; color: #c4b5fd;">Recognition & Impact</h4>
+                     <ul class="tick-list">
+                        <li><strong>SPI-M-O Award for Modelling & Data Support</strong> from UK Chief Scientific & Medical Officers</li>
+                        <li>Published in <em>The Lancet Public Health</em> and <em>Nature Communications</em></li>
+                        <li>Presented to WHO, MSF, Public Health Canada, and data.org</li>
+                        <li>Models directly informed UK COVID-19 response and Global Fund malaria strategies</li>
+                     </ul>
+                  </div>
+                  <div class="feature-card" style="margin-top:24px">
+                     <h4 style="margin-bottom:16px">What makes me different</h4>
+                     <ul class="tick-list">
+                        <li><strong>I ship:</strong> Built 3 production packages (MINTer, estiMINT, MINTe) with CI/CD, versioning, and reproducible releases</li>
+                        <li><strong>I scale:</strong> Achieved R² = 0.998 accuracy while making models 200,000× faster</li>
+                        <li><strong>I bridge:</strong> Fluent in PyTorch, R, Julia SciML, RStan—whatever gets the job done</li>
+                        <li><strong>I teach:</strong> Lead workshops on testing, I/O validation, and OSS best practices</li>
+                     </ul>
+                     <div class="chips" style="margin-top:20px">
+                        <span class="chip">PyTorch</span>
+                        <span class="chip">R/Tidyverse</span>
+                        <span class="chip">Julia SciML</span>
+                        <span class="chip">CUDA</span>
+                        <span class="chip">HPC</span>
+                        <span class="chip">RStan</span>
+                        <span class="chip">DuckDB</span>
+                        <span class="chip">CI/CD</span>
+                        <span class="chip">Bayesian ML</span>
+                     </div>
+                  </div>
+                  <div class="feature-card" style="margin-top:24px; background: rgba(0, 212, 170, 0.03); border-color: rgba(0, 212, 170, 0.2);">
+                     <h4 style="margin-bottom:12px; color: var(--green);">Current mission</h4>
+                     <p style="margin: 0; color: #d2d2d7;">
+                        Completing my PhD on deep learning surrogates and standalone Graph Neural Networks for epidemic modeling.
+                     </p>
+                  </div>
+                  <p class="small-muted" style="margin-top:24px">
+                     <strong>PhD Thesis:</strong> <em>"Accelerating Policy Decision-Making Support in Infectious Disease Dynamics Through Deep Learning Surrogate Modelling and Graph Neural Networks"</em><br>
+                     Supervisors: Oliver J. Watson, Thomas C. Churcher
+                  </p>
+               </div>
+            </div>
          </div>
- 
-         <div class="feature-card" style="margin-top:24px">
-           <h4 style="margin-bottom:16px">What makes me different</h4>
-           <ul class="tick-list">
-             <li><strong>I ship:</strong> Built 3 production packages (MINTer, estiMINT, MINTe) with CI/CD, versioning, and reproducible releases</li>
-             <li><strong>I scale:</strong> Achieved R² = 0.998 accuracy while making models 200,000× faster</li>
-             <li><strong>I bridge:</strong> Fluent in PyTorch, R, Julia SciML, RStan—whatever gets the job done</li>
-             <li><strong>I teach:</strong> Lead workshops on testing, I/O validation, and OSS best practices</li>
-           </ul>
- 
-           <div class="chips" style="margin-top:20px">
-             <span class="chip">PyTorch</span>
-             <span class="chip">R/Tidyverse</span>
-             <span class="chip">Julia SciML</span>
-             <span class="chip">CUDA</span>
-             <span class="chip">HPC</span>
-             <span class="chip">RStan</span>
-             <span class="chip">DuckDB</span>
-             <span class="chip">CI/CD</span>
-             <span class="chip">Bayesian ML</span>
-           </div>
+      </section>
+      <section id="contact" class="section section-gradient fade-in">
+         <div class="container">
+            <div class="section-header">
+               <h2 class="section-title">Let's talk</h2>
+               <p class="section-subtitle">I turned months of compute into milliseconds of inference.</p>
+            </div>
+            <div class="feature-grid">
+               <!-- Primary card -->
+               <div class="feature-card contact-card contact-card--xl">
+                  <h3 class="h3-tight" style="margin-bottom:10px">Cosmo Santoni</h3>
+                  <p class="subtitle">PhD Candidate, Imperial College London</p>
+                  <p class="subtitle">Building the future of epidemic modeling</p>
+                  <div class="contact-meta">
+                     <span class="chip">~200,000× speedup achieved</span>
+                     <span class="chip">R² = 0.998 (held-out)</span>
+                     <span class="chip">In production</span>
+                  </div>
+                  <p style="margin: 20px 0; color: #d2d2d7;">
+                     I focus on shipping production systems. I delivered the full stack—models, APIs, deployment, and this site—end to end. From mathematical theory to ~82,000 predictions/second on consumer hardware (~200,000× vs a 96-hour HPC baseline; ~90-second laptop runs on an RTX 40-series). If you’re working on problems at this scale, I’d love to help.
+                  </p>
+                  <div class="contact-list">
+                     <div class="label">Direct line</div>
+                     <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
+                     <div class="label" style="margin-top:16px">Code & credentials</div>
+                     <a href="https://github.com/CosmoNaught" target="_blank" class="github-link">GitHub — See it run</br>
+                     <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" class="github-link">LinkedIn — Full background</a>
+                  </div>
+                  <div class="cta-row">
+                     <a class="btn-primary" href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20%E2%80%94%20Let%27s%20talk">Start a conversation</a>
+                     <a class="btn-ghost" href="#" onclick="downloadCV(); return false;">Download CV</a>
+                  </div>
+                  <p class="small-muted">London-based. Open to roles where I can own end-to-end ML systems and ship impact.</p>
+               </div>
+               <!-- Secondary card -->
+               <div class="feature-card contact-side">
+                  <h4>What I built</h4>
+                  <ul class="tick-list">
+                     <li>Replaced a 90-hour HPC job with ~90-second laptop inference</li>
+                     <li>Built three production ML systems deployed with government & NGO partners</li>
+                     <li>Achieved R² = 0.998 on 131k time series (held-out test set)</li>
+                     <li>Created the entire stack: models, APIs, deployment, this <span class="gradient-brand-text">website</span></li>
+                  </ul>
+                  <div class="feature-card" style="margin-top:20px; background: rgba(0,212,170,0.05);">
+                     <p style="font-size: 14px; color: var(--green); margin: 0;">
+                        <strong>Currently:</strong> Turning my PhD research into tools that ship. Interested in teams tackling billion-scale problems.
+                     </p>
+                  </div>
+                  <div class="stat-cards" style="margin-top:20px">
+                     <div class="stat">
+                        <div class="value">2025</div>
+                        <div class="muted">Available</div>
+                     </div>
+                     <div class="stat">
+                        <div class="value">London</div>
+                        <div class="muted">GMT/BST</div>
+                     </div>
+                  </div>
+               </div>
+            </div>
          </div>
- 
-         <div class="feature-card" style="margin-top:24px; background: rgba(0, 212, 170, 0.03); border-color: rgba(0, 212, 170, 0.2);">
-           <h4 style="margin-bottom:12px; color: var(--green);">Current mission</h4>
-           <p style="margin: 0; color: #d2d2d7;">
-             Completing my PhD on deep learning surrogates and standalone Graph Neural Networks for epidemic modeling.
-           </p>
-         </div>
- 
-         <p class="small-muted" style="margin-top:24px">
-           <strong>PhD Thesis:</strong> <em>"Accelerating Policy Decision-Making Support in Infectious Disease Dynamics Through Deep Learning Surrogate Modelling and Graph Neural Networks"</em><br>
-           Supervisors: Oliver J. Watson, Thomas C. Churcher
-         </p>
-       </div>
-     </div>
-   </div>
- </section>
- 
- <section id="contact" class="section section-gradient fade-in">
-   <div class="container">
-     <div class="section-header">
-       <h2 class="section-title">Let's talk</h2>
-       <p class="section-subtitle">I turn months of compute into milliseconds of inference.</p>
-     </div>
-     
-     <div class="feature-grid">
-       <!-- Primary card -->
-       <div class="feature-card contact-card contact-card--xl">
-         <h3 class="h3-tight" style="margin-bottom:10px">Cosmo Santoni</h3>
-         <p class="subtitle">PhD Candidate, Imperial College London</p>
-         <p class="subtitle">Building the future of epidemic modeling</p>
-         
-         <div class="contact-meta">
-           <span class="chip">~200,000× speedup achieved</span>
-           <span class="chip">R² = 0.998 (held-out)</span>
-           <span class="chip">In production</span>
-         </div>
-         
-         <p style="margin: 20px 0; color: #d2d2d7;">
-           I focus on shipping production systems. I delivered the full stack—models, APIs, deployment, and this site—end to end. From mathematical theory to ~82,000 predictions/second on consumer hardware (~200,000× vs a 96-hour HPC baseline; ~90-second laptop runs on an RTX 40-series). If you’re working on problems at this scale, I’d love to help.
-         </p>
-         
-         <div class="contact-list">
-           <div class="label">Direct line</div>
-           <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
-           
-           <div class="label" style="margin-top:16px">Code & credentials</div>
-           <a href="https://github.com/CosmoNaught" target="_blank" class="github-link">GitHub — See it run</br>
-           <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" class="github-link">LinkedIn — Full background</a>
-         </div>
-         
-         <div class="cta-row">
-           <a class="btn-primary" href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20%E2%80%94%20Let%27s%20talk">Start a conversation</a>
-           <a class="btn-ghost" href="#" onclick="downloadCV(); return false;">Download CV</a>
-         </div>
-         
-         <p class="small-muted">London-based. Open to roles where I can own end-to-end ML systems and ship impact.</p>
-       </div>
-       
-       <!-- Secondary card -->
-       <div class="feature-card contact-side">
-         <h4>What I built</h4>
-         <ul class="tick-list">
-           <li>Replaced a 90-hour HPC job with ~90-second laptop inference</li>
-           <li>Built three production ML systems deployed with government & NGO partners</li>
-           <li>Achieved R² = 0.998 on 131k time series (held-out test set)</li>
-           <li>Created the entire stack: models, APIs, deployment, this <span class="gradient-brand-text">website</span></li>
-         </ul>
-         
-         <div class="feature-card" style="margin-top:20px; background: rgba(0,212,170,0.05);">
-           <p style="font-size: 14px; color: var(--green); margin: 0;">
-             <strong>Currently:</strong> Turning my PhD research into tools that ship. Interested in teams tackling billion-scale problems.
-           </p>
-         </div>
-         
-         <div class="stat-cards" style="margin-top:20px">
-           <div class="stat">
-             <div class="value">2025</div>
-             <div class="muted">Available</div>
-           </div>
-           <div class="stat">
-             <div class="value">London</div>
-             <div class="muted">GMT/BST</div>
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
- </section>
- 
- 
- 
+      </section>
       <footer>
          <div class="container">
             <p>MINTverse © 2025 • Built for malaria intervention research</p>
@@ -3415,30 +3338,30 @@ python -c "import minte; print(minte.__version__)"</code></pre>
          let holdUntil = 0;
          const HOLD_MS_FWD = 200;
          const HOLD_MS_BACK = 450;
-
+         
          function setBeat(i){
          beats.forEach(b => b.classList.remove('active'));
          beats[i].classList.add('active','seen');
          lastBeat = i;
          }
-
+         
          window.addEventListener('scroll', () => {
          const scrollY = window.pageYOffset || document.documentElement.scrollTop;
          const top = scrubSection.offsetTop;
          const h = scrubSection.offsetHeight;
          const vh = window.innerHeight;
-
+         
          if (scrollY >= top && scrollY <= top + h - vh) {
             const progress = Math.min(1, Math.max(0, (scrollY - top) / (h - vh)));
-
+         
             // 3 beats -> indices 0,1,2
             const target = Math.min(beats.length - 1, Math.floor(progress * beats.length));
             const now = performance.now();
             const dir = Math.sign(target - lastBeat);
-
+         
             if (dir !== 0) {
                if (dir !== lastDir) holdUntil = 0;
-
+         
                if (now >= holdUntil) {
                const next = Math.abs(target - lastBeat) > 1 ? target : (lastBeat + dir);
                setBeat(next);
@@ -3446,7 +3369,7 @@ python -c "import minte; print(minte.__version__)"</code></pre>
                lastDir = dir;
                }
             }
-
+         
             if (heroContent) heroContent.style.opacity = '0';
          } else if (scrollY > top + h - vh) {
             if (heroContent && heroContent.style.opacity !== '1') {
@@ -3693,124 +3616,124 @@ python -c "import minte; print(minte.__version__)"</code></pre>
              });
            }
          });
-      // Navigation Active State Highlighting
-function initNavHighlighting() {
-  const sections = document.querySelectorAll('section[id], .section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-  
-  // Store original link text
-  const linkOriginalText = new Map();
-  navLinks.forEach(link => {
-    linkOriginalText.set(link, link.innerHTML);
-  });
-  
-  // Flag to prevent observer updates during navigation
-  let isNavigating = false;
-  let navigationTimeout = null;
-  
-  // Function to update active link
-  function setActiveLink(activeId, immediate = false) {
-    // Skip if we're navigating and this isn't an immediate update
-    if (isNavigating && !immediate) return;
-    
-    navLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      const targetId = href ? href.substring(1) : '';
-      
-      if (targetId === activeId) {
-        // Add gradient to active link
-        if (!link.querySelector('.gradient-brand-text')) {
+         // Navigation Active State Highlighting
+         function initNavHighlighting() {
+         const sections = document.querySelectorAll('section[id], .section[id]');
+         const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+         
+         // Store original link text
+         const linkOriginalText = new Map();
+         navLinks.forEach(link => {
+         linkOriginalText.set(link, link.innerHTML);
+         });
+         
+         // Flag to prevent observer updates during navigation
+         let isNavigating = false;
+         let navigationTimeout = null;
+         
+         // Function to update active link
+         function setActiveLink(activeId, immediate = false) {
+         // Skip if we're navigating and this isn't an immediate update
+         if (isNavigating && !immediate) return;
+         
+         navLinks.forEach(link => {
+         const href = link.getAttribute('href');
+         const targetId = href ? href.substring(1) : '';
+         
+         if (targetId === activeId) {
+         // Add gradient to active link
+         if (!link.querySelector('.gradient-brand-text')) {
           const originalText = linkOriginalText.get(link) || link.textContent;
           link.innerHTML = `<span class="gradient-brand-text">${originalText}</span>`;
           link.classList.add('nav-active');
-        }
-      } else {
-        // Remove gradient from inactive links
-        if (link.querySelector('.gradient-brand-text')) {
+         }
+         } else {
+         // Remove gradient from inactive links
+         if (link.querySelector('.gradient-brand-text')) {
           link.innerHTML = linkOriginalText.get(link) || link.textContent;
           link.classList.remove('nav-active');
-        }
-      }
-    });
-  }
-  
-  // Intersection Observer to detect which section is in view
-  const observerOptions = {
-    rootMargin: '-20% 0px -70% 0px', // Trigger when section is in upper portion of viewport
-    threshold: 0
-  };
-  
-  const observer = new IntersectionObserver((entries) => {
-    // Don't process during navigation
-    if (isNavigating) return;
-    
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.getAttribute('id');
-        if (id) {
+         }
+         }
+         });
+         }
+         
+         // Intersection Observer to detect which section is in view
+         const observerOptions = {
+         rootMargin: '-20% 0px -70% 0px', // Trigger when section is in upper portion of viewport
+         threshold: 0
+         };
+         
+         const observer = new IntersectionObserver((entries) => {
+         // Don't process during navigation
+         if (isNavigating) return;
+         
+         entries.forEach(entry => {
+         if (entry.isIntersecting) {
+         const id = entry.target.getAttribute('id');
+         if (id) {
           setActiveLink(id);
-        }
-      }
-    });
-  }, observerOptions);
-  
-  // Observe all sections
-  sections.forEach(section => {
-    if (section.getAttribute('id')) {
-      observer.observe(section);
-    }
-  });
-  
-  // Handle click events for immediate update
-  navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      if (href && href.startsWith('#')) {
-        const targetId = href.substring(1);
-        
-        // Set navigation flag
-        isNavigating = true;
-        
-        // Immediately set the active link (bypass observer)
-        setActiveLink(targetId, true);
-        
-        // Clear any existing timeout
-        clearTimeout(navigationTimeout);
-        
-        // Re-enable observer after scroll completes (adjust timing as needed)
-        navigationTimeout = setTimeout(() => {
+         }
+         }
+         });
+         }, observerOptions);
+         
+         // Observe all sections
+         sections.forEach(section => {
+         if (section.getAttribute('id')) {
+         observer.observe(section);
+         }
+         });
+         
+         // Handle click events for immediate update
+         navLinks.forEach(link => {
+         link.addEventListener('click', (e) => {
+         const href = link.getAttribute('href');
+         if (href && href.startsWith('#')) {
+         const targetId = href.substring(1);
+         
+         // Set navigation flag
+         isNavigating = true;
+         
+         // Immediately set the active link (bypass observer)
+         setActiveLink(targetId, true);
+         
+         // Clear any existing timeout
+         clearTimeout(navigationTimeout);
+         
+         // Re-enable observer after scroll completes (adjust timing as needed)
+         navigationTimeout = setTimeout(() => {
           isNavigating = false;
-        }, 800); // 800ms should cover most smooth scroll animations
-      }
-    });
-  });
-  
-  // Also handle browser back/forward navigation
-  window.addEventListener('popstate', () => {
-    const hash = window.location.hash;
-    if (hash) {
-      const targetId = hash.substring(1);
-      isNavigating = true;
-      setActiveLink(targetId, true);
-      clearTimeout(navigationTimeout);
-      navigationTimeout = setTimeout(() => {
-        isNavigating = false;
-      }, 800);
-    }
-  });
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  initNavHighlighting();
-});
-
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  initNavHighlighting();
-});
-
+         }, 800); // 800ms should cover most smooth scroll animations
+         }
+         });
+         });
+         
+         // Also handle browser back/forward navigation
+         window.addEventListener('popstate', () => {
+         const hash = window.location.hash;
+         if (hash) {
+         const targetId = hash.substring(1);
+         isNavigating = true;
+         setActiveLink(targetId, true);
+         clearTimeout(navigationTimeout);
+         navigationTimeout = setTimeout(() => {
+         isNavigating = false;
+         }, 800);
+         }
+         });
+         }
+         
+         // Initialize when DOM is ready
+         document.addEventListener('DOMContentLoaded', () => {
+         initNavHighlighting();
+         });
+         
+         
+         // Initialize when DOM is ready
+         document.addEventListener('DOMContentLoaded', () => {
+         initNavHighlighting();
+         });
+         
       </script>
    </body>
 </html>
