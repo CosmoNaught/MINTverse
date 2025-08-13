@@ -2014,7 +2014,7 @@
             <div class="title-cards">
                <div class="title-card" id="card1">
                   <h2>200,000× faster</h2>
-                  <p>Than any agent-based system before it.</p>
+                  <p>Than all in-house agent-based system before it.</p>
                </div>
                <div class="title-card" id="card2">
                   <h2>82,000 predictions</h2>
@@ -2031,11 +2031,11 @@
       <div class="scroll-scrub-section" id="scrollScrub" style="display: none;">
          <div class="scroll-scrub-content">
             <div class="scrub-beat" id="beat1">
-               <h2>One interface.</h2>
-               <p>Every model. Every language. Every scenario.</p>
+               <h2>One API.</h2>
+               <p>Every model. Every scenario. Every second.</p>
             </div>
             <div class="scrub-beat" id="beat2">
-               <h2>Perfectly reproducible.</h2>
+               <h2>Reproducible by design.</h2>
                <p>Today. Tomorrow. Always.</p>
             </div>
             <div class="scrub-beat" id="beat3">
@@ -3069,18 +3069,16 @@ python -c "import minte; print(minte.__version__)"</code></pre>
                   <p class="subtitle">PhD Candidate in Applied Mathematics</p>
                   <p class="subtitle">Imperial College London • Turning research into production ML</p>
                   <p style="margin: 20px 0; font-size: 17px; line-height: 1.7; color: #d2d2d7;">
-                     Two years ago, I was running malaria simulations that took 96 hours on HPC clusters. Today, those same computations run in 90 seconds on my laptop. <strong style="color: var(--green);">That's a 200,000× speedup.</strong>
-                  </p>
-                  <p style="margin: 20px 0; color: #d2d2d7;">
-                     I don't just write papers—I ship production systems. <span class="gradient-brand-text">MINTverse</span></li> is actively used by governments and NGOs to make real-time decisions about malaria interventions. Before this, my COVID-19 models informed UK government policy through SAGE/SPI-M-O during the pandemic.
+                     Two years ago, our agent-based simulations took ~96 hours on HPC. The same workloads now run in ~90 seconds on a laptop; about 200,000× faster vs. our malariasimulation baseline. 
+                     I publish research and ship systems. <span class="gradient-brand-text">MINTverse</span></li> is used by governemnts, NGOs and public-health partners for real-time intervention planning, with reproducible artifacts, pinned dependencies, and stable I/O for dashboards. Before this, my COVID-19 models informed UK government policy through SAGE/SPI-M-O during the pandemic.</strong>
                   </p>
                   <div class="feature-card" style="margin-top:24px; background: rgba(139, 92, 246, 0.03); border-color: rgba(139, 92, 246, 0.2);">
                      <h4 style="margin-bottom:16px; color: #c4b5fd;">Recognition & Impact</h4>
                      <ul class="tick-list">
                         <li><strong>SPI-M-O Award for Modelling & Data Support</strong> from UK Chief Scientific & Medical Officers</li>
                         <li>Published in <em>The Lancet Public Health</em> and <em>Nature Communications</em></li>
-                        <li>Presented to WHO, MSF, Public Health Canada, and data.org</li>
-                        <li>Models directly informed UK COVID-19 response and Global Fund malaria strategies</li>
+                        <li>Presented to World Health Organisation, Médecins Sans Frontières, Public Health Canada, United Kingdom Health Agency and data.org</li>
+                        <li>Model contributions directly informed UK Government COVID-19 response and Global Fund malaria strategies</li>
                      </ul>
                   </div>
                   <div class="feature-card" style="margin-top:24px">
@@ -3119,12 +3117,12 @@ python -c "import minte; print(minte.__version__)"</code></pre>
       </section>
       <section id="contact" class="section section-gradient fade-in">
          <div class="container">
-            <div class="section-header">
-               <h2 class="section-title">Let's talk</h2>
-               <p class="section-subtitle">I turned months of compute into milliseconds of inference.</p>
-            </div>
+         <div class="section-header">
+         <h2 class="section-title">Let’s talk</h2>
+         <p class="section-subtitle">~200,000× faster vs. baseline.</p>
+         <p class="section-subtitle">Reproducible by default. Designed for dashboards. Engineered for decisions.</p>
+         </div>
             <div class="feature-grid">
-               <!-- Primary card -->
                <div class="feature-card contact-card contact-card--xl">
                   <h3 class="h3-tight" style="margin-bottom:10px">Cosmo Santoni</h3>
                   <p class="subtitle">PhD Candidate, Imperial College London</p>
