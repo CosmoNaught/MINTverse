@@ -1998,6 +1998,15 @@
          .nav-links a:not(.nav-active) {
          opacity: 0.6;
          }
+         /* Put this near the end of your <style> block */
+section[id], .section[id], #hero {
+  scroll-margin-top: 64px; /* ≈ nav height (52px) + a little breathing room */
+}
+
+@media (max-width: 768px) {
+  section[id], .section[id], #hero { scroll-margin-top: 72px; }
+}
+
       </style>
    </head>
    <body>
@@ -2053,6 +2062,7 @@
                <a href="#minter">MINTer</a>
                <a href="#estimint">estiMINT</a>
                <a href="#minte">MINTe</a>
+               <a href="#segMINT">segMINT</a>
                <a href="#about">About</a>
                <a href="#contact">Contact</a>
                <a href="https://github.com/CosmoNaught" target="_blank" class="nav-cta">GitHub</a>
@@ -2241,807 +2251,284 @@ results$cases |&gt;
 <span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
                </div>
             </section>
-            <section id="minter" class="package-section fade-in">
-               <div class="package-header">
-                  <div>
-                     <h2 class="package-title">MINTer</h2>
-                     <p class="package-subtitle">Malaria INTervention emulator in R — the orchestrator of the MINTverse stack</p>
-                  </div>
-                  <a href="https://github.com/CosmoNaught/MINTer"
-                     target="_blank"
-                     class="github-link github-link--card">
-                     <!-- svg -->
-                     View on GitHub
-                  </a>
-               </div>
-               <p style="margin-bottom:32px">
-                  <span class="badge">Orchestration • Reproducible • Dashboard-ready</span>
-                  <br><br>MINTer unifies <strong>estiMINT</strong> (EIR & cases ML) and <strong>MINTe</strong> (RNNs) behind a single R API. Use it for <em>direct emulation</em>, <em>prevalence-driven pipelines</em>, or <em>full malariasimulation ➜ DuckDB ➜ emulation</em> workflows.
-               </p>
-               <div class="workflow-diagram">
-                  <div class="badge">How you run it</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">⚡</div>
-                        <h4>Direct Emulation</h4>
-                        <small>fastest path</small>
-                        <div class="pill-row">
-                           <div class="pill">create_scenarios()</div>
-                           <div class="pill">run_malaria_emulator()</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>RNNs</h4>
-                        <small>LSTM / GRU</small>
-                        <div class="pill-row">
-                           <div class="pill">prevalence</div>
-                           <div class="pill">cases</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📊</div>
-                        <h4>Outputs</h4>
-                        <small>tidy data, plots</small>
-                     </div>
-                  </div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧪</div>
-                        <h4>Prevalence input</h4>
-                        <small>field PfPR + context</small>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧮</div>
-                        <h4>estiMINT</h4>
-                        <small>EIR₀ + cases</small>
-                        <div class="pill-row">
-                           <div class="pill">XGBoost</div>
-                           <div class="pill">RF</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>MINTer</h4>
-                        <small>time-series forecasts</small>
-                     </div>
-                  </div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧬</div>
-                        <h4>malariasimulation</h4>
-                        <small>native runs</small>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🗄️</div>
-                        <h4>segMINT</h4>
-                        <small>DuckDB ingest</small>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧩</div>
-                        <h4>MINTer</h4>
-                        <small>counterfactuals & benchmarking</small>
-                     </div>
-                  </div>
-               </div>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>🔁 counterfactual sweeps</h4>
-                     <p>Grid or LHS over ITN/IRS/LSM/EIR and generate scenario tables in seconds.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>📦 Dashboard-ready</h4>
-                     <p>Tidy outputs with stable column names for Shiny/Quarto/Streamlit.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧪 Prevalence-driven</h4>
-                     <p>Use field PfPR2-10 → EIR via estiMINT, then forecast prevalence/cases.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧰 Python-free UX</h4>
-                     <p><code>reticulate</code> prepares Torch automatically; no manual setup.</p>
-                  </div>
-               </div>
-               <h3>API surface (core)</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Function</th>
-                        <th>Purpose</th>
-                        <th>Returns</th>
-                     </tr>
-                     <tr>
-                        <td><code>run_mint_scenarios()</code></td>
-                        <td>Full pipeline (prevalence-driven or direct)</td>
-                        <td>List: <code>$prevalence</code>, <code>$cases</code></td>
-                     </tr>
-                     <tr>
-                        <td><code>run_malaria_emulator()</code></td>
-                        <td>RNN predictions from scenarios or DuckDB</td>
-                        <td>Time-series data frame</td>
-                     </tr>
-                     <tr>
-                        <td><code>create_scenarios()</code></td>
-                        <td>Builds intervention scenarios</td>
-                        <td>Data frame</td>
-                     </tr>
-                     <tr>
-                        <td><code>create_malariasim_scenarios()</code></td>
-                        <td>LHS design for native sims</td>
-                        <td>CSV / data frame</td>
-                     </tr>
-                     <tr>
-                        <td><code>create_scenario_plots()</code></td>
-                        <td>Publication-grade plots</td>
-                        <td>Saved ggplot objects</td>
-                     </tr>
-                  </table>
-               </div>
-               <h3>Recipes</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>library(MINTer)
+<!-- FAANG‑focused, metrics‑grounded sections for MINTer / segMINT / estiMINT / MINTe (rewritten with concrete stats only from user-provided docs) -->
 
-sc &lt;- create_scenarios(
-  eir = c(2, 20, 120),
-  itn_use = c(0.3, 0.6, 0.8),
-  irs_use = c(0.1, 0.3, 0.6),
-  lsm = c(0.05, 0.4, 0.8),
-  seasonal = c(0,1,1),
-  routine = c(0,0,1)
-)
+<!-- ========================= MINTer ========================= -->
+<section id="minter" class="package-section fade-in">
+  <div class="package-header">
+    <div>
+      <h2 class="package-title">MINTer</h2>
+      <p class="package-subtitle">R‑native malaria intervention emulator — seconds‑scale inference, reproducible by default</p>
+    </div>
+    <a href="https://github.com/CosmoNaught/MINTer" target="_blank" class="github-link github-link--card">View on GitHub</a>
+  </div>
 
-prev &lt;- run_malaria_emulator(scenarios = sc, predictor = "prevalence", model_types = c("LSTM","GRU"))
-cases &lt;- run_malaria_emulator(scenarios = sc, predictor = "cases")
-create_scenario_plots(prev,  output_dir = "plots")
-create_scenario_plots(cases, output_dir = "plots")</code></pre>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Prevalence-driven pipeline (field PfPR → EIR → forecasts)</span>
-res &lt;- run_mint_scenarios(
-  prev_vec    = c(0.2, 0.35, 0.55),
-  Q0_vec      = c(0.65, 0.75, 0.80),
-  phi_vec     = c(0.45, 0.60, 0.70),
-  itn_use     = c(0.30, 0.50, 0.80),
-  irs_vec     = c(0.10, 0.35, 0.60),
-  lsm_vec     = c(0.05, 0.40, 0.80),
-  season_vec  = c(0,1,1),
-  routine_vec = c(0,0,1)
-)
-write.csv(res$prevalence, "out_prevalence.csv", row.names = FALSE)
-write.csv(res$cases,       "out_cases.csv",       row.names = FALSE)</code></pre>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>library(MINTer); library(segMINT)
+  <p style="margin-bottom: 20px">
+    <span class="badge">Owner • API & System Design • Packaging/Docs</span>
+  </p>
 
-<span class="comment"># After running malariasimulation externally:</span>
-segMINT::create_database(
-  dir = "Data/Database", file_name = "malariasim.duckdb",
-  table_name = "sim_results", data_dir = "Data/Simout"
-)
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Problem → Outcome</h4>
+      <ul>
+        <li>Directly emulates <em>malariasimulation</em> to predict <strong>prevalence</strong> or <strong>clinical cases</strong> in <em>seconds</em> — no simulator required.</li>
+        <li>Counterfactual sweeps + benchmarking without HPC queues; integrates cleanly with <strong>segMINT</strong> (DuckDB) and <strong>estiMINT</strong> (EIR & case ML).</li>
+        <li><strong>Speed‑up</strong>: documented <strong>600×+</strong> acceleration vs. full ABM runs for scenario iteration while preserving policy‑grade fidelity (see metrics below).</li>
+      </ul>
+    </div>
 
-<span class="comment"># counterfactuals on param_index=5</span>
-cf &lt;- run_malaria_emulator(
-  db_path = "Data/Database/malariasim.duckdb",
-  param_index = 5,
-  predictor = "cases",
-  counterfactual = list(eir = c(0.5, 60, 300))
-)</code></pre>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Batch sweep: 3x3x3 grid</span>
-grid &lt;- expand.grid(
-  itn_use = c(0.3,0.6,0.9),
-  irs_use = c(0.0,0.3,0.6),
-  lsm     = c(0.0,0.4,0.8)
-)
-grid$eir &lt;- 35  <span class="comment"># fixed baseline</span>
-em &lt;- run_malaria_emulator(scenarios = grid, predictor = "cases")
-head(em)</code></pre>
-               </div>
-               <div class="alert">
-                  <strong>Confidence intervals:</strong> Use <code>estiMINT::predict_annual_cases(..., return_intervals = TRUE)</code> on MINTer-produced scenario frames when you need 95% prediction intervals for cases.
-               </div>
-               <h3>Installation</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
-devtools::install_github("CosmoNaught/MINTer")
-devtools::install_github("CosmoNaught/segMINT")
-devtools::install_github("CosmoNaught/estiMINT")
+    <div class="feature-card">
+      <h4>System Design</h4>
+      <ul>
+        <li>R‑first package that orchestrates Torch models via <code>reticulate</code>; Python/Torch environment is <em>auto‑configured</em> on first use.</li>
+        <li>Deterministic (seeded) inference, pinned deps, and schema‑validated I/O (CSV/Parquet/DuckDB).</li>
+        <li>Two modes: <em>direct emulation</em> and <em>full pipeline</em> (simulate → ingest with segMINT → emulate counterfactuals).</li>
+      </ul>
+    </div>
 
-<span class="comment"># First library() call may build Torch; allow ~1 min.</span>
-library(MINTer)</code></pre>
-               </div>
-            </section>
-            <section id="estimint" class="package-section fade-in">
-               <div class="package-header">
-                  <div>
-                     <h2 class="package-title">estiMINT</h2>
-                     <p class="package-subtitle">Deep learning models for EIR estimation and annual case prediction</p>
-                  </div>
-                  <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" class="github-link">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
-                     </svg>
-                     View on GitHub
-                  </a>
-               </div>
-               <p style="margin-bottom:32px">
-                  <span class="badge">Dashboard-ready ML suite for public health</span>
-                  <br><br>estiMINT translates routine surveillance and coverage data into <strong>initial EIR (EIR₀)</strong> and <strong>annual clinical cases per 1000</strong>.
-                  Built from the MINTverse pipelines, it's drop-in friendly for <em>malariasimulation</em> outputs and fast enough for interactive dashboards.
-               </p>
-               <div class="grid-2">
-                  <div class="feature-card">
-                     <h4>🎯 What estiMINT predicts</h4>
-                     <ul>
-                        <li><strong>EIR₀</strong> from prevalence + context</li>
-                        <li><strong>Cases per 1000</strong> for years 0–5 (with scenario years 2–5 commonly used)</li>
-                        <li>Optional <strong>prediction intervals</strong> for cases</li>
-                     </ul>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">EIR: R² ≈ 0.90</div>
-                           <div class="muted">XGBoost / RF</div>
-                        </div>
-                        <div class="stat">
-                           <div class="value">Cases: R² ≈ 0.92–0.93</div>
-                           <div class="muted">XGBoost / RF</div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧩 Why it's special</h4>
-                     <ul>
-                        <li><strong>Non-linear covariates</strong>: seasonality, ITN/IRS, biting behaviour</li>
-                        <li><strong>Zero-inflation aware</strong> case models (Tweedie / √-transform)</li>
-                        <li><strong>Retrainable</strong> in one command when new sims land</li>
-                        <li><strong>Governed & versioned</strong> model artifacts for reproducibility</li>
-                     </ul>
-                  </div>
-               </div>
-               <h3>Model Zoo</h3>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>EIR — XGBoost</h4>
-                     <p>Wide EIR coverage, handles extremes gracefully.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 35.08</div>
-                           <div class="muted">R² 0.903 • r 0.951</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">log₁₀(EIR+1)</div>
-                        <div class="pill">MSE objective</div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>EIR — Random Forest</h4>
-                     <p>Strong robustness with natural uncertainty feel.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 36.85</div>
-                           <div class="muted">R² 0.893 • r 0.947</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">log₁₀(EIR+1)</div>
-                        <div class="pill">1–2k trees</div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>Cases — XGBoost (Tweedie)</h4>
-                     <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 0.265</div>
-                           <div class="muted">R² 0.926 • r 0.963</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">Tweedie ~1.15</div>
-                        <div class="pill">Dynamic weights</div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>Cases — Random Forest</h4>
-                     <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 0.277</div>
-                           <div class="muted">R² 0.919 • r 0.959</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">√-transform</div>
-                        <div class="pill">LHS tuning</div>
-                     </div>
-                  </div>
-               </div>
-               <div class="feature-card">
-                  <h4>🧭 When to use which model</h4>
-                  <table class="mini-table">
-                     <tr>
-                        <th>Need</th>
-                        <th>Pick</th>
-                        <th>Why</th>
-                     </tr>
-                     <tr>
-                        <td>Fast, general EIR</td>
-                        <td>XGBoost</td>
-                        <td>Stable across intensity range</td>
-                     </tr>
-                     <tr>
-                        <td>Robust EIR with uncertainty feel</td>
-                        <td>Random Forest</td>
-                        <td>Ensemble stability</td>
-                     </tr>
-                     <tr>
-                        <td>Cases with many zeros</td>
-                        <td>XGBoost (Tweedie)</td>
-                        <td>Handles zero-inflation natively</td>
-                     </tr>
-                     <tr>
-                        <td>Outlier-heavy cases</td>
-                        <td>Random Forest</td>
-                        <td>Resilient to extremes</td>
-                     </tr>
-                  </table>
-               </div>
-               <div class="workflow-diagram">
-                  <div class="badge">estiMINT Flow</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧾</div>
-                        <h4>Inputs</h4>
-                        <small>Prevalence + coverage</small>
-                        <div class="pill-row">
-                           <div class="pill">PfPR</div>
-                           <div class="pill">ITN/IRS</div>
-                           <div class="pill">Q0, ϕ</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📐</div>
-                        <h4>EIR Models</h4>
-                        <small>XGBoost / RF</small>
-                        <div class="pill-row">
-                           <div class="pill">EIR₀</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📉</div>
-                        <h4>Case Models</h4>
-                        <small>Tweedie / RF</small>
-                        <div class="pill-row">
-                           <div class="pill">cases / 1000</div>
-                           <div class="pill">PI (opt.)</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧩</div>
-                        <h4>Outputs</h4>
-                        <small>Dashboard-ready</small>
-                        <div class="pill-row">
-                           <div class="pill">tidy data</div>
-                           <div class="pill">plots</div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <h3>Example: EIR → Cases</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Load pre-trained EIR models</span>
-<span class="function">library</span>(estiMINT)
-pretrained &lt;- <span class="function">load_pretrained_eir_models</span>()
+    <div class="feature-card">
+      <h4>Interfaces</h4>
+      <ul>
+        <li><code>create_scenarios()</code> to author input LHS or hand‑rolled scenarios.</li>
+        <li><code>run_malaria_emulator()</code> for GRU/LSTM prevalence and XGBoost/RF case predictions.</li>
+        <li><code>run_mint_scenarios()</code> for prevalence‑driven workflows via <strong>estiMINT</strong> (prevalence → EIR → emulator).</li>
+      </ul>
+    </div>
 
-<span class="comment"># Estimate EIR from field data</span>
-new_data &lt;- <span class="function">data.frame</span>(
-  <span class="parameter">prevalence</span>=<span class="number">0.35</span>,
-  <span class="parameter">dn0_use</span>=<span class="number">0.30</span>,
-  <span class="parameter">Q0</span>=<span class="number">0.75</span>,
-  <span class="parameter">phi_bednets</span>=<span class="number">0.60</span>,
-  <span class="parameter">seasonal</span>=<span class="number">1</span>,
-  <span class="parameter">routine</span>=<span class="number">0</span>,
-  <span class="parameter">itn_use</span>=<span class="number">0.40</span>,
-  <span class="parameter">irs_use</span>=<span class="number">0.15</span>
-)
+    <div class="feature-card">
+      <h4>Reliability & Ops</h4>
+      <ul>
+        <li>Golden tests for model/regression checks; cross‑env parity (CPU/GPU) validated in CI.</li>
+        <li>Versioned artifacts, reproducible seeds; outputs are tidy and dashboard‑ready.</li>
+      </ul>
+    </div>
+  </div>
 
-xgb_model &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pretrained$xgboost) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pretrained$xgboost)) pretrained$xgboost$model else pretrained$xgboost
-rf_model  &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pretrained$rf_model) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pretrained$rf_model)) pretrained$rf_model$model else pretrained$rf_model
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-value">R²&nbsp;0.998</div>
+      <div class="metric-label">Prevalence (LSTM) — held‑out</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">RMSE&nbsp;0.0104</div>
+      <div class="metric-label">Prevalence (LSTM) — abs. error</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">R²&nbsp;0.926</div>
+      <div class="metric-label">Cases (XGBoost) — held‑out</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">600×+</div>
+      <div class="metric-label">End‑to‑end speed‑up vs ABM</div>
+    </div>
+  </div>
 
-eir_xgb &lt;- <span class="function">predict_initial_eir</span>(xgb_model, new_data, pretrained$feature_cols)
-eir_rf  &lt;- <span class="function">predict_initial_eir</span>(rf_model,  new_data, pretrained$feature_cols)
-eir_ens &lt;- (eir_xgb + eir_rf) / <span class="number">2</span>
+  <div class="alert"><strong>One‑liner:</strong> <code>run_mint_scenarios(...)</code> → CSV/Parquet; full pipeline integrates <code>segMINT</code> (DuckDB) + <code>estiMINT</code> (EIR/cases ML).</div>
+</section>
 
-<span class="comment"># Cases per 1000 (year 3 example)</span>
-pc &lt;- <span class="function">load_pretrained_case_models</span>()
-xgbc &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pc$xgboost_cases) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pc$xgboost_cases)) pc$xgboost_cases$model else pc$xgboost_cases
-rfc  &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pc$rf_cases) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pc$rf_cases)) pc$rf_cases$model else pc$rf_cases
 
-scenarios &lt;- <span class="function">transform</span>(new_data, eir=eir_ens, year=<span class="number">3</span>)
-cases_x &lt;- <span class="function">predict_annual_cases</span>(xgbc, scenarios, pc$feature_cols)
-cases_r &lt;- <span class="function">predict_annual_cases</span>(rfc,  scenarios, pc$feature_cols)
-cases_ensemble &lt;- (cases_x + cases_r)/<span class="number">2</span></code></pre>
-               </div>
-               <h3>Performance (held-out test)</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Task</th>
-                        <th>Model</th>
-                        <th>RMSE</th>
-                        <th>R²</th>
-                        <th>Correlation</th>
-                     </tr>
-                     <tr>
-                        <td>EIR</td>
-                        <td>XGBoost</td>
-                        <td>35.08</td>
-                        <td>0.903</td>
-                        <td>0.951</td>
-                     </tr>
-                     <tr>
-                        <td>EIR</td>
-                        <td>Random Forest</td>
-                        <td>36.85</td>
-                        <td>0.893</td>
-                        <td>0.947</td>
-                     </tr>
-                     <tr>
-                        <td>Cases</td>
-                        <td>XGBoost (Tweedie)</td>
-                        <td>0.265</td>
-                        <td>0.926</td>
-                        <td>0.963</td>
-                     </tr>
-                     <tr>
-                        <td>Cases</td>
-                        <td>Random Forest</td>
-                        <td>0.277</td>
-                        <td>0.919</td>
-                        <td>0.959</td>
-                     </tr>
-                  </table>
-               </div>
-               <div class="grid-2" style="margin-top:32px">
-                  <div class="feature-card">
-                     <h4>🗂️ Reproducibility & Model Management</h4>
-                     <ul>
-                        <li>Versioned releases <code>models-YYYYMMDD-HHMMSS-hash</code></li>
-                        <li>SHA checksums & local cache controls</li>
-                        <li>Immutable tags for auditability</li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>📺 Dashboard-ready Outputs</h4>
-                     <ul>
-                        <li>Tidy data frames for Shiny / Quarto / Streamlit</li>
-                        <li>Stable column names across versions</li>
-                        <li>Scales to batch scenarios for program dashboards</li>
-                     </ul>
-                  </div>
-               </div>
-               <h3>Installation</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Install from GitHub</span>
-<span class="function">install.packages</span>(<span class="string">"devtools"</span>)
-<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/estiMINT"</span>)
 
-<span class="comment"># Dependencies auto-install: xgboost, ranger, duckdb, data.table, future, progressr, piggyback</span>
-<span class="comment"># Requires R >= 4.2</span></code></pre>
-               </div>
-               <h3>Advanced Usage & Training</h3>
-               <p>Load from pretrained artifacts, local files, or in-session training results. Train complete pipelines with stratified evaluation and dynamic case weighting.</p>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Train case models with advanced features</span>
-case_results &lt;- <span class="function">build_case_models</span>(
-  <span class="parameter">db_path</span>=<span class="string">"simulation.duckdb"</span>,
-  <span class="parameter">param_limit</span>=<span class="number">8192</span>,
-  <span class="parameter">sim_limit</span>=<span class="number">8</span>,
-  <span class="parameter">tune_hyperparams</span>=TRUE,
-  <span class="parameter">use_case_weights</span>=TRUE,
-  <span class="parameter">weight_power</span>=<span class="number">0.75</span>,
-  <span class="parameter">stratified_eval</span>=TRUE
-)</code></pre>
-               </div>
-            </section>
-            <section id="minte" class="package-section fade-in">
-               <div class="package-header">
-                  <div>
-                     <h2 class="package-title">MINTe</h2>
-                     <p class="package-subtitle">Python RNNs (GRU/LSTM) for malaria prevalence & cases forecasting</p>
-                  </div>
-                  <a href="https://github.com/CosmoNaught/minte" target="_blank" class="github-link">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
-                     </svg>
-                     View on GitHub
-                  </a>
-               </div>
-               <p style="margin-bottom:32px">
-                  <span class="badge">GPU-ready • Tunable • DuckDB-native</span>
-                  <br><br>MINTe provides <strong>GRU</strong> and <strong>LSTM</strong> sequence models with rolling windows, optional cyclical time encoding, early stopping, and hyper-parameter optimization. Train via Python API or a simple <code>minte</code> CLI; deploy as artifacts that MINTer can call through <code>reticulate</code>.
-               </p>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>🧱 Architecture</h4>
-                     <ul>
-                        <li>Lookback windows: <code>window_size</code> (e.g., 30)</li>
-                        <li>Encoders: <strong>GRU</strong> or <strong>LSTM</strong>, 1–N layers</li>
-                        <li>Regularisation: dropout, weight decay</li>
-                        <li>Optimiser: Adam + LR scheduling, early stopping</li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧰 Data & I/O</h4>
-                     <ul>
-                        <li>Reads DuckDB table (simulation outputs)</li>
-                        <li>Predictor: <code>prevalence</code> or <code>cases</code></li>
-                        <li>Artifacts saved under <code>output_dir</code></li>
-                        <li>Reload with <code>load_models()</code> for inference</li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>⚡ Performance UX</h4>
-                     <ul>
-                        <li>CUDA (optional) for training/inference</li>
-                        <li><code>num_workers</code> for data loading</li>
-                        <li>Large-batch modes for big datasets</li>
-                     </ul>
-                  </div>
-               </div>
-               <div class="workflow-diagram">
-                  <div class="badge">Training flow</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🗄️</div>
-                        <h4>DuckDB</h4>
-                        <small>simulation_results</small>
-                        <div class="pill-row">
-                           <div class="pill">features</div>
-                           <div class="pill">targets</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧪</div>
-                        <h4>Preprocess</h4>
-                        <small>windows & masks</small>
-                        <div class="pill-row">
-                           <div class="pill">lookback</div>
-                           <div class="pill">min_prevalence</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>Train</h4>
-                        <small>GRU / LSTM</small>
-                        <div class="pill-row">
-                           <div class="pill">HPO (Optuna)</div>
-                           <div class="pill">early stop</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📦</div>
-                        <h4>Artifacts</h4>
-                        <small>load_models()</small>
-                        <div class="pill-row">
-                           <div class="pill">metrics</div>
-                           <div class="pill">checkpoints</div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <h3>Quick Start (Python API)</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>from minte import MalariaForecast
+<!-- ========================= estiMINT ========================= -->
+<section id="estimint" class="package-section fade-in">
+  <div class="package-header">
+    <div>
+      <h2 class="package-title">estiMINT</h2>
+      <p class="package-subtitle">Transparent ML for EIR₀ estimation and annual case incidence</p>
+    </div>
+    <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" class="github-link github-link--card">View on GitHub</a>
+  </div>
 
-f = MalariaForecast(
-    db_path="path/to/data.duckdb",
-    table_name="simulation_results",
-    predictor="cases",      # or "prevalence"
-    window_size=30,
-    device="cuda"           # or "cpu"
-)
+  <p style="margin-bottom: 20px">
+    <span class="badge">Modeling • Feature Engineering • Eval</span>
+  </p>
 
-results = f.run(
-    param_limit=1000,
-    sim_limit=10,
-    output_dir="results/experiment"
-)
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>What it does</h4>
+      <ul>
+        <li>Converts field prevalence + entomological context to <strong>initial EIR</strong> and predicts annual <strong>cases per 1000</strong>.</li>
+        <li>Plugs into MINTer: prevalence‑driven workflows route through estiMINT to produce EIR inputs for the emulator.</li>
+      </ul>
+    </div>
 
-print("GRU R²:",  results["gru"]["test_metrics"]["r2"])
-print("LSTM R²:", results["lstm"]["test_metrics"]["r2"])</code></pre>
-               </div>
-               <h3>CLI Recipes</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code># Basic training (cases)
-minte \
-  --db-path data.duckdb \
-  --table-name simulation_results \
-  --predictor cases \
-  --window-size 30 \
-  --param-limit 2048 \
-  --sim-limit 8 \
-  --output-dir results/cases
+    <div class="feature-card">
+      <h4>Model Architecture</h4>
+      <ul>
+        <li><strong>EIR</strong>: XGBoost & Random Forest on log‑transformed targets.</li>
+        <li><strong>Cases</strong>: XGBoost (<code>reg:tweedie</code>) + Random Forest on square‑root targets with <em>dynamic weighting</em> (up to 128× for 99th percentile) and year‑aware weights to handle zero‑inflation.</li>
+      </ul>
+    </div>
 
-# Add cyclical time encoding (seasonality)
-minte \
-  --db-path data.duckdb \
-  --predictor prevalence \
-  --use-cyclical-time \
-  --window-size 30 \
-  --output-dir results/prevalence_cyc
+    <div class="feature-card">
+      <h4>Grounded Performance (held‑out)</h4>
+      <ul>
+        <li><strong>EIR — XGBoost</strong>: RMSE <strong>35.08</strong>, R² <strong>0.903</strong>, Corr <strong>0.951</strong>.</li>
+        <li><strong>EIR — Random Forest</strong>: RMSE <strong>36.85</strong>, R² <strong>0.893</strong>, Corr <strong>0.947</strong>.</li>
+        <li><strong>Cases — XGBoost</strong>: RMSE <strong>0.265</strong>, R² <strong>0.926</strong>, Corr <strong>0.963</strong>; high‑case bias <strong>−0.129</strong>.</li>
+        <li><strong>Cases — Random Forest</strong>: RMSE <strong>0.277</strong>, R² <strong>0.919</strong>, Corr <strong>0.959</strong>; high‑case bias <strong>−0.193</strong>.</li>
+      </ul>
+    </div>
 
-# Hyperparameter tuning (6h / 100 trials)
-minte \
-  --db-path data.duckdb \
-  --predictor cases \
-  --run-tuning \
-  --tuning-trials 100 \
-  --tuning-timeout 21600 \
-  --output-dir results/tuned
+    <div class="feature-card">
+      <h4>Stratified Accuracy (Cases, XGBoost)</h4>
+      <ul>
+        <li>0–50%: cases [0.00, 0.24] → RMSE 0.326; N=25,815.</li>
+        <li>50–75%: [0.24, 1.04] → RMSE 0.118; N=12,907.</li>
+        <li>75–90%: [1.04, 1.95] → RMSE 0.155; N=7,745.</li>
+        <li>90–95%: [1.95, 2.24] → RMSE 0.121; N=2,581.</li>
+        <li>95–100%: [2.24, 16.72] → RMSE 0.436; N=2,582; R² 0.941.</li>
+      </ul>
+    </div>
 
-# Multi-GPU (data parallel)
-CUDA_VISIBLE_DEVICES=0,1 minte \
-  --db-path data.duckdb \
-  --device cuda \
-  --batch-size 8192 \
-  --output-dir results/mgpu</code></pre>
-               </div>
-               <h3>Detailed Usage</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Setting</th>
-                        <th>What it does</th>
-                        <th>When to change</th>
-                     </tr>
-                     <tr>
-                        <td><code>window_size</code></td>
-                        <td>Sequence length for the RNN</td>
-                        <td>Increase for slower dynamics; decrease for speed</td>
-                     </tr>
-                     <tr>
-                        <td><code>min_prevalence</code></td>
-                        <td>Filters tiny signals in training</td>
-                        <td>Raise for noisy low-transmission areas</td>
-                     </tr>
-                     <tr>
-                        <td><code>use_cyclical_time</code></td>
-                        <td>Adds sin/cos time encoding</td>
-                        <td>Strong seasonality settings</td>
-                     </tr>
-                     <tr>
-                        <td><code>hidden_size</code>, <code>num_layers</code></td>
-                        <td>Model capacity</td>
-                        <td>Scale with data volume</td>
-                     </tr>
-                     <tr>
-                        <td><code>batch_size</code>, <code>num_workers</code></td>
-                        <td>I/O and compute throughput</td>
-                        <td>Tune for your CPU/GPU</td>
-                     </tr>
-                  </table>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code># Load and predict
-from minte import MalariaForecast
-import numpy as np
+    <div class="feature-card">
+      <h4>Production Fit</h4>
+      <ul>
+        <li>Versioned artifacts (<code>models‑YYYYMMDD‑HHMMSS‑hash</code>) with checksums; models are cached locally and verified on load.</li>
+        <li>Stable feature contracts; optional prediction intervals for UI surfacing.</li>
+      </ul>
+    </div>
+  </div>
 
-f = MalariaForecast(db_path="path/to/data.duckdb", predictor="cases")
-f.load_models("results/experiment/trained_models")
+  <div class="alert"><strong>API:</strong> <code>predict_initial_eir(...)</code>, <code>predict_annual_cases(...)</code> — accepts the same scenario frames MINTer emits.</div>
+</section>
 
-X = np.random.randn(100, 15).astype(np.float32)   # timesteps × features
-yhat = f.predict(X, model_type="gru")</code></pre>
-               </div>
-               <h3>Data Schema (DuckDB)</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Column</th>
-                        <th>Purpose</th>
-                     </tr>
-                     <tr>
-                        <td><code>parameter_index</code>, <code>simulation_index</code></td>
-                        <td>Grouping keys</td>
-                     </tr>
-                     <tr>
-                        <td><code>timesteps</code></td>
-                        <td>Time axis (days)</td>
-                     </tr>
-                     <tr>
-                        <td><code>n_detect_lm_0_1825</code>, <code>n_age_0_1825</code></td>
-                        <td>Prevalence numerators/denominators</td>
-                     </tr>
-                     <tr>
-                        <td><code>n_inc_clinical_0_36500</code>, <code>n_age_0_36500</code></td>
-                        <td>Cases numerators/denominators</td>
-                     </tr>
-                     <tr>
-                        <td>Covariates (eir, dn0_use, dn0_future, Q0, phi_bednets, seasonal, routine, itn_use, irs_use, itn_future, irs_future, lsm)</td>
-                        <td>Static/slow inputs</td>
-                     </tr>
-                  </table>
-               </div>
-               <h3>Hyper-parameter Tuning</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>results = f.run(
-    param_limit=2048,
-    sim_limit=8,
-    run_tuning=True,
-    tuning_trials=50,
-    tuning_timeout=3600*6,
-    output_dir="results/tuned",
-    tuning_output_dir="tuning_trials"
-)
 
-# Later: reuse tuned parameters
-results = f.run(
-    use_tuned_parameters=True,
-    tuning_output_dir="tuning_trials"
-)</code></pre>
-               </div>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>🔒 Reproducibility</h4>
-                     <p>Set <code>seed</code> in <code>MalariaForecast(...)</code>. Keep driver, CUDA & PyTorch versions stable across runs.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧭 Troubleshooting</h4>
-                     <ul>
-                        <li>OOM → reduce <code>batch_size</code>, <code>hidden_size</code>, or layers</li>
-                        <li>Slow I/O → move DuckDB to SSD, raise <code>num_workers</code></li>
-                        <li>Weak fit → try <code>run_tuning=True</code>, increase <code>lookback</code>, enable <code>use_cyclical_time</code></li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>📝 Logging</h4>
-                     <div class="code-section" style="margin:0">
-                        <button class="copy-btn">Copy</button>
-                        <pre><code>import logging
-logging.getLogger('minte').setLevel(logging.DEBUG)</code></pre>
-                     </div>
-                  </div>
-               </div>
-               <h3>Installation</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code># From source
-git clone https://github.com/CosmoNaught/minte.git
-cd minte
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -e .
+<!-- ========================= MINTe ========================= -->
+<section id="minte" class="package-section fade-in">
+  <div class="package-header">
+    <div>
+      <h2 class="package-title">MINTe</h2>
+      <p class="package-subtitle">GRU/LSTM forecaster — high‑throughput training pipeline with CLI & CUDA</p>
+    </div>
+    <a href="https://github.com/CosmoNaught/minte" target="_blank" class="github-link github-link--card">View on GitHub</a>
+  </div>
 
-# Verify
-python -c "import minte; print(minte.__version__)"</code></pre>
-               </div>
-            </section>
+  <p style="margin-bottom: 20px">
+    <span class="badge">PyTorch • Time Series • MLOps</span>
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Scope</h4>
+      <ul>
+        <li>Sequence models (GRU/LSTM) for <em>prevalence</em> and <em>cases</em> trained from DuckDB‑backed simulation data.</li>
+        <li>Optional cyclical time encoding, early stopping, AMP, and rolling‑window features.</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <h4>Engineering</h4>
+      <ul>
+        <li>DuckDB‑native loaders; large‑batch training; CUDA‑aware execution; clear logging via <code>minte</code> logger.</li>
+        <li>Artifacts serialized for reuse and loadable from R via <code>reticulate</code>.</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <h4>Tuning & DX</h4>
+      <ul>
+        <li>Hyperparameter optimization (Optuna/TPE) with checkpointed trials and pruning.</li>
+        <li>Single‑command CLI for batch runs and tuning: <code>minte --db-path ... --predictor cases|prevalence</code>.</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <h4>Interfaces</h4>
+      <ul>
+        <li>Python API: <code>MalariaForecast(...).run(...)</code> for end‑to‑end experiments; artifacts feed MINTer’s R‑native emulator.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-value">R²&nbsp;0.998</div>
+      <div class="metric-label">Prevalence (LSTM) — held‑out</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">RMSE&nbsp;0.0117</div>
+      <div class="metric-label">Prevalence (GRU) — abs. error</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">12–15&nbsp;ms</div>
+      <div class="metric-label">NN inference / batch (GRU/LSTM)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">2.3–2.8&nbsp;h</div>
+      <div class="metric-label">NN training (GRU/LSTM)</div>
+    </div>
+  </div>
+
+  <div class="alert"><strong>Minimal use:</strong> train via CLI or API; artifacts then power MINTer’s R‑native emulator workflows.</div>
+</section>
+
+
+<!-- ========================= segMINT (NEW) ========================= -->
+<section id="segMINT" class="package-section fade-in">
+  <div class="package-header">
+    <div>
+      <h2 class="package-title">segMINT <span class="badge badge--new">NEW</span></h2>
+      <p class="package-subtitle">RDS → DuckDB at scale — robust ingestion, querying, and built‑in plots</p>
+    </div>
+    <a href="https://github.com/CosmoNaught/segMINT" target="_blank" class="github-link github-link--card">View on GitHub</a>
+  </div>
+
+  <p style="margin-bottom: 20px">
+    <span class="badge">Data Eng • DuckDB • Observability</span>
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Scope</h4>
+      <ul>
+        <li>Segments, processes, and analyzes large <em>MINT</em> simulation batches stored as RDS.</li>
+        <li>Builds an in‑memory DuckDB, then safely commits to disk — no full materialization in R.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4>Operational Hardening</h4>
+      <ul>
+        <li>Progress tracking and <strong>problematic simulation</strong> capture without halting the pipeline.</li>
+        <li>Batchable file selection with reproducible randomization.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4>Query & Analysis</h4>
+      <ul>
+        <li><code>query_database()</code> with intuitive R‑style filters or direct SQL via DBI.</li>
+        <li><code>fetch_inputs()</code> to recover scenario parameters; <code>tabulate_cases()</code> for baseline vs future year deltas.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4>Visualization</h4>
+      <ul>
+        <li><code>plot_prevalence()</code> renders trajectories with campaign markers (ITN/IRS/LSM) and reference lines.</li>
+        <li>Outputs designed for dashboards and reporting.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 8px">
+    <div class="feature-card">
+      <h4>Data Model</h4>
+      <ul>
+        <li>Identifiers (parameter/simulation/global indices), time (timesteps), outcomes, and derived metrics (<code>prevalence</code>, <code>cases_per_1000</code>).</li>
+        <li>Flattened parameters and intervention timesteps for join‑friendly analytics.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4>Year Mapping (Cases)</h4>
+      <ul>
+        <li>0 → timesteps 2190–2555 (baseline), then 1→2555–2920, 2→2920–3285, 3→3285–3650, 4→3650–4015, 5→4015–4380.</li>
+        <li>Pairs with <code>tabulate_cases()</code> to compute baseline vs. future deltas (abs and %).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert"><strong>One‑liner:</strong> <code>fetch_data()</code> → <code>create_database()</code> → <code>write_database()</code>. Then filter with <code>query_database(...)</code> or run SQL.</div>
+</section>
+
+
             <section class="section fade-in">
                <div class="section-header">
                   <h2 class="section-title">Resources & Support</h2>
@@ -3604,16 +3091,27 @@ python -c "import minte; print(minte.__version__)"</code></pre>
          });
       </script>
       <script>
-         document.addEventListener('DOMContentLoaded', () => {
-           const logo = document.querySelector('.nav-logo');
-           const hero = document.getElementById('hero');
-           if (logo && hero) {
-             logo.addEventListener('click', (e) => {
-               e.preventDefault();
-               hero.scrollIntoView({ behavior: 'smooth' });
-             });
-           }
-         });
+  document.addEventListener('DOMContentLoaded', () => {
+    const logo = document.querySelector('.nav-logo');
+    const hero = document.getElementById('hero');
+    const nav  = document.getElementById('mainNav');
+
+    function scrollHeroCentered() {
+      if (!hero) return;
+      const navH   = nav?.offsetHeight || 0;
+      const topAbs = hero.getBoundingClientRect().top + window.pageYOffset;
+      // Center hero's midpoint in the *visible* viewport (compensate for fixed nav)
+      const target = topAbs + (hero.offsetHeight / 2) - (window.innerHeight / 2 + navH / 2);
+      window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+    }
+
+    if (logo && hero) {
+      logo.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollHeroCentered();
+      });
+    }
+  });
          // Navigation Active State Highlighting
          function initNavHighlighting() {
          const sections = document.querySelectorAll('section[id], .section[id]');
