@@ -26,3 +26,6 @@
 - Items marked **COMING SOON** are planned and may be private or under active development.
 - All repositories are under **CosmoNaught** on GitHub
 
+## Architecture
+
+![MINTverse architecture](./architecture.svg)
