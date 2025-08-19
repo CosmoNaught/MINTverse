@@ -1,6 +1,6 @@
 # MINTverse
 
-**MINTverse** is a small, fast toolkit for malaria intervention modelling — from simulation to ML emulation — built across R and Python. It lets you **ingest** _malariasimulation_ outputs, **estimate** EIR/cases from routine data, and **emulate** scenarios in seconds for decision support. [WEBSITE](CosmoNaught.github.io/MINTverse) CURRENTLY UNDER DEVELOPMENT! 
+**MINTverse** is a small, fast toolkit for malaria intervention modelling — from simulation to ML emulation — built across R and Python. It lets you **ingest** _malariasimulation_ outputs, **estimate** EIR/cases from routine data, and **emulate** scenarios in seconds for decision support. [WEBSITE](https://CosmoNaught.github.io/MINTverse) CURRENTLY UNDER DEVELOPMENT! 
 
 ---
 
