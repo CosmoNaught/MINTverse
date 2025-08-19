@@ -8,7 +8,7 @@
 
 1. **[MINTs](https://github.com/CosmoNaught/MINTs)** _(COMING SOON)_ — Malaria Intervention Simulator, primary database generator and agent-based system wrapper.
 2. **[segMINT](https://github.com/CosmoNaught/segMINT)** — Ingest large *malariasimulation* outputs, build DuckDBs, and plot/query results fast.
-3. **[MINTed](https://github.com/CosmoNaught/MINTed)** _(COMING SOON)_ — Documentation, tutorials, and reproducible examples for the ecosystem.
+3. **[MINTed](https://github.com/CosmoNaught/MINTed)** — Documentation, tutorials, and reproducible examples for the ecosystem.
 4. **[estiMINT](https://github.com/CosmoNaught/estiMINT)** — ML models to estimate initial **EIR** and annual **cases/1000** from surveillance + coverage.
 5. **[MINTe](https://github.com/CosmoNaught/minte)** — Python RNN forecaster/emulator (GRU/LSTM) for prevalence & cases with CLI + API.
 6. **[MINTer](https://github.com/CosmoNaught/MINTer)** — Orchestrator for full MINTverse simulation pipelines and scenario runs. R emulator for prevalence/cases with pre‑trained LSTM/GRU; integrates with *malariasimulation*. 
