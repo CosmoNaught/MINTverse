@@ -14,7 +14,10 @@
         --text-muted:#86868b;
         --brand-text-gradient: linear-gradient(90deg, #fff 0%, var(--green) 100%);
         --cards-offset: clamp(160px, 24vh, 380px);
+        --copy-delay: 1s;
+        --copy-reveal-duration: .5s; /* tweak if you want a slower/faster fade/slide */
       }
+      
       *{ margin:0; padding:0; box-sizing:border-box; }
       html{ scroll-behavior:smooth; }
       body{
@@ -157,6 +160,7 @@
       .scroll-scrub-content{
         position:sticky; top:0; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000;
       }
+
       .scrub-beat{
         position:absolute; width:100%; text-align:center; opacity:0; transform:scale(.9);
         transition:all .8s cubic-bezier(.4,0,.2,1);
@@ -182,6 +186,33 @@
         transform:scaleX(0); transform-origin:center; transition:transform .6s cubic-bezier(.4,0,.2,1); opacity:.95;
       }
       .scrub-beat.active p::after, .scrub-beat.seen p::after{ transform:scaleX(1); }
+      /* Paragraph is hidden until the beat activates */
+      .scrub-beat p{
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+         opacity var(--copy-reveal-duration) cubic-bezier(.4,0,.2,1) var(--copy-delay),
+         transform var(--copy-reveal-duration) cubic-bezier(.4,0,.2,1) var(--copy-delay);
+      }
+
+      /* When the beat becomes active (or has been seen), reveal the paragraph */
+      .scrub-beat.active p,
+      .scrub-beat.seen p{
+      opacity: 1;
+      transform: translateY(0);
+      }
+
+      /* Keep the underline animating from the CENTER, and sync its start to the paragraph reveal */
+      .scrub-beat p::after{
+      /* you already have most of this, we add the delay */
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
+      }
+      .scrub-beat.active p::after,
+      .scrub-beat.seen p::after{
+      transform: scaleX(1);
+      }
 
       /* Fade to black when intro ends */
       .cinematic-intro.fade-to-black .intro-grid,
@@ -190,10 +221,22 @@
 
       /* Footer */
       footer{
-        background:linear-gradient(180deg,#000 0%,#0a0a0a 100%);
-        padding:80px 0 40px; border-top:1px solid rgba(255,255,255,.08); text-align:center; position:relative; z-index:10;
+      background:linear-gradient(180deg,#000 0%,#0a0a0a 100%);
+      padding:80px 0 40px; border-top:1px solid rgba(255,255,255,.08); text-align:center; position:relative; z-index:10;
+      opacity:0;                     /* add this */
+      transform: translateY(12px);
+      transition:
+         opacity .6s cubic-bezier(.4,0,.2,1),
+         transform .6s cubic-bezier(.4,0,.2,1);
       }
-      .footer-fixed{ position:fixed; left:0; right:0; bottom:0; z-index:11; } /* used when locked at end */
+      footer.visible{
+      opacity:1;
+      transform: translateY(0);
+      }
+
+      /* Put footer above the scrub section (which is z-index:100) */
+      /* Footer sits above the sticky scrub layer */
+      .footer-fixed{ position:fixed; left:0; right:0; bottom:0; z-index:101; }
       .footer-copyright{ color:#515154; font-size:14px; }
 
       /* Utility */
@@ -226,8 +269,7 @@
           <span>Hours become milliseconds.</span>
         </div>
 
-        <p class="intro-context">The future of agent-based simulations. Available Q4 2025.</p>
-
+        <p class="intro-context">The future of agent-based simulations. </p>
         <div class="title-cards">
           <div class="title-card" id="card1">
             <h2>200,000× faster</h2>
@@ -250,19 +292,19 @@
     <!-- Beats -->
     <div class="scroll-scrub-section" id="scrollScrub">
       <div class="scroll-scrub-content">
-        <div class="scrub-beat" id="beat1">
+         <div class="scrub-beat" id="beat1" style="--copy-delay: 1.0s">
           <h2>One interface.</h2>
           <p>Every model. Every scenario.</p>
         </div>
-        <div class="scrub-beat" id="beat2">
+        <div class="scrub-beat" id="beat2" style="--copy-delay: 1.0s">
           <h2>Perfectly reproducible.</h2>
           <p>Today. Tomorrow. Always.</p>
         </div>
-        <div class="scrub-beat" id="beat3">
+        <div class="scrub-beat" id="beat3" style="--copy-delay: 1.0s">
           <h2>Ready to ship.</h2>
           <p>From research to production. Instantly.</p>
         </div>
-        <div class="scrub-beat" id="beat4">
+        <div class="scrub-beat" id="beat4" style="--copy-delay: 1.25s">
           <h2>Coming soon.</h2>
           <p>Q4 2025.</p>
         </div>
@@ -415,15 +457,20 @@
         });
       }
 
+      let footerShown = false;
       function lockAtEnd(){
-        // Lock document (no scrolling), keep last beat on screen and pin footer.
-        document.documentElement.classList.add('end-lock');
-        document.body.classList.add('end-lock');
-        document.getElementById('footer')?.classList.add('footer-fixed');
+      document.documentElement.classList.add('end-lock');
+      document.body.classList.add('end-lock');
+      const footer = document.getElementById('footer');
+      footer?.classList.add('footer-fixed');   // pin it, but keep hidden
 
-        // Make sure we're within the scrub area when locking (snap to its top)
-        const top = document.getElementById('scrollScrub').offsetTop;
-        window.scrollTo({ top, behavior: 'smooth' });
+      if (!footerShown) {
+         footerShown = true;
+         setTimeout(() => footer?.classList.add('visible'), 2500);
+      }
+
+      const top = document.getElementById('scrollScrub').offsetTop;
+      window.scrollTo({ top, behavior: 'smooth' });
       }
 
       /* Boot */
