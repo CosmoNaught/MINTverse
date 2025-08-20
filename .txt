@@ -188,25 +188,14 @@
         opacity: 1;
         transform: translateY(0);
       }
-      /* underline for copy paragraphs on beats 1–3 only */
-      .scrub-beat:not(#beat4) p::after{
-      content:'';
-      position:absolute;
-      left:0;
-      bottom:-8px;
-      width:100%;
-      height:2px;
-      background:linear-gradient(90deg, var(--green), var(--accent));
-      box-shadow:0 0 20px rgba(0,212,170,.35);
-      transform:scaleX(0);
-      transform-origin:center; 
-      transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
+      .scrub-beat p::after{
+        content:''; position:absolute; left:0; bottom:-8px; width:100%; height:2px;
+        background:linear-gradient(90deg, var(--green), var(--accent));
+        box-shadow:0 0 20px rgba(0,212,170,.35);
+        transform:scaleX(0); transform-origin:center; 
+        transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
       }
-      .scrub-beat:not(#beat4).active p::after,
-      .scrub-beat:not(#beat4).seen p::after{
-      transform:scaleX(1);
-      }
-
+      .scrub-beat.active p::after, .scrub-beat.seen p::after{ transform:scaleX(1); }
 
       /* Beat 4 - Apple-style reveal + live metrics */
       #beat4{
@@ -231,27 +220,10 @@
       .show{ opacity:1 !important; transform:translateY(0) !important; }
 
       #beat4 .subtitle{
-        position:relative;
-        display:inline-block;
-        padding-bottom:10px;
         font-size:clamp(21px,3vw,32px);
         color:var(--gray-300);
         margin-top:-16px;
       }
-      /* Underline for subtitle (center-out after subtitle shows) */
-      #beat4 .subtitle::after{
-        content:'';
-        position:absolute;
-        left:0; right:0;
-        bottom:-8px;
-        height:2px;
-        background:linear-gradient(90deg, var(--green), var(--accent));
-        box-shadow:0 0 20px rgba(0,212,170,.35);
-        transform:scaleX(0);
-        transform-origin:center;
-        transition:transform .6s cubic-bezier(.4,0,.2,1);
-      }
-      #beat4 .subtitle.underline::after{ transform:scaleX(1); }
 
       .metrics{
         display:flex;
@@ -291,40 +263,11 @@
       .metric-unit{ font-size:20px; font-weight:400; color:var(--green); margin-top:8px; }
       .metric-label{ font-size:15px; color:var(--text-muted); margin-top:12px; line-height:1.4; }
 
-      /* Launch date – underline and text appear together after metrics end */
-      .launch-date{
-        position:relative;
-        display:inline-block;
-        margin-top:48px;
-      }
-      .launch-date .text{
-        display:inline-block;
-        font-size:clamp(28px,4vw,40px);
-        font-weight:500;
-        color:var(--text-primary);
-        letter-spacing:.01em;
-        opacity:0;
-        transform:translateY(6px);
-        transition:opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1);
-      }
-      .launch-date::after{
-        content:'';
-        position:absolute;
-        left:0; right:0;
-        bottom:-10px;
-        height:2px;
-        background:linear-gradient(90deg, var(--green), var(--accent));
-        box-shadow:0 0 20px rgba(0,212,170,.35);
-        transform:scaleX(0);
-        transform-origin:center;
-        transition:transform .6s cubic-bezier(.4,0,.2,1);
-      }
-      .launch-date.underline::after{ transform:scaleX(1); }
-      .launch-date.show-text .text{ opacity:1; transform:translateY(0); }
+      .launch-date{ font-size:clamp(28px,4vw,40px); font-weight:500; color:var(--text-primary); margin-top:48px; }
 
       .links{ display:flex; gap:32px; justify-content:center; margin-top:32px; }
-      .link{ color:var(--accent); text-decoration:none; font-size:17px; transition:opacity .3s, transform .25s cubic-bezier(.4,0,.2,1); }
-      .link:hover{ opacity:.85; transform:translateY(-1px); }
+      .link{ color:var(--accent); text-decoration:none; font-size:17px; transition:opacity .3s; }
+      .link:hover{ opacity:.8; }
 
       .validation{ font-size:13px; color:var(--text-muted); margin-top:48px; }
 
@@ -406,32 +349,26 @@
           <p class="subtitle reveal-up">96 hours → 90 seconds</p>
           
           <div class="metrics">
-            <!-- SECONDARY (left) -->
-            <div class="metric secondary">
-              <div class="metric-number" data-target="0.998" data-decimals="3" data-duration="1700">0</div>
-              <div class="metric-unit">R²</div>
-              <div class="metric-label">Neural accuracy<br>250k+ held-out series</div>
-            </div>
-
-            <!-- PRIMARY (center) -->
-            <div class="metric primary">
+            <div class="metric">
               <div class="metric-number" data-target="200000" data-decimals="0" data-suffix="×" data-duration="1600">0</div>
               <div class="metric-unit">faster</div>
               <div class="metric-label">Than malariasimulation<br>on HPC clusters</div>
             </div>
             
-            <!-- SECONDARY (right) -->
-            <div class="metric secondary">
+            <div class="metric">
+              <div class="metric-number" data-target="0.998" data-decimals="3" data-duration="1700">0</div>
+              <div class="metric-unit">R²</div>
+              <div class="metric-label">Neural accuracy<br>250k+ held-out series</div>
+            </div>
+            
+            <div class="metric">
               <div class="metric-number" data-target="82000" data-decimals="0" data-duration="1800">0</div>
               <div class="metric-unit">per second</div>
               <div class="metric-label">Predictions on<br>RTX 40-series GPU</div>
             </div>
           </div>
           
-          <!-- Launch date: underline grows center-out and text fades in simultaneously -->
-          <p class="launch-date">
-            <span class="text">Public release Q4 2025</span>
-          </p>
+          <p class="launch-date reveal-up">Public release Q4 2025</p>
           
           <div class="links reveal-up">
             <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20Early%20Access" class="link">Get notified ↗</a>
@@ -589,7 +526,7 @@
         window.scrollTo({ top, behavior: 'smooth' });
       }
 
-      /* === Beat 4: Apple-style polish + custom sequencing === */
+      /* === Beat 4: Apple-style polish === */
       const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       let beat4Started = false;
 
@@ -599,69 +536,31 @@
         const beat4 = document.getElementById('beat4');
         const subtitle = beat4.querySelector('.subtitle');
         const metricsWrap = beat4.querySelector('.metrics');
-        const primaryMetric = beat4.querySelector('.metric.primary');
-        const secondaryMetrics = [...beat4.querySelectorAll('.metric.secondary')];
-        const numbers = [...beat4.querySelectorAll('.metric-number')];
-        const primaryNumber = primaryMetric.querySelector('.metric-number');
+        const metrics = [...beat4.querySelectorAll('.metric')];
+        const numbers = metrics.map(m => m.querySelector('.metric-number'));
         const launch = beat4.querySelector('.launch-date');
         const links = beat4.querySelector('.links');
         const validation = beat4.querySelector('.validation');
 
-        // Step 1: Title already present. Reveal subtitle.
+        // Staged, minimal reveals
         reveal(subtitle, 80);
+        reveal(metricsWrap, 160);
 
-        // Step 2: After subtitle shows, grow its underline center-out
-        const subUnderlineDelay = 80 + 180; // small pause after text reveal
-        setTimeout(() => subtitle.classList.add('underline'), subUnderlineDelay);
+        metrics.forEach((m, i) => setTimeout(() => m.classList.add('show'), 360 + i * 140));
 
-        // Step 3: Only AFTER the subtitle's underline animates, show metrics.
-        const afterSubtitleUnderline = subUnderlineDelay + 620; // matches CSS underline transition
-        setTimeout(() => {
-          // Show ONLY the center metric first
-          primaryMetric.classList.add('show');
+        if (prefersReduced) {
+          // Jump straight to final numbers
+          numbers.forEach(n => setNumberInstant(n));
+        } else {
+          // Start counting slightly after each metric appears
+          numbers.forEach((n, i) => setTimeout(() => countTo(n), 480 + i * 140));
+        }
 
-          if (prefersReduced) {
-            numbers.forEach(n => setNumberInstant(n));
-            secondaryMetrics.forEach(m => m.classList.add('show'));
-            triggerLaunchSequence(launch, links, validation); // Immediately continue for reduced motion
-            return;
-          }
-
-          // Start center count
-          countTo(primaryNumber);
-
-          // As center count nears completion (~80%), reveal + start secondaries
-          const pDur = Math.max(400, parseInt(primaryNumber.dataset.duration || '1600', 10));
-          setTimeout(() => {
-            secondaryMetrics.forEach((m, i) => {
-              setTimeout(() => {
-                m.classList.add('show');
-                const num = m.querySelector('.metric-number');
-                countTo(num);
-              }, i * 160);
-            });
-          }, Math.floor(pDur * 0.8));
-
-          // Wait for all metrics to finish before launch underline+text
-          let completed = 0;
-          numbers.forEach(n => {
-            n.addEventListener('metric:done', () => {
-              completed += 1;
-              if (completed === numbers.length) {
-                triggerLaunchSequence(launch, links, validation);
-              }
-            }, { once: true });
-          });
-        }, afterSubtitleUnderline);
-      }
-
-      function triggerLaunchSequence(launch, links, validation){
-        if (!launch) return;
-        // Step 4: Line grows center-out AND text fades in simultaneously
-        launch.classList.add('underline', 'show-text');
-        // Step 5: Then links and footer
-        reveal(links, 720);
-        fadeIn(validation, 900);
+        // Tail pieces
+        const tailBase = 360 + metrics.length * 140 + 520;
+        reveal(launch, tailBase);
+        reveal(links, tailBase + 140);
+        fadeIn(validation, tailBase + 300);
       }
 
       function reveal(el, delay = 0){ if(!el) return; setTimeout(()=> el.classList.add('show'), delay); }
@@ -696,9 +595,8 @@
             // Snap to exact final and add one-time sheen
             el.textContent = formatNumber(target, decimals) + suffix;
             el.classList.add('sheen');
+            // remove sheen class after it runs to avoid re-triggering on layout changes
             setTimeout(()=> el.classList.remove('sheen'), 1300);
-            // Announce completion
-            el.dispatchEvent(new CustomEvent('metric:done', { bubbles: true }));
           }
         }
         requestAnimationFrame(frame);
@@ -726,6 +624,4 @@
       });
     </script>
   </body>
-</html>
-
 </html>
