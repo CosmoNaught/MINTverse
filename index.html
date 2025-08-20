@@ -38,13 +38,18 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: 
-          radial-gradient(ellipse 800px 600px at 20% 40%, rgba(0, 212, 170, 0.15), transparent 40%),
-          radial-gradient(ellipse 600px 800px at 80% 60%, rgba(0, 113, 227, 0.12), transparent 45%),
-          radial-gradient(ellipse 700px 500px at 60% 80%, rgba(139, 92, 246, 0.08), transparent 50%),
-          radial-gradient(ellipse 900px 700px at 40% 20%, rgba(0, 212, 170, 0.1), transparent 40%);
+        background:
+    radial-gradient(ellipse 800px 600px at var(--g1x,20%) var(--g1y,40%),
+      rgba(0, 212, 170, 0.16), transparent 40%),
+    radial-gradient(ellipse 600px 800px at var(--g2x,80%) var(--g2y,60%),
+      rgba(0, 113, 227, 0.12), transparent 45%),
+    radial-gradient(ellipse 700px 500px at var(--g3x,60%) var(--g3y,80%),
+      rgba(139, 92, 246, 0.10), transparent 50%),
+    radial-gradient(ellipse 900px 700px at var(--g4x,40%) var(--g4y,20%),
+      rgba(0, 212, 170, 0.12), transparent 40%);
+  filter: blur(60px); 
         animation: meshFlow 30s ease-in-out infinite;
-        filter: blur(40px);
+        filter: blur(60px);
         opacity: 0;
         transition: opacity 2s ease;
         z-index: 1;
@@ -689,7 +694,7 @@
       html.end-lock, body.end-lock{ height:100%; overflow:hidden; }
       .end-lock #scrollScrub{ height:100vh !important; }
       .end-lock .scroll-scrub-content{ position:fixed; inset:0; }
-
+      
       /* Gradient brand text utility */
       .gradient-brand-text{
         background:linear-gradient(90deg, 
@@ -1368,6 +1373,78 @@
     </div>
 
     <script>
+
+/* Blob motion: gentle drift + parallax + inertia --- */
+(function () {
+  const mesh = document.getElementById('gradientMesh');
+  if (!mesh) return;
+
+  const prefersReduced =
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  // Four blobs: base positions (percent), idle drift amplitude, unique phase
+  const blobs = [
+    { kx: '--g1x', ky: '--g1y', bx: 20, by: 40, amp: 6,  phase: Math.random()*6.28 },
+    { kx: '--g2x', ky: '--g2y', bx: 80, by: 60, amp: 5,  phase: Math.random()*6.28 },
+    { kx: '--g3x', ky: '--g3y', bx: 60, by: 80, amp: 7,  phase: Math.random()*6.28 },
+    { kx: '--g4x', ky: '--g4y', bx: 40, by: 20, amp: 5,  phase: Math.random()*6.28 },
+  ];
+
+  // Initialize state
+  blobs.forEach(b => { b.x = b.bx; b.y = b.by; b.vx = 0; b.vy = 0; });
+
+  // Mouse / touch parallax
+  let mouseX = 50, mouseY = 50, idle = true, idleTimer;
+  function nudgeIdleOff(){ idle = false; clearTimeout(idleTimer); idleTimer = setTimeout(()=> idle = true, 1800); }
+  function onPointer(clientX, clientY){
+    mouseX = (clientX / window.innerWidth)  * 100;
+    mouseY = (clientY / window.innerHeight) * 100;
+    nudgeIdleOff();
+  }
+  window.addEventListener('mousemove',  e => onPointer(e.clientX, e.clientY), { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (e.touches && e.touches[0]) onPointer(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  // Spring params: tweak for taste
+  const SPRING = 0.085;  // pull toward target
+  const DAMP   = 0.82;   // velocity damping
+  const PARALLAX = 6;    // max % shift from mouse
+  let tPrev = performance.now();
+
+  function tick(tNow){
+    const dt = (tNow - tPrev) / 1000; tPrev = tNow;
+
+    // Normalized parallax from center (-1..1)
+    const px = (mouseX - 50) / 50;
+    const py = (mouseY - 50) / 50;
+
+    blobs.forEach((b, i) => {
+      // Idle drift (very slow, sinusoidal)
+      const driftX = Math.sin(tNow*0.0004 + b.phase + i*0.6) * b.amp;
+      const driftY = Math.cos(tNow*0.0005 + b.phase - i*0.3) * b.amp;
+
+      // Targets: base + drift + (parallax if not idle)
+      const targetX = b.bx + driftX + (idle ? 0 : px * PARALLAX);
+      const targetY = b.by + driftY + (idle ? 0 : py * PARALLAX);
+
+      // Critically-damped-ish spring toward target
+      const ax = (targetX - b.x) * SPRING - b.vx * (1 - DAMP);
+      const ay = (targetY - b.y) * SPRING - b.vy * (1 - DAMP);
+
+      b.vx += ax; b.vy += ay;
+      b.x  += b.vx; b.y  += b.vy;
+
+      mesh.style.setProperty(b.kx, b.x.toFixed(2) + '%');
+      mesh.style.setProperty(b.ky, b.y.toFixed(2) + '%');
+    });
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
       // Generate floating particles
       function createParticles() {
         const container = document.getElementById('particles');
