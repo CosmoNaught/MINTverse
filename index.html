@@ -154,8 +154,12 @@
       @keyframes fadeIn{ to{opacity:.6} }
 
       /* Scroll-scrub section */
-      .scroll-scrub-section{ position:relative; height:500vh; z-index:100; display:none; }
-      @media (max-width:768px){ .scroll-scrub-section{ height:300vh; } }
+      .scroll-scrub-section{ position:relative; height: calc(100vh * 4); z-index:100; display:none; }
+      @media (max-width:768px){
+      .scroll-scrub-section{
+         height: calc(100dvh * 4);
+      }
+      }
 
       .scroll-scrub-content{
         position:sticky; top:0; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000;
@@ -554,59 +558,109 @@
         }, 600);
       }
 
-      function initScrollScrub(){
-        const scrubSection = document.getElementById('scrollScrub');
-        const beats = ['beat1','beat2','beat3','beat4'].map(id => document.getElementById(id));
+function initScrollScrub(){
+  const scrubSection = document.getElementById('scrollScrub');
+  const beats = ['beat1','beat2','beat3','beat4'].map(id => document.getElementById(id));
+  const steps = beats.length - 1;
+  const vh = () => window.innerHeight;
 
-        beats[0].classList.add('active','seen');
+  function setBeat(i){
+    beats.forEach(b => b.classList.remove('active'));
+    beats[i].classList.add('active','seen');
+    if (beats[i].id === 'beat4') startBeat4();
+    if (i === steps) lockAtEnd(); // triggers the hard lock
+  }
 
-        let lastBeat = 0, lastDir = 0, holdUntil = 0;
-        const HOLD_MS_FWD = 750, HOLD_MS_BACK = 450;
+  let top = 0, height = 0, travel = 0, offsets = [];
+  function compute(){
+    const rect = scrubSection.getBoundingClientRect();
+    top = window.pageYOffset + rect.top;
+    height = scrubSection.offsetHeight;
+    travel = Math.max(1, height - vh());
+    offsets = Array.from({length: beats.length}, (_, i) => top + (travel * (i/steps)));
+    // expose for lockAtEnd()
+    window.__scrubOffsets = offsets;
+    window.__scrubSteps = steps;
+    window.__scrubRange = { top, travel };
+  }
+  compute();
+  window.addEventListener('resize', compute);
 
-        function setBeat(i){
-          beats.forEach(b => b.classList.remove('active'));
-          beats[i].classList.add('active','seen');
-          lastBeat = i;
+  let last = 0;
+  let endLocked = false;
 
-          // Trigger Beat 4 animations the first time it becomes active
-          if (beats[i].id === 'beat4') startBeat4();
+  window.addEventListener('scroll', () => {
+    if (endLocked) return; // do nothing once locked
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (y < top || y > top + travel) return;
+    const progress = (y - top) / travel;
+    const i = Math.round(progress * steps);
+    if (i !== last){ last = i; setBeat(i); }
+  }, { passive:true });
 
-          if (i === beats.length - 1) {
-            lockAtEnd();
-          }
-        }
+  let animating = false;
+  function scrollToStep(i){
+    animating = true;
+    window.scrollTo({ top: offsets[i], behavior: 'smooth' });
+    setTimeout(() => { animating = false; }, 420);
+  }
 
-        window.addEventListener('scroll', () => {
-          const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-          const top = scrubSection.offsetTop;
-          const h = scrubSection.offsetHeight;
-          const vh = window.innerHeight;
+  scrubSection.addEventListener('wheel', (e) => {
+    if (endLocked) { e.preventDefault(); return; }
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (y < top - 1 || y > top + travel + 1) return;
+    if (animating) { e.preventDefault(); return; }
+    const dir = Math.sign(e.deltaY);
+    if (!dir) return;
+    e.preventDefault();
+    const next = Math.max(0, Math.min(steps, last + dir));
+    if (next !== last){ last = next; setBeat(next); scrollToStep(next); }
+  }, { passive:false });
 
-          if (scrollY >= top && scrollY <= top + h - vh) {
-            const progress = Math.min(1, Math.max(0, (scrollY - top) / (h - vh)));
-            const target = Math.min(beats.length - 1, Math.floor(progress * beats.length));
-            const now = performance.now();
-            const dir = Math.sign(target - lastBeat);
+  window.addEventListener('keydown', (e) => {
+    if (endLocked) return;
+    const keysDown = ['ArrowDown','PageDown'];
+    const keysUp   = ['ArrowUp','PageUp'];
+    if (![...keysDown, ...keysUp].includes(e.key)) return;
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (y < top - 1 || y > top + travel + 1) return;
+    e.preventDefault();
+    const dir = keysUp.includes(e.key) ? -1 : 1;
+    const next = Math.max(0, Math.min(steps, last + dir));
+    if (next !== last){ last = next; setBeat(next); scrollToStep(next); }
+  });
 
-            if (dir !== 0) {
-              if (dir !== lastDir) holdUntil = 0;
-              if (now >= holdUntil) {
-                const next = Math.abs(target - lastBeat) > 1 ? target : (lastBeat + dir);
-                setBeat(next);
-                holdUntil = now + (dir > 0 ? HOLD_MS_FWD : HOLD_MS_BACK);
-                lastDir = dir;
-              }
-            }
-          }
-        });
-      }
+  // kick off
+  beats[0].classList.add('active','seen');
 
-      function lockAtEnd(){
-        document.documentElement.classList.add('end-lock');
-        document.body.classList.add('end-lock');
-        const top = document.getElementById('scrollScrub').offsetTop;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
+  // expose a hook to flip the guard when locked
+  window.__setEndLocked = (v) => { endLocked = v; };
+}
+
+
+function lockAtEnd(){
+  if (window.__endLocked) return;
+  window.__endLocked = true;
+  if (typeof window.__setEndLocked === 'function') window.__setEndLocked(true);
+
+  document.documentElement.classList.add('end-lock');
+  document.body.classList.add('end-lock');
+
+  // Snap to the last beat's exact scroll position
+  const lastTop = (window.__scrubOffsets?.[window.__scrubSteps]) ??
+                  document.getElementById('scrollScrub').offsetTop;
+  window.scrollTo({ top: lastTop, behavior: 'auto' });
+
+  // Block any further navigation
+  const prevent = e => e.preventDefault();
+  window.addEventListener('wheel', prevent, { passive:false });
+  window.addEventListener('touchmove', prevent, { passive:false });
+  window.addEventListener('keydown', (e) => {
+    const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
+    if (keys.includes(e.key)) e.preventDefault();
+  }, { passive:false });
+}
+
 
       /* === Beat 4: exact 0.25s staging + no layout shift === */
       const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
