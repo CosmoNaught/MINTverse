@@ -3,19 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>MINTverse - Transform Global Health at Scale</title>
-    <meta name="description" content="MINTverse: a dashboard-ready, suite of deep-learning emulators for malaria interventions.">
+    <title>MINTverse - Accelerating Research at Scale</title>
+    <meta name="description" content="200,000× faster. From 96 hours to 90 seconds.">
 
     <style>
       :root{
-        --black:#000; --white:#fff;
-        --green:#00d4aa; --accent:#0071e3;
+        --black:#000; 
+        --white:#fff;
+        --green:#00d4aa; 
+        --accent:#0071e3;
         --accent-glow:#0051a2;
         --text-muted:#86868b;
+        --text-primary:#f5f5f7;
+        --gray-300:#d2d2d7;
         --brand-text-gradient: linear-gradient(90deg, #fff 0%, var(--green) 100%);
         --cards-offset: clamp(160px, 24vh, 380px);
         --copy-delay: 1s;
-        --copy-reveal-duration: .5s; /* tweak if you want a slower/faster fade/slide */
+        --copy-reveal-duration: .5s;
       }
       
       *{ margin:0; padding:0; box-sizing:border-box; }
@@ -83,7 +87,7 @@
       .intro-content{ position:relative; z-index:2; text-align:center; max-width:900px; padding:0 40px; }
       .intro-logo{
         font-size:clamp(60px,10vw,120px); font-weight:700; letter-spacing:-.04em;
-        background:linear-gradient(180deg,#fff 0%,#86868b 100%);
+        background:var(--brand-text-gradient);
         -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
         opacity:0; transform:scale(.95);
         animation:logoReveal 1.5s cubic-bezier(.4,0,.2,1) forwards; animation-delay:1s;
@@ -91,7 +95,6 @@
       }
       @keyframes logoReveal{ to{opacity:1; transform:scale(1)} }
 
-      /* Compact the header slightly when cards start to avoid overlap */
       .intro-content.cards-phase .intro-logo{ transform:translateY(-10px) scale(.9); opacity:.75; }
       .intro-content.cards-phase .intro-tagline{ opacity:.85; }
       .intro-content.cards-phase .intro-context{ opacity:.9; }
@@ -123,14 +126,14 @@
 
       /* Title cards */
       .title-cards{
-      position: relative;
-      margin-top: var(--cards-offset);  /* was: clamp(72px, 12vh, 160px) */
-      width: 100%;
-      max-width: min(92vw, 720px);
-      padding-inline: 16px;
-      opacity: 0;
-      animation: cardsReveal .5s forwards;
-      animation-delay: 6s;
+        position: relative;
+        margin-top: var(--cards-offset);
+        width: 100%;
+        max-width: min(92vw, 720px);
+        padding-inline: 16px;
+        opacity: 0;
+        animation: cardsReveal .5s forwards;
+        animation-delay: 6s;
       }
       @keyframes cardsReveal{ to{opacity:1} }
       .title-card{ position:absolute; inset:auto 0 0 0; text-align:center; opacity:0; transform:scale(.98); transition:all 1s cubic-bezier(.4,0,.2,1); }
@@ -150,12 +153,9 @@
       .skip-intro:hover{ color:#fff; }
       @keyframes fadeIn{ to{opacity:.6} }
 
-      /* Scroll-scrub beats */
+      /* Scroll-scrub section */
       .scroll-scrub-section{ position:relative; height:500vh; z-index:100; display:none; }
       @media (max-width:768px){ .scroll-scrub-section{ height:300vh; } }
-      @media (max-height: 700px){
-      :root{ --cards-offset: clamp(180px, 28vh, 420px); }
-      }
 
       .scroll-scrub-content{
         position:sticky; top:0; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000;
@@ -178,81 +178,149 @@
       .scrub-beat p{
         font-size:clamp(18px,2.5vw,28px); color:var(--text-muted);
         position:relative; display:inline-block; padding-bottom:10px;
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity var(--copy-reveal-duration) cubic-bezier(.4,0,.2,1) var(--copy-delay),
+          transform var(--copy-reveal-duration) cubic-bezier(.4,0,.2,1) var(--copy-delay);
+      }
+      .scrub-beat.active p, .scrub-beat.seen p{
+        opacity: 1;
+        transform: translateY(0);
       }
       .scrub-beat p::after{
         content:''; position:absolute; left:0; bottom:-8px; width:100%; height:2px;
         background:linear-gradient(90deg, var(--green), var(--accent));
         box-shadow:0 0 20px rgba(0,212,170,.35);
-        transform:scaleX(0); transform-origin:center; transition:transform .6s cubic-bezier(.4,0,.2,1); opacity:.95;
+        transform:scaleX(0); transform-origin:center; 
+        transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
       }
       .scrub-beat.active p::after, .scrub-beat.seen p::after{ transform:scaleX(1); }
-      /* Paragraph is hidden until the beat activates */
-      .scrub-beat p{
-      opacity: 0;
-      transform: translateY(8px);
-      transition:
-         opacity var(--copy-reveal-duration) cubic-bezier(.4,0,.2,1) var(--copy-delay),
-         transform var(--copy-reveal-duration) cubic-bezier(.4,0,.2,1) var(--copy-delay);
+
+      /* Beat 4 - Coming Soon with metrics */
+      #beat4{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:32px;
       }
 
-      /* When the beat becomes active (or has been seen), reveal the paragraph */
-      .scrub-beat.active p,
-      .scrub-beat.seen p{
-      opacity: 1;
-      transform: translateY(0);
+      #beat4 h2{
+        font-size:clamp(60px,10vw,120px);
+        background:var(--brand-text-gradient);
+        -webkit-background-clip:text; 
+        -webkit-text-fill-color:transparent; 
+        background-clip:text;
       }
 
-      /* Keep the underline animating from the CENTER, and sync its start to the paragraph reveal */
-      .scrub-beat p::after{
-      /* you already have most of this, we add the delay */
-      transform: scaleX(0);
-      transform-origin: center;
-      transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
-      }
-      .scrub-beat.active p::after,
-      .scrub-beat.seen p::after{
-      transform: scaleX(1);
+      #beat4 .subtitle{
+        font-size:clamp(21px,3vw,32px);
+        color:var(--gray-300);
+        margin-top:-16px;
+        opacity:0;
+        animation:fadeUp 0.8s cubic-bezier(.4,0,.2,1) forwards;
+        animation-delay:1.5s;
       }
 
-      /* Fade to black when intro ends */
+      .metrics{
+        display:flex;
+        gap:64px;
+        justify-content:center;
+        margin-top:48px;
+        opacity:0;
+        animation:fadeUp 0.8s cubic-bezier(.4,0,.2,1) forwards;
+        animation-delay:2s;
+      }
+
+      @media (max-width:768px){
+        .metrics{ flex-direction:column; gap:40px; }
+      }
+
+      .metric{
+        text-align:center;
+        max-width:260px;
+      }
+
+      .metric-number{
+        font-size:clamp(32px,8vw,64px);
+        font-weight:600;
+        letter-spacing:-.02em;
+        line-height:1;
+        background:linear-gradient(180deg, var(--text-primary) 0%, var(--text-muted) 100%);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+        background-clip:text;
+      }
+
+      .metric-unit{
+        font-size:20px;
+        font-weight:400;
+        color:var(--green);
+        margin-top:8px;
+      }
+
+      .metric-label{
+        font-size:15px;
+        color:var(--text-muted);
+        margin-top:12px;
+        line-height:1.4;
+      }
+
+      .launch-date{
+        font-size:clamp(28px,4vw,40px);
+        font-weight:500;
+        color:var(--text-primary);
+        margin-top:48px;
+        opacity:0;
+        animation:fadeUp 0.8s cubic-bezier(.4,0,.2,1) forwards;
+        animation-delay:2.5s;
+      }
+
+      .links{
+        display:flex;
+        gap:32px;
+        justify-content:center;
+        margin-top:32px;
+        opacity:0;
+        animation:fadeIn 0.8s forwards;
+        animation-delay:3s;
+      }
+
+      .link{
+        color:var(--accent);
+        text-decoration:none;
+        font-size:17px;
+        transition:opacity 0.3s;
+      }
+
+      .link:hover{ opacity:0.8; }
+
+      .validation{
+        font-size:13px;
+        color:var(--text-muted);
+        margin-top:48px;
+        opacity:0;
+        animation:fadeIn 1s forwards;
+        animation-delay:3.5s;
+      }
+
+      /* Fade to black */
       .cinematic-intro.fade-to-black .intro-grid,
       .cinematic-intro.fade-to-black .intro-halo{ opacity:0 !important; transition:opacity .5s cubic-bezier(.4,0,.2,1) !important; }
       .cinematic-intro.fade-to-black .intro-content{ opacity:0 !important; transition:opacity .6s cubic-bezier(.4,0,.2,1) !important; }
 
-      /* Footer */
-      footer{
-      background:linear-gradient(180deg,#000 0%,#0a0a0a 100%);
-      padding:80px 0 40px; border-top:1px solid rgba(255,255,255,.08); text-align:center; position:relative; z-index:10;
-      opacity:0;                     /* add this */
-      transform: translateY(12px);
-      transition:
-         opacity .6s cubic-bezier(.4,0,.2,1),
-         transform .6s cubic-bezier(.4,0,.2,1);
-      }
-      footer.visible{
-      opacity:1;
-      transform: translateY(0);
-      }
-
-      /* Put footer above the scrub section (which is z-index:100) */
-      /* Footer sits above the sticky scrub layer */
-      .footer-fixed{ position:fixed; left:0; right:0; bottom:0; z-index:101; }
-      .footer-copyright{ color:#515154; font-size:14px; }
-
-      /* Utility */
-      .gradient-brand-text{
-        background:var(--brand-text-gradient);
-        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:transparent;
-      }
-      @media (max-width:768px){
-        .scrub-beat h2{ font-size:36px; }
-        .scrub-beat p{ font-size:18px; }
-      }
-
-      /* Lock-at-end mode: keep last beat on screen with footer pinned; no scrolling */
+      /* Lock at end */
       html.end-lock, body.end-lock{ height:100%; overflow:hidden; }
       .end-lock #scrollScrub{ height:100vh !important; }
       .end-lock .scroll-scrub-content{ position:fixed; inset:0; }
+
+      /* Gradient brand text utility */
+      .gradient-brand-text{
+        background:var(--brand-text-gradient);
+        -webkit-background-clip:text; 
+        -webkit-text-fill-color:transparent; 
+        background-clip:text;
+      }
     </style>
   </head>
   <body>
@@ -269,18 +337,18 @@
           <span>Hours become milliseconds.</span>
         </div>
 
-        <p class="intro-context">The future of agent-based simulations. </p>
+        <p class="intro-context">The future of agent-based simulations.</p>
         <div class="title-cards">
           <div class="title-card" id="card1">
             <h2>200,000× faster</h2>
-            <p>Than any agent-based system before it.</p>
+            <p>Than any system before it.</p>
           </div>
           <div class="title-card" id="card2">
             <h2>82,000 predictions</h2>
             <p>Every second. On your laptop.</p>
           </div>
           <div class="title-card" id="card3">
-            <h2>64+ billion data points</h2>
+            <h2>64 billion data points</h2>
             <p>Instantly queryable.</p>
           </div>
         </div>
@@ -292,7 +360,7 @@
     <!-- Beats -->
     <div class="scroll-scrub-section" id="scrollScrub">
       <div class="scroll-scrub-content">
-         <div class="scrub-beat" id="beat1" style="--copy-delay: 1.0s">
+        <div class="scrub-beat" id="beat1" style="--copy-delay: 1.0s">
           <h2>One interface.</h2>
           <p>Every model. Every scenario.</p>
         </div>
@@ -302,25 +370,48 @@
         </div>
         <div class="scrub-beat" id="beat3" style="--copy-delay: 1.0s">
           <h2>Ready to ship.</h2>
-          <p>From research to production. Instantly.</p>
+          <p>Research to production. Instantly.</p>
         </div>
-        <div class="scrub-beat" id="beat4" style="--copy-delay: 1.25s">
-          <h2>Coming soon.</h2>
-          <p>Q4 2025.</p>
+        <div class="scrub-beat" id="beat4">
+          <h2 class="gradient-brand-text">MINTverse</h2>
+          <p class="subtitle">96 hours → 90 seconds</p>
+          
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-number">200,000×</div>
+              <div class="metric-unit">faster</div>
+              <div class="metric-label">Than malariasimulation<br>on HPC clusters</div>
+            </div>
+            
+            <div class="metric">
+              <div class="metric-number">0.998</div>
+              <div class="metric-unit">R²</div>
+              <div class="metric-label">Neural accuracy<br>250k+ held-out series</div>
+            </div>
+            
+            <div class="metric">
+              <div class="metric-number">82,000</div>
+              <div class="metric-unit">per second</div>
+              <div class="metric-label">Predictions on<br>RTX 40-series GPU</div>
+            </div>
+          </div>
+          
+          <p class="launch-date">Public release Q4 2025</p>
+          
+          <div class="links">
+            <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20Early%20Access" class="link">Get notified ↗</a>
+            <a href="https://github.com/CosmoNaught" class="link">View research ↗</a>
+          </div>
+          
+          <div class="validation">
+            Cosmo Santoni • Imperial College London • MRC Centre for Global Infectious Disease Analysis
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer id="footer">
-      <div class="container">
-        <p>MINTverse © 2025 • Built for malaria intervention research</p>
-        <p style="opacity:.75;margin-top:8px">Fast emulation of malariasimulation models using deep learning</p>
-      </div>
-    </footer>
-
     <script>
-      /* Scroll lock during intro */
+      /* Scroll lock */
       const ScrollLock = (() => {
         let locked = false;
         function prevent(e){ e.preventDefault(); }
@@ -358,7 +449,7 @@
           document.getElementById('card2'),
           document.getElementById('card3')
         ];
-        /* make header compact just before cards start (prevents overlap) */
+        
         setTimeout(() => {
           document.getElementById('introContent')?.classList.add('cards-phase');
         }, 5600);
@@ -385,14 +476,12 @@
         if (halo) halo.style.display = 'none';
         intro.classList.add('fade-to-black');
 
-        // fade out, unlock, then show beats
         setTimeout(() => {
           intro.classList.add('hide');
           setTimeout(() => {
             intro.classList.add('complete');
             ScrollLock.disable();
 
-            // reveal beats
             scrollScrub.style.display = 'block';
             scrollScrub.style.opacity = '0';
             setTimeout(() => {
@@ -411,10 +500,9 @@
         }, 600);
       }
 
-      /* Scroll scrubbing between beats + lock at end */
       function initScrollScrub(){
         const scrubSection = document.getElementById('scrollScrub');
-        const beats = [ 'beat1','beat2','beat3','beat4' ].map(id => document.getElementById(id));
+        const beats = ['beat1','beat2','beat3','beat4'].map(id => document.getElementById(id));
 
         beats[0].classList.add('active','seen');
 
@@ -426,7 +514,6 @@
           beats[i].classList.add('active','seen');
           lastBeat = i;
 
-          /* If we just hit the final beat, lock the page there */
           if (i === beats.length - 1) {
             lockAtEnd();
           }
@@ -457,20 +544,11 @@
         });
       }
 
-      let footerShown = false;
       function lockAtEnd(){
-      document.documentElement.classList.add('end-lock');
-      document.body.classList.add('end-lock');
-      const footer = document.getElementById('footer');
-      footer?.classList.add('footer-fixed');   // pin it, but keep hidden
-
-      if (!footerShown) {
-         footerShown = true;
-         setTimeout(() => footer?.classList.add('visible'), 2500);
-      }
-
-      const top = document.getElementById('scrollScrub').offsetTop;
-      window.scrollTo({ top, behavior: 'smooth' });
+        document.documentElement.classList.add('end-lock');
+        document.body.classList.add('end-lock');
+        const top = document.getElementById('scrollScrub').offsetTop;
+        window.scrollTo({ top, behavior: 'smooth' });
       }
 
       /* Boot */
