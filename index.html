@@ -190,21 +190,21 @@
       }
       /* underline for copy paragraphs on beats 1–3 only */
       .scrub-beat:not(#beat4) p::after{
-      content:'';
-      position:absolute;
-      left:0;
-      bottom:-8px;
-      width:100%;
-      height:2px;
-      background:linear-gradient(90deg, var(--green), var(--accent));
-      box-shadow:0 0 20px rgba(0,212,170,.35);
-      transform:scaleX(0);
-      transform-origin:center; 
-      transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
+        content:'';
+        position:absolute;
+        left:0;
+        bottom:-8px;
+        width:100%;
+        height:2px;
+        background:linear-gradient(90deg, var(--green), var(--accent));
+        box-shadow:0 0 20px rgba(0,212,170,.35);
+        transform:scaleX(0);
+        transform-origin:center; 
+        transition: transform .6s cubic-bezier(.4,0,.2,1) var(--copy-delay);
       }
       .scrub-beat:not(#beat4).active p::after,
       .scrub-beat:not(#beat4).seen p::after{
-      transform:scaleX(1);
+        transform:scaleX(1);
       }
 
 
@@ -253,18 +253,27 @@
       }
       #beat4 .subtitle.underline::after{ transform:scaleX(1); }
 
+      /*
+        IMPORTANT: Use CSS Grid with fixed tracks so left/right metrics
+        occupy their cells from the start. This prevents any horizontal push
+        when they fade in.
+      */
       .metrics{
-        display:flex;
-        gap:64px;
+        display:grid;
+        grid-template-columns: repeat(3, minmax(220px, 260px));
         justify-content:center;
+        align-items:start;
+        column-gap:64px;
+        row-gap:40px;
         margin-top:48px;
+        width:100%;
       }
 
       @media (max-width:768px){
-        .metrics{ flex-direction:column; gap:40px; }
+        .metrics{ grid-template-columns: 1fr; }
       }
 
-      .metric{ text-align:center; max-width:260px; opacity:0; transform:translateY(8px); transition:opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
+      .metric{ text-align:center; opacity:0; transform:translateY(8px); transition:opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
       .metric.show{ opacity:1; transform:none; }
 
       .metric-number{
@@ -277,6 +286,11 @@
         -webkit-text-fill-color:transparent;
         background-clip:text;
         position:relative;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: 'tnum' 1;
+        min-width: var(--minch, 0);
+        display:inline-block;
+        text-align:center;
       }
       /* One-time specular sweep once the count completes */
       .metric-number.sheen::after{
@@ -326,7 +340,8 @@
       .link{ color:var(--accent); text-decoration:none; font-size:17px; transition:opacity .3s, transform .25s cubic-bezier(.4,0,.2,1); }
       .link:hover{ opacity:.85; transform:translateY(-1px); }
 
-      .validation{ font-size:13px; color:var(--text-muted); margin-top:48px; }
+      .validation{ font-size:13px; color:var(--text-muted); margin-top:48px; opacity:0; transition:opacity .6s cubic-bezier(.4,0,.2,1); }
+      .validation.show{ opacity:1; }
 
       /* Fade to black */
       .cinematic-intro.fade-to-black .intro-grid,
@@ -402,27 +417,31 @@
           <p>Research to production. Instantly.</p>
         </div>
         <div class="scrub-beat" id="beat4">
+          <!-- 1) Title appears immediately when beat4 becomes active -->
           <h2 class="gradient-brand-text">MINTverse</h2>
+          
+          <!-- 2) After 250ms, subtitle reveals -->
           <p class="subtitle reveal-up">96 hours → 90 seconds</p>
           
+          <!-- 3) After another 250ms, metrics begin revealing; grid prevents layout shift -->
           <div class="metrics">
-            <!-- SECONDARY (left) -->
+            <!-- SECONDARY (left) occupies its grid cell from the start -->
             <div class="metric secondary">
-              <div class="metric-number" data-target="0.998" data-decimals="3" data-duration="1700">0</div>
+              <div class="metric-number" data-target="0.998" data-decimals="3" data-duration="1700" style="--minch:6ch">0</div>
               <div class="metric-unit">R²</div>
               <div class="metric-label">Neural accuracy<br>250k+ held-out series</div>
             </div>
 
             <!-- PRIMARY (center) -->
             <div class="metric primary">
-              <div class="metric-number" data-target="200000" data-decimals="0" data-suffix="×" data-duration="1600">0</div>
+              <div class="metric-number" data-target="200000" data-decimals="0" data-suffix="×" data-duration="1600" style="--minch:7ch">0</div>
               <div class="metric-unit">faster</div>
               <div class="metric-label">Than malariasimulation<br>on HPC clusters</div>
             </div>
             
             <!-- SECONDARY (right) -->
             <div class="metric secondary">
-              <div class="metric-number" data-target="82000" data-decimals="0" data-duration="1800">0</div>
+              <div class="metric-number" data-target="82000" data-decimals="0" data-duration="1800" style="--minch:6ch">0</div>
               <div class="metric-unit">per second</div>
               <div class="metric-label">Predictions on<br>RTX 40-series GPU</div>
             </div>
@@ -589,7 +608,7 @@
         window.scrollTo({ top, behavior: 'smooth' });
       }
 
-      /* === Beat 4: Apple-style polish + custom sequencing === */
+      /* === Beat 4: exact 0.25s staging + no layout shift === */
       const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       let beat4Started = false;
 
@@ -607,42 +626,40 @@
         const links = beat4.querySelector('.links');
         const validation = beat4.querySelector('.validation');
 
-        // Step 1: Title already present. Reveal subtitle.
-        reveal(subtitle, 80);
+        // Timings
+        const T_PAUSE = 250; // exact 0.25s pauses requested
+        const AFTER_H2 = T_PAUSE;            // subtitle appears after 0.25s
+        const AFTER_SUBTITLE = T_PAUSE;      // metrics start after another 0.25s
 
-        // Step 2: After subtitle shows, grow its underline center-out
-        const subUnderlineDelay = 80 + 180; // small pause after text reveal
-        setTimeout(() => subtitle.classList.add('underline'), subUnderlineDelay);
+        // 1) H2 is already visible when beat4 activates
+        // 2) After 0.25s, reveal subtitle
+        reveal(subtitle, AFTER_H2);
+        setTimeout(() => subtitle.classList.add('underline'), AFTER_H2 + 100);
 
-        // Step 3: Only AFTER the subtitle's underline animates, show metrics.
-        const afterSubtitleUnderline = subUnderlineDelay + 620; // matches CSS underline transition
+        // 3) After another 0.25s, begin metrics reveal
         setTimeout(() => {
-          // Show ONLY the center metric first
-          primaryMetric.classList.add('show');
-
           if (prefersReduced) {
             numbers.forEach(n => setNumberInstant(n));
+            primaryMetric.classList.add('show');
             secondaryMetrics.forEach(m => m.classList.add('show'));
-            triggerLaunchSequence(launch, links, validation); // Immediately continue for reduced motion
+            triggerLaunchSequence(launch, links, validation);
             return;
           }
 
-          // Start center count
+          // Show center immediately, then stagger sides to "start getting revealed"
+          primaryMetric.classList.add('show');
           countTo(primaryNumber);
 
-          // As center count nears completion (~80%), reveal + start secondaries
-          const pDur = Math.max(400, parseInt(primaryNumber.dataset.duration || '1600', 10));
-          setTimeout(() => {
-            secondaryMetrics.forEach((m, i) => {
-              setTimeout(() => {
-                m.classList.add('show');
-                const num = m.querySelector('.metric-number');
-                countTo(num);
-              }, i * 160);
-            });
-          }, Math.floor(pDur * 0.8));
+          // Reveal left then right with slight stagger, but grid keeps their space so no push
+          secondaryMetrics.forEach((m, i) => {
+            setTimeout(() => {
+              m.classList.add('show');
+              const num = m.querySelector('.metric-number');
+              countTo(num);
+            }, i * 180);
+          });
 
-          // Wait for all metrics to finish before launch underline+text
+          // Wait until all counters complete before launch underline + text
           let completed = 0;
           numbers.forEach(n => {
             n.addEventListener('metric:done', () => {
@@ -652,20 +669,19 @@
               }
             }, { once: true });
           });
-        }, afterSubtitleUnderline);
+        }, AFTER_H2 + AFTER_SUBTITLE);
       }
 
       function triggerLaunchSequence(launch, links, validation){
         if (!launch) return;
-        // Step 4: Line grows center-out AND text fades in simultaneously
+        // Line grows center-out AND text fades in simultaneously
         launch.classList.add('underline', 'show-text');
-        // Step 5: Then links and footer
-        reveal(links, 720);
-        fadeIn(validation, 900);
+        // Then links and footer
+        reveal(links, 600);
+        setTimeout(() => validation.classList.add('show'), 850);
       }
 
       function reveal(el, delay = 0){ if(!el) return; setTimeout(()=> el.classList.add('show'), delay); }
-      function fadeIn(el, delay = 0){ if(!el) return; setTimeout(()=> el.classList.add('show'), delay); }
 
       function setNumberInstant(el){
         const target = parseFloat(el.dataset.target || '0');
@@ -726,6 +742,4 @@
       });
     </script>
   </body>
-</html>
-
 </html>
