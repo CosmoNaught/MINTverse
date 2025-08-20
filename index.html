@@ -20,6 +20,7 @@
         --cards-offset: clamp(160px, 24vh, 380px);
         --copy-delay: 1s;
         --copy-reveal-duration: .5s;
+        --about-header-h: 64px;
       }
       
       *{ margin:0; padding:0; box-sizing:border-box; }
@@ -58,7 +59,7 @@
 
       .intro-grid{
         position:absolute; top:-50%; left:-50%; width:200%; height:200%;
-        background:url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        background:url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
         animation:driftSlow 30s linear infinite; opacity:0; animation-delay:.5s; animation-fill-mode:forwards;
       }
       @keyframes driftSlow{
@@ -288,8 +289,13 @@
         width:100%;
       }
 
-      @media (max-width:768px){
-        .metrics{ grid-template-columns: 1fr; }
+      @media (max-width: 960px){
+      .about-page{ overflow:auto; }
+      .about-content{
+         height:auto;
+         min-height: calc(100dvh - var(--about-header-h));
+      }
+      .about-grid-compact{ grid-template-columns: 1fr; }
       }
 
       .metric{ text-align:center; opacity:0; transform:translateY(8px); transition:opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
@@ -355,9 +361,18 @@
       .launch-date.underline::after{ transform:scaleX(1); }
       .launch-date.show-text .text{ opacity:1; transform:translateY(0); }
 
+      /* Fixed: Links with green hover color */
       .links{ display:flex; gap:32px; justify-content:center; margin-top:32px; }
-      .link{ color:var(--accent); text-decoration:none; font-size:17px; transition:opacity .3s, transform .25s cubic-bezier(.4,0,.2,1); }
-      .link:hover{ opacity:.85; transform:translateY(-1px); }
+      .link{ 
+        color:var(--accent); 
+        text-decoration:none; 
+        font-size:17px; 
+        transition:color .3s, transform .25s cubic-bezier(.4,0,.2,1); 
+      }
+      .link:hover{ 
+        color:var(--green); 
+        transform:translateY(-1px); 
+      }
 
       .validation{ font-size:13px; color:var(--text-muted); margin-top:48px; opacity:0; transition:opacity .6s cubic-bezier(.4,0,.2,1); }
       .validation.show{ opacity:1; }
@@ -423,6 +438,330 @@
 
       /* Keep your existing reveal utility working */
       .footer-section.show{ opacity: 1; }
+
+      /* About Page Styles */
+      .about-page{
+        display:none;
+        position:fixed;
+        inset:0;
+        z-index:20000;
+        background:#000;
+        overflow-y:auto;
+        overflow:hidden;
+        opacity:0;
+        transition:opacity .6s cubic-bezier(.4,0,.2,1);
+      }
+      .about-page.active{
+        display:block;
+      }
+      .about-page.visible{
+        opacity:1;
+      }
+
+      .about-header{
+        position:sticky;
+        top:0;
+        z-index:100;
+        background:rgba(0,0,0,.8);
+        -webkit-backdrop-filter:blur(20px);
+        backdrop-filter:blur(20px);
+        border-bottom:1px solid rgba(255,255,255,.1);
+        padding:20px 40px;
+        height:var(--about-header-h);
+      }
+
+      .about-nav{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        max-width:1200px;
+        margin:0 auto;
+      }
+
+      .back-link{
+        color:var(--accent);
+        text-decoration:none;
+        font-size:17px;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        transition:color .3s;
+      }
+      .back-link:hover{
+        color:var(--green);
+      }
+      .back-link::before{
+        content:'←';
+        font-size:20px;
+      }
+
+      .about-content{
+         max-width:1100px;
+         margin:0 auto;
+         padding: clamp(16px, 3vw, 32px);
+         height: calc(100dvh - var(--about-header-h));
+         min-height: calc(100dvh - var(--about-header-h));
+         display:grid;
+         grid-template-rows: auto 1fr auto; /* hero • cards • CTA */
+         gap: clamp(12px, 2.5vh, 24px);
+      }
+
+      .about-hero{
+        text-align:center;
+        margin-bottom:80px;
+      }
+
+      .about-hero h1{
+        font-size:clamp(48px,8vw,80px);
+        font-weight:700;
+        letter-spacing:-.02em;
+        background:var(--brand-text-gradient);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+        background-clip:text;
+        margin-bottom:24px;
+      }
+
+      .about-hero .tagline{
+        font-size:clamp(20px,3vw,28px);
+        color:var(--text-muted);
+        margin-bottom:8px;
+      }
+      /* Compact hero */
+      .about-hero-compact{ text-align:center; margin:0; }
+      .about-hero-compact .impact{
+      font-size: clamp(48px, 10vw, 96px);
+      font-weight:700; letter-spacing:-.03em; line-height:1;
+      }
+      .about-hero-compact p{
+      font-size: clamp(14px, 1.8vw, 18px);
+      color: var(--text-muted);
+      margin-top: 4px;
+      }
+      .about-meta{ font-size:12px; color:var(--text-muted); margin-top:8px; }
+      /* Tight three-card grid */
+      .about-grid-compact{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: clamp(12px, 2vw, 20px);
+      align-items: start;      /* cards hug their content */
+      align-content: start;    /* grid content stays tight at the top */
+      justify-content: center; /* optional: keeps the row centered within max-width */
+      align-self: start;       /* <-- critical: do NOT stretch this section to the 1fr row */
+      }
+
+      .about-section{
+        margin-bottom:64px;
+      }
+
+      
+      
+      .about-section h2{
+         font-size:clamp(32px,5vw,48px);
+         font-weight:600;
+         margin-bottom:32px;
+         color:var(--text-primary);
+      }
+      
+            /* CTA panel */
+      .about-cta{
+      text-align:center;
+      padding: clamp(12px, 2vw, 20px);
+      border-radius: 14px;
+      border: 1px solid rgba(0,212,170,.12);
+      background: rgba(0,212,170,.03);
+      }
+      .about-cta h2{
+      font-size: clamp(22px, 3.2vw, 28px) !important;
+      margin-bottom: 10px !important;
+      color: var(--text-primary);
+      }
+      .about-cta p{
+      font-size: clamp(14px, 2vw, 16px) !important;
+      color: var(--gray-300);
+      max-width: 760px;
+      margin: 0 auto 8px !important;
+      }
+      .about-cta .footer-section{
+  margin-top: 14px;
+  opacity: 1; /* ensure visible even without the .show class */
+}
+
+      .about-card{
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      padding:20px;
+      margin:0;          /* was margin-bottom:24px; remove it */
+      height:auto;       /* explicit for clarity */
+      }
+
+      .about-card h3{
+        font-size:24px;
+        font-weight:600;
+        color:var(--text-primary);
+        margin-bottom:8px;
+      }
+
+      .about-card h4{
+        font-size:16px !important; margin-bottom:10px !important;
+        font-weight:500;
+        color:var(--green);
+        margin-bottom:16px;
+        margin:0 0 10px 0; /* no top margin so the card header stays tight */
+      }
+
+      .about-card p{
+        font-size:17px;
+        line-height:1.7;
+        color:var(--gray-300);
+        margin-bottom:16px;
+      }
+
+      .about-card div[style*="font-size:32px"]{ font-size:24px !important; }
+
+
+      .about-card .subtitle{
+        font-size:15px;
+        color:var(--text-muted);
+        margin-bottom:4px;
+      }
+
+      .highlight-card{
+        background:rgba(0,212,170,0.03);
+        border-color:rgba(0,212,170,0.2);
+      }
+
+      .recognition-card{
+        background:rgba(139,92,246,0.03);
+        border-color:rgba(139,92,246,0.2);
+      }
+
+      .tick-list{
+        list-style:none;
+        padding:0;
+        margin:0;
+      }
+
+      .tick-list li{
+        position:relative;
+        padding-left:28px;
+        margin-bottom:12px;
+        color:var(--gray-300);
+        font-size:16px;
+        line-height:1.6;
+      }
+
+      .tick-list li::before{
+        content:'✓';
+        position:absolute;
+        left:0;
+        color:var(--green);
+        font-weight:600;
+      }
+
+      .tick-list strong{
+        color:var(--text-primary);
+      }
+
+      .chips{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:20px;
+      }
+
+      .chip{
+        padding:6px 12px;
+        background:rgba(255,255,255,0.05);
+        border:1px solid rgba(255,255,255,0.1);
+        border-radius:100px;
+        font-size:14px;
+        color:var(--text-muted);
+      }
+
+      .contact-section{
+        margin-top:80px;
+        padding-top:48px;
+        border-top:1px solid rgba(255,255,255,0.1);
+        text-align:center;
+      }
+
+      .contact-section h2{
+        font-size:clamp(40px,6vw,56px);
+        font-weight:700;
+        margin-bottom:16px;
+        background:linear-gradient(180deg,#fff 0%,#86868b 100%);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+        background-clip:text;
+      }
+
+      .contact-section .subtitle{
+        font-size:20px;
+        color:var(--text-muted);
+        margin-bottom:48px;
+      }
+
+      .contact-links{
+        display:flex;
+        gap:24px;
+        justify-content:center;
+        flex-wrap:wrap;
+        margin-bottom:32px;
+      }
+
+      .pills{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:12px; }
+      .pill{
+      padding:10px 18px; border-radius:999px; text-decoration:none;
+      font-size:15px; border:1px solid var(--accent); color:var(--accent);
+      background:transparent; transition: transform .2s ease, border-color .2s ease, color .2s ease;
+      }
+      .pill:hover{ transform:translateY(-1px); color:var(--green); border-color:var(--green); }
+      .pill.primary{ border-color:transparent; background:var(--green); color:#000; font-weight:700; }
+      .pill.primary:hover{ filter:brightness(1.05); }
+
+
+      .btn-primary{
+        display:inline-block;
+        padding:12px 28px;
+        background:var(--green);
+        color:#000;
+        font-weight:600;
+        font-size:17px;
+        text-decoration:none;
+        border-radius:100px;
+        transition:all .3s;
+      }
+
+      .btn-primary:hover{
+        transform:translateY(-2px);
+        box-shadow:0 8px 24px rgba(0,212,170,.3);
+      }
+
+      .btn-secondary{
+        display:inline-block;
+        padding:12px 28px;
+        background:transparent;
+        color:var(--accent);
+        font-weight:500;
+        font-size:17px;
+        text-decoration:none;
+        border:1px solid var(--accent);
+        border-radius:100px;
+        transition:all .3s;
+      }
+
+      .btn-secondary:hover{
+        color:var(--green);
+        border-color:var(--green);
+      }
+
+      .small-text{
+        font-size:14px;
+        color:var(--text-muted);
+        margin-top:32px;
+      }
 
       /* Respect reduced motion */
       @media (prefers-reduced-motion: reduce){
@@ -512,22 +851,105 @@
           
           <!-- Launch date: underline grows center-out and text fades in simultaneously -->
           <p class="launch-date">
-            <span class="text">Public release Q4 2025</span>
+            <span class="text gradient-brand-text">Public release Q4 2025</span>
           </p>
           
           <div class="links reveal-up">
-            <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20Early%20Access" class="link">Get notified ↗</a>
-            <a href="https://github.com/CosmoNaught" class="link">View research ↗</a>
+            <a href="#about" class="link" onclick="showAboutPage(event)">About & Contact ↗</a>
+            <a href="https://github.com/CosmoNaught/MINTverse" class="link">View documentation ↗</a>
           </div>
           
           <div class="validation footer-section reveal-fade">
             <div class="footer-tagline">Designed for researchers. Engineered for impact.</div>
-            <div class="footer-sub">From the MRC Centre for Global Infectious Disease Analysis</div>
+            <div class="footer-sub">MRC Centre for Global Infectious Disease Analysis</div>
             <div class="footer-meta">Imperial College London • Open Source • 2025</div>
           </div>          
         </div>
       </div>
     </div>
+
+<!-- About Page (hidden by default) -->
+<div class="about-page" id="aboutPage">
+   <div class="about-header">
+     <nav class="about-nav">
+       <a href="#" class="back-link" onclick="hideAboutPage(event)">Back to MINTverse</a>
+       <span style="color:var(--text-muted); font-size:14px;">About</span>
+     </nav>
+   </div>
+ 
+   <div class="about-content">
+     <!-- Hero -->
+     <section class="about-hero-compact">
+       <div>
+         <div class="impact"><span class="gradient-brand-text">200,000×</span></div>
+         <p>96 hours → 90 seconds. HPC cluster → laptop.</p>
+       </div>
+     </section>
+ 
+     <!-- Three cards -->
+     <section class="about-grid-compact">
+       <!-- Impact Card -->
+       <div class="about-card">
+         <h4>Production Impact</h4>
+         <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">3 systems</div>
+         <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">Live in government & NGO decision-making</p>
+         <ul style="list-style:none; padding:0; margin:0;">
+           <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• UK COVID response (SAGE/SPI-M-O)</li>
+           <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Global Fund malaria strategies</li>
+           <li style="font-size:14px; color:var(--gray-300);">• Real-time intervention planning</li>
+         </ul>
+       </div>
+ 
+       <!-- Performance Card -->
+       <div class="about-card">
+         <h4>Scale & Speed</h4>
+         <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">82,000/sec</div>
+         <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">Predictions on consumer GPU</p>
+         <ul style="list-style:none; padding:0; margin:0;">
+           <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• R² = 0.998 accuracy (250k held-out)</li>
+           <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• 64 billion queryable data points</li>
+           <li style="font-size:14px; color:var(--gray-300);">• PyTorch → CUDA optimization</li>
+         </ul>
+       </div>
+ 
+       <!-- Recognition Card -->
+       <div class="about-card">
+         <h4>Recognition</h4>
+         <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">UK Gov Award</div>
+         <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">Chief Scientific & Medical Officers</p>
+         <ul style="list-style:none; padding:0; margin:0;">
+           <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• The Lancet Public Health</li>
+           <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Nature Communications</li>
+           <li style="font-size:14px; color:var(--gray-300);">• WHO, MSF, data.org presenter</li>
+         </ul>
+       </div>
+     </section>
+ 
+     <!-- CTA -->
+<!-- CTA -->
+<section class="about-cta">
+   <h2>I ship ML at scale.</h2>
+   <p><strong style="color:var(--text-primary);">Cosmo Santoni</strong> — PhD candidate at Imperial College London. I don't just publish papers. I build production systems that policy-makers &amp; governments use to save lives.</p>
+   <p>From mathematical theory to 200,000× speedups. Full-stack ML engineer who delivers end-to-end: models, APIs, deployment, and yes—even this site.</p>
+ 
+   <div class="pills" role="group" aria-label="Quick links">
+     <a class="pill primary" href="Cosmo%20Santoni%20CV.pdf" download="Cosmo_Santoni_CV.pdf" type="application/pdf">Download CV</a>
+     <a class="pill" href="https://github.com/CosmoNaught" target="_blank" rel="noopener">GitHub</a>
+     <a class="pill" href="https://www.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener">LinkedIn</a>
+   </div>
+ 
+   <!-- moved footer here and made it visible -->
+   <div class="footer-section show">
+     <div class="footer-tagline">Designed for researchers. Engineered for impact.</div>
+     <div class="footer-sub">MRC Centre for Global Infectious Disease Analysis</div>
+     <div class="footer-meta">Imperial College London • Open Source • 2025</div>
+   </div>
+ </section>
+ 
+      </div>    
+   </div>
+ </div>
+ 
 
     <script>
       
@@ -622,109 +1044,216 @@
         }, 600);
       }
 
+      // FIXED: Improved scroll handling with proper debouncing and state management
       function initScrollScrub(){
-      const scrubSection = document.getElementById('scrollScrub');
-      const beats = ['beat1','beat2','beat3','beat4'].map(id => document.getElementById(id));
-      const steps = beats.length - 1;
-      const vh = () => window.innerHeight;
+        const scrubSection = document.getElementById('scrollScrub');
+        const beats = ['beat1','beat2','beat3','beat4'].map(id => document.getElementById(id));
+        const steps = beats.length - 1;
+        const vh = () => window.innerHeight;
 
-      function setBeat(i){
-         beats.forEach(b => b.classList.remove('active'));
-         beats[i].classList.add('active','seen');
-         if (beats[i].id === 'beat4') startBeat4();
-         if (i === steps) lockAtEnd(); // triggers the hard lock
+        // Track transitioning state to prevent overlaps
+        let isTransitioning = false;
+        let currentBeat = 0;
+
+        function setBeat(i){
+          if (isTransitioning || i === currentBeat) return;
+          
+          isTransitioning = true;
+          currentBeat = i;
+          
+          beats.forEach(b => b.classList.remove('active'));
+          beats[i].classList.add('active','seen');
+          
+          if (beats[i].id === 'beat4') startBeat4();
+          if (i === steps) {
+            setTimeout(() => lockAtEnd(), 500);
+          }
+          
+          // Allow next transition after animation completes
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 800);
+        }
+
+        let top = 0, height = 0, travel = 0, offsets = [];
+        function compute(){
+          const rect = scrubSection.getBoundingClientRect();
+          top = window.pageYOffset + rect.top;
+          height = scrubSection.offsetHeight;
+          travel = Math.max(1, height - vh());
+          offsets = Array.from({length: beats.length}, (_, i) => top + (travel * (i/steps)));
+          // expose for lockAtEnd()
+          window.__scrubOffsets = offsets;
+          window.__scrubSteps = steps;
+          window.__scrubRange = { top, travel };
+        }
+        compute();
+        window.addEventListener('resize', compute);
+
+        let endLocked = false;
+        let scrollTimeout;
+        let lastScrollY = 0;
+
+        // Passive scroll listener for beat detection
+        window.addEventListener('scroll', () => {
+          if (endLocked || isTransitioning) return;
+          
+          const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+          
+          // Clear any pending scroll operations
+          clearTimeout(scrollTimeout);
+          
+          scrollTimeout = setTimeout(() => {
+            if (y < top || y > top + travel) return;
+            
+            const progress = (y - top) / travel;
+            const targetBeat = Math.round(progress * steps);
+            
+            if (targetBeat !== currentBeat){
+              setBeat(targetBeat);
+            }
+          }, 50);
+          
+          lastScrollY = y;
+        }, { passive:true });
+
+        // Controlled wheel navigation with debouncing
+        let wheelTimeout;
+        let accumulatedDelta = 0;
+        
+        scrubSection.addEventListener('wheel', (e) => {
+          if (endLocked) { 
+            e.preventDefault(); 
+            return; 
+          }
+          
+          const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+          if (y < top - 1 || y > top + travel + 1) return;
+          
+          e.preventDefault();
+          
+          // Accumulate wheel delta for trackpad/smooth scrolling
+          accumulatedDelta += e.deltaY;
+          
+          clearTimeout(wheelTimeout);
+          wheelTimeout = setTimeout(() => {
+            if (isTransitioning) {
+              accumulatedDelta = 0;
+              return;
+            }
+            
+            const direction = Math.sign(accumulatedDelta);
+            accumulatedDelta = 0;
+            
+            if (!direction) return;
+            
+            const next = Math.max(0, Math.min(steps, currentBeat + direction));
+            if (next !== currentBeat){
+              setBeat(next);
+              scrollToStep(next);
+            }
+          }, 100);
+        }, { passive:false });
+
+        // Smooth scroll to position
+        function scrollToStep(i){
+          if (isTransitioning) return;
+          
+          window.scrollTo({ 
+            top: offsets[i], 
+            behavior: 'smooth' 
+          });
+        }
+
+        // Keyboard navigation
+        window.addEventListener('keydown', (e) => {
+          if (endLocked || isTransitioning) return;
+          
+          const keysDown = ['ArrowDown','PageDown'];
+          const keysUp   = ['ArrowUp','PageUp'];
+          
+          if (![...keysDown, ...keysUp].includes(e.key)) return;
+          
+          const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+          if (y < top - 1 || y > top + travel + 1) return;
+          
+          e.preventDefault();
+          const dir = keysUp.includes(e.key) ? -1 : 1;
+          const next = Math.max(0, Math.min(steps, currentBeat + dir));
+          
+          if (next !== currentBeat){
+            setBeat(next);
+            scrollToStep(next);
+          }
+        });
+
+        // Initialize first beat
+        beats[0].classList.add('active','seen');
+
+        // Expose hook for end lock
+        window.__setEndLocked = (v) => { endLocked = v; };
       }
-
-      let top = 0, height = 0, travel = 0, offsets = [];
-      function compute(){
-         const rect = scrubSection.getBoundingClientRect();
-         top = window.pageYOffset + rect.top;
-         height = scrubSection.offsetHeight;
-         travel = Math.max(1, height - vh());
-         offsets = Array.from({length: beats.length}, (_, i) => top + (travel * (i/steps)));
-         // expose for lockAtEnd()
-         window.__scrubOffsets = offsets;
-         window.__scrubSteps = steps;
-         window.__scrubRange = { top, travel };
-      }
-      compute();
-      window.addEventListener('resize', compute);
-
-      let last = 0;
-      let endLocked = false;
-
-      window.addEventListener('scroll', () => {
-         if (endLocked) return; // do nothing once locked
-         const y = window.pageYOffset || document.documentElement.scrollTop || 0;
-         if (y < top || y > top + travel) return;
-         const progress = (y - top) / travel;
-         const i = Math.round(progress * steps);
-         if (i !== last){ last = i; setBeat(i); }
-      }, { passive:true });
-
-      let animating = false;
-      function scrollToStep(i){
-         animating = true;
-         window.scrollTo({ top: offsets[i], behavior: 'smooth' });
-         setTimeout(() => { animating = false; }, 420);
-      }
-
-      scrubSection.addEventListener('wheel', (e) => {
-         if (endLocked) { e.preventDefault(); return; }
-         const y = window.pageYOffset || document.documentElement.scrollTop || 0;
-         if (y < top - 1 || y > top + travel + 1) return;
-         if (animating) { e.preventDefault(); return; }
-         const dir = Math.sign(e.deltaY);
-         if (!dir) return;
-         e.preventDefault();
-         const next = Math.max(0, Math.min(steps, last + dir));
-         if (next !== last){ last = next; setBeat(next); scrollToStep(next); }
-      }, { passive:false });
-
-      window.addEventListener('keydown', (e) => {
-         if (endLocked) return;
-         const keysDown = ['ArrowDown','PageDown'];
-         const keysUp   = ['ArrowUp','PageUp'];
-         if (![...keysDown, ...keysUp].includes(e.key)) return;
-         const y = window.pageYOffset || document.documentElement.scrollTop || 0;
-         if (y < top - 1 || y > top + travel + 1) return;
-         e.preventDefault();
-         const dir = keysUp.includes(e.key) ? -1 : 1;
-         const next = Math.max(0, Math.min(steps, last + dir));
-         if (next !== last){ last = next; setBeat(next); scrollToStep(next); }
-      });
-
-      // kick off
-      beats[0].classList.add('active','seen');
-
-      // expose a hook to flip the guard when locked
-      window.__setEndLocked = (v) => { endLocked = v; };
-      }
-
 
       function lockAtEnd(){
-      if (window.__endLocked) return;
-      window.__endLocked = true;
-      if (typeof window.__setEndLocked === 'function') window.__setEndLocked(true);
+        if (window.__endLocked) return;
+        window.__endLocked = true;
+        if (typeof window.__setEndLocked === 'function') window.__setEndLocked(true);
 
-      document.documentElement.classList.add('end-lock');
-      document.body.classList.add('end-lock');
+        document.documentElement.classList.add('end-lock');
+        document.body.classList.add('end-lock');
 
-      // Snap to the last beat's exact scroll position
-      const lastTop = (window.__scrubOffsets?.[window.__scrubSteps]) ??
-                        document.getElementById('scrollScrub').offsetTop;
-      window.scrollTo({ top: lastTop, behavior: 'auto' });
+        // Snap to the last beat's exact scroll position
+        const lastTop = (window.__scrubOffsets?.[window.__scrubSteps]) ??
+                          document.getElementById('scrollScrub').offsetTop;
+        window.scrollTo({ top: lastTop, behavior: 'auto' });
 
-      // Block any further navigation
-      const prevent = e => e.preventDefault();
-      window.addEventListener('wheel', prevent, { passive:false });
-      window.addEventListener('touchmove', prevent, { passive:false });
-      window.addEventListener('keydown', (e) => {
-         const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
-         if (keys.includes(e.key)) e.preventDefault();
-      }, { passive:false });
+        // Block any further navigation
+        const prevent = e => e.preventDefault();
+        window.addEventListener('wheel', prevent, { passive:false });
+        window.addEventListener('touchmove', prevent, { passive:false });
+        window.addEventListener('keydown', (e) => {
+          const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
+          if (keys.includes(e.key)) e.preventDefault();
+        }, { passive:false });
       }
 
+      /* About Page Functions */
+      function showAboutPage(e){
+        e.preventDefault();
+        const aboutPage = document.getElementById('aboutPage');
+        aboutPage.classList.add('active');
+        
+        // Store current scroll position and lock main page
+        window.__mainScrollY = window.pageYOffset;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.classList.add('end-lock');
+        
+        // Fade in the about page
+        setTimeout(() => {
+          aboutPage.classList.add('visible');
+        }, 10);
+      }
+
+      function hideAboutPage(e){
+        e.preventDefault();
+        const aboutPage = document.getElementById('aboutPage');
+        
+        // Fade out
+        aboutPage.classList.remove('visible');
+        
+        setTimeout(() => {
+          aboutPage.classList.remove('active');
+          
+          // Restore main page state
+          document.body.style.overflow = '';
+          document.documentElement.classList.remove('end-lock');
+          
+          // Restore scroll position
+          if (window.__mainScrollY !== undefined) {
+            window.scrollTo(0, window.__mainScrollY);
+          }
+        }, 600);
+      }
 
       /* === Beat 4: exact 0.25s staging + no layout shift === */
       const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
