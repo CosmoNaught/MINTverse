@@ -1,3644 +1,441 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>MINTverse - Transform Global Health at Scale</title>
-      <meta name="description" content="MINTverse: a dashboard-ready, suite of deep-learning emulators for malaria interventions. Run instant forecasts with MINTer (R), estiMINT (EIR & cases ML), and MINTe (Python RNNs)..">
-      <style>
-         :root {
-         --black: #000000;
-         --white: #ffffff;
-         --gray-100: #f5f5f7;
-         --gray-200: #e8e8ed;
-         --gray-300: #d2d2d7;
-         --gray-400: #86868b;
-         --gray-500: #515154;
-         --gray-900: #1d1d1f;
-         --accent: #0071e3;
-         --accent-glow: #0051a2;
-         --green: #00d4aa;
-         --red: #ff375f;
-         --gradient: linear-gradient(180deg, #000 0%, #000 50%, #0a0a0a 100%);
-         --text-gradient: linear-gradient(90deg, #fff 0%, #86868b 100%);
-         --primary: #00d4aa;
-         --primary-dark: #00a085;
-         --card-border-w: 1px;   
-         --ring-w: 4px;          
-         --title-glow-a: rgba(0,212,170,.40); 
-         --title-glow-b: rgba(0,113,227,.28); 
-         --title-deck:   rgba(0,0,0,.55);     
-         --flow-step-w: 200px;   
-         --flow-step-h: 170px;   
-         --brand-text-gradient: linear-gradient(90deg, #fff 0%, var(--green) 100%);
-         }
-         * {
-         margin: 0;
-         padding: 0;
-         box-sizing: border-box;
-         }
-         body {
-         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-         background: #000;
-         color: #fff;
-         line-height: 1.6;
-         overflow-x: hidden;
-         -webkit-font-smoothing: antialiased;
-         -moz-osx-font-smoothing: grayscale;
-         }
-         html {
-         scroll-behavior: smooth;
-         }
-         .cinematic-intro {
-         position: fixed;
-         top: 0;
-         left: 0;
-         right: 0;
-         bottom: 0;
-         z-index: 10000;
-         background: #000;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .cinematic-intro.hide {
-         opacity: 0;
-         pointer-events: none;
-         }
-         .cinematic-intro.complete {
-         display: none;
-         }
-         html.intro-lock, body.intro-lock {
-         height: 100%;
-         overflow: hidden;          
-         }
-         body.intro-lock::-webkit-scrollbar { display: none; }
-         .intro-grid {
-         position: absolute;
-         top: -50%;
-         left: -50%;
-         width: 200%;
-         height: 200%;
-         background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-         animation: driftSlow 30s linear infinite;
-         opacity: 0;
-         animation-delay: 0.5s;
-         animation-fill-mode: forwards;
-         }
-         @keyframes driftSlow {
-         0% { 
-         transform: translate(0, 0);
-         opacity: 0;
-         }
-         10% {
-         opacity: 0.5;
-         }
-         100% { 
-         transform: translate(100px, 100px);
-         opacity: 0.5;
-         }
-         }
-         .intro-halo {
-         position: absolute;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         width: 120%;
-         height: 120%;
-         background: radial-gradient(600px 400px at 50% 50%,
-         rgba(0,212,170,.35),
-         rgba(0,113,227,.22) 30%,
-         rgba(0,0,0,0) 70%);
-         filter: blur(60px);
-         opacity: 0;
-         animation: haloReveal 3s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-         haloBreathe 8s ease-in-out infinite alternate;
-         animation-delay: 0.5s, 3s;
-         }
-         @keyframes haloReveal {
-         to { opacity: 0.8; }
-         }
-         @keyframes haloBreathe {
-         0% { transform: translate(-50%, -50%) scale(1); }
-         100% { transform: translate(-50%, -48%) scale(1.05); }
-         }
-         .intro-content {
-         position: relative;
-         z-index: 2;
-         text-align: center;
-         max-width: 900px;
-         padding: 0 40px;
-         }
-         .intro-logo {
-         font-size: clamp(60px, 10vw, 120px);
-         font-weight: 700;
-         letter-spacing: -0.04em;
-         background: linear-gradient(180deg, #ffffff 0%, #86868b 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         opacity: 0;
-         transform: scale(0.95);
-         animation: logoReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1s;
-         position: relative;
-         }
-         @keyframes logoReveal {
-         to {
-         opacity: 1;
-         transform: scale(1);
-         }
-         }
-         .intro-tagline span {
-         display: inline-block;
-         transform: translateX(-100%);
-         animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 2.5s;
-         }
-         @keyframes slideIn {
-         to { transform: translateX(0); }
-         }
-         .intro-tagline::after {
-         content: '';
-         position: absolute;
-         bottom: -5px;
-         left: 50%;
-         transform: translateX(-50%);
-         width: 0;
-         height: 1px;
-         background: linear-gradient(90deg, var(--green), var(--accent));
-         }
-         @keyframes lineGrow {
-         to { width: 60%; }
-         }
-         @keyframes lineRetract {
-         to { width: 0; opacity: 0; }
-         }
-         .intro-context {
-         font-size: 18px;
-         color: #d2d2d7;
-         margin-top: 20px;
-         opacity: 0;
-         animation: fadeUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 4s;
-         position: relative;
-         display: inline-block;
-         }
-         .intro-context::after{
-         content:'';
-         position:absolute;
-         left:50%;
-         transform: translateX(-50%);
-         bottom:-10px;
-         width:0;
-         height:2px;
-         background: linear-gradient(90deg, var(--green), var(--accent));
-         box-shadow: 0 0 20px rgba(0,212,170,.35);
-         animation: lineGrow 2s cubic-bezier(0.4,0,0.2,1) forwards; 
-         animation-delay: 4s;                                        
-         }
-         @keyframes lineGrow { to { width: 60%; } }
-         @keyframes fadeUp {
-         to {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         from {
-         opacity: 0;
-         transform: translateY(20px);
-         }
-         }
-         .title-cards {
-         position: relative; 
-         margin-top: 60px; 
-         width: 100%;
-         max-width: min(92vw, 720px);
-         padding-inline: 16px;
-         opacity: 0;
-         animation: cardsReveal 0.5s forwards;
-         animation-delay: 6s;
-         }
-         @keyframes cardsReveal {
-         to { opacity: 1; }
-         }
-         .title-card {
-         position: absolute;
-         top: 0;
-         left: 0;
-         right: 0;
-         text-align: center;
-         opacity: 0;
-         transform: scale(0.98);
-         transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .title-card.active {
-         opacity: 1;
-         transform: scale(1);
-         }
-         .title-card h2 {
-         font-size: clamp(36px, 6.2vw, 64px); 
-         font-weight: 700;
-         background: linear-gradient(90deg, var(--green) 0%, #00ffcc 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         margin-bottom: 10px;
-         position: relative;
-         line-height: 1.05;
-         text-wrap: balance;                  
-         word-break: keep-all;    
-         }
-         .title-card p {
-         font-size: clamp(16px, 2.6vw, 20px);
-         color: #86868b;
-         }
-         @media (max-width: 480px){
-         .title-card h2{ font-size: clamp(28px, 9vw, 40px); }
-         .title-card p { font-size: 16px; }
-         }
-         .skip-intro {
-         position: absolute;
-         bottom: 40px;
-         right: 40px;
-         color: #86868b;
-         font-size: 14px;
-         text-decoration: none;
-         opacity: 0;
-         animation: fadeIn 1s forwards;
-         animation-delay: 2s;
-         transition: color 0.3s;
-         cursor: pointer;
-         }
-         .skip-intro:hover {
-         color: #fff;
-         }
-         @keyframes fadeIn {
-         to { opacity: 0.6; }
-         }
-         @keyframes heroContentFade { from { opacity: 0; } to { opacity: 1; } }
-         .hero-content { opacity: 0; transform: none !important; animation: none; }
-         .scroll-scrub-section {
-         position: relative;
-         height: 500vh;
-         z-index: 100;
-         }
-         @media (max-width: 768px) { .scroll-scrub-section { height: 300vh; } }
-         .scroll-scrub-content {
-         position: sticky;
-         top: 0;
-         height: 100vh;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         overflow: hidden;
-         background: #000;
-         }
-         .scrub-beat {
-         position: absolute;
-         width: 100%;
-         text-align: center;
-         opacity: 0;
-         transform: scale(0.9);
-         transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .scrub-beat.active {
-         opacity: 1;
-         transform: scale(1);
-         }
-         .scrub-beat.fade-in {
-         animation: beatFadeIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         }
-         @keyframes beatFadeIn {
-         from {
-         opacity: 0;
-         transform: scale(0.95);
-         }
-         to {
-         opacity: 1;
-         transform: scale(1);
-         }
-         }
-         .scrub-beat h2 {
-         font-size: clamp(48px, 8vw, 96px);
-         font-weight: 700;
-         background: linear-gradient(180deg, #ffffff 0%, #86868b 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         margin-bottom: 20px;
-         }
-         .scrub-beat p {
-         font-size: clamp(18px, 2.5vw, 28px);
-         color: #86868b;
-         }
-         nav {
-         position: fixed;
-         top: 0;
-         left: 0;
-         right: 0;
-         z-index: 9999;
-         background: rgba(0, 0, 0, 0.85);
-         backdrop-filter: saturate(180%) blur(20px);
-         -webkit-backdrop-filter: saturate(180%) blur(20px);
-         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-         opacity: 0;
-         transform: translateY(-100%);
-         }
-         nav.ready {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         nav.scrolled {
-         background: rgba(0, 0, 0, 0.98);
-         border-bottom-color: rgba(255, 255, 255, 0.1);
-         }
-         .nav-container {
-         max-width: 1200px;
-         margin: 0 auto;
-         padding: 0 22px;
-         height: 52px;
-         display: flex;
-         align-items: center;
-         justify-content: space-between;
-         }
-         .nav-logo {
-         font-size: 18px;
-         font-weight: 600;
-         letter-spacing: -0.02em;
-         background: linear-gradient(90deg, #fff 0%, #00d4aa 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         }
-         .nav-links {
-         display: flex;
-         gap: 35px;
-         align-items: center;
-         }
-         .nav-links a {
-         color: #f5f5f7;
-         text-decoration: none;
-         font-size: 14px;
-         opacity: 0.8;
-         transition: opacity 0.3s;
-         font-weight: 400;
-         position: relative;
-         }
-         .nav-links a::after {
-         content: '';
-         position: absolute;
-         bottom: -2px;
-         left: 0;
-         width: 0;
-         height: 1px;
-         background: var(--green);
-         transition: width 0.3s;
-         }
-         .nav-links a:hover {
-         opacity: 1;
-         }
-         .nav-links a:hover::after {
-         width: 100%;
-         }
-         .nav-cta {
-         background: var(--accent);
-         color: white !important;
-         padding: 8px 20px;
-         border-radius: 20px;
-         font-size: 14px;
-         font-weight: 500;
-         text-decoration: none;
-         transition: all 0.3s;
-         }
-         .nav-cta::after {
-         display: none !important;
-         }
-         .nav-cta:hover {
-         background: var(--accent-glow);
-         transform: scale(1.05);
-         box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);
-         }
-         .hero {
-         min-height: 100svh;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         position: relative;
-         background:
-         radial-gradient(ellipse 1200px 600px at 50% -15%, rgba(0,212,170,.18) 0%, rgba(0,212,170,0) 45%),
-         radial-gradient(ellipse 1200px 600px at 50% -15%, rgba(0,113,227,.14) 0%, rgba(0,113,227,0) 55%),
-         linear-gradient(135deg, #000 0%, #0a0a0a 50%, #000 100%);
-         overflow: hidden;
-         padding: 96px 0 56px;
-         isolation: isolate;
-         }
-         .hero .quick-links .quick-link h3{
-         font-size:32px;           
-         line-height:1.2;
-         }
-         @media (max-width:768px){
-         .hero .quick-links .quick-link h3{ font-size:28px; }  
-         }
-         @media (max-height: 800px) {
-         .hero { padding: 72px 0 40px; }
-         .hero-description { font-size: 16px; }
-         .quick-links { gap: 16px; }
-         .stat-card { padding: 24px; }
-         }
-         .hero-scale {
-         transform-origin:  50% 50%;
-         will-change: transform;
-         }
-         .hero::before {
-         content: '';
-         position: absolute;
-         top: -50%;
-         left: -50%;
-         width: 200%;
-         height: 200%;
-         background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-         animation: drift 30s linear infinite;
-         pointer-events: none;
-         z-index: 1;
-         }
-         @keyframes drift {
-         0% { transform: translate(0, 0); }
-         100% { transform: translate(100px, 100px); }
-         }
-         .hero::after{
-         content:'';
-         display: none;
-         position:absolute;
-         inset: 6% -25% auto -25%;
-         height: 105%;
-         background: radial-gradient(1400px 680px at 50% 26%,
-         rgba(0,212,170,.35),
-         rgba(0,113,227,.22) 30%,
-         rgba(0,0,0,0) 72%);
-         filter: blur(56px);
-         opacity:.85;
-         pointer-events:none;
-         z-index:1;
-         animation: haloDrift 8s ease-in-out infinite alternate;
-         }
-         .hero.show-halo::after {
-         display: block;
-         }
-         @keyframes haloDrift{
-         from{ transform: translateY(0) scale(1); opacity:.55; }
-         to  { transform: translateY(12px) scale(1.03); opacity:.8; }
-         }
-         nav{ border-bottom:1px solid rgba(255,255,255,.06); }
-         nav::after{
-         content:'';
-         position:absolute;
-         left:0; right:0; bottom:-1px; height:1px;
-         background: linear-gradient(90deg, transparent, var(--green), var(--accent), transparent);
-         opacity:.65;
-         pointer-events:none;
-         }
-         .hero-content {
-         text-align: center;
-         z-index: 2;
-         position: relative;
-         max-width: 1200px;
-         padding: 0 20px;
-         opacity: 0;
-         animation: none; 
-         }
-         @keyframes heroContentReveal {
-         to {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         from {
-         opacity: 0;
-         transform: translateY(30px);
-         }
-         }
-         .hero-badge {
-         display: inline-block;
-         padding: 8px 20px;
-         background: rgba(255, 255, 255, 0.08);
-         border: 1px solid rgba(255, 255, 255, 0.15);
-         border-radius: 100px;
-         font-size: 13px;
-         font-weight: 500;
-         margin-bottom: 30px;
-         backdrop-filter: blur(10px);
-         animation: pulse 3s ease-in-out infinite;
-         }
-         @keyframes pulse {
-         0%, 100% { 
-         opacity: 0.8; 
-         transform: scale(1);
-         }
-         50% { 
-         opacity: 1; 
-         transform: scale(1.02);
-         }
-         }
-         h1 {
-         font-size: clamp(56px, 10vw, 120px);
-         font-weight: 700;
-         line-height: 1;
-         letter-spacing: -0.04em;
-         margin-bottom: 30px;
-         background: linear-gradient(180deg, #ffffff 0%, #86868b 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         }
-         .hero-subtitle {
-         font-size: clamp(20px, 3vw, 32px);
-         font-weight: 400;
-         color: #86868b;
-         margin-bottom: 20px;
-         letter-spacing: -0.02em;
-         }
-         .hero-description {
-         font-size: 18px;
-         color: #d2d2d7;
-         max-width: 800px;
-         margin: 0 auto 40px;
-         line-height: 1.6;
-         }
-         .quick-links{
-         display:grid;
-         grid-template-columns:repeat(3, minmax(0,1fr)); 
-         gap:24px;
-         margin:28px auto;
-         max-width:1000px;
-         opacity: 0;
-         transform: translateY(40px);
-         animation: quickLinksReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1s;
-         }
-         @keyframes quickLinksReveal {
-         to {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         }
-         @media (max-width:768px){
-         .quick-links{ grid-template-columns:1fr; }      
-         }
-         .quick-link {
-         --panel-bg:
-         radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%) #0b0b0d;  
-         background: var(--panel-bg);
-         backdrop-filter: none;       
-         -webkit-backdrop-filter: none;
-         border: 1px solid rgba(255, 255, 255, 0.08);
-         border-radius: 20px;
-         border-width: var(--card-border-w);
-         padding: 32px;
-         text-decoration: none;
-         color: #fff;
-         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-         text-align: center;
-         position: relative;
-         isolation: isolate;
-         overflow: visible;
-         box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-         opacity: 0;
-         transform: translateY(20px);
-         }
-         .quick-link:nth-child(1) {
-         animation: cardStagger 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1.2s;
-         }
-         .quick-link:nth-child(2) {
-         animation: cardStagger 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1.32s;
-         }
-         .quick-link:nth-child(3) {
-         animation: cardStagger 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1.44s;
-         }
-         @keyframes cardStagger {
-         to {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         }
-         .quick-link::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding: var(--ring-w);      
-         border-radius:20px;
-         background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
-         -webkit-mask:
-         linear-gradient(#000 0 0) content-box,
-         linear-gradient(#000 0 0);
-         -webkit-mask-composite: xor;
-         mask-composite: exclude;
-         opacity:0;
-         transition: opacity .35s ease;
-         padding: var(--ring-w);
-         border-radius: 20px;   
-         pointer-events:none;
-         animation: ringPulse 1s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .quick-link:nth-child(1)::before { animation-delay: 1.2s; }
-         .quick-link:nth-child(2)::before { animation-delay: 1.32s; }
-         .quick-link:nth-child(3)::before { animation-delay: 1.44s; }
-         @keyframes ringPulse {
-         0% { opacity: 0; }
-         50% { opacity: 0.8; }
-         100% { opacity: 0.25; }
-         }
-         .quick-link::after{
-         content:'';
-         position:absolute;
-         inset: -25% -30% -50% -30%;  
-         background: radial-gradient(60% 40% at 50% 0,
-         rgba(0,212,170,.12),
-         rgba(0,113,227,.10) 33%,
-         rgba(0,0,0,0) 70%);
-         filter: blur(26px);
-         opacity:.45;
-         transition: opacity .25s ease;
-         pointer-events:none;
-         z-index:0;
-         }
-         .quick-link:hover{
-         background: var(--panel-bg);                 
-         transform: translateY(-8px) scale(1.02);     
-         border-color: rgba(0, 212, 170, 0.3);
-         box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-         border-color: rgba(0,212,170,0.28);
-         }
-         .quick-link:hover::before{ opacity:.7; }
-         .quick-link h3 {
-         font-size: 24px;
-         margin-bottom: 8px;
-         font-weight: 600;
-         }
-         .quick-link p {
-         color: #86868b;
-         font-size: 15px;
-         }
-         .stats-grid {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-         gap: 24px;
-         margin: 40px auto 0;
-         max-width: 1000px;
-         opacity: 0;
-         transform: translateY(40px);
-         animation: statsReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1.6s;
-         }
-         @keyframes statsReveal {
-         to {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         }
-         .stat-card {
-         background:
-         radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-         #0b0b0d;            
-         backdrop-filter: blur(20px);
-         backdrop-filter: none;
-         -webkit-backdrop-filter: none;
-         border: 1px solid rgba(255, 255, 255, 0.08);
-         border-radius: 20px;
-         border-width: var(--card-border-w);
-         padding: 32px;
-         text-align: center;
-         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-         position: relative;
-         isolation: isolate;
-         overflow: visible;
-         box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-         opacity: 0;
-         transform: translateY(20px) scale(0.95);
-         }
-         .stat-card:nth-child(1) {
-         animation: statReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 1.8s;
-         }
-         .stat-card:nth-child(2) {
-         animation: statReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 2s;
-         }
-         .stat-card:nth-child(3) {
-         animation: statReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 2.2s;
-         }
-         @keyframes statReveal {
-         to {
-         opacity: 1;
-         transform: translateY(0) scale(1);
-         }
-         }
-         .stat-card::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding:1px;                 
-         border-radius:20px;          
-         background: conic-gradient(from 0deg at 50% 50%,
-         var(--green), var(--accent), var(--green));
-         -webkit-mask: 
-         linear-gradient(#000 0 0) content-box, 
-         linear-gradient(#000 0 0);
-         -webkit-mask-composite: xor;
-         mask-composite: exclude;  
-         opacity:.6;
-         padding: var(--ring-w);       
-         border-radius: 20px;     
-         pointer-events:none;
-         z-index:1;
-         }
-         .stat-card::after{
-         content:'';
-         position:absolute;
-         inset:-25% -30% -50% -30%;
-         background: radial-gradient(60% 40% at 50% 0,
-         rgba(0,212,170,.16),
-         rgba(0,113,227,.12) 33%,
-         rgba(0,0,0,0) 70%);
-         filter: blur(26px);
-         opacity:.45;
-         pointer-events:none;
-         z-index:0;
-         transition: opacity .25s ease;
-         }
-         .stat-card:hover::after{ 
-         opacity:.7;
-         }
-         .stat-card:hover {
-         transform: translateY(-5px);
-         border-color: rgba(0, 212, 170, 0.2);
-         }
-         .stat-number {
-         font-size: 36px;
-         font-weight: 700;
-         background: linear-gradient(90deg, var(--green) 0%, #00ffcc 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         margin-bottom: 8px;
-         display: block;
-         }
-         .stat-number[data-target] {
-         animation: countUp 2s ease-out forwards;
-         animation-delay: 2s;
-         }
-         .stat-label {
-         font-size: 14px;
-         color: #86868b;
-         text-transform: uppercase;
-         letter-spacing: 0.05em;
-         }
-         .stat-label small {
-         display: block;
-         font-size: 12px;
-         opacity: 0.8;
-         text-transform: none;
-         margin-top: 4px;
-         }
-         .author-banner {
-         display: flex;
-         justify-content: center;
-         margin-top: 28px;
-         opacity: 0;
-         animation: fadeUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         animation-delay: 2.4s;
-         }
-         .author-banner-content {
-         display: inline-flex;
-         gap: 12px;
-         align-items: center;
-         background: rgba(255, 255, 255, 0.06);
-         border: 1px solid rgba(255, 255, 255, 0.1);
-         border-radius: 999px;
-         padding: 10px 24px;
-         backdrop-filter: blur(10px);
-         }
-         .author-banner-content a {
-         color: white;
-         text-decoration: none;
-         padding: 4px 12px;
-         border-radius: 999px;
-         transition: background 0.3s;
-         }
-         .author-banner-content a:hover {
-         background: rgba(255, 255, 255, 0.1);
-         }
-         .scroll-hint {
-         position: absolute;
-         bottom: 40px;
-         left: 50%;
-         transform: translateX(-50%);
-         opacity: 0;
-         animation: scrollHintReveal 1s forwards, scrollBounce 2s ease-in-out infinite;
-         animation-delay: 3s, 4s;
-         color: var(--green);
-         font-size: 14px;
-         transition: opacity 0.3s;
-         }
-         .scroll-hint.hide {
-         opacity: 0;
-         pointer-events: none;
-         }
-         @keyframes scrollHintReveal {
-         to { opacity: 0.5; }
-         }
-         @keyframes scrollBounce {
-         0%, 100% { transform: translateX(-50%) translateY(0); }
-         50% { transform: translateX(-50%) translateY(10px); }
-         }
-         .scroll-hint::before {
-         content: '•';
-         display: block;
-         animation: dotPulse 2s ease-in-out infinite;
-         }
-         .scroll-hint::after {
-         content: '•';
-         display: block;
-         animation: dotPulse 2s ease-in-out infinite;
-         animation-delay: 0.3s;
-         }
-         @keyframes dotPulse {
-         0%, 100% { 
-         opacity: 0.3;
-         transform: translateY(0);
-         }
-         50% { 
-         opacity: 1;
-         transform: translateY(5px);
-         }
-         }
-         .section {
-         padding: 120px 0;
-         position: relative;
-         background: #000;
-         z-index: 10;
-         isolation: isolate;
-         }
-         .section::before {
-         content: '';
-         position: absolute;
-         top: 0;
-         left: 0;
-         right: 0;
-         height: 100px;
-         background: linear-gradient(180deg, #000 0%, transparent 100%);
-         z-index: 1;
-         }
-         .section::after{
-         content:'';
-         position:absolute;
-         inset:-12% -25% -35% -25%;
-         background: radial-gradient(60% 40% at 50% 0,
-         rgba(0,212,170,.10),
-         rgba(0,113,227,.08) 35%,
-         rgba(0,0,0,0) 70%);
-         filter: blur(28px);
-         opacity:.25;
-         pointer-events:none;
-         transition: opacity .6s ease;
-         z-index:0;
-         }
-         .section.visible .section-title { transform: translateY(0); opacity:1; }
-         .section.visible::after{ 
-         opacity:.42;
-         }
-         .section-dark {
-         background: #000;
-         }
-         .section-gradient {
-         background: linear-gradient(180deg, #000 0%, #0a0a0a 50%, #000 100%);
-         }
-         .container {
-         max-width: 1200px;
-         margin: 0 auto;
-         padding: 0 22px;
-         position: relative;
-         z-index: 2;
-         }
-         main {
-         position: relative;
-         z-index: 10;
-         background: #000;
-         }
-         .section-header {
-         text-align: center;
-         margin-bottom: 80px;
-         position: relative; 
-         }
-         .section-header::after{
-         content:'';
-         display:block;
-         width:0;
-         height:2px;
-         margin:14px auto 0;
-         background: linear-gradient(90deg, var(--green), var(--accent));
-         box-shadow: 0 0 20px rgba(0,212,170,.35);
-         transition: width .8s ease;
-         }
-         .section.visible .section-header::after{
-         width: 140px;
-         }
-         .section-title {
-         transform: translateY(6px); opacity:.85; transition: transform .6s, opacity .6s;
-         font-size: clamp(36px, 6vw, 56px);
-         font-weight: 700;
-         letter-spacing: -0.03em;
-         margin-bottom: 20px;
-         background: linear-gradient(90deg, #fff 0%, #86868b 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         }
-         .section-subtitle {
-         font-size: 20px;
-         color: #86868b;
-         max-width: 900px;
-         margin: 0 auto;
-         line-height: 1.5;
-         }
-         .package-section {
-         background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-         border: 1px solid rgba(255, 255, 255, 0.1);
-         border-radius: 24px;
-         padding: 60px;
-         margin: 60px 0;
-         position: relative;
-         overflow: hidden;
-         backdrop-filter: blur(10px);
-         }
-         .package-section::before {
-         content: '';
-         position: absolute;
-         top: -2px;
-         left: -2px;
-         right: -2px;
-         bottom: -2px;
-         background: linear-gradient(45deg, var(--green), var(--accent));
-         border-radius: 24px;
-         opacity: 0;
-         transition: opacity 0.4s;
-         z-index: -1;
-         }
-         .package-section:hover::before {
-         opacity: 0.15;
-         }
-         .package-header {
-         display: flex;
-         justify-content: space-between;
-         align-items: flex-start;
-         gap: 24px;
-         flex-wrap: wrap;
-         margin-bottom: 40px;
-         }
-         .package-title {
-         font-size: 48px;
-         font-weight: 700;
-         background: linear-gradient(90deg, var(--green) 0%, #00ffcc 100%);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent;
-         background-clip: text;
-         letter-spacing: -0.02em;
-         }
-         .package-subtitle {
-         font-size: 18px;
-         color: #86868b;
-         margin-top: 8px;
-         line-height: 1.4;
-         }
-         .github-link {
-         display: inline-flex;
-         align-items: center;
-         gap: 8px;
-         background: rgba(255, 255, 255, 0.05);
-         border: 1px solid rgba(255, 255, 255, 0.1);
-         border-radius: 32px;
-         padding: 12px 24px;
-         text-decoration: none;
-         color: white;
-         transition: all 0.3s;
-         white-space: nowrap;
-         }
-                  /* Make GitHub buttons look like .stat-card (no nth-child reveals) */
-         .github-link--card {
-         display: inline-flex;
-         align-items: center;
-         gap: 10px;
-         padding: 24px 28px;
-         text-decoration: none;
-         color: #fff;
-         text-align: center;
-         border-radius: 20px;
-         position: relative;
-         isolation: isolate;
-         overflow: visible;
-         box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-         /* match .stat-card surface */
-         background:
-            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-            #0b0b0d;
-         border: 1px solid rgba(255,255,255,0.08);
-         }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MINTverse - Transform Global Health at Scale</title>
+    <meta name="description" content="MINTverse: a dashboard-ready, suite of deep-learning emulators for malaria interventions.">
 
-         /* stat-card ring + glow */
-         .github-link--card::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding: var(--ring-w);
-         border-radius: 20px;
-         background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
-         -webkit-mask:
-            linear-gradient(#000 0 0) content-box,
-            linear-gradient(#000 0 0);
-         -webkit-mask-composite: xor;
-         mask-composite: exclude;
-         opacity:.6;
-         pointer-events:none;
-         }
+    <style>
+      :root{
+        --black:#000; --white:#fff;
+        --green:#00d4aa; --accent:#0071e3;
+        --accent-glow:#0051a2;
+        --text-muted:#86868b;
+        --brand-text-gradient: linear-gradient(90deg, #fff 0%, var(--green) 100%);
+        --cards-offset: clamp(160px, 24vh, 380px);
+      }
+      *{ margin:0; padding:0; box-sizing:border-box; }
+      html{ scroll-behavior:smooth; }
+      body{
+        font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+        background:#000; color:#fff; line-height:1.6; overflow-x:hidden;
+        -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      }
 
-         .github-link--card::after{
-         content:'';
-         position:absolute;
-         inset:-25% -30% -50% -30%;
-         background: radial-gradient(60% 40% at 50% 0,
-            rgba(0,212,170,.16),
-            rgba(0,113,227,.12) 33%,
-            rgba(0,0,0,0) 70%);
-         filter: blur(26px);
-         opacity:.45;
-         pointer-events:none;
-         transition: opacity .25s ease;
-         z-index:0;
-         }
+      /* Loading bar */
+      .loading-bar{
+        position:fixed; top:0; left:0; right:0; height:2px;
+        background:linear-gradient(90deg, var(--green) 0%, var(--accent) 100%);
+        transform-origin:left;
+        animation:loadingBar 1.5s cubic-bezier(.4,0,.2,1) forwards;
+        z-index:10001;
+      }
+      @keyframes loadingBar{
+        0%{transform:scaleX(0);opacity:1}
+        90%{transform:scaleX(1);opacity:1}
+        100%{transform:scaleX(1);opacity:0}
+      }
 
-         .github-link--card:hover {
-         transform: translateY(-5px);
-         border-color: rgba(0, 212, 170, 0.2);
-         }
-         .github-link--card:hover::after{ opacity:.7; }
+      /* Intro overlay */
+      html.intro-lock, body.intro-lock{ height:100%; overflow:hidden; }
+      body.intro-lock::-webkit-scrollbar{ display:none; }
 
-         .github-link:hover {
-         background: var(--green);
-         transform: translateY(-2px);
-         box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
-         border-color: var(--green);
-         }
-         .feature-grid {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-         gap: 24px;
-         margin: 32px 0;
-         }
-         .feature-card {
-         background: rgba(255, 255, 255, 0.03);
-         border: 1px solid rgba(255, 255, 255, 0.08);
-         border-radius: 16px;
-         padding: 28px;
-         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .feature-card:hover {
-         transform: translateY(-4px);
-         background: rgba(255, 255, 255, 0.05);
-         border-color: rgba(255, 255, 255, 0.15);
-         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-         }
-         .feature-card h4 {
-         font-size: 20px;
-         margin-bottom: 12px;
-         color: var(--green);
-         }
-         .feature-card p {
-         color: #d2d2d7;
-         line-height: 1.6;
-         font-size: 15px;
-         }
-         .feature-card ul {
-         margin-left: 20px;
-         color: #d2d2d7;
-         }
-         .feature-card ul li {
-         margin: 8px 0;
-         }
-         .badge {
-         display: inline-block;
-         padding: 6px 16px;
-         border-radius: 999px;
-         font-size: 12px;
-         background: rgba(37, 99, 235, 0.15);
-         border: 1px solid rgba(37, 99, 235, 0.3);
-         color: #93c5fd;
-         margin-bottom: 20px;
-         font-weight: 500;
-         letter-spacing: 0.5px;
-         text-transform: uppercase;
-         }
-         .workflow-diagram {
-         background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-         border: 1px solid rgba(255, 255, 255, 0.08);
-         border-radius: 20px;
-         padding: 48px 32px;
-         margin: 48px 0;
-         position: relative;
-         overflow: visible;
-         }
-         .flow-rail {
-         display: flex;
-         gap: 0;
-         align-items: center;
-         justify-content: center;
-         flex-wrap: nowrap;
-         margin-top: 32px;
-         position: relative;
-         min-height: 140px;
-         align-items: stretch; 
-         }
-         .flow-connector {
-         flex: 0 0 60px;
-         height: 2px;
-         background: linear-gradient(90deg, rgba(0, 212, 170, 0.3) 0%, rgba(0, 212, 170, 0.6) 50%, rgba(0, 212, 170, 0.3) 100%);
-         position: relative;
-         margin: 0 -8px;
-         z-index: 1;
-         align-self: center;  
-         }
-         .flow-connector::after {
-         content: '▶';
-         position: absolute;
-         right: -6px;
-         top: 50%;
-         transform: translateY(-50%);
-         color: var(--green);
-         font-size: 10px;
-         }
-         .flow-step {
-         flex: 0 0 var(--flow-step-w);
-         width: var(--flow-step-w);
-         min-height: var(--flow-step-h);
-         min-width: 0;
-         max-width: none;
-         display: grid;
-         grid-auto-rows: min-content;
-         background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), transparent),
-         rgba(0, 0, 0, 0.6);
-         border: 1px solid rgba(255, 255, 255, 0.1);
-         border-radius: 16px;
-         padding: 24px 20px;
-         text-align: center;
-         position: relative;
-         z-index: 2;
-         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .flow-step:hover {
-         transform: translateY(-8px);
-         background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), transparent),
-         rgba(0, 0, 0, 0.8);
-         border-color: rgba(0, 212, 170, 0.3);
-         box-shadow: 0 20px 40px rgba(0, 212, 170, 0.15);
-         }
-         .flow-icon {
-         width: 48px;
-         height: 48px;
-         border-radius: 12px;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         margin: 0 auto 16px;
-         background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(0, 113, 227, 0.2));
-         border: 1px solid rgba(0, 212, 170, 0.3);
-         font-size: 24px;
-         }
-         .flow-step h4 {
-         margin-bottom: 4px;
-         font-size: 16px;
-         font-weight: 600;
-         color: #fff;
-         }
-         .flow-step small {
-         color: #86868b;
-         font-size: 12px;
-         display: block;
-         margin-bottom: 8px;
-         }
-         @media (max-width: 768px){
-         .flow-step{
-         flex-basis: 100%;
-         width: 100%;
-         min-height: auto;
-         }
-         }
-         .pill-row {
-         display: flex;
-         gap: 6px;
-         flex-wrap: wrap;
-         justify-content: center;
-         margin-top: 8px;
-         }
-         .pill {
-         background: rgba(255, 255, 255, 0.06);
-         border: 1px solid rgba(255, 255, 255, 0.1);
-         border-radius: 999px;
-         padding: 3px 10px;
-         font-size: 11px;
-         white-space: nowrap;
-         }
-         .code-section {
-         position: relative;
-         background: #0d1117;
-         border: 1px solid #30363d;
-         border-radius: 16px;
-         padding: 32px 24px 24px;
-         margin: 32px 0;
-         overflow-x: auto;
-         font-size: 14px;
-         }
-         .code-section::before {
-         content: '';
-         position: absolute;
-         top: 14px;
-         left: 20px;
-         display: flex;
-         gap: 6px;
-         width: 52px;
-         height: 12px;
-         background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-         }
-         pre {
-         font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
-         font-size: 13px;
-         line-height: 1.6;
-         color: #e6edf3;
-         margin: 0;
-         white-space: pre;
-         overflow-x: auto;
-         }
-         code {
-         font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
-         }
-         .comment { color: #8b949e; }
-         .function { color: #d2a8ff; }
-         .string { color: #a5d6ff; }
-         .number { color: #79c0ff; }
-         .parameter { color: #ffa657; }
-         .copy-btn {
-         transition: transform .2s, background .2s, box-shadow .2s;
-         position: absolute;
-         top: 14px;
-         right: 16px;
-         border: none;
-         border-radius: 8px;
-         padding: 6px 12px;
-         background: rgba(255, 255, 255, 0.08);
-         color: #fff;
-         cursor: pointer;
-         font-size: 12px;
-         transition: all 0.2s;
-         font-weight: 500;
-         }
-         .copy-btn:hover {
-         background: rgba(255, 255, 255, 0.16);
-         transform: scale(1.05);
-         }
-         .mini-table {
-         width: 100%;
-         border-collapse: collapse;
-         font-size: 14px;
-         margin-top: 12px;
-         }
-         .mini-table th,
-         .mini-table td {
-         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-         padding: 14px 12px;
-         text-align: left;
-         }
-         .mini-table th {
-         color: #93c5fd;
-         font-weight: 600;
-         background: rgba(255, 255, 255, 0.02);
-         }
-         .mini-table tr:hover td {
-         background: rgba(255, 255, 255, 0.02);
-         }
-         .grid-2 {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-         gap: 24px;
-         }
-         .alert {
-         background: rgba(139, 92, 246, 0.08);
-         border: 1px solid rgba(139, 92, 246, 0.3);
-         border-radius: 16px;
-         padding: 20px 24px;
-         margin: 32px 0;
-         position: relative;
-         overflow: hidden;
-         }
-         .alert::before {
-         content: '💡';
-         position: absolute;
-         top: 20px;
-         left: 24px;
-         font-size: 18px;
-         }
-         .alert strong {
-         color: #c4b5fd;
-         }
-         .alert {
-         padding-left: 56px;
-         }
-         .stat {
-         background: rgba(255, 255, 255, 0.03);
-         border: 1px solid rgba(255, 255, 255, 0.08);
-         border-radius: 12px;
-         padding: 16px;
-         text-align: center;
-         }
-         .stat .value {
-         font-size: 20px;
-         font-weight: 700;
-         color: var(--green);
-         }
-         .stat-cards {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-         gap: 12px;
-         margin: 16px 0;
-         }
-         .muted {
-         color: #86868b;
-         font-size: 13px;
-         }
-         h3 {
-         font-size: 32px;
-         font-weight: 600;
-         margin: 48px 0 24px;
-         color: var(--green);
-         position: relative;
-         padding-left: 20px;
-         }
-         h3::before {
-         content: '';
-         position: absolute;
-         left: 0;
-         top: 50%;
-         transform: translateY(-50%);
-         width: 4px;
-         height: 24px;
-         background: linear-gradient(180deg, var(--green), var(--accent));
-         border-radius: 2px;
-         }
-         #contact .feature-grid{
-         align-items: start;     
-         }
-         #contact .feature-grid > .feature-card{
-         background:
-         radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-         #0b0b0d;
-         border: 1px solid rgba(255,255,255,.08);
-         border-radius: 20px;
-         border-width: var(--card-border-w);
-         box-shadow: 0 12px 40px rgba(0,0,0,.55);
-         position: relative;
-         isolation: isolate;
-         overflow: hidden;
-         transition: transform .4s cubic-bezier(.4,0,.2,1), box-shadow .4s, border-color .4s;
-         }
-         #contact .feature-grid > .feature-card::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding: var(--ring-w);
-         border-radius: 20px;
-         background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
-         -webkit-mask:
-         linear-gradient(#000 0 0) content-box,
-         linear-gradient(#000 0 0);
-         -webkit-mask-composite: xor;
-         mask-composite: exclude;
-         opacity:.18;
-         pointer-events:none;
-         transition: opacity .35s ease, transform 3.2s linear;
-         }
-         #contact .feature-grid > .feature-card::after{
-         content:'';
-         position:absolute;
-         inset:-0;
-         background: radial-gradient(60% 40% at 50% 0,
-         rgba(0,212,170,.14),
-         rgba(0,113,227,.10) 33%,
-         rgba(0,0,0,0) 70%);
-         filter: blur(28px);
-         opacity:.40;
-         pointer-events:none;
-         transition: opacity .3s ease;
-         z-index:0;
-         }
-         #contact .feature-grid > .feature-card:hover{
-         transform: translateY(-6px) scale(1.01);
-         border-color: rgba(0,212,170,.28);
-         box-shadow: 0 30px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
-         }
-         #contact .feature-grid > .feature-card:hover::after{  opacity:.65; }
-         #contact.visible .feature-grid > .feature-card::before{ opacity:.28; }
-         #contact.visible .feature-grid > .feature-card::after{  opacity:.52; }
-         #contact .section-header::after{
-         height:2px;
-         box-shadow: 0 0 20px rgba(0,212,170,.35);
-         }
-         @media (prefers-reduced-motion: reduce){
-         #contact .feature-grid > .feature-card,
-         #contact .feature-grid > .feature-card::before{
-         transition: none;
-         }
-         }
-         #contact .feature-card {
-         padding: 32px;
-         }
-         #contact .h3-tight{
-         position: relative;
-         padding-left: 20px;            
-         }
-         #contact .h3-tight::before{
-         content:'';
-         position:absolute;
-         left:0; top:50%;
-         transform: translateY(-50%);
-         width:4px; height:24px;
-         background: linear-gradient(180deg, var(--green), var(--accent));
-         border-radius: 2px;
-         display:block;                 
-         }
-         #contact .contact-card p{
-         margin: 14px 0;          
-         line-height: 1.75;       
-         }
-         #contact .contact-card .cta-row{ margin-top: 28px; }
-         #contact .contact-card p a + a{
-         display: block;
-         margin-top: 8px;
-         }
-         #contact .subtitle {
-         color: #86868b;
-         margin: 8px 0 20px;
-         font-size: 16px;
-         }
-         #contact .tick-list {
-         list-style: none;
-         margin: 12px 0;
-         padding: 0;
-         }
-         #contact .tick-list li {
-         position: relative;
-         padding-left: 28px;
-         margin: 10px 0;
-         line-height: 1.6;
-         }
-         #contact .tick-list li::before {
-         content: "✓";
-         position: absolute;
-         left: 0;
-         top: 2px;
-         color: var(--green);
-         font-weight: bold;
-         }
-         #contact .chips {
-         display: flex;
-         gap: 8px;
-         flex-wrap: wrap;
-         margin: 16px 0;
-         }
-         #contact .chip {
-         background: rgba(255, 255, 255, 0.06);
-         border: 1px solid rgba(255, 255, 255, 0.1);
-         border-radius: 999px;
-         padding: 6px 14px;
-         font-size: 13px;
-         transition: all 0.2s;
-         }
-         #contact .chip:hover {
-         background: rgba(0, 212, 170, 0.1);
-         border-color: rgba(0, 212, 170, 0.3);
-         }
-         #contact .cta-row {
-         display: flex;
-         gap: 12px;
-         flex-wrap: wrap;
-         margin-top: 24px;
-         }
-         #contact .btn-primary {
-         display: inline-flex;
-         align-items: center;
-         gap: 8px;
-         background: var(--primary);
-         color: #000;
-         font-weight: 600;
-         border: none;
-         border-radius: 12px;
-         padding: 12px 24px;
-         text-decoration: none;
-         transition: all 0.3s;
-         }
-         #contact .btn-primary:hover {
-         background: var(--primary-dark);
-         transform: translateY(-2px);
-         box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
-         }
-         #contact .btn-ghost {
-         display: inline-flex;
-         align-items: center;
-         gap: 8px;
-         background: transparent;
-         color: white;
-         border: 1px solid rgba(255, 255, 255, 0.2);
-         border-radius: 12px;
-         padding: 12px 24px;
-         text-decoration: none;
-         transition: all 0.3s;
-         }
-         #contact .btn-ghost:hover {
-         background: rgba(255, 255, 255, 0.08);
-         border-color: rgba(255, 255, 255, 0.3);
-         transform: translateY(-2px);
-         }
-         #contact .small-muted {
-         color: #7a918d;
-         font-size: 14px;
-         margin-top: 20px;
-         line-height: 1.6;
-         }
-         #contact .contact-card a.github-link{
-         background: transparent !important;
-         border: none !important;
-         padding: 0 !important;
-         border-radius: 0 !important;
-         text-decoration: none;
-         color: #e8e8ed;
-         opacity: .95;
-         position: relative;
-         display: inline;
-         box-shadow: none !important;
-         transform: none !important;
-         }
-         #contact .contact-card a.github-link:hover{
-         opacity: 1;
-         background: transparent !important;
-         }
-         #contact .contact-card a.github-link::after{
-         content: '';
-         position: absolute;
-         left: 0;
-         bottom: -2px;
-         width: 0;
-         height: 1px;
-         background: linear-gradient(90deg, var(--green), var(--accent));
-         transition: width .25s ease;
-         opacity: .9;
-         }
-         #contact .contact-card a.github-link:hover::after,
-         #contact .contact-card a.github-link:focus-visible::after{
-         width: 100%;
-         }
-         #contact .contact-card a{ overflow-wrap: anywhere; }    
-         #contact .contact-card p a + a{ display: block; margin-top: 6px; } 
-         footer {
-         background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
-         padding: 80px 0 40px;
-         border-top: 1px solid rgba(255, 255, 255, 0.08);
-         text-align: center;
-         position: relative;
-         z-index: 10;
-         }
-         .footer-copyright {
-         color: #515154;
-         font-size: 14px;
-         }
-         @media (max-width: 768px) {
-         .nav-links {
-         display: none;
-         }
-         h1 {
-         font-size: 48px;
-         }
-         .hero-subtitle {
-         font-size: 20px;
-         }
-         .stats-grid {
-         grid-template-columns: 1fr;
-         }
-         .package-section {
-         padding: 32px 20px;
-         }
-         .flow-rail {
-         flex-direction: column;
-         gap: 20px;
-         }
-         .flow-connector {
-         width: 2px;
-         height: 40px;
-         flex: 0 0 40px;
-         margin: -10px 0;
-         }
-         .flow-connector::after {
-         content: '▼';
-         right: 50%;
-         bottom: -8px;
-         top: auto;
-         transform: translateX(50%);
-         }
-         #contact .feature-grid {
-         grid-template-columns: 1fr;
-         }
-         .quick-links {
-         grid-template-columns: 1fr;
-         }
-         }
-         .fade-in {
-         opacity: 0;
-         transform: translateY(30px);
-         transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .fade-in.visible {
-         opacity: 1;
-         transform: translateY(0);
-         }
-         .loading-bar {
-         position: fixed;
-         top: 0;
-         left: 0;
-         right: 0;
-         height: 2px;
-         background: linear-gradient(90deg, var(--green) 0%, var(--accent) 100%);
-         transform-origin: left;
-         animation: loadingBar 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-         z-index: 10001;
-         }
-         @keyframes loadingBar {
-         0% { 
-         transform: scaleX(0); 
-         opacity: 1;
-         }
-         90% { 
-         transform: scaleX(1); 
-         opacity: 1;
-         }
-         100% { 
-         transform: scaleX(1); 
-         opacity: 0;
-         }
-         }
-         @media (prefers-reduced-motion: reduce) {
-         .cinematic-intro,
-         .intro-grid,
-         .intro-halo,
-         .intro-logo,
-         .intro-tagline,
-         .intro-context,
-         .title-cards,
-         .scroll-scrub-section,
-         .hero-content,
-         .quick-links,
-         .quick-link,
-         .stat-card,
-         .author-banner {
-         animation: none !important;
-         transition: opacity 0.5s !important;
-         }
-         .intro-logo::after,
-         .title-card h2::after {
-         display: none;
-         }
-         }
-         @media (max-width: 768px) {
-         .nav-links { display: none; }
-         h1 { font-size: 48px; }
-         .hero-subtitle { font-size: 20px; }
-         .stats-grid { grid-template-columns: 1fr; }
-         .quick-links { grid-template-columns: 1fr; }
-         .scroll-scrub-section { height: 200vh; }
-         .scrub-beat h2 { font-size: 36px; }
-         .scrub-beat p { font-size: 18px; }
-         }
-         .cinematic-intro.fade-to-black .intro-grid,
-         .cinematic-intro.fade-to-black .intro-halo {
-         opacity: 0 !important;
-         transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
-         }
-         .cinematic-intro.fade-to-black .intro-content {
-         opacity: 0 !important;
-         transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
-         }
-         .scrub-beat p{
-         position: relative;
-         display: inline-block;     
-         padding-bottom: 10px;
-         }
-         .scrub-beat p::after{
-         content:'';
-         position:absolute;
-         left:0;                    
-         bottom:-8px;
-         width:100%;                
-         height:2px;
-         background: linear-gradient(90deg, var(--green), var(--accent));
-         box-shadow: 0 0 20px rgba(0,212,170,.35);
-         transform: scaleX(0);      
-         transform-origin: center;  
-         transition: transform .6s cubic-bezier(.4,0,.2,1);
-         opacity:.95;
-         }
-         .scrub-beat.active p::after,
-         .scrub-beat.seen   p::after{
-         transform: scaleX(1);
-         }
-         .intro-tagline {
-         font-size: clamp(20px, 3vw, 32px);
-         color: #86868b;
-         margin-top: 20px;
-         animation: none !important;      
-         opacity: 1 !important; 
-         transform: none !important;
-         animation-delay: 2.5s;
-         overflow: visible;         
-         position: relative;        
-         margin-bottom: 16px;       
-         }
-         .intro-tagline span{
-         display: inline-block;
-         opacity: 0;
-         transform: translateY(20px) !important;
-         animation: fadeUp 1s cubic-bezier(0.4,0,0.2,1) forwards !important;
-         animation-delay: 2.5s !important;  
-         }
-         .nav-logo { text-decoration: none; cursor: pointer; }
-         .gradient-brand-text{
-         background: var(--brand-text-gradient);
-         -webkit-background-clip: text;
-         -webkit-text-fill-color: transparent; /* Safari */
-         background-clip: text;
-         color: transparent;                   /* fallback */
-         }
-         .section:last-of-type::after { content: none; }
+      .cinematic-intro{
+        position:fixed; inset:0; z-index:10000; background:#000;
+        display:flex; align-items:center; justify-content:center;
+        transition:opacity 1s cubic-bezier(.4,0,.2,1);
+      }
+      .cinematic-intro.hide{ opacity:0; pointer-events:none; }
+      .cinematic-intro.complete{ display:none; }
 
-                  /* Compact stat-card look for the navbar GitHub button */
-         .nav-links .nav-cta {
-         --ring-w: 2px; /* thinner ring for small control */
-         background:
-            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-            #0b0b0d; /* same surface as .stat-card */
-         color: #fff !important;
-         border: 1px solid rgba(255,255,255,0.08);
-         border-radius: 14px;
-         padding: 8px 14px;            /* stays comfy inside a 52px navbar */
-         line-height: 1;               /* keeps height tight */
-         position: relative;
-         isolation: isolate;
-         box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-         transform: translateZ(0);
-         }
+      .intro-grid{
+        position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+        background:url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        animation:driftSlow 30s linear infinite; opacity:0; animation-delay:.5s; animation-fill-mode:forwards;
+      }
+      @keyframes driftSlow{
+        0%{transform:translate(0,0);opacity:0}
+        10%{opacity:.5}
+        100%{transform:translate(100px,100px);opacity:.5}
+      }
 
-         /* ring */
-         .nav-links .nav-cta::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding: var(--ring-w);
-         border-radius:14px;
-         background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
-         -webkit-mask:
-            linear-gradient(#000 0 0) content-box,
-            linear-gradient(#000 0 0);
-         -webkit-mask-composite: xor;
-         mask-composite: exclude;
-         opacity:.35;
-         pointer-events:none;
-         }
+      .intro-halo{
+        position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:120%; height:120%;
+        background:radial-gradient(600px 400px at 50% 50%,
+          rgba(0,212,170,.35),
+          rgba(0,113,227,.22) 30%,
+          rgba(0,0,0,0) 70%);
+        filter:blur(60px); opacity:0;
+        animation:haloReveal 3s cubic-bezier(.4,0,.2,1) forwards, haloBreathe 8s ease-in-out infinite alternate;
+        animation-delay:.5s, 3s;
+      }
+      @keyframes haloReveal{ to{opacity:.8} }
+      @keyframes haloBreathe{
+        0%{ transform:translate(-50%,-50%) scale(1) }
+        100%{ transform:translate(-50%,-48%) scale(1.05) }
+      }
 
-         /* glow — re-enable ::after (it was disabled for underline suppression) */
-         .nav-links .nav-cta::after{
-         content:'';
-         display:block !important;
-         position:absolute;
-         inset:-40% -40% -60% -40%;
-         background: radial-gradient(60% 40% at 50% 0,
-            rgba(0,212,170,.16),
-            rgba(0,113,227,.12) 33%,
-            rgba(0,0,0,0) 70%);
-         filter: blur(18px);
-         opacity:.35;
-         pointer-events:none;
-         z-index:-1;
-         }
+      .intro-content{ position:relative; z-index:2; text-align:center; max-width:900px; padding:0 40px; }
+      .intro-logo{
+        font-size:clamp(60px,10vw,120px); font-weight:700; letter-spacing:-.04em;
+        background:linear-gradient(180deg,#fff 0%,#86868b 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        opacity:0; transform:scale(.95);
+        animation:logoReveal 1.5s cubic-bezier(.4,0,.2,1) forwards; animation-delay:1s;
+        transition:transform .6s ease, opacity .6s ease;
+      }
+      @keyframes logoReveal{ to{opacity:1; transform:scale(1)} }
 
-         .nav-links .nav-cta:hover{
-         transform: translateY(-3px);
-         border-color: rgba(0,212,170,0.25);
-         box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-         }
-         .nav-links .nav-cta:hover::after{ opacity:.6; }
-         .nav-links .nav-cta:active{ transform: translateY(-1px); }
+      /* Compact the header slightly when cards start to avoid overlap */
+      .intro-content.cards-phase .intro-logo{ transform:translateY(-10px) scale(.9); opacity:.75; }
+      .intro-content.cards-phase .intro-tagline{ opacity:.85; }
+      .intro-content.cards-phase .intro-context{ opacity:.9; }
 
-         /* Make ABOUT cards match CONTACT rimmed cards */
-         #about .feature-grid > .feature-card,
-         #about .feature-card .feature-card {
-         background:
-            radial-gradient(120% 90% at 50% -20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-            #0b0b0d;
-         border: 1px solid rgba(255,255,255,.08);
-         border-radius: 20px;
-         border-width: var(--card-border-w);
-         box-shadow: 0 12px 40px rgba(0,0,0,.55);
-         position: relative;
-         isolation: isolate;
-         overflow: hidden;
-         transition: transform .4s cubic-bezier(.4,0,.2,1), box-shadow .4s, border-color .4s;
-         }
+      .intro-tagline{
+        font-size:clamp(20px,3vw,32px);
+        color:var(--text-muted);
+        margin:16px 0 6px; position:relative;
+      }
+      .intro-tagline span{
+        display:inline-block; opacity:0; transform:translateY(20px);
+        animation:fadeUp 1s cubic-bezier(.4,0,.2,1) forwards; animation-delay:2.5s;
+      }
 
-         /* ring */
-         #about .feature-grid > .feature-card::before,
-         #about .feature-card .feature-card::before{
-         content:'';
-         position:absolute;
-         inset:0;
-         padding: var(--ring-w);
-         border-radius: 20px;
-         background: conic-gradient(from 0deg at 50% 50%, var(--green), var(--accent), var(--green));
-         -webkit-mask:
-            linear-gradient(#000 0 0) content-box,
-            linear-gradient(#000 0 0);
-         -webkit-mask-composite: xor;
-         mask-composite: exclude;
-         opacity:.18;
-         pointer-events:none;
-         transition: opacity .35s ease, transform 3.2s linear;
-         }
+      .intro-context{
+        font-size:18px; color:#d2d2d7; margin-top:10px; opacity:0; position:relative; display:inline-block;
+        animation:fadeUp 1s cubic-bezier(.4,0,.2,1) forwards; animation-delay:4s;
+      }
+      .intro-context::after{
+        content:''; position:absolute; left:50%; transform:translateX(-50%);
+        bottom:-10px; width:0; height:2px;
+        background:linear-gradient(90deg, var(--green), var(--accent));
+        box-shadow:0 0 20px rgba(0,212,170,.35);
+        animation:lineGrow 2s cubic-bezier(.4,0,.2,1) forwards; animation-delay:4s;
+      }
 
-         /* glow */
-         #about .feature-grid > .feature-card::after,
-         #about .feature-card .feature-card::after{
-         content:'';
-         position:absolute;
-         inset:0;
-         background: radial-gradient(60% 40% at 50% 0,
-            rgba(0,212,170,.14),
-            rgba(0,113,227,.10) 33%,
-            rgba(0,0,0,0) 70%);
-         filter: blur(28px);
-         opacity:.40;
-         pointer-events:none;
-         transition: opacity .3s ease;
-         z-index:0;
-         }
+      @keyframes fadeUp{ from{opacity:0; transform:translateY(20px)} to{opacity:1; transform:translateY(0)} }
+      @keyframes lineGrow{ to{ width:60% } }
 
-         /* hover & in-view states to match contact */
-         #about .feature-grid > .feature-card:hover,
-         #about .feature-card .feature-card:hover{
-         transform: translateY(-6px) scale(1.01);
-         border-color: rgba(0,212,170,.28);
-         box-shadow: 0 30px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
-         }
-         #about .feature-grid > .feature-card:hover::after,
-         #about .feature-card .feature-card:hover::after{ opacity:.65; }
+      /* Title cards */
+      .title-cards{
+      position: relative;
+      margin-top: var(--cards-offset);  /* was: clamp(72px, 12vh, 160px) */
+      width: 100%;
+      max-width: min(92vw, 720px);
+      padding-inline: 16px;
+      opacity: 0;
+      animation: cardsReveal .5s forwards;
+      animation-delay: 6s;
+      }
+      @keyframes cardsReveal{ to{opacity:1} }
+      .title-card{ position:absolute; inset:auto 0 0 0; text-align:center; opacity:0; transform:scale(.98); transition:all 1s cubic-bezier(.4,0,.2,1); }
+      .title-card.active{ opacity:1; transform:scale(1); }
+      .title-card h2{
+        font-size:clamp(36px,6.2vw,64px); font-weight:700;
+        background:linear-gradient(90deg, var(--green) 0%, #00ffcc 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        margin-bottom:10px; line-height:1.05; text-wrap:balance;
+      }
+      .title-card p{ font-size:clamp(16px,2.6vw,20px); color:var(--text-muted); }
 
-         #about.visible .feature-grid > .feature-card::before,
-         #about.visible .feature-card .feature-card::before{ opacity:.28; }
-         #about.visible .feature-grid > .feature-card::after,
-         #about.visible .feature-card .feature-card::after{  opacity:.52; }
+      .skip-intro{
+        position:absolute; bottom:40px; right:40px; color:#86868b; font-size:14px; text-decoration:none;
+        opacity:0; animation:fadeIn 1s forwards; animation-delay:2s; transition:color .3s; cursor:pointer;
+      }
+      .skip-intro:hover{ color:#fff; }
+      @keyframes fadeIn{ to{opacity:.6} }
 
-         /* Match the section underline thickness like contact (optional) */
-         #about .section-header::after{
-         height:2px;
-         box-shadow: 0 0 20px rgba(0,212,170,.35);
-         }
+      /* Scroll-scrub beats */
+      .scroll-scrub-section{ position:relative; height:500vh; z-index:100; display:none; }
+      @media (max-width:768px){ .scroll-scrub-section{ height:300vh; } }
+      @media (max-height: 700px){
+      :root{ --cards-offset: clamp(180px, 28vh, 420px); }
+      }
 
-         /* Freeze About & Contact cards – no hover movement */
-         #about .feature-grid > .feature-card:hover,
-         #about .feature-card:hover,
-         #about .feature-card .feature-card:hover,
-         #contact .feature-grid > .feature-card:hover,
-         #contact .feature-card:hover {
-         transform: none !important;
-         }
+      .scroll-scrub-content{
+        position:sticky; top:0; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000;
+      }
+      .scrub-beat{
+        position:absolute; width:100%; text-align:center; opacity:0; transform:scale(.9);
+        transition:all .8s cubic-bezier(.4,0,.2,1);
+      }
+      .scrub-beat.active{ opacity:1; transform:scale(1); }
+      .scrub-beat.fade-in{ animation:beatFadeIn 1s cubic-bezier(.4,0,.2,1) forwards; }
+      @keyframes beatFadeIn{ from{opacity:0; transform:scale(.95)} to{opacity:1; transform:scale(1)} }
 
-         /* Contact scale + typography to match hero/cards */
-         #contact .section-subtitle { margin-top: 8px; }
-         #contact .feature-grid { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; }
+      .scrub-beat h2{
+        font-size:clamp(48px,8vw,96px); font-weight:700;
+        background:linear-gradient(180deg,#fff 0%,#86868b 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        margin-bottom:20px;
+      }
+      .scrub-beat p{
+        font-size:clamp(18px,2.5vw,28px); color:var(--text-muted);
+        position:relative; display:inline-block; padding-bottom:10px;
+      }
+      .scrub-beat p::after{
+        content:''; position:absolute; left:0; bottom:-8px; width:100%; height:2px;
+        background:linear-gradient(90deg, var(--green), var(--accent));
+        box-shadow:0 0 20px rgba(0,212,170,.35);
+        transform:scaleX(0); transform-origin:center; transition:transform .6s cubic-bezier(.4,0,.2,1); opacity:.95;
+      }
+      .scrub-beat.active p::after, .scrub-beat.seen p::after{ transform:scaleX(1); }
 
-         #contact .contact-card--xl {
-         padding: 40px 36px;
-         font-size: 16.5px;
-         line-height: 1.75;
-         }
+      /* Fade to black when intro ends */
+      .cinematic-intro.fade-to-black .intro-grid,
+      .cinematic-intro.fade-to-black .intro-halo{ opacity:0 !important; transition:opacity .5s cubic-bezier(.4,0,.2,1) !important; }
+      .cinematic-intro.fade-to-black .intro-content{ opacity:0 !important; transition:opacity .6s cubic-bezier(.4,0,.2,1) !important; }
 
-         #contact .contact-card--xl h3 { font-size: 32px; }
-         #contact .contact-card--xl .subtitle { font-size: 18px; }
+      /* Footer */
+      footer{
+        background:linear-gradient(180deg,#000 0%,#0a0a0a 100%);
+        padding:80px 0 40px; border-top:1px solid rgba(255,255,255,.08); text-align:center; position:relative; z-index:10;
+      }
+      .footer-fixed{ position:fixed; left:0; right:0; bottom:0; z-index:11; } /* used when locked at end */
+      .footer-copyright{ color:#515154; font-size:14px; }
 
-         #contact .contact-meta { display:flex; gap:8px; flex-wrap:wrap; margin: 12px 0 8px; }
-         #contact .contact-list { margin: 6px 0 10px; }
-         #contact .contact-list .label {
-         color: #7a918d; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px;
-         }
+      /* Utility */
+      .gradient-brand-text{
+        background:var(--brand-text-gradient);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:transparent;
+      }
+      @media (max-width:768px){
+        .scrub-beat h2{ font-size:36px; }
+        .scrub-beat p{ font-size:18px; }
+      }
 
-         /* Stack emails/links neatly (you already have the +a rule; this completes it) */
-         #contact .contact-card p a { display: block; }
+      /* Lock-at-end mode: keep last beat on screen with footer pinned; no scrolling */
+      html.end-lock, body.end-lock{ height:100%; overflow:hidden; }
+      .end-lock #scrollScrub{ height:100vh !important; }
+      .end-lock .scroll-scrub-content{ position:fixed; inset:0; }
+    </style>
+  </head>
+  <body>
+    <div class="loading-bar"></div>
 
-         /* Slightly larger buttons for balance */
-         #contact .btn-primary, #contact .btn-ghost { padding: 14px 24px; font-size: 15px; }
+    <!-- Intro -->
+    <div class="cinematic-intro" id="cinematicIntro">
+      <div class="intro-grid"></div>
+      <div class="intro-halo"></div>
+      <div class="intro-content" id="introContent">
+        <h1 class="intro-logo gradient-brand-text">MINTverse</h1>
 
-         /* No hover “breathe” on contact cards */
-         #contact .feature-grid > .feature-card,
-         #contact .feature-grid > .feature-card:hover { transform: none; }
+        <div class="intro-tagline">
+          <span>Hours become milliseconds.</span>
+        </div>
 
-         /* Secondary card polish */
-         #contact .contact-side h4 { margin-bottom: 12px; }
-         #contact .contact-side .tick-list li { margin: 8px 0; }
+        <p class="intro-context">The future of agent-based simulations. Available Q4 2025.</p>
 
-         .chips{
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-            margin:16px 0;
-         }
-         .chip{
-            display:inline-flex;
-            align-items:center;
-            padding:6px 14px;
-            border-radius:999px;
-            background: rgba(255,255,255,0.06);
-            border:1px solid rgba(255,255,255,0.10);
-            font-size:13px;
-            line-height:1;
-            color:#e8e8ed;
-            transition:background .2s, border-color .2s, transform .2s;
-         }
-         .chip:hover{
-            background: rgba(0,212,170,0.10);
-            border-color: rgba(0,212,170,0.30);
-            transform: translateY(-1px);
-         }
+        <div class="title-cards">
+          <div class="title-card" id="card1">
+            <h2>200,000× faster</h2>
+            <p>Than any agent-based system before it.</p>
+          </div>
+          <div class="title-card" id="card2">
+            <h2>82,000 predictions</h2>
+            <p>Every second. On your laptop.</p>
+          </div>
+          <div class="title-card" id="card3">
+            <h2>64+ billion data points</h2>
+            <p>Instantly queryable.</p>
+          </div>
+        </div>
+      </div>
 
-         /* Optional: keep the tighter spacing in the Contact card */
-         #contact .chips{ margin:12px 0 0; }
+      <a href="#" class="skip-intro" onclick="skipIntro(); return false;">Skip movie</a>
+    </div>
 
+    <!-- Beats -->
+    <div class="scroll-scrub-section" id="scrollScrub">
+      <div class="scroll-scrub-content">
+        <div class="scrub-beat" id="beat1">
+          <h2>One interface.</h2>
+          <p>Every model. Every scenario.</p>
+        </div>
+        <div class="scrub-beat" id="beat2">
+          <h2>Perfectly reproducible.</h2>
+          <p>Today. Tomorrow. Always.</p>
+        </div>
+        <div class="scrub-beat" id="beat3">
+          <h2>Ready to ship.</h2>
+          <p>From research to production. Instantly.</p>
+        </div>
+        <div class="scrub-beat" id="beat4">
+          <h2>Coming soon.</h2>
+          <p>Q4 2025.</p>
+        </div>
+      </div>
+    </div>
 
+    <!-- Footer -->
+    <footer id="footer">
+      <div class="container">
+        <p>MINTverse © 2025 • Built for malaria intervention research</p>
+        <p style="opacity:.75;margin-top:8px">Fast emulation of malariasimulation models using deep learning</p>
+      </div>
+    </footer>
 
+    <script>
+      /* Scroll lock during intro */
+      const ScrollLock = (() => {
+        let locked = false;
+        function prevent(e){ e.preventDefault(); }
+        function keyguard(e){
+          const keys = [32,33,34,35,36,37,38,39,40];
+          if (keys.includes(e.keyCode)) e.preventDefault();
+        }
+        return {
+          enable(){
+            if (locked) return;
+            locked = true;
+            document.documentElement.classList.add('intro-lock');
+            document.body.classList.add('intro-lock');
+            window.addEventListener('wheel', prevent, { passive:false });
+            window.addEventListener('touchmove', prevent, { passive:false });
+            window.addEventListener('keydown', keyguard, { passive:false });
+          },
+          disable(){
+            if (!locked) return;
+            locked = false;
+            document.documentElement.classList.remove('intro-lock');
+            document.body.classList.remove('intro-lock');
+            window.removeEventListener('wheel', prevent);
+            window.removeEventListener('touchmove', prevent);
+            window.removeEventListener('keydown', keyguard);
+          }
+        };
+      })();
 
+      let introComplete = false;
 
+      function cinematicSequence(){
+        const cards = [
+          document.getElementById('card1'),
+          document.getElementById('card2'),
+          document.getElementById('card3')
+        ];
+        /* make header compact just before cards start (prevents overlap) */
+        setTimeout(() => {
+          document.getElementById('introContent')?.classList.add('cards-phase');
+        }, 5600);
 
+        setTimeout(() => { if(!introComplete) cards[0].classList.add('active'); }, 6000);
+        setTimeout(() => {
+          if(!introComplete){ cards[0].classList.remove('active'); cards[1].classList.add('active'); }
+        }, 8500);
+        setTimeout(() => {
+          if(!introComplete){ cards[1].classList.remove('active'); cards[2].classList.add('active'); }
+        }, 11000);
+        setTimeout(() => {
+          if(!introComplete){ cards[2].classList.remove('active'); endIntro(); }
+        }, 13500);
+      }
 
-      </style>
-   </head>
-   <body>
-      <div class="loading-bar"></div>
-      <div class="cinematic-intro" id="cinematicIntro">
-         <div class="intro-grid"></div>
-         <div class="intro-halo"></div>
-         <div class="intro-content">
-            <h1 class="intro-logo gradient-brand-text">MINTverse</h1>
-            <div class="intro-tagline">
-               <span>Hours become milliseconds.</span>
-             </div>
-             <p class="intro-context">The future of epidemic modeling. Available now.</p>
-             <div class="title-cards">
-               <div class="title-card" id="card1">
-                 <h2>200,000× faster</h2>
-                 <p>Than any system before it.</p>
-               </div>
-               <div class="title-card" id="card2">
-                 <h2>82,000 predictions</h2>
-                 <p>Every second. On your laptop.</p>
-               </div>
-               <div class="title-card" id="card3">
-                 <h2>64 billion data points</h2>
-                 <p>Instantly queryable.</p>
-               </div>
-             </div>
-             </div>
-             <a href="#" class="skip-intro" onclick="skipIntro(); return false;">Skip movie</a>
-             </div>
-             <div class="scroll-scrub-section" id="scrollScrub" style="display: none;">
-               <div class="scroll-scrub-content">
-                 <div class="scrub-beat" id="beat1">
-                   <h2>One interface.</h2>
-                   <p>Every model. Every language. Every scenario.</p>
-                 </div>
-                 <div class="scrub-beat" id="beat2">
-                   <h2>Perfectly reproducible.</h2>
-                   <p>Today. Tomorrow. Always.</p>
-                 </div>
-                 <div class="scrub-beat" id="beat3">
-                   <h2>Ready to ship.</h2>
-                   <p>From research to production. Instantly.</p>
-                 </div>
-               </div>
-             </div>
-      <nav id="mainNav">
-         <div class="nav-container">
-            <a href="#hero" class="nav-logo" aria-label="Back to hero">MINTverse</a>
-            <div class="nav-links">
-               <a href="#overview">Overview</a>
-               <a href="#quickstart">Quick Start</a>
-               <a href="#minter">MINTer</a>
-               <a href="#estimint">estiMINT</a>
-               <a href="#minte">MINTe</a>
-               <a href="#about">About</a>
-               <a href="#contact">Contact</a>
-               <a href="https://github.com/CosmoNaught" target="_blank" class="nav-cta">GitHub</a>
-            </div>
-         </div>
-      </nav>
-      <section id="hero" class="hero">
-         <div class="hero-content">
-           <h1 class="gradient-brand-text">MINTverse</h1>
-           <p class="hero-subtitle">200,000× faster. 99.8% accurate. Production ready.</p>
-           <p class="hero-description">Deep-learning emulators that transform 96-hour HPC jobs into 90-second laptop runs.<br>Built for researchers who ship.</p>
-           
-           <div class="quick-links">
-             <a href="#minter" class="quick-link">
-               <h3>MINTer</h3>
-               <p>Unified R interface orchestrating three deep-learning models. Zero-config deployment with tidy outputs and automatic GPU detection.</p>
-             </a>
-             <a href="#estimint" class="quick-link">
-               <h3>estiMINT</h3>
-               <p>XGBoost/RF ensemble achieving R²=0.92 for prevalence→EIR mapping. Sub-100ms inference with confidence intervals.</p>
-             </a>
-             <a href="#minte" class="quick-link">
-               <h3>MINTe</h3>
-               <p>Production GRU/LSTM with R²=0.998. 4096 parallel CUDA computations every 50ms. PyTorch to ONNX ready.</p>
-             </a>
-           </div>
-           
-           <div class="author-banner">
-             <div class="author-banner-content">
-               <span style="opacity:.9">Architecture • Implementation • Deployment by <strong>Cosmo Santoni</strong>, Imperial College London</span>
-               <span aria-hidden="true" style="opacity:.35">•</span>
-               <a href="#contact">About & Contact</a>
-               <span aria-hidden="true" style="opacity:.35">•</span>
-               <a href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20—%20opportunity">Opportunities</a>
-             </div>
-           </div>
-           
-           <div class="stats-grid">
-             <div class="stat-card">
-               <span class="stat-number">200,000×</span>
-               <span class="stat-label">faster than malariasimulation<br>
-               <small>4096 parallel computations every 50ms</small></span>
-             </div>
-             <div class="stat-card">
-               <span class="stat-number">R²=0.998</span>
-               <span class="stat-label">LSTM accuracy on test set<br>
-               <small>131k series, 3.125% of training data</small></span>
-             </div>
-             <div class="stat-card">
-               <span class="stat-number">90 seconds</span>
-               <span class="stat-label">to process 96 hours of compute<br>
-               <small>On laptop RTX 40-series GPU</small></span>
-             </div>
-           </div>
-           
-           <p class="muted" style="text-align:center;margin-top:20px">
-             Production performance: 82,000 predictions/second. 64.3B time-series values indexed in DuckDB.
-           </p>
-         </div>
-       </section>
-      <main>
-         <div class="container">
-            <section id="overview" class="section fade-in">
-               <div class="section-header">
-                  <h2 class="section-title">Why <span class="gradient-brand-text">MINTverse</span>?</h2>
-                  <p class="section-subtitle">
-                     Traditional malaria simulation models can take hours or days. <span class="gradient-brand-text">MINTverse</span> delivers instant predictions
-                     with pre-trained deep-learning models, ideal for rapid intervention planning, what-if analysis, and dashboard integration. 
-                  </p>
-               </div>
-               <div class="workflow-diagram">
-                  <div class="badge">Complete Pipeline</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧪</div>
-                        <h4>Field Data</h4>
-                        <small>Prevalence & coverage</small>
-                        <div class="pill-row">
-                           <div class="pill">PfPR2-10</div>
-                           <div class="pill">ITN/IRS</div>
-                           <div class="pill">Seasonality</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧮</div>
-                        <h4>EIR Estimation</h4>
-                        <small>XGBoost / RF</small>
-                        <div class="pill-row">
-                           <div class="pill">EIR₀</div>
-                           <div class="pill">Uncertainty</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>Predictions</h4>
-                        <small>LSTM / GRU</small>
-                        <div class="pill-row">
-                           <div class="pill">Prevalence</div>
-                           <div class="pill">Cases/1000</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📊</div>
-                        <h4>Outputs</h4>
-                        <small>Dashboard-ready</small>
-                        <div class="pill-row">
-                           <div class="pill">CSV/Parquet</div>
-                           <div class="pill">Plots</div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="workflow-diagram">
-                  <div class="badge">Engineering Guarantees</div>
-                  <div class="feature-grid">
-                     <div class="feature-card">
-                        <h4>🔒 Reproducible by default</h4>
-                        <p>Frozen model artifacts (<code>models-YYYYMMDD-HHMMSS-hash</code>), checksums, pinned dependencies, seeded training, and deterministic inference paths.</p>
-                     </div>
-                     <div class="feature-card">
-                        <h4>🧾 Schema contracts</h4>
-                        <p>Versioned, strict column names and types; boundary I/O validation for CSV/Parquet/DuckDB so dashboards don’t break across releases.</p>
-                     </div>
-                     <div class="feature-card">
-                        <h4>🧪 Tested end-to-end</h4>
-                        <p>Unit + integration tests, golden outputs to catch regressions, CI across Linux/macOS/Windows, and GPU/CPU parity checks.</p>
-                     </div>
-                     <div class="feature-card">
-                        <h4>⚡ Performance budgets</h4>
-                        <p>Documented p50/p95 latency & throughput; batch-safe APIs; CUDA acceleration with graceful CPU fallback and sensible defaults.</p>
-                     </div>
-                     <div class="feature-card">
-                        <h4>📈 Observability</h4>
-                        <p>Structured logging (<code>minte</code> logger), timing hooks, and reproducible benchmarking scripts to track drift and speed.</p>
-                     </div>
-                     <div class="feature-card">
-                        <h4>🔐 Data hygiene</h4>
-                        <p>No PII required; local-first processing; cache controls; zero telemetry by default to keep simulations isolated and auditable.</p>
-                     </div>
-                  </div>
-               </div>
-            </section>
-            <section id="quickstart" class="section fade-in">
-               <div class="section-header">
-                  <h2 class="section-title">Quick Start</h2>
-                  <p class="section-subtitle">Get predictions in seconds with one call</p>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Install MINTer (automatically installs all dependencies)</span>
-<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/MINTer"</span>)
+      function skipIntro(){ introComplete = true; endIntro(); }
 
-<span class="comment"># Core functionality</span>
-<span class="function">library</span>(MINTer)
-<span class="function">library</span>(dplyr)   <span class="comment"># Pretty console tables</span>
+      function endIntro(){
+        const intro = document.getElementById('cinematicIntro');
+        const scrollScrub = document.getElementById('scrollScrub');
+        const halo = document.querySelector('.intro-halo');
 
-results &lt;- <span class="function">run_mint_scenarios</span>(
-  <span class="comment"># —— Net combination settings ——</span>
-  <span class="parameter">res_use</span>      = <span class="function">c</span>(<span class="number">0.30</span>, <span class="number">0.45</span>, <span class="number">0.20</span>),
-  <span class="parameter">py_only</span>      = <span class="function">c</span>(<span class="number">0.40</span>, <span class="number">0.30</span>, <span class="number">0.50</span>),
-  <span class="parameter">py_pbo</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.15</span>, <span class="number">0.05</span>),
-  <span class="parameter">py_pyrrole</span>   = <span class="function">c</span>(<span class="number">0.00</span>, <span class="number">0.05</span>, <span class="number">0.00</span>),
-  <span class="parameter">py_ppf</span>       = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.10</span>, <span class="number">0.15</span>),
+        if (halo) halo.style.display = 'none';
+        intro.classList.add('fade-to-black');
 
-  <span class="comment"># —— Malaria-environment settings ——</span>
-  <span class="parameter">prev_vec</span>       = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.60</span>),
-  <span class="parameter">Q0_vec</span>         = <span class="function">c</span>(<span class="number">0.65</span>, <span class="number">0.75</span>, <span class="number">0.85</span>),
-  <span class="parameter">phi_vec</span>        = <span class="function">c</span>(<span class="number">0.45</span>, <span class="number">0.65</span>, <span class="number">0.75</span>),
-  <span class="parameter">season_vec</span>     = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),
-  <span class="parameter">routine_vec</span>    = <span class="function">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),
-  <span class="parameter">irs_vec</span>        = <span class="function">c</span>(<span class="number">0.10</span>, <span class="number">0.35</span>, <span class="number">0.70</span>),
-  <span class="parameter">irs_future_vec</span> = <span class="function">c</span>(<span class="number">0.20</span>, <span class="number">0.40</span>, <span class="number">0.50</span>),
-  <span class="parameter">lsm_vec</span>        = <span class="function">c</span>(<span class="number">0.05</span>, <span class="number">0.45</span>, <span class="number">0.85</span>),
-  <span class="parameter">year_start</span>     = <span class="number">2</span>,
-  <span class="parameter">year_end</span>       = <span class="number">5</span>
-)
+        // fade out, unlock, then show beats
+        setTimeout(() => {
+          intro.classList.add('hide');
+          setTimeout(() => {
+            intro.classList.add('complete');
+            ScrollLock.disable();
 
-<span class="comment"># ——— Save CSVs ———</span>
-<span class="function">write.csv</span>(results$prevalence, <span class="string">"results_prevalence.csv"</span>, <span class="parameter">row.names</span> = FALSE)
-<span class="function">write.csv</span>(results$cases,       <span class="string">"results_cases.csv"</span>,       <span class="parameter">row.names</span> = FALSE)
+            // reveal beats
+            scrollScrub.style.display = 'block';
+            scrollScrub.style.opacity = '0';
+            setTimeout(() => {
+              scrollScrub.style.transition = 'opacity .8s cubic-bezier(.4,0,.2,1)';
+              scrollScrub.style.opacity = '1';
+              setTimeout(() => {
+                const beat1 = document.getElementById('beat1');
+                if (beat1){
+                  beat1.classList.add('active','fade-in');
+                  beat1.addEventListener('animationend', () => beat1.classList.remove('fade-in'), { once:true });
+                }
+                initScrollScrub();
+              }, 200);
+            }, 300);
+          }, 20);
+        }, 600);
+      }
 
-<span class="comment"># Pretty cases table</span>
-results$cases |&gt;
-  <span class="function">transmute</span>(year, cases = ensemble_cases_per_1000, scenario)
+      /* Scroll scrubbing between beats + lock at end */
+      function initScrollScrub(){
+        const scrubSection = document.getElementById('scrollScrub');
+        const beats = [ 'beat1','beat2','beat3','beat4' ].map(id => document.getElementById(id));
 
-<span class="comment"># Prevalence plots</span>
-<span class="function">create_scenario_plots</span>(results$prevalence, <span class="parameter">output_dir</span> = <span class="string">"plots"</span>)</code></pre>
-               </div>
-            </section>
-            <section id="minter" class="package-section fade-in">
-               <div class="package-header">
-                  <div>
-                     <h2 class="package-title">MINTer</h2>
-                     <p class="package-subtitle">Malaria INTervention emulator in R — the orchestrator of the MINTverse stack</p>
-                  </div>
-                  <a href="https://github.com/CosmoNaught/MINTer"
-                  target="_blank"
-                  class="github-link github-link--card">
-                 <!-- svg -->
-                 View on GitHub
-               </a>
-               
-               </div>
-               <p style="margin-bottom:32px">
-                  <span class="badge">Orchestration • Reproducible • Dashboard-ready</span>
-                  <br><br>MINTer unifies <strong>estiMINT</strong> (EIR & cases ML) and <strong>MINTe</strong> (RNNs) behind a single R API. Use it for <em>direct emulation</em>, <em>prevalence-driven pipelines</em>, or <em>full malariasimulation ➜ DuckDB ➜ emulation</em> workflows.
-               </p>
-               <div class="workflow-diagram">
-                  <div class="badge">How you run it</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">⚡</div>
-                        <h4>Direct Emulation</h4>
-                        <small>fastest path</small>
-                        <div class="pill-row">
-                           <div class="pill">create_scenarios()</div>
-                           <div class="pill">run_malaria_emulator()</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>RNNs</h4>
-                        <small>LSTM / GRU</small>
-                        <div class="pill-row">
-                           <div class="pill">prevalence</div>
-                           <div class="pill">cases</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📊</div>
-                        <h4>Outputs</h4>
-                        <small>tidy data, plots</small>
-                     </div>
-                  </div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧪</div>
-                        <h4>Prevalence input</h4>
-                        <small>field PfPR + context</small>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧮</div>
-                        <h4>estiMINT</h4>
-                        <small>EIR₀ + cases</small>
-                        <div class="pill-row">
-                           <div class="pill">XGBoost</div>
-                           <div class="pill">RF</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>MINTer</h4>
-                        <small>time-series forecasts</small>
-                     </div>
-                  </div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧬</div>
-                        <h4>malariasimulation</h4>
-                        <small>native runs</small>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🗄️</div>
-                        <h4>segMINT</h4>
-                        <small>DuckDB ingest</small>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧩</div>
-                        <h4>MINTer</h4>
-                        <small>counterfactuals & benchmarking</small>
-                     </div>
-                  </div>
-               </div>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>🔁 counterfactual sweeps</h4>
-                     <p>Grid or LHS over ITN/IRS/LSM/EIR and generate scenario tables in seconds.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>📦 Dashboard-ready</h4>
-                     <p>Tidy outputs with stable column names for Shiny/Quarto/Streamlit.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧪 Prevalence-driven</h4>
-                     <p>Use field PfPR2-10 → EIR via estiMINT, then forecast prevalence/cases.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧰 Python-free UX</h4>
-                     <p><code>reticulate</code> prepares Torch automatically; no manual setup.</p>
-                  </div>
-               </div>
-               <h3>API surface (core)</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Function</th>
-                        <th>Purpose</th>
-                        <th>Returns</th>
-                     </tr>
-                     <tr>
-                        <td><code>run_mint_scenarios()</code></td>
-                        <td>Full pipeline (prevalence-driven or direct)</td>
-                        <td>List: <code>$prevalence</code>, <code>$cases</code></td>
-                     </tr>
-                     <tr>
-                        <td><code>run_malaria_emulator()</code></td>
-                        <td>RNN predictions from scenarios or DuckDB</td>
-                        <td>Time-series data frame</td>
-                     </tr>
-                     <tr>
-                        <td><code>create_scenarios()</code></td>
-                        <td>Builds intervention scenarios</td>
-                        <td>Data frame</td>
-                     </tr>
-                     <tr>
-                        <td><code>create_malariasim_scenarios()</code></td>
-                        <td>LHS design for native sims</td>
-                        <td>CSV / data frame</td>
-                     </tr>
-                     <tr>
-                        <td><code>create_scenario_plots()</code></td>
-                        <td>Publication-grade plots</td>
-                        <td>Saved ggplot objects</td>
-                     </tr>
-                  </table>
-               </div>
-               <h3>Recipes</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>library(MINTer)
+        beats[0].classList.add('active','seen');
 
-sc &lt;- create_scenarios(
-  eir = c(2, 20, 120),
-  itn_use = c(0.3, 0.6, 0.8),
-  irs_use = c(0.1, 0.3, 0.6),
-  lsm = c(0.05, 0.4, 0.8),
-  seasonal = c(0,1,1),
-  routine = c(0,0,1)
-)
+        let lastBeat = 0, lastDir = 0, holdUntil = 0;
+        const HOLD_MS_FWD = 750, HOLD_MS_BACK = 450;
 
-prev &lt;- run_malaria_emulator(scenarios = sc, predictor = "prevalence", model_types = c("LSTM","GRU"))
-cases &lt;- run_malaria_emulator(scenarios = sc, predictor = "cases")
-create_scenario_plots(prev,  output_dir = "plots")
-create_scenario_plots(cases, output_dir = "plots")</code></pre>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Prevalence-driven pipeline (field PfPR → EIR → forecasts)</span>
-res &lt;- run_mint_scenarios(
-  prev_vec    = c(0.2, 0.35, 0.55),
-  Q0_vec      = c(0.65, 0.75, 0.80),
-  phi_vec     = c(0.45, 0.60, 0.70),
-  itn_use     = c(0.30, 0.50, 0.80),
-  irs_vec     = c(0.10, 0.35, 0.60),
-  lsm_vec     = c(0.05, 0.40, 0.80),
-  season_vec  = c(0,1,1),
-  routine_vec = c(0,0,1)
-)
-write.csv(res$prevalence, "out_prevalence.csv", row.names = FALSE)
-write.csv(res$cases,       "out_cases.csv",       row.names = FALSE)</code></pre>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>library(MINTer); library(segMINT)
+        function setBeat(i){
+          beats.forEach(b => b.classList.remove('active'));
+          beats[i].classList.add('active','seen');
+          lastBeat = i;
 
-<span class="comment"># After running malariasimulation externally:</span>
-segMINT::create_database(
-  dir = "Data/Database", file_name = "malariasim.duckdb",
-  table_name = "sim_results", data_dir = "Data/Simout"
-)
+          /* If we just hit the final beat, lock the page there */
+          if (i === beats.length - 1) {
+            lockAtEnd();
+          }
+        }
 
-<span class="comment"># counterfactuals on param_index=5</span>
-cf &lt;- run_malaria_emulator(
-  db_path = "Data/Database/malariasim.duckdb",
-  param_index = 5,
-  predictor = "cases",
-  counterfactual = list(eir = c(0.5, 60, 300))
-)</code></pre>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Batch sweep: 3x3x3 grid</span>
-grid &lt;- expand.grid(
-  itn_use = c(0.3,0.6,0.9),
-  irs_use = c(0.0,0.3,0.6),
-  lsm     = c(0.0,0.4,0.8)
-)
-grid$eir &lt;- 35  <span class="comment"># fixed baseline</span>
-em &lt;- run_malaria_emulator(scenarios = grid, predictor = "cases")
-head(em)</code></pre>
-               </div>
-               <div class="alert">
-                  <strong>Confidence intervals:</strong> Use <code>estiMINT::predict_annual_cases(..., return_intervals = TRUE)</code> on MINTer-produced scenario frames when you need 95% prediction intervals for cases.
-               </div>
-               <h3>Installation</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
-devtools::install_github("CosmoNaught/MINTer")
-devtools::install_github("CosmoNaught/segMINT")
-devtools::install_github("CosmoNaught/estiMINT")
+        window.addEventListener('scroll', () => {
+          const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+          const top = scrubSection.offsetTop;
+          const h = scrubSection.offsetHeight;
+          const vh = window.innerHeight;
 
-<span class="comment"># First library() call may build Torch; allow ~1 min.</span>
-library(MINTer)</code></pre>
-               </div>
-            </section>
-            <section id="estimint" class="package-section fade-in">
-               <div class="package-header">
-                  <div>
-                     <h2 class="package-title">estiMINT</h2>
-                     <p class="package-subtitle">Deep learning models for EIR estimation and annual case prediction</p>
-                  </div>
-                  <a href="https://github.com/CosmoNaught/estiMINT" target="_blank" class="github-link">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
-                     </svg>
-                     View on GitHub
-                  </a>
-               </div>
-               <p style="margin-bottom:32px">
-                  <span class="badge">Dashboard-ready ML suite for public health</span>
-                  <br><br>estiMINT translates routine surveillance and coverage data into <strong>initial EIR (EIR₀)</strong> and <strong>annual clinical cases per 1000</strong>.
-                  Built from the MINTverse pipelines, it's drop-in friendly for <em>malariasimulation</em> outputs and fast enough for interactive dashboards.
-               </p>
-               <div class="grid-2">
-                  <div class="feature-card">
-                     <h4>🎯 What estiMINT predicts</h4>
-                     <ul>
-                        <li><strong>EIR₀</strong> from prevalence + context</li>
-                        <li><strong>Cases per 1000</strong> for years 0–5 (with scenario years 2–5 commonly used)</li>
-                        <li>Optional <strong>prediction intervals</strong> for cases</li>
-                     </ul>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">EIR: R² ≈ 0.90</div>
-                           <div class="muted">XGBoost / RF</div>
-                        </div>
-                        <div class="stat">
-                           <div class="value">Cases: R² ≈ 0.92–0.93</div>
-                           <div class="muted">XGBoost / RF</div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧩 Why it's special</h4>
-                     <ul>
-                        <li><strong>Non-linear covariates</strong>: seasonality, ITN/IRS, biting behaviour</li>
-                        <li><strong>Zero-inflation aware</strong> case models (Tweedie / √-transform)</li>
-                        <li><strong>Retrainable</strong> in one command when new sims land</li>
-                        <li><strong>Governed & versioned</strong> model artifacts for reproducibility</li>
-                     </ul>
-                  </div>
-               </div>
-               <h3>Model Zoo</h3>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>EIR — XGBoost</h4>
-                     <p>Wide EIR coverage, handles extremes gracefully.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 35.08</div>
-                           <div class="muted">R² 0.903 • r 0.951</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">log₁₀(EIR+1)</div>
-                        <div class="pill">MSE objective</div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>EIR — Random Forest</h4>
-                     <p>Strong robustness with natural uncertainty feel.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 36.85</div>
-                           <div class="muted">R² 0.893 • r 0.947</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">log₁₀(EIR+1)</div>
-                        <div class="pill">1–2k trees</div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>Cases — XGBoost (Tweedie)</h4>
-                     <p>Zero-inflation aware with adaptive weighting for rare extremes.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 0.265</div>
-                           <div class="muted">R² 0.926 • r 0.963</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">Tweedie ~1.15</div>
-                        <div class="pill">Dynamic weights</div>
-                     </div>
-                  </div>
-                  <div class="feature-card">
-                     <h4>Cases — Random Forest</h4>
-                     <p>Outlier-tolerant with Latin Hypercube hyper-search.</p>
-                     <div class="stat-cards">
-                        <div class="stat">
-                           <div class="value">RMSE 0.277</div>
-                           <div class="muted">R² 0.919 • r 0.959</div>
-                        </div>
-                     </div>
-                     <div class="pill-row">
-                        <div class="pill">√-transform</div>
-                        <div class="pill">LHS tuning</div>
-                     </div>
-                  </div>
-               </div>
-               <div class="feature-card">
-                  <h4>🧭 When to use which model</h4>
-                  <table class="mini-table">
-                     <tr>
-                        <th>Need</th>
-                        <th>Pick</th>
-                        <th>Why</th>
-                     </tr>
-                     <tr>
-                        <td>Fast, general EIR</td>
-                        <td>XGBoost</td>
-                        <td>Stable across intensity range</td>
-                     </tr>
-                     <tr>
-                        <td>Robust EIR with uncertainty feel</td>
-                        <td>Random Forest</td>
-                        <td>Ensemble stability</td>
-                     </tr>
-                     <tr>
-                        <td>Cases with many zeros</td>
-                        <td>XGBoost (Tweedie)</td>
-                        <td>Handles zero-inflation natively</td>
-                     </tr>
-                     <tr>
-                        <td>Outlier-heavy cases</td>
-                        <td>Random Forest</td>
-                        <td>Resilient to extremes</td>
-                     </tr>
-                  </table>
-               </div>
-               <div class="workflow-diagram">
-                  <div class="badge">estiMINT Flow</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🧾</div>
-                        <h4>Inputs</h4>
-                        <small>Prevalence + coverage</small>
-                        <div class="pill-row">
-                           <div class="pill">PfPR</div>
-                           <div class="pill">ITN/IRS</div>
-                           <div class="pill">Q0, ϕ</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📐</div>
-                        <h4>EIR Models</h4>
-                        <small>XGBoost / RF</small>
-                        <div class="pill-row">
-                           <div class="pill">EIR₀</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📉</div>
-                        <h4>Case Models</h4>
-                        <small>Tweedie / RF</small>
-                        <div class="pill-row">
-                           <div class="pill">cases / 1000</div>
-                           <div class="pill">PI (opt.)</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧩</div>
-                        <h4>Outputs</h4>
-                        <small>Dashboard-ready</small>
-                        <div class="pill-row">
-                           <div class="pill">tidy data</div>
-                           <div class="pill">plots</div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <h3>Example: EIR → Cases</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Load pre-trained EIR models</span>
-<span class="function">library</span>(estiMINT)
-pretrained &lt;- <span class="function">load_pretrained_eir_models</span>()
-
-<span class="comment"># Estimate EIR from field data</span>
-new_data &lt;- <span class="function">data.frame</span>(
-  <span class="parameter">prevalence</span>=<span class="number">0.35</span>,
-  <span class="parameter">dn0_use</span>=<span class="number">0.30</span>,
-  <span class="parameter">Q0</span>=<span class="number">0.75</span>,
-  <span class="parameter">phi_bednets</span>=<span class="number">0.60</span>,
-  <span class="parameter">seasonal</span>=<span class="number">1</span>,
-  <span class="parameter">routine</span>=<span class="number">0</span>,
-  <span class="parameter">itn_use</span>=<span class="number">0.40</span>,
-  <span class="parameter">irs_use</span>=<span class="number">0.15</span>
-)
-
-xgb_model &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pretrained$xgboost) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pretrained$xgboost)) pretrained$xgboost$model else pretrained$xgboost
-rf_model  &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pretrained$rf_model) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pretrained$rf_model)) pretrained$rf_model$model else pretrained$rf_model
-
-eir_xgb &lt;- <span class="function">predict_initial_eir</span>(xgb_model, new_data, pretrained$feature_cols)
-eir_rf  &lt;- <span class="function">predict_initial_eir</span>(rf_model,  new_data, pretrained$feature_cols)
-eir_ens &lt;- (eir_xgb + eir_rf) / <span class="number">2</span>
-
-<span class="comment"># Cases per 1000 (year 3 example)</span>
-pc &lt;- <span class="function">load_pretrained_case_models</span>()
-xgbc &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pc$xgboost_cases) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pc$xgboost_cases)) pc$xgboost_cases$model else pc$xgboost_cases
-rfc  &lt;- <span class="function">if</span>(<span class="function">is.list</span>(pc$rf_cases) &amp;&amp; <span class="string">"model"</span> %in% <span class="function">names</span>(pc$rf_cases)) pc$rf_cases$model else pc$rf_cases
-
-scenarios &lt;- <span class="function">transform</span>(new_data, eir=eir_ens, year=<span class="number">3</span>)
-cases_x &lt;- <span class="function">predict_annual_cases</span>(xgbc, scenarios, pc$feature_cols)
-cases_r &lt;- <span class="function">predict_annual_cases</span>(rfc,  scenarios, pc$feature_cols)
-cases_ensemble &lt;- (cases_x + cases_r)/<span class="number">2</span></code></pre>
-               </div>
-               <h3>Performance (held-out test)</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Task</th>
-                        <th>Model</th>
-                        <th>RMSE</th>
-                        <th>R²</th>
-                        <th>Correlation</th>
-                     </tr>
-                     <tr>
-                        <td>EIR</td>
-                        <td>XGBoost</td>
-                        <td>35.08</td>
-                        <td>0.903</td>
-                        <td>0.951</td>
-                     </tr>
-                     <tr>
-                        <td>EIR</td>
-                        <td>Random Forest</td>
-                        <td>36.85</td>
-                        <td>0.893</td>
-                        <td>0.947</td>
-                     </tr>
-                     <tr>
-                        <td>Cases</td>
-                        <td>XGBoost (Tweedie)</td>
-                        <td>0.265</td>
-                        <td>0.926</td>
-                        <td>0.963</td>
-                     </tr>
-                     <tr>
-                        <td>Cases</td>
-                        <td>Random Forest</td>
-                        <td>0.277</td>
-                        <td>0.919</td>
-                        <td>0.959</td>
-                     </tr>
-                  </table>
-               </div>
-               <div class="grid-2" style="margin-top:32px">
-                  <div class="feature-card">
-                     <h4>🗂️ Reproducibility & Model Management</h4>
-                     <ul>
-                        <li>Versioned releases <code>models-YYYYMMDD-HHMMSS-hash</code></li>
-                        <li>SHA checksums & local cache controls</li>
-                        <li>Immutable tags for auditability</li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>📺 Dashboard-ready Outputs</h4>
-                     <ul>
-                        <li>Tidy data frames for Shiny / Quarto / Streamlit</li>
-                        <li>Stable column names across versions</li>
-                        <li>Scales to batch scenarios for program dashboards</li>
-                     </ul>
-                  </div>
-               </div>
-               <h3>Installation</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Install from GitHub</span>
-<span class="function">install.packages</span>(<span class="string">"devtools"</span>)
-<span class="function">devtools::install_github</span>(<span class="string">"CosmoNaught/estiMINT"</span>)
-
-<span class="comment"># Dependencies auto-install: xgboost, ranger, duckdb, data.table, future, progressr, piggyback</span>
-<span class="comment"># Requires R >= 4.2</span></code></pre>
-               </div>
-               <h3>Advanced Usage & Training</h3>
-               <p>Load from pretrained artifacts, local files, or in-session training results. Train complete pipelines with stratified evaluation and dynamic case weighting.</p>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code><span class="comment"># Train case models with advanced features</span>
-case_results &lt;- <span class="function">build_case_models</span>(
-  <span class="parameter">db_path</span>=<span class="string">"simulation.duckdb"</span>,
-  <span class="parameter">param_limit</span>=<span class="number">8192</span>,
-  <span class="parameter">sim_limit</span>=<span class="number">8</span>,
-  <span class="parameter">tune_hyperparams</span>=TRUE,
-  <span class="parameter">use_case_weights</span>=TRUE,
-  <span class="parameter">weight_power</span>=<span class="number">0.75</span>,
-  <span class="parameter">stratified_eval</span>=TRUE
-)</code></pre>
-               </div>
-            </section>
-            <section id="minte" class="package-section fade-in">
-               <div class="package-header">
-                  <div>
-                     <h2 class="package-title">MINTe</h2>
-                     <p class="package-subtitle">Python RNNs (GRU/LSTM) for malaria prevalence & cases forecasting</p>
-                  </div>
-                  <a href="https://github.com/CosmoNaught/minte" target="_blank" class="github-link">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.765 21.798 24 17.302 24 12 24 5.373 18.627 0 12 0z"/>
-                     </svg>
-                     View on GitHub
-                  </a>
-               </div>
-               <p style="margin-bottom:32px">
-                  <span class="badge">GPU-ready • Tunable • DuckDB-native</span>
-                  <br><br>MINTe provides <strong>GRU</strong> and <strong>LSTM</strong> sequence models with rolling windows, optional cyclical time encoding, early stopping, and hyper-parameter optimization. Train via Python API or a simple <code>minte</code> CLI; deploy as artifacts that MINTer can call through <code>reticulate</code>.
-               </p>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>🧱 Architecture</h4>
-                     <ul>
-                        <li>Lookback windows: <code>window_size</code> (e.g., 30)</li>
-                        <li>Encoders: <strong>GRU</strong> or <strong>LSTM</strong>, 1–N layers</li>
-                        <li>Regularisation: dropout, weight decay</li>
-                        <li>Optimiser: Adam + LR scheduling, early stopping</li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧰 Data & I/O</h4>
-                     <ul>
-                        <li>Reads DuckDB table (simulation outputs)</li>
-                        <li>Predictor: <code>prevalence</code> or <code>cases</code></li>
-                        <li>Artifacts saved under <code>output_dir</code></li>
-                        <li>Reload with <code>load_models()</code> for inference</li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>⚡ Performance UX</h4>
-                     <ul>
-                        <li>CUDA (optional) for training/inference</li>
-                        <li><code>num_workers</code> for data loading</li>
-                        <li>Large-batch modes for big datasets</li>
-                     </ul>
-                  </div>
-               </div>
-               <div class="workflow-diagram">
-                  <div class="badge">Training flow</div>
-                  <div class="flow-rail">
-                     <div class="flow-step">
-                        <div class="flow-icon">🗄️</div>
-                        <h4>DuckDB</h4>
-                        <small>simulation_results</small>
-                        <div class="pill-row">
-                           <div class="pill">features</div>
-                           <div class="pill">targets</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧪</div>
-                        <h4>Preprocess</h4>
-                        <small>windows & masks</small>
-                        <div class="pill-row">
-                           <div class="pill">lookback</div>
-                           <div class="pill">min_prevalence</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">🧠</div>
-                        <h4>Train</h4>
-                        <small>GRU / LSTM</small>
-                        <div class="pill-row">
-                           <div class="pill">HPO (Optuna)</div>
-                           <div class="pill">early stop</div>
-                        </div>
-                     </div>
-                     <div class="flow-connector"></div>
-                     <div class="flow-step">
-                        <div class="flow-icon">📦</div>
-                        <h4>Artifacts</h4>
-                        <small>load_models()</small>
-                        <div class="pill-row">
-                           <div class="pill">metrics</div>
-                           <div class="pill">checkpoints</div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <h3>Quick Start (Python API)</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>from minte import MalariaForecast
-
-f = MalariaForecast(
-    db_path="path/to/data.duckdb",
-    table_name="simulation_results",
-    predictor="cases",      # or "prevalence"
-    window_size=30,
-    device="cuda"           # or "cpu"
-)
-
-results = f.run(
-    param_limit=1000,
-    sim_limit=10,
-    output_dir="results/experiment"
-)
-
-print("GRU R²:",  results["gru"]["test_metrics"]["r2"])
-print("LSTM R²:", results["lstm"]["test_metrics"]["r2"])</code></pre>
-               </div>
-               <h3>CLI Recipes</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code># Basic training (cases)
-minte \
-  --db-path data.duckdb \
-  --table-name simulation_results \
-  --predictor cases \
-  --window-size 30 \
-  --param-limit 2048 \
-  --sim-limit 8 \
-  --output-dir results/cases
-
-# Add cyclical time encoding (seasonality)
-minte \
-  --db-path data.duckdb \
-  --predictor prevalence \
-  --use-cyclical-time \
-  --window-size 30 \
-  --output-dir results/prevalence_cyc
-
-# Hyperparameter tuning (6h / 100 trials)
-minte \
-  --db-path data.duckdb \
-  --predictor cases \
-  --run-tuning \
-  --tuning-trials 100 \
-  --tuning-timeout 21600 \
-  --output-dir results/tuned
-
-# Multi-GPU (data parallel)
-CUDA_VISIBLE_DEVICES=0,1 minte \
-  --db-path data.duckdb \
-  --device cuda \
-  --batch-size 8192 \
-  --output-dir results/mgpu</code></pre>
-               </div>
-               <h3>Detailed Usage</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Setting</th>
-                        <th>What it does</th>
-                        <th>When to change</th>
-                     </tr>
-                     <tr>
-                        <td><code>window_size</code></td>
-                        <td>Sequence length for the RNN</td>
-                        <td>Increase for slower dynamics; decrease for speed</td>
-                     </tr>
-                     <tr>
-                        <td><code>min_prevalence</code></td>
-                        <td>Filters tiny signals in training</td>
-                        <td>Raise for noisy low-transmission areas</td>
-                     </tr>
-                     <tr>
-                        <td><code>use_cyclical_time</code></td>
-                        <td>Adds sin/cos time encoding</td>
-                        <td>Strong seasonality settings</td>
-                     </tr>
-                     <tr>
-                        <td><code>hidden_size</code>, <code>num_layers</code></td>
-                        <td>Model capacity</td>
-                        <td>Scale with data volume</td>
-                     </tr>
-                     <tr>
-                        <td><code>batch_size</code>, <code>num_workers</code></td>
-                        <td>I/O and compute throughput</td>
-                        <td>Tune for your CPU/GPU</td>
-                     </tr>
-                  </table>
-               </div>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code># Load and predict
-from minte import MalariaForecast
-import numpy as np
-
-f = MalariaForecast(db_path="path/to/data.duckdb", predictor="cases")
-f.load_models("results/experiment/trained_models")
-
-X = np.random.randn(100, 15).astype(np.float32)   # timesteps × features
-yhat = f.predict(X, model_type="gru")</code></pre>
-               </div>
-               <h3>Data Schema (DuckDB)</h3>
-               <div class="feature-card" style="padding:0">
-                  <table class="mini-table">
-                     <tr>
-                        <th>Column</th>
-                        <th>Purpose</th>
-                     </tr>
-                     <tr>
-                        <td><code>parameter_index</code>, <code>simulation_index</code></td>
-                        <td>Grouping keys</td>
-                     </tr>
-                     <tr>
-                        <td><code>timesteps</code></td>
-                        <td>Time axis (days)</td>
-                     </tr>
-                     <tr>
-                        <td><code>n_detect_lm_0_1825</code>, <code>n_age_0_1825</code></td>
-                        <td>Prevalence numerators/denominators</td>
-                     </tr>
-                     <tr>
-                        <td><code>n_inc_clinical_0_36500</code>, <code>n_age_0_36500</code></td>
-                        <td>Cases numerators/denominators</td>
-                     </tr>
-                     <tr>
-                        <td>Covariates (eir, dn0_use, dn0_future, Q0, phi_bednets, seasonal, routine, itn_use, irs_use, itn_future, irs_future, lsm)</td>
-                        <td>Static/slow inputs</td>
-                     </tr>
-                  </table>
-               </div>
-               <h3>Hyper-parameter Tuning</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code>results = f.run(
-    param_limit=2048,
-    sim_limit=8,
-    run_tuning=True,
-    tuning_trials=50,
-    tuning_timeout=3600*6,
-    output_dir="results/tuned",
-    tuning_output_dir="tuning_trials"
-)
-
-# Later: reuse tuned parameters
-results = f.run(
-    use_tuned_parameters=True,
-    tuning_output_dir="tuning_trials"
-)</code></pre>
-               </div>
-               <div class="feature-grid">
-                  <div class="feature-card">
-                     <h4>🔒 Reproducibility</h4>
-                     <p>Set <code>seed</code> in <code>MalariaForecast(...)</code>. Keep driver, CUDA & PyTorch versions stable across runs.</p>
-                  </div>
-                  <div class="feature-card">
-                     <h4>🧭 Troubleshooting</h4>
-                     <ul>
-                        <li>OOM → reduce <code>batch_size</code>, <code>hidden_size</code>, or layers</li>
-                        <li>Slow I/O → move DuckDB to SSD, raise <code>num_workers</code></li>
-                        <li>Weak fit → try <code>run_tuning=True</code>, increase <code>lookback</code>, enable <code>use_cyclical_time</code></li>
-                     </ul>
-                  </div>
-                  <div class="feature-card">
-                     <h4>📝 Logging</h4>
-                     <div class="code-section" style="margin:0">
-                        <button class="copy-btn">Copy</button>
-                        <pre><code>import logging
-logging.getLogger('minte').setLevel(logging.DEBUG)</code></pre>
-                     </div>
-                  </div>
-               </div>
-               <h3>Installation</h3>
-               <div class="code-section">
-                  <button class="copy-btn">Copy</button>
-                  <pre><code># From source
-git clone https://github.com/CosmoNaught/minte.git
-cd minte
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -e .
-
-# Verify
-python -c "import minte; print(minte.__version__)"</code></pre>
-               </div>
-            </section>
-            <section class="section fade-in">
-               <div class="section-header">
-                  <h2 class="section-title">Resources & Support</h2>
-                  <p class="section-subtitle"> Actively developed with love, from London</p>
-                  <p class="section-subtitle"> Questions, issues & contributions:</p>
-               </div>
-               <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
-                  <a href="https://github.com/CosmoNaught/MINTer/issues" class="github-link">Report Issues</a>
-                  <a href="https://github.com/CosmoNaught/MINTer/wiki" class="github-link">Documentation Wiki</a>
-                  <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">Contact</a>
-               </div>
-            </section>
-         </div>
-      </main>
-<!-- About -->
-<section id="about" class="section section-gradient fade-in">
-   <div class="container">
-     <div class="section-header">
-       <h2 class="section-title">The story</h2>
-       <p class="section-subtitle">From UK COVID response to 200,000× faster malaria modeling.</p>
-     </div>
- 
-     <div class="feature-grid">
-       <div class="feature-card">
-         <h3 class="h3-tight">Cosmo Santoni</h3>
-         <p class="subtitle">PhD Candidate in Applied Mathematics</p>
-         <p class="subtitle">Imperial College London • Turning research into production ML</p>
- 
-         <p style="margin: 20px 0; font-size: 17px; line-height: 1.7; color: #d2d2d7;">
-           Two years ago, I was running malaria simulations that took 96 hours on HPC clusters. Today, those same computations run in 90 seconds on my laptop. <strong style="color: var(--green);">That's a 200,000× speedup.</strong>
-         </p>
- 
-         <p style="margin: 20px 0; color: #d2d2d7;">
-           I don't just write papers—I ship production systems. <span class="gradient-brand-text">MINTverse</span></li> is actively used by governments and NGOs to make real-time decisions about malaria interventions. Before this, my COVID-19 models informed UK government policy through SAGE/SPI-M-O during the pandemic.
-         </p>
- 
-         <div class="feature-card" style="margin-top:24px; background: rgba(139, 92, 246, 0.03); border-color: rgba(139, 92, 246, 0.2);">
-           <h4 style="margin-bottom:16px; color: #c4b5fd;">Recognition & Impact</h4>
-           <ul class="tick-list">
-             <li><strong>SPI-M-O Award for Modelling & Data Support</strong> from UK Chief Scientific & Medical Officers</li>
-             <li>Published in <em>The Lancet Public Health</em> and <em>Nature Communications</em></li>
-             <li>Presented to WHO, MSF, Public Health Canada, and data.org</li>
-             <li>Models directly informed UK COVID-19 response and Global Fund malaria strategies</li>
-           </ul>
-         </div>
- 
-         <div class="feature-card" style="margin-top:24px">
-           <h4 style="margin-bottom:16px">What makes me different</h4>
-           <ul class="tick-list">
-             <li><strong>I ship:</strong> Built 3 production packages (MINTer, estiMINT, MINTe) with CI/CD, versioning, and reproducible releases</li>
-             <li><strong>I scale:</strong> Achieved R² = 0.998 accuracy while making models 200,000× faster</li>
-             <li><strong>I bridge:</strong> Fluent in PyTorch, R, Julia SciML, RStan—whatever gets the job done</li>
-             <li><strong>I teach:</strong> Lead workshops on testing, I/O validation, and OSS best practices</li>
-           </ul>
- 
-           <div class="chips" style="margin-top:20px">
-             <span class="chip">PyTorch</span>
-             <span class="chip">R/Tidyverse</span>
-             <span class="chip">Julia SciML</span>
-             <span class="chip">CUDA</span>
-             <span class="chip">HPC</span>
-             <span class="chip">RStan</span>
-             <span class="chip">DuckDB</span>
-             <span class="chip">CI/CD</span>
-             <span class="chip">Bayesian ML</span>
-           </div>
-         </div>
- 
-         <div class="feature-card" style="margin-top:24px; background: rgba(0, 212, 170, 0.03); border-color: rgba(0, 212, 170, 0.2);">
-           <h4 style="margin-bottom:12px; color: var(--green);">Current mission</h4>
-           <p style="margin: 0; color: #d2d2d7;">
-             Completing my PhD on deep learning surrogates and standalone Graph Neural Networks for epidemic modeling.
-           </p>
-         </div>
- 
-         <p class="small-muted" style="margin-top:24px">
-           <strong>PhD Thesis:</strong> <em>"Accelerating Policy Decision-Making Support in Infectious Disease Dynamics Through Deep Learning Surrogate Modelling and Graph Neural Networks"</em><br>
-           Supervisors: Oliver J. Watson, Thomas C. Churcher
-         </p>
-       </div>
-     </div>
-   </div>
- </section>
- 
- <section id="contact" class="section section-gradient fade-in">
-   <div class="container">
-     <div class="section-header">
-       <h2 class="section-title">Let's talk</h2>
-       <p class="section-subtitle">I turn months of compute into milliseconds of inference.</p>
-     </div>
-     
-     <div class="feature-grid">
-       <!-- Primary card -->
-       <div class="feature-card contact-card contact-card--xl">
-         <h3 class="h3-tight" style="margin-bottom:10px">Cosmo Santoni</h3>
-         <p class="subtitle">PhD Candidate, Imperial College London</p>
-         <p class="subtitle">Building the future of epidemic modeling</p>
-         
-         <div class="contact-meta">
-           <span class="chip">~200,000× speedup achieved</span>
-           <span class="chip">R² = 0.998 (held-out)</span>
-           <span class="chip">In production</span>
-         </div>
-         
-         <p style="margin: 20px 0; color: #d2d2d7;">
-           I focus on shipping production systems. I delivered the full stack—models, APIs, deployment, and this site—end to end. From mathematical theory to ~82,000 predictions/second on consumer hardware (~200,000× vs a 96-hour HPC baseline; ~90-second laptop runs on an RTX 40-series). If you’re working on problems at this scale, I’d love to help.
-         </p>
-         
-         <div class="contact-list">
-           <div class="label">Direct line</div>
-           <a href="mailto:cosmo.santoni@imperial.ac.uk" class="github-link">cosmo.santoni@imperial.ac.uk</a>
-           
-           <div class="label" style="margin-top:16px">Code & credentials</div>
-           <a href="https://github.com/CosmoNaught" target="_blank" class="github-link">GitHub — See it run</br>
-           <a href="https://uk.linkedin.com/in/cosmo-santoni" target="_blank" class="github-link">LinkedIn — Full background</a>
-         </div>
-         
-         <div class="cta-row">
-           <a class="btn-primary" href="mailto:cosmo.santoni@imperial.ac.uk?subject=MINTverse%20%E2%80%94%20Let%27s%20talk">Start a conversation</a>
-           <a class="btn-ghost" href="#" onclick="downloadCV(); return false;">Download CV</a>
-         </div>
-         
-         <p class="small-muted">London-based. Open to roles where I can own end-to-end ML systems and ship impact.</p>
-       </div>
-       
-       <!-- Secondary card -->
-       <div class="feature-card contact-side">
-         <h4>What I built</h4>
-         <ul class="tick-list">
-           <li>Replaced a 90-hour HPC job with ~90-second laptop inference</li>
-           <li>Built three production ML systems deployed with government & NGO partners</li>
-           <li>Achieved R² = 0.998 on 131k time series (held-out test set)</li>
-           <li>Created the entire stack: models, APIs, deployment, this <span class="gradient-brand-text">website</span></li>
-         </ul>
-         
-         <div class="feature-card" style="margin-top:20px; background: rgba(0,212,170,0.05);">
-           <p style="font-size: 14px; color: var(--green); margin: 0;">
-             <strong>Currently:</strong> Turning my PhD research into tools that ship. Interested in teams tackling billion-scale problems.
-           </p>
-         </div>
-         
-         <div class="stat-cards" style="margin-top:20px">
-           <div class="stat">
-             <div class="value">2025</div>
-             <div class="muted">Available</div>
-           </div>
-           <div class="stat">
-             <div class="value">London</div>
-             <div class="muted">GMT/BST</div>
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
- </section>
- 
- 
- 
-      <footer>
-         <div class="container">
-            <p>MINTverse © 2025 • Built for malaria intervention research</p>
-            <p style="opacity:.75;margin-top:8px">Fast emulation of malariasimulation models using deep learning</p>
-         </div>
-      </footer>
-      <div id="copy-status" class="sr-only" aria-live="polite"></div>
-      <script>
-         const ScrollLock = (() => {
-           let locked = false;
-         
-           function prevent(e){ e.preventDefault(); }
-           function keyguard(e){
-                                const keys = [32,33,34,35,36,37,38,39,40];
-             if (keys.includes(e.keyCode)) e.preventDefault();
-           }
-         
-           return {
-             enable(){
-               if (locked) return;
-               locked = true;
-               document.documentElement.classList.add('intro-lock');
-               document.body.classList.add('intro-lock');
-               window.addEventListener('wheel', prevent, { passive:false });
-               window.addEventListener('touchmove', prevent, { passive:false });
-               window.addEventListener('keydown', keyguard, { passive:false });
-             },
-             disable(){
-               if (!locked) return;
-               locked = false;
-               document.documentElement.classList.remove('intro-lock');
-               document.body.classList.remove('intro-lock');
-               window.removeEventListener('wheel', prevent, { passive:false });
-               window.removeEventListener('touchmove', prevent, { passive:false });
-               window.removeEventListener('keydown', keyguard, { passive:false });
-             }
-           };
-         })();
-         
-                        window.addEventListener('load', () => {
-           ScrollLock.enable();
-           cinematicSequence();
-           fitHero();
-           applyHeroMode();
-         });
-      </script>
-      <script>
-         let introComplete = false;
-         
-         function cinematicSequence() {
-         const intro = document.getElementById('cinematicIntro');
-         const cards = [
-         document.getElementById('card1'),
-         document.getElementById('card2'),
-         document.getElementById('card3')
-         ];
-         
-               setTimeout(() => {
-         if (!introComplete) {
-         cards[0].classList.add('active');
-         }
-         }, 6000);
-         
-         setTimeout(() => {
-         if (!introComplete) {
-         cards[0].classList.remove('active');
-         cards[1].classList.add('active');
-         }
-         }, 8500);
-         
-         setTimeout(() => {
-         if (!introComplete) {
-         cards[1].classList.remove('active');
-         cards[2].classList.add('active');
-         }
-         }, 11000);
-         
-         setTimeout(() => {
-         if (!introComplete) {
-         cards[2].classList.remove('active');
-         endIntro();
-         }
-         }, 13500);
-         }
-         
-         function skipIntro() {
-         introComplete = true;
-         endIntro();
-         }
-         
-         function endIntro() {
-         const intro = document.getElementById('cinematicIntro');
-         const scrollScrub = document.getElementById('scrollScrub');
-         const nav = document.getElementById('mainNav');
-         const heroContent = document.querySelector('.hero-content');
-         const hero = document.querySelector('.hero');
-         const halo = document.querySelector('.intro-halo');
-         
-         if (heroContent) heroContent.style.display = 'none';
-         if (hero) hero.style.opacity = '0';
-         
-         if (halo) halo.style.display = 'none';
-         
-         intro.classList.add('fade-to-black');
-         
-         setTimeout(() => {
-         intro.classList.add('hide');
-         
-         setTimeout(() => {
-         intro.classList.add('complete');
-         ScrollLock.disable();
-         
-         scrollScrub.style.display = 'block';
-         scrollScrub.style.opacity = '0';
-         
-         setTimeout(() => {
-         scrollScrub.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-         scrollScrub.style.opacity = '1';
-         
-         setTimeout(() => {
-         const beat1 = document.getElementById('beat1');
-         if (beat1) {
-         beat1.classList.add('active','fade-in');
-         beat1.addEventListener('animationend', () => {
-         beat1.classList.remove('fade-in');
-         }, { once: true });
-         }
-         
-         initScrollScrub();
-         }, 200);
-         }, 300);
-         
-         setTimeout(() => {
-         if (heroContent) {
-         heroContent.style.display = '';
-         heroContent.style.opacity = '0';
-         heroContent.style.animation = 'none';
-         }
-         if (hero) {
-         hero.style.opacity = '1';
-         hero.classList.add('show-halo');
-         }
-         }, 500);
-         }, 20);   }, 600);
-         }
-         
-         function initScrollScrub() {
-         const scrubSection = document.getElementById('scrollScrub');
-         const beats = [document.getElementById('beat1'), document.getElementById('beat2'), document.getElementById('beat3')];
-         const heroContent = document.querySelector('.hero-content');
-         const nav = document.getElementById('mainNav');
-         
-         beats[0].classList.add('active');
-         beats[0].classList.add('seen');   
-         
-         let lastBeat = 0;
-         let lastDir = 0;               
-         let holdUntil = 0;
-         const HOLD_MS_FWD = 750;
-         const HOLD_MS_BACK = 450;
-
-         function setBeat(i){
-         beats.forEach(b => b.classList.remove('active'));
-         beats[i].classList.add('active','seen');
-         lastBeat = i;
-         }
-
-         window.addEventListener('scroll', () => {
-         const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-         const top = scrubSection.offsetTop;
-         const h = scrubSection.offsetHeight;
-         const vh = window.innerHeight;
-
-         if (scrollY >= top && scrollY <= top + h - vh) {
+          if (scrollY >= top && scrollY <= top + h - vh) {
             const progress = Math.min(1, Math.max(0, (scrollY - top) / (h - vh)));
-
-            // 3 beats -> indices 0,1,2
             const target = Math.min(beats.length - 1, Math.floor(progress * beats.length));
             const now = performance.now();
             const dir = Math.sign(target - lastBeat);
 
             if (dir !== 0) {
-               if (dir !== lastDir) holdUntil = 0;
-
-               if (now >= holdUntil) {
-               const next = Math.abs(target - lastBeat) > 1 ? target : (lastBeat + dir);
-               setBeat(next);
-               holdUntil = now + (dir > 0 ? HOLD_MS_FWD : HOLD_MS_BACK);
-               lastDir = dir;
-               }
+              if (dir !== lastDir) holdUntil = 0;
+              if (now >= holdUntil) {
+                const next = Math.abs(target - lastBeat) > 1 ? target : (lastBeat + dir);
+                setBeat(next);
+                holdUntil = now + (dir > 0 ? HOLD_MS_FWD : HOLD_MS_BACK);
+                lastDir = dir;
+              }
             }
+          }
+        });
+      }
 
-            if (heroContent) heroContent.style.opacity = '0';
-         } else if (scrollY > top + h - vh) {
-            if (heroContent && heroContent.style.opacity !== '1') {
-               heroContent.style.animation = 'heroContentFade 700ms cubic-bezier(.4,0,.2,1) forwards';
-            }
-            if (!nav.classList.contains('ready')) nav.classList.add('ready');
-         }
-         });
-         }
-         
-         
-         async function downloadCV() {
-         const url = "https://raw.githubusercontent.com/CosmoNaught/MINTverse/main/Cosmo%20Santoni%20CV.pdf";
-         const res = await fetch(url);
-         const blob = await res.blob();
-         const a = document.createElement("a");
-         a.href = URL.createObjectURL(blob);
-         a.download = "Cosmo_Santoni_CV.pdf";
-         document.body.appendChild(a);
-         a.click();
-         URL.revokeObjectURL(a.href);
-         a.remove();
-         }
-         
-         document.querySelectorAll('.copy-btn').forEach(btn => {
-         btn.addEventListener('click', async () => {
-         const wrapper = btn.closest('.code-section');
-         const codeEl = wrapper ? wrapper.querySelector('pre, code') : null;
-         if (!codeEl) return;
-         try {
-         await navigator.clipboard.writeText(codeEl.innerText.trim());
-         const prev = btn.textContent;
-         btn.textContent = 'Copied!';
-         document.getElementById('copy-status').textContent = 'Code copied to clipboard';
-         setTimeout(() => { btn.textContent = prev; }, 1500);
-         } catch(e) {
-         btn.textContent = 'Failed';
-         }
-         });
-         });
-         
-         const observerOptions = {
-         threshold: 0.1,
-         rootMargin: '0px 0px -100px 0px'
-         };
-         
-         const observer = new IntersectionObserver((entries) => {
-         entries.forEach(entry => {
-         if (entry.isIntersecting) {
-         entry.target.classList.add('visible');
-         }
-         });
-         }, observerOptions);
-         
-         document.querySelectorAll('.fade-in').forEach(el => {
-         observer.observe(el);
-         });
-         
-         let ticking = false;
-         function updateParallax() {
-         const hero = document.querySelector('.hero');
-         if (!hero) { ticking = false; return; }
-         
-         const inFluid = hero.classList.contains('hero-fluid') || window.innerWidth < 1024;
-         if (inFluid) {
-         hero.style.transform = '';
-         ticking = false;
-         return;
-         }
-         
-         const scrolled = window.pageYOffset;
-         if (scrolled < window.innerHeight) {
-         hero.style.transform = `translateY(${scrolled * 0.3}px)`;
-         } else {
-         hero.style.transform = '';
-         }
-         ticking = false;
-         }
-         
-         window.addEventListener('scroll', () => {
-         if (!ticking) {
-         requestAnimationFrame(updateParallax);
-         ticking = true;
-         }
-         });
-         
-         window.addEventListener('scroll', () => {
-         const nav = document.querySelector('nav');
-         if (window.scrollY > 100) {
-         nav.classList.add('scrolled');
-         } else {
-         nav.classList.remove('scrolled');
-         }
-         
-               const scrollHint = document.getElementById('scrollHint');
-         if (scrollHint && window.pageYOffset > 50) {
-         scrollHint.classList.add('hide');
-         }
-         });
-         
-         const HERO_BREAK_W = 1200;
-         const HERO_BREAK_H = 800;
-         
-         function isFluidWanted() {
-         return (window.innerWidth < HERO_BREAK_W) || (window.innerHeight < HERO_BREAK_H);
-         }
-         
-         function applyHeroMode() {
-         const hero = document.querySelector('.hero');
-         const wrapper = ensureHeroWrapper();
-         if (!hero || !wrapper) return;
-         
-         if (isFluidWanted()) {
-         hero.classList.add('hero-fluid');
-         wrapper.style.transform = '';
-         hero.style.transform = '';
-         } else {
-         hero.classList.remove('hero-fluid');
-         fitHero();
-         }
-         }
-         
-         function ensureHeroWrapper() {
-         const hc = document.querySelector('.hero-content');
-         if (!hc) return null;
-         if (!hc.querySelector('.hero-scale')) {
-         const wrapper = document.createElement('div');
-         wrapper.className = 'hero-scale';
-         while (hc.firstChild) wrapper.appendChild(hc.firstChild);
-         hc.appendChild(wrapper);
-         }
-         return hc.querySelector('.hero-scale');
-         }
-         
-         function fitHero() {
-         const nav = document.querySelector('nav');
-         const hero = document.querySelector('.hero');
-         const wrapper = ensureHeroWrapper();
-         if (!nav || !hero || !wrapper) return;
-         
-         const largeEnough = window.innerWidth >= 1200 && window.innerHeight >= 800;
-         if (!largeEnough) {
-         wrapper.style.transform = '';
-         return;
-         }
-         
-         const styles = getComputedStyle(hero);
-         const padTop = parseFloat(styles.paddingTop) || 0;
-         const padBottom = parseFloat(styles.paddingBottom) || 0;
-         const navH = nav.offsetHeight || 0;
-         const available = window.innerHeight - navH - padTop - padBottom;
-         
-         wrapper.style.transform = 'scale(1)';
-         const contentH = wrapper.offsetHeight;
-         const ratio = (available - 6) / contentH;
-         const scale = ratio >= 1 ? Math.min(1.10, ratio) : Math.max(0.01, ratio);
-         
-         const scaledH = contentH * scale;
-         const offset = Math.max(0, (available - scaledH) / 2);
-         
-         wrapper.style.transform = `translateY(${offset}px) scale(${scale})`;
-         }
-         
-         function animateValue(el, start, end, duration) {
-         const isDecimal = end % 1 !== 0;
-         const startTime = performance.now();
-         
-         function update(currentTime) {
-         const elapsed = currentTime - startTime;
-         const progress = Math.min(elapsed / duration, 1);
-         const value = start + (end - start) * progress;
-         
-         if (isDecimal) {
-         el.textContent = value.toFixed(1) + (el.dataset.target.includes('B') ? 'B' : '');
-         } else if (end >= 1000) {
-         el.textContent = '~' + Math.floor(value / 1000) + 'k';
-         } else {
-         el.textContent = Math.floor(value);
-         }
-         
-         if (progress < 1) {
-         requestAnimationFrame(update);
-         } else {
-                           if (el.dataset.target === '200000') el.textContent = '~200,000';
-         else if (el.dataset.target === '82000') el.textContent = '~82k';
-         else if (el.dataset.target === '64.3') el.textContent = '64.3B+';
-         }
-         }
-         
-         requestAnimationFrame(update);
-         }
-         
-         const countObserver = new IntersectionObserver((entries) => {
-         entries.forEach(entry => {
-         if (entry.isIntersecting) {
-         const el = entry.target;
-         const target = parseFloat(el.dataset.target);
-         if (target) {
-         animateValue(el, 0, target, 2000);
-         countObserver.unobserve(el);
-         }
-         }
-         });
-         }, { threshold: 0.5, rootMargin: '0px' });
-         
-         document.querySelectorAll('.stat-number[data-target]').forEach(el => {
-         countObserver.observe(el);
-         });
-         
-         window.addEventListener('load', () => {
-               cinematicSequence();
-         
-               fitHero();
-         applyHeroMode();
-         
-               setTimeout(() => {
-         const loadingBar = document.querySelector('.loading-bar');
-         if (loadingBar) {
-         loadingBar.style.opacity = '0';
-         setTimeout(() => {
-         loadingBar.style.display = 'none';
-         }, 500);
-         }
-         }, 1500);
-         });
-         
-         window.addEventListener('resize', () => {
-         window.requestAnimationFrame(() => {
-         applyHeroMode();
-         if (!document.querySelector('.hero')?.classList.contains('hero-fluid')) {
-         fitHero();
-         }
-         });
-         });
-      </script>
-      <script>
-         document.addEventListener('DOMContentLoaded', () => {
-           const logo = document.querySelector('.nav-logo');
-           const hero = document.getElementById('hero');
-           if (logo && hero) {
-             logo.addEventListener('click', (e) => {
-               e.preventDefault();
-               hero.scrollIntoView({ behavior: 'smooth' });
-             });
-           }
-         });
-      </script>
-   </body>
+      function lockAtEnd(){
+        // Lock document (no scrolling), keep last beat on screen and pin footer.
+        document.documentElement.classList.add('end-lock');
+        document.body.classList.add('end-lock');
+        document.getElementById('footer')?.classList.add('footer-fixed');
+
+        // Make sure we're within the scrub area when locking (snap to its top)
+        const top = document.getElementById('scrollScrub').offsetTop;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+
+      /* Boot */
+      window.addEventListener('load', () => {
+        ScrollLock.enable();
+        cinematicSequence();
+
+        setTimeout(() => {
+          const loadingBar = document.querySelector('.loading-bar');
+          if (loadingBar){ loadingBar.style.display = 'none'; }
+        }, 1800);
+      });
+    </script>
+  </body>
 </html>
