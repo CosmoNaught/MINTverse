@@ -379,6 +379,50 @@
         -webkit-text-fill-color:transparent; 
         background-clip:text;
       }
+      /* Apple-style footer */
+      .footer-section{
+      position: relative;
+      text-align: center;
+      margin-top: 56px;
+      padding-top: 24px;
+      color: var(--gray-300);
+      opacity: 0; /* `.reveal-fade` / `.show` will handle reveal */
+      transition: opacity .7s cubic-bezier(.4,0,.2,1);
+      }
+      .footer-section::before{
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(680px, 84%);
+      height: 1px;
+      background: linear-gradient(90deg,
+         rgba(255,255,255,.06) 0%,
+         rgba(255,255,255,.18) 50%,
+         rgba(255,255,255,.06) 100%);
+      }
+
+      .footer-tagline{
+      font-size: clamp(18px, 2.4vw, 22px);
+      font-weight: 600;
+      letter-spacing: .01em;
+      color: var(--text-primary);
+      }
+      .footer-sub{
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--text-muted);
+      }
+      .footer-meta{
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: .01em;
+      }
+
+      /* Keep your existing reveal utility working */
+      .footer-section.show{ opacity: 1; }
 
       /* Respect reduced motion */
       @media (prefers-reduced-motion: reduce){
@@ -476,9 +520,11 @@
             <a href="https://github.com/CosmoNaught" class="link">View research ↗</a>
           </div>
           
-          <div class="validation reveal-fade">
-            Cosmo Santoni • Imperial College London • MRC Centre for Global Infectious Disease Analysis
-          </div>
+          <div class="validation footer-section reveal-fade">
+            <div class="footer-tagline">Designed for researchers. Engineered for impact.</div>
+            <div class="footer-sub">From the MRC Centre for Global Infectious Disease Analysis</div>
+            <div class="footer-meta">Imperial College London • Open Source • 2025</div>
+          </div>          
         </div>
       </div>
     </div>
@@ -578,7 +624,7 @@
 
       function initScrollScrub(){
       const scrubSection = document.getElementById('scrollScrub');
-      const beats = ['beat1','beat2','beat3','beat4'].map(id => document.getElementById(id));
+      const beats = ['beat1','beat2','beat3','comparison','beat4'].map(id => document.getElementById(id));
       const steps = beats.length - 1;
       const vh = () => window.innerHeight;
 
