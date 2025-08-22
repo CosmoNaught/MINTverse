@@ -62,6 +62,27 @@
         66% { transform: translate(-52%, -48%) rotate(240deg) scale(0.95); }
       }
 
+      /* Gradient underline for brand text */
+      .gradient-brand-text.with-underline{
+        position: relative;
+        display: inline-block;
+        padding-bottom: 2px;              /* room for the line */
+      }
+      .gradient-brand-text.with-underline::after{
+        content: '';
+        position: absolute;
+        left: 0; right: 0;
+        bottom: -3px;                     /* tweak to taste */
+        height: 2px;
+        background: linear-gradient(90deg,
+          transparent,
+          var(--green),
+          var(--accent),
+          transparent);
+        box-shadow: 0 0 20px rgba(0,212,170,.35);
+      }
+
+
       /* Floating particles */
       .particles {
         position: fixed;
@@ -656,6 +677,27 @@
       }
       .launch-date.underline::after{ transform:scaleX(1); }
       .launch-date.show-text .text{ opacity:1; transform:translateY(0); }
+
+            /* Gradient underline without changing text color */
+      .underline-gradient{
+        position: relative;
+        display: inline-block;
+        padding-bottom: 2px;                /* space for the line */
+      }
+      .underline-gradient::after{
+        content:'';
+        position:absolute;
+        left:0; right:0;
+        bottom:-3px;                        /* tweak to taste */
+        height:2px;
+        background: linear-gradient(90deg,
+          transparent,
+          var(--green),
+          var(--accent),
+          transparent);
+        box-shadow: 0 0 20px rgba(0,212,170,.35);
+      }
+
 
       /* Links with hover glow */
       .links{ display:flex; gap:32px; justify-content:center; margin-top:32px; }
@@ -1262,7 +1304,7 @@
           <p>Every bit. Every run. Deterministic to the <span class="text gradient-brand-text">last electron.</span></p>
         </div>
         <div class="scrub-beat" id="beat3" style="--copy-delay: 1.2s">
-          <h2><span class="text gradient-brand-text">Built</span> for reality.</h2>
+          <h2><span class="text gradient-brand-text">Engineered</span> for change.</h2>
           <p>Your laptop. Their cloud. <span class="text gradient-brand-text">Same performance.</span></p>
         </div>
         
@@ -1326,10 +1368,12 @@
         <section class="about-hero-compact">
           <div>
             <h2 class="impact">
-              <span class="gradient-brand-text shimmer">60,000× faster</span>
+              <span class="gradient-brand-text shimmer">Neural emulation breakthrough.</span>
             </h2>            
             <p>12 minutes → 12 milliseconds</p>
-            <span class="text gradient-brand-text">Engineered</span> at Imperial. <span class="text gradient-brand-text">Deployed</span> globally.</p>
+            <p>
+              <span class="underline-gradient">Engineered at Imperial. Deployed globally.</span>
+            </p>            
           </div>
         </section>
         
