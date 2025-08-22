@@ -3,8 +3,8 @@
 
 # MINTverse
 
-**200,000× faster.**  
-**96 hours → 90 seconds.**  
+**60,000× faster.**  
+**12 minutes → 12 millisecons.**  
 From simulation to ML emulation — decisions at the speed of thought.
 
 [**Website**](https://CosmoNaught.github.io/MINTverse) · [**Docs (WIP)**](https://CosmoNaught.github.io/MINTverse) · **London • Imperial College London**

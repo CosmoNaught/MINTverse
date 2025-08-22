@@ -708,7 +708,14 @@
         -webkit-text-fill-color:transparent; 
         background-clip:text;
       }
-      
+
+      /* Reusable holographic shimmer */
+      .gradient-brand-text.shimmer{
+        animation: shimmer 4s ease-in-out infinite;
+        will-change: background-position;              /* smooth on GPU */
+        filter: drop-shadow(0 0 32px rgba(0,212,170,.28));
+      }
+
       /* Footer with subtle gradient */
       .footer-section{
         position: relative;
@@ -1069,6 +1076,11 @@
         background-clip: text;
         font-weight: 700;
       }
+
+      .about-cta h2.shimmering-title {
+        animation: shimmer 4s ease-in-out infinite;
+        filter: drop-shadow(0 0 40px rgba(0, 212, 170, 0.3));
+      }
       
       .about-cta p{
         font-size: clamp(14px, 2vw, 16px) !important;
@@ -1205,24 +1217,26 @@
       <div class="intro-halo"></div>
       <div class="intro-content" id="introContent">
         <h1 class="intro-logo gradient-brand-text">MINTverse</h1>
-
         <div class="intro-tagline">
-          <span>Hours become milliseconds.</span>
+          <span>Hours become <span class="text gradient-brand-text"> milliseconds</span>.</span>
         </div>
 
-        <p class="intro-context">The future of agent-based simulations.</p>
+        <p class="intro-context">The most <span class="text gradient-brand-text">advanced</span> neural simulation platform ever <span class="text gradient-brand-text">engineered</span>.</p>
         <div class="title-cards">
           <div class="title-card" id="card1">
-            <h2>200,000× faster</h2>
-            <p>Than any agent-based system before it.</p>
+            <h2><span class="text gradient-brand-text shimmer">Impossibly</span> fast</h2>
+            <p><span class="text gradient-brand-text">12 milliseconds.</span> Per simulation.</p>
+            <p>60,000× faster than agent-based systems.</p>
           </div>
           <div class="title-card" id="card2">
-            <h2>82,000 predictions</h2>
-            <p>Every second. On your laptop.</p>
+            <h2><span class="text gradient-brand-text shimmer">Remarkably</span> precise</h2>
+            <p><span class="text gradient-brand-text">99.8% R².</span> Neural emulation.</p>
+            <p>DuckDB-powered data pipeline.</p>
           </div>
           <div class="title-card" id="card3">
-            <h2>64 billion data points</h2>
-            <p>Instantly queryable.</p>
+            <h2><span class="text gradient-brand-text shimmer">Effortlessly</span> parallel</h2>
+            <p><span class="text gradient-brand-text">100 simulations</span> per second.</p>
+            <p>Perfect GPU utilization. Pure parallel execution..</p>
           </div>
         </div>
       </div>
@@ -1239,40 +1253,37 @@
           <div class="orb orb3"></div>
         </div>
         
-        <div class="scrub-beat" id="beat1" style="--copy-delay: 1.0s">
-          <h2>One interface.</h2>
-          <p>Every query. Every model. Every scenario.</p>
+        <div class="scrub-beat" id="beat1" style="--copy-delay: 1.2s">
+          <h2><span class="text gradient-brand-text">Intelligence</span> without limits.</h2>
+          <p>One model. Any scale. <span class="text gradient-brand-text">Infinite possibility.</span></p>
         </div>
-        <div class="scrub-beat" id="beat2" style="--copy-delay: 1.0s">
-          <h2>Perfectly reproducible.</h2>
-          <p>Today. Tomorrow. Always.</p>
+        <div class="scrub-beat" id="beat2" style="--copy-delay: 1.2s">
+          <h2><span class="text gradient-brand-text">Precision.</span> Redefined.</h2>
+          <p>Every bit. Every run. Deterministic to the <span class="text gradient-brand-text">last electron.</span></p>
         </div>
-        <div class="scrub-beat" id="beat3" style="--copy-delay: 1.0s">
-          <h2>Ready to ship.</h2>
-          <p>Research to production. Instantly.</p>
+        <div class="scrub-beat" id="beat3" style="--copy-delay: 1.2s">
+          <h2><span class="text gradient-brand-text">Built</span> for reality.</h2>
+          <p>Your laptop. Their cloud. <span class="text gradient-brand-text">Same performance.</span></p>
         </div>
+        
         <div class="scrub-beat" id="beat4">
           <h2 class="gradient-brand-text">MINTverse</h2>
-          
-          <p class="subtitle reveal-up">96 hours → 90 seconds</p>
-          
+          <p class="subtitle reveal-up"><span class="text gradient-brand-text">85%</span> faster than a blink. <span class="text gradient-brand-text">Faster</span> than GPT-4 inference.*</p>
           <div class="metrics">
             <div class="metric secondary">
               <div class="metric-number" data-target="0.998" data-decimals="3" data-duration="1700" style="--minch:6ch">0</div>
               <div class="metric-unit">R²</div>
-              <div class="metric-label">Neural accuracy<br>250k+ held-out series</div>
+              <div class="metric-label"><span class="text gradient-brand-text">Statistical parity</span><br>with agent-based models</div>
             </div>
-
             <div class="metric primary">
-              <div class="metric-number" data-target="200000" data-decimals="0" data-suffix="×" data-duration="1600" style="--minch:7ch">0</div>
+              <div class="metric-number" data-target="60000" data-decimals="0" data-suffix="×" data-duration="1600" style="--minch:7ch">0</div>
               <div class="metric-unit">faster</div>
-              <div class="metric-label">Than malariasimulation<br>on HPC clusters</div>
+              <div class="metric-label">12 minutes → <span class="text gradient-brand-text">12 milliseconds</span><br>Neural emulation breakthrough</div>
             </div>
-            
             <div class="metric secondary">
-              <div class="metric-number" data-target="82000" data-decimals="0" data-duration="1800" style="--minch:6ch">0</div>
+              <div class="metric-number" data-target="100" data-decimals="0" data-duration="1800" style="--minch:6ch">0</div>
               <div class="metric-unit">per second</div>
-              <div class="metric-label">Predictions on<br>RTX 40-series GPU</div>
+              <div class="metric-label"><span class="text gradient-brand-text">Real-time</span> simulations<br>on consumer hardware</div>
             </div>
           </div>
           
@@ -1289,7 +1300,10 @@
             <div class="footer-tagline">Designed for researchers. Engineered for impact.</div>
             <div class="footer-sub">MRC Centre for Global Infectious Disease Analysis</div>
             <div class="footer-meta">Imperial College London • Open Source • 2025</div>
-          </div>          
+            <p style="font-size:8px; color:var(--text-muted)">
+              *Average blink: 100-150ms. GPT-4: ~20-40ms per token. MINTverse: 12ms full inference. HFT systems: 10-50ms latency.
+            </p>  
+          </div>
         </div>
       </div>
     </div>
@@ -1311,58 +1325,62 @@
       <div class="about-content">
         <section class="about-hero-compact">
           <div>
-            <div class="impact"><span class="gradient-brand-text">200,000×</span></div>
-            <p>96 hours → 90 seconds</p>
-            <p>Designed & Engineered at Imperial, used by NGOs & WHO partners.</p>
+            <h2 class="impact">
+              <span class="gradient-brand-text shimmer">60,000× faster</span>
+            </h2>            
+            <p>12 minutes → 12 milliseconds</p>
+            <span class="text gradient-brand-text">Engineered</span> at Imperial. <span class="text gradient-brand-text">Deployed</span> globally.</p>
           </div>
         </section>
-    
+        
         <section class="about-grid-compact">
           <div class="about-card">
-            <h4>Production Impact</h4>
-            <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">3 deployed systems</div>
-            <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">Running in WHO & partner decision-making</p>
+            <h4>Engineering Excellence</h4>
+            <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">12ms latency</div>
+            <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">Faster than GPT-4 inference</p>
             <ul style="list-style:none; padding:0; margin:0;">
-              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• WHO programme planning & country support</li>
-              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Global Fund malaria strategy tooling</li>
-              <li style="font-size:14px; color:var(--gray-300);">• Real-time intervention planning</li>
+              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Custom RNN architecture with 99.8% R²</li>
+              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• PyTorch → CUDA pipeline optimization</li>
+              <li style="font-size:14px; color:var(--gray-300);">• DuckDB: 64B points, sub-second queries</li>
             </ul>
           </div>
-    
+        
           <div class="about-card">
-            <h4>Scale & Speed</h4>
-            <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">82,000/sec</div>
-            <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">Predictions on consumer GPU</p>
+            <h4>Production Scale</h4>
+            <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">100/sec throughput</div>
+            <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">On consumer hardware</p>
             <ul style="list-style:none; padding:0; margin:0;">
-              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• R² = 0.998 accuracy (250k held-out)</li>
-              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• 64 billion queryable data points</li>
-              <li style="font-size:14px; color:var(--gray-300);">• PyTorch → CUDA optimisation</li>
+              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• 3 deployed production systems</li>
+              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• 250,000 validation sequences</li>
+              <li style="font-size:14px; color:var(--gray-300);">• Real-time decision support</li>
             </ul>
           </div>
-    
+        
           <div class="about-card">
             <h4>Recognition</h4>
-            <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">SAGE SPI-M-O Award (UK Gov)</div>
-            <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">by the UK Chief Scientific & Medical Officers</p>
+            <div style="color:var(--text-primary); margin-bottom:6px; font-weight:700;">SAGE Award</div>
+            <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">UK Chief Scientific Officers</p>
             <ul style="list-style:none; padding:0; margin:0;">
-              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• SAGE Award for Modelling & Data Support</li>
-              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Author: The Lancet & Nature</li>
-              <li style="font-size:14px; color:var(--gray-300);">• Talks: WHO, Médecins Sans Frontières, Public Health Canada, data.org</li>
+              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• The Lancet & Nature publications</li>
+              <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Imperial College London PhD</li>
+              <li style="font-size:14px; color:var(--gray-300);">• International health org. deployment</li>
             </ul>
           </div>
         </section>
     
         <section class="about-cta">
-          <h2>I ship ML at scale.</h2>
-          <p><strong style="color:var(--text-primary);">Cosmo Santoni</strong> — PhD candidate at Imperial College London. I don't just publish papers. I build production systems that policy-makers &amp; governments use to save lives.</p>
-          <p>From mathematical theory to 200,000× speedups. Full-stack ML engineer who delivers end-to-end: models, APIs, deployment, and yes—even this site.</p>
-      
+          <h2><span class="text gradient-brand-text shimmer">I make the impossible inevitable.</span></h2>
+          <p><strong style="color:var(--text-primary);">Cosmo Santoni</strong> — PhD candidate at Imperial College London.</p>
+          <p>I transform <span class="text gradient-brand-text">12-minute computations into 12ms inference</span>. From pure mathematics to production deployment. Full-stack ML engineering with a single obsession: <span class="text gradient-brand-text">speed without compromise</span>.</p>
+          <p>PyTorch. CUDA. DuckDB. React. Whatever it takes to build systems that <span class="text gradient-brand-text">save lives at scale</span>.</p>
+          <p>I don't just publish papers. I build <span class="text gradient-brand-text">production systems</span> that policy-makers & governments use to make critical decisions. From mathematical theory to 60,000× speedups through <span class="text gradient-brand-text">custom neural architectures</span>. End-to-end: models, APIs, deployment, and yes—even this <span class="text gradient-brand-text">site</span>.</p>
+          
           <div class="pills" role="group" aria-label="Quick links">
             <a class="pill primary" href="Cosmo%20Santoni%20CV.pdf" download="Cosmo_Santoni_CV.pdf" type="application/pdf">Download CV</a>
             <a class="pill" href="https://github.com/CosmoNaught" target="_blank" rel="noopener">GitHub</a>
             <a class="pill" href="https://www.linkedin.com/in/cosmo-santoni" target="_blank" rel="noopener">LinkedIn</a>
           </div>
-      
+          
           <div class="footer-section show">
             <div class="footer-tagline">Designed for researchers. Engineered for impact.</div>
             <div class="footer-sub">MRC Centre for Global Infectious Disease Analysis</div>
