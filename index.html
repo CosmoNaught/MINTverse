@@ -1639,6 +1639,31 @@
   }
 }
 
+/* Beat 4 — lock all stat cards to the width of the widest card */
+#beat4 .metrics{
+  display: inline-grid;                          /* shrink-wrap container */
+  grid-template-columns: repeat(auto-fit, var(--metric-w, 260px));
+  gap: clamp(12px, 2.2vw, 32px);
+  margin-top: 48px;
+  margin-inline: auto;                           /* center the block */
+  width: max-content;                            /* makes side padding appear naturally */
+  max-width: 100%;                               /* never overflow viewport */
+}
+
+#beat4 .metric{
+  width: var(--metric-w, 260px);                 /* equal card widths */
+}
+
+/* On narrow screens, allow full-width single column */
+@media (max-width: 720px){
+  #beat4 .metrics{
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  #beat4 .metric{ width: auto; }
+}
+
 
       </style>
    </head>
@@ -2642,10 +2667,50 @@ if (!window.__endLocked) {
                /* Beat 4 */
                const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                let beat4Started = false;
-         
+               function setBeat4MetricWidth() {
+  const wrap = document.querySelector('#beat4 .metrics');
+  if (!wrap) return;
+  const cards = wrap.querySelectorAll('.metric');
+  if (!cards.length) return;
+
+  // Measure each card at its natural width (not constrained by the grid)
+  let widest = 0;
+  cards.forEach(card => {
+    const clone = card.cloneNode(true);
+    clone.style.position = 'absolute';
+    clone.style.visibility = 'hidden';
+    clone.style.width = 'max-content';
+    clone.style.left = '-9999px';
+    clone.style.top = '0';
+    document.body.appendChild(clone);
+    widest = Math.max(widest, clone.getBoundingClientRect().width);
+    document.body.removeChild(clone);
+  });
+
+  // Friendly bounds (tweak if you like)
+  widest = Math.min(Math.max(Math.ceil(widest), 240), 380);
+  wrap.style.setProperty('--metric-w', widest + 'px');
+}
+
+// Recompute on resize when Beat 4 is visible
+function setupBeat4MetricWidthAutoResize(){
+  let raf = null;
+  const onResize = () => {
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      if (document.getElementById('beat4')?.classList.contains('active')) {
+        setBeat4MetricWidth();
+      }
+    });
+  };
+  window.addEventListener('resize', onResize, { passive: true });
+}
+
                function startBeat4(){
                  if (beat4Started) return;
                  beat4Started = true;
+                 setBeat4MetricWidth();            // <<< NEW: size cards by widest
+                 setupBeat4MetricWidthAutoResize(); // <<< NEW: keep it tidy on resize
                  const beat4 = document.getElementById('beat4');
                  const subtitle = beat4.querySelector('.subtitle');
                  const metricsWrap = beat4.querySelector('.metrics');
