@@ -1474,6 +1474,172 @@
          @media (prefers-reduced-motion: reduce){
          *{ animation: none !important; transition: none !important; }
          }
+         /* === 0) Safe viewport height unit (works across Safari/Firefox/Chrome) === */
+:root{ --vh: 1vh; }                      /* fallback */
+@supports (height: 100dvh){
+  :root{ --vh: 1dvh; }                   /* modern, accounts for browser UI chrome */
+}
+
+/* === 1) Cross-browser gradient text fix (Safari “Redefined.” issue) === */
+/* Parent h2 must not force transparent fill for children */
+.scrub-beat h2{ -webkit-text-fill-color: initial; }
+/* Give the rest-of-h2 its own paint so Safari renders it */
+.scrub-beat h2 .rest-of-h2{
+  background: linear-gradient(180deg,#fff 0%,#86868b 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* === 2) Smooth out title-card flicker (no 'transition: all') === */
+.title-card{
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  contain: paint;
+  transition:
+    opacity .6s var(--easing),
+    transform .6s var(--easing),
+    border-color .6s var(--easing),
+    box-shadow .6s var(--easing);
+}
+
+/* === 3) Use safe viewport height everywhere we sized by vh === */
+.scroll-scrub-section{ height: calc(4 * 100 * var(--vh)); }
+.about-content,
+.benchmarks-content{
+  height: auto;
+  min-height: calc(100 * var(--vh) - var(--about-header-h));
+}
+
+/* === 4) Don’t block scrolling in overlays === */
+.about-page,
+.benchmarks-page{
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* === 5) Beat 4: size by HEIGHT as well as width (no magic laptop breakpoint) === */
+#beat4 h2{
+  /* Cap between 36px and 120px; pick the smaller of width- or height-driven scale */
+  font-size: clamp(36px, min(6.5vw, 12 * var(--vh)), 120px);
+}
+#beat4 .subtitle{
+  font-size: clamp(16px, min(2.8vw, 3.8 * var(--vh)), 32px);
+  margin-top: -8px;
+}
+.metric-number{
+  font-size: clamp(22px, min(5vw, 6 * var(--vh)), 56px);
+}
+.metric-unit{ font-size: clamp(14px, 1.9vw, 20px); }
+.metric-label{ font-size: clamp(12px, 1.8vw, 15px); }
+
+/* Auto-wrap metrics when vertical space is tight (no device sniffing) */
+.metrics{
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  column-gap: clamp(12px, 2.2vw, 32px);
+  row-gap: clamp(12px, 3 * var(--vh), 40px);
+}
+
+/* Benchmarks charts shrink gracefully by height too */
+.chart-container{ height: clamp(180px, 28 * var(--vh), 280px); }
+
+/* --- 0) Viewport unit that respects browser UI (Safari included) --- */
+:root{ --vh: 1vh; }
+@supports (height: 100dvh){ :root{ --vh: 1dvh; } }
+
+/* --- 1) Safari: ensure h2 "rest-of-h2" paints on its own (fixes missing words) --- */
+.scrub-beat h2{ -webkit-text-fill-color: initial; }
+.scrub-beat h2 .rest-of-h2{
+  background: linear-gradient(180deg,#fff 0%,#86868b 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* --- 2) Title-card flicker fixes (WebKit) --- */
+.title-cards{ isolation: isolate; }
+.title-card{
+  /* start hidden so there is never a flash on toggle */
+  opacity: 0; visibility: hidden;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  transform: translateZ(0) scale(.98);
+  contain: paint;
+  transition:
+    opacity .55s var(--easing),
+    transform .55s var(--easing),
+    border-color .55s var(--easing),
+    box-shadow .55s var(--easing);
+}
+.title-card.active{
+  opacity: 1; visibility: visible; transform: translateZ(0) scale(1);
+  border-color: rgba(0, 212, 170, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 212, 170, 0.1);
+}
+.title-card.leaving{
+  /* fade only; keep visible during transition to avoid pop-in */
+  opacity: 0; visibility: visible; transform: translateZ(0) scale(.995);
+}
+
+/* --- 3) Replace fixed vh with dynamic (prevents short-laptop overflow) --- */
+.scroll-scrub-section{ height: calc(4 * 100 * var(--vh)); }
+
+/* --- 4) Beat 4 + overlay pages: dynamic fit-to-viewport scaling --- */
+#beat4{
+  transform: scale(var(--beat-scale, 1));
+  transform-origin: 50% 8%;
+}
+.about-content,
+.benchmarks-content{
+  transform: scale(var(--page-scale, 1));
+  transform-origin: 50% 0;
+}
+
+/* Let overlays scroll if you ever turn off scaling, but normally we scale to fit */
+.about-page, .benchmarks-page{ overflow-x: hidden; overflow-y: auto; }
+
+/* Typography scales with height as an extra safety net */
+#beat4 h2{ font-size: clamp(32px, min(6.2vw, 12 * var(--vh)), 120px); }
+#beat4 .subtitle{ font-size: clamp(16px, min(2.6vw, 3.8 * var(--vh)), 32px); }
+.metric-number{ font-size: clamp(22px, min(4.8vw, 6 * var(--vh)), 56px); }
+.metric-unit{ font-size: clamp(13px, 1.9vw, 20px); }
+.metric-label{ font-size: clamp(12px, 1.8vw, 15px); }
+
+.metrics{
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  column-gap: clamp(12px, 2.2vw, 32px);
+  row-gap: clamp(12px, 3 * var(--vh), 40px);
+}
+
+/* Benchmarks chart height adapts to viewport height */
+.chart-container{ height: clamp(180px, 28 * var(--vh), 280px); }
+
+/* Center Beat 4 as a box, then scale it to fit */
+#beat4{
+  position: absolute;           /* it's already absolute, but be explicit */
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform-origin: 50% 50%;    /* center, not top-biased */
+  transform: translate(-50%, -50%) scale(var(--beat-scale, 1));
+  /* Don't let generic .scrub-beat transform rules fight us */
+  transition:
+    opacity .8s var(--easing);
+}
+
+/* Ensure the generic "active" rule doesn't override Beat 4's transform */
+.scrub-beat.active{ opacity:1; }     /* keep opacity only */
+/* Mobile/tablet: center + space like Benchmarks */
+@media (max-width: 1024px){
+  .about-content{
+    display: flex;                /* instead of grid for the outer wrapper */
+    flex-direction: column;
+    justify-content: center;      /* vertical centering */
+    gap: clamp(12px, 2.5vh, 24px);
+  }
+}
+
+
       </style>
    </head>
    <body>
@@ -1625,7 +1791,7 @@
                   <ul style="list-style:none; padding:0; margin:0;">
                      <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• Custom RNN architecture with 99.8% R²</li>
                      <li style="font-size:14px; color:var(--gray-300); margin-bottom:6px;">• PyTorch → CUDA pipeline optimization</li>
-                     <li style="font-size:14px; color:var(--gray-300);">• DuckDB: 574M points, sub-second queries</li>
+                     <li style="font-size:14px; color:var(--gray-300);">• DuckDB: 574M points</li>
                   </ul>
                </div>
                <div class="about-card">
@@ -2074,9 +2240,11 @@
 
                    
                    if (beats[i].id === 'beat4') startBeat4();
-                   if (i === steps) {
-                     setTimeout(() => lockAtEnd(), 500);
-                   }
+                   fitBeat4();
+if (i === steps) {
+  lockAtEnd();                 // lock immediately
+  return;                      // nothing else to do
+}
                    
                    setTimeout(() => {
                      isTransitioning = false;
@@ -2206,51 +2374,164 @@
                 window.scrollTo({ top: offsets[next], behavior: 'smooth' });
               }
 
-               function lockAtEnd(){
-                 if (window.__endLocked) return;
-                 window.__endLocked = true;
-                 if (typeof window.__setEndLocked === 'function') window.__setEndLocked(true);
+let __lockScrollSnap = null;
+
+// helpers to toggle the global input guards when overlays open/close
+function disableEndLockInputGuards(){
+  if (!window.__endLocked) return;
+  if (window.__endPrevent){
+    window.removeEventListener('wheel', window.__endPrevent);
+    window.removeEventListener('touchmove', window.__endPrevent);
+  }
+  if (window.__endKeyguard){
+    window.removeEventListener('keydown', window.__endKeyguard);
+  }
+  if (window.__lockScrollSnap){
+    window.removeEventListener('scroll', window.__lockScrollSnap);
+  }
+}
+function enableEndLockInputGuards(){
+  if (!window.__endLocked) return;
+  const prevent = window.__endPrevent || (e => e.preventDefault());
+  const keyguard = window.__endKeyguard || (e => {
+    const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
+    if (keys.includes(e.key)) e.preventDefault();
+  });
+  window.__endPrevent = prevent;
+  window.__endKeyguard = keyguard;
+
+  window.addEventListener('wheel', prevent, { passive:false });
+  window.addEventListener('touchmove', prevent, { passive:false });
+  window.addEventListener('keydown', keyguard, { passive:false });
+
+  if (window.__lockScrollSnap){
+    window.addEventListener('scroll', window.__lockScrollSnap, { passive:true });
+  }
+  // make sure we’re parked at the last beat
+  const lastTop = (window.__scrubOffsets?.[window.__scrubSteps]) ??
+                  document.getElementById('scrollScrub').offsetTop;
+  window.scrollTo({ top: lastTop, behavior: 'auto' });
+}
+
+function lockAtEnd(){
+  if (window.__endLocked) return;
+  window.__endLocked = true;
+  if (typeof window.__setEndLocked === 'function') window.__setEndLocked(true);
+
+  document.documentElement.classList.add('end-lock');
+  document.body.classList.add('end-lock');
+
+  const lastTop = (window.__scrubOffsets?.[window.__scrubSteps]) ??
+                  document.getElementById('scrollScrub').offsetTop;
+
+  // snap to final position immediately
+  window.scrollTo({ top: lastTop, behavior: 'auto' });
+
+  // store handlers so we can temporarily disable them for overlays
+  const prevent = e => e.preventDefault();
+  const keyguard = (e) => {
+    const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
+    if (keys.includes(e.key)) e.preventDefault();
+  };
+  window.__endPrevent  = prevent;
+  window.__endKeyguard = keyguard;
+
+  // kill input that could move the page
+  window.addEventListener('wheel', prevent, { passive:false });
+  window.addEventListener('touchmove', prevent, { passive:false });
+  window.addEventListener('keydown', keyguard, { passive:false });
+
+  // Safari elastic/bounce guard: if anything moved us up, snap back down
+  __lockScrollSnap = () => {
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (y < lastTop) window.scrollTo({ top: lastTop, behavior: 'auto' });
+  };
+  window.addEventListener('scroll', __lockScrollSnap, { passive:true });
+}
+
+function fitToViewport(el, padTop = 0, padBottom = 0, cssVar = '--beat-scale'){
+  if (!el) return;
+  const prev = el.style.transform;
+  el.style.transform = 'none';              // measure natural size
+  const rect = el.getBoundingClientRect();
+  el.style.transform = prev || '';
+
+  const availW = document.documentElement.clientWidth - 24;
+  const availH = window.innerHeight - (padTop + padBottom);
+
+  const scaleW = availW / Math.max(1, rect.width);
+  const scaleH = availH / Math.max(1, rect.height);
+  const scale  = Math.min(1, scaleW, scaleH);   // never upscale
+
+el.style.setProperty(cssVar, Math.max(0.6, scale).toFixed(3)); // or just 'scale' to remove the floor
+}
+
+// Convenience wrappers
+function fitBeat4(){
+  const beat4 = document.getElementById('beat4');
+  if (!beat4) return;
+  // reserve ~40px for the bottom scroll-hint space even if hidden
+  fitToViewport(beat4, 0, 40, '--beat-scale');
+}
+function fitAbout(){
+  const page = document.getElementById('aboutPage');
+  const content = page?.querySelector('.about-content');
+  if (!content) return;
+  const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--about-header-h')) || 64;
+  fitToViewport(content, headerH + 12, 12, '--page-scale');
+}
+function fitBench(){
+  const page = document.getElementById('benchmarksPage');
+  const content = page?.querySelector('.benchmarks-content');
+  if (!content) return;
+  const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--about-header-h')) || 64;
+  fitToViewport(content, headerH + 12, 12, '--page-scale');
+}
+window.addEventListener('resize', () => {
+  if (document.getElementById('beat4')?.classList.contains('active')) fitBeat4();
+  if (document.getElementById('aboutPage')?.classList.contains('visible')) fitAbout();
+  if (document.getElementById('benchmarksPage')?.classList.contains('visible')) fitBench();
+}, { passive:true });
+
+
          
-                 document.documentElement.classList.add('end-lock');
-                 document.body.classList.add('end-lock');
-         
-                 const lastTop = (window.__scrubOffsets?.[window.__scrubSteps]) ??
-                                   document.getElementById('scrollScrub').offsetTop;
-                 window.scrollTo({ top: lastTop, behavior: 'auto' });
-         
-                 const prevent = e => e.preventDefault();
-                 window.addEventListener('wheel', prevent, { passive:false });
-                 window.addEventListener('touchmove', prevent, { passive:false });
-                 window.addEventListener('keydown', (e) => {
-                   const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
-                   if (keys.includes(e.key)) e.preventDefault();
-                 }, { passive:false });
-               }
-         
-               /* About Page Functions */
-               function showAboutPage(e){
-                 e.preventDefault();
-                 const aboutPage = document.getElementById('aboutPage');
-                 aboutPage.classList.add('active');
-                 
-                 // Create particles for About page if not already created
-                 createAboutParticles();
-                 
-                 window.__mainScrollY = window.pageYOffset;
-                 document.body.style.overflow = 'hidden';
-                 document.documentElement.classList.add('end-lock');
-                 
-                 setTimeout(() => {
-                   aboutPage.classList.add('visible');
-                 }, 10);
-               }
-         
+function showAboutPage(e){
+  e.preventDefault();
+  disableEndLockInputGuards();
+
+  const aboutPage = document.getElementById('aboutPage');
+  aboutPage.classList.add('active');
+  createAboutParticles();
+
+  window.__mainScrollY = window.pageYOffset;
+  document.body.style.overflow = 'hidden';
+  document.documentElement.classList.add('end-lock');
+
+  setTimeout(() => {
+    aboutPage.classList.add('visible');
+    // refit now, next frame, and after entrance animations complete
+    fitAbout();
+    requestAnimationFrame(() => fitAbout());
+
+    const refitOnce = () => fitAbout();
+    const toWatch = aboutPage.querySelectorAll('.about-grid-compact, .about-cta');
+    toWatch.forEach(el => el.addEventListener('animationend', refitOnce, { once: true }));
+  }, 10);
+}
+
                function hideAboutPage(e){
                  e.preventDefault();
                  const aboutPage = document.getElementById('aboutPage');
                  
                  aboutPage.classList.remove('visible');
-                 
+                 // keep end-lock if final state is locked
+if (!window.__endLocked) {
+  document.documentElement.classList.remove('end-lock');
+} else {
+  // still locked at end — re-enable global guards after overlay closes
+  setTimeout(() => enableEndLockInputGuards(), 0);
+}
+
                  setTimeout(() => {
                    aboutPage.classList.remove('active');
                    
@@ -2286,6 +2567,8 @@
                /* Benchmarks Page Functions */
                function showBenchmarksPage(e){
                  e.preventDefault();
+                 disableEndLockInputGuards();   // let the overlay scroll, even after end-lock
+
                  const benchmarksPage = document.getElementById('benchmarksPage');
                  benchmarksPage.classList.add('active');
                  
@@ -2298,6 +2581,8 @@
                  
                  setTimeout(() => {
   benchmarksPage.classList.add('visible');
+  fitBench();
+
 
   // Reveal notes after the charts finish animating (clean sync):
   const charts = benchmarksPage.querySelector('.benchmarks-charts');
@@ -2313,6 +2598,14 @@
                  const benchmarksPage = document.getElementById('benchmarksPage');
                  
                  benchmarksPage.classList.remove('visible');
+                 // keep end-lock if final state is locked
+if (!window.__endLocked) {
+  document.documentElement.classList.remove('end-lock');
+} else {
+  // still locked at end — re-enable global guards after overlay closes
+  setTimeout(() => enableEndLockInputGuards(), 0);
+}
+
                  
                  setTimeout(() => {
                    benchmarksPage.classList.remove('active');
