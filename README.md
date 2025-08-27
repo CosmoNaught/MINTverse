@@ -2,7 +2,7 @@
 
 # MINTverse
 
-**12 minutes → 12 milliseconds (≈125,000×).**  
+**24 minutes → 12 milliseconds (≈125,000×).**  
 From agent-based simulation to neural emulation — decisions faster than the blink of an eye.
 
 [**Website**](https://CosmoNaught.github.io/MINTverse) · [**Docs**](https://github.com/CosmoNaught/MINTverse) · **London • Imperial College London**
@@ -66,7 +66,7 @@ The ecosystem is modular: **simulate → ingest → estimate → emulate → orc
 | Metric | Claim | Test setup |
 |---|---:|---|
 | Per‑simulation latency | **12 ms** | PyTorch→CUDA, batch=1, fp16 |
-| Speedup vs ABM | **≈125,000×** | 12 min ABM → 12 ms emulation |
+| Speedup vs ABM | **≈125,000×** | 24 min ABM → 12 ms emulation |
 | Throughput | **100 sims/sec** | Consumer GPU (e.g., RTX 4070/3080) |
 | Fit accuracy | **R² = 0.998** | 250k sequences, held‑out eval |
 
