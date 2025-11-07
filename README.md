@@ -2,7 +2,7 @@
 
 # MINTverse
 
-**24 minutes → 12 milliseconds (≈125,000×).**  
+**24 minutes → 10 milliseconds (≈125,000×).**  
 From agent-based simulation to neural emulation — decisions faster than the blink of an eye.
 
 [**Website**](https://CosmoNaught.github.io/MINTverse) · [**Docs**](https://github.com/CosmoNaught/MINTverse) · **London • Imperial College London**
