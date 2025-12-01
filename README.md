@@ -39,11 +39,11 @@ One toolkit across **R** and **Python** to go from raw *malariasimulation* outpu
 
 | Package | What it does | Status |
 |---|---|---|
-| **[MINTs](https://github.com/CosmoNaught/MINTs)** | Malaria Intervention **Simulator** — primary DB generator & agent-based wrapper. | **COMING SOON** |
+| **[MINTs](https://github.com/CosmoNaught/MINT)** | Malaria Intervention **Simulator** — primary DB generator & agent-based wrapper. | **COMING SOON** |
 | **[segMINT](https://github.com/CosmoNaught/segMINT)** | Ingest large *malariasimulation* outputs, build **DuckDBs**, plot/query fast. | ✅ Stable (active) |
 | **[MINTed](https://github.com/CosmoNaught/MINTed)** | Docs, tutorials, and reproducible examples for the ecosystem. | ✅ Stable (active) |
 | **[estiMINT](https://github.com/CosmoNaught/estiMINT)** | ML to estimate **EIR** and annual **cases/1000** from surveillance + coverage. | 🚧 Growing |
-| **[MINTe](https://github.com/CosmoNaught/minte)** | Python **RNN** forecaster/emulator (GRU/LSTM) for prevalence & cases with CLI + API. | ✅ Active |
+| **[MINTe](https://github.com/CosmoNaught/MINTelligence)** | Python **RNN** forecaster/emulator (GRU/LSTM) for prevalence & cases with CLI + API. | ✅ Active |
 | **[MINTer](https://github.com/CosmoNaught/MINTer)** | Orchestrator for full pipelines & scenarios; R emulator (pre‑trained GRU/LSTM); integrates with *malariasimulation*. | ✅ Active |
 
 **Support**
