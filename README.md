@@ -39,7 +39,7 @@ One toolkit across **R** and **Python** to go from raw *malariasimulation* outpu
 
 | Package | What it does | Status |
 |---|---|---|
-| **[MINTs](https://github.com/CosmoNaught/MINT)** | Malaria Intervention **Simulator** — primary DB generator & agent-based wrapper. | **COMING SOON** |
+| **[MINTs](https://github.com/CosmoNaught/MINT)** | Malaria Intervention **Simulator** — primary DB generator & agent-based wrapper. | ✅ Stable (active) |
 | **[segMINT](https://github.com/CosmoNaught/segMINT)** | Ingest large *malariasimulation* outputs, build **DuckDBs**, plot/query fast. | ✅ Stable (active) |
 | **[MINTed](https://github.com/CosmoNaught/MINTed)** | Docs, tutorials, and reproducible examples for the ecosystem. | ✅ Stable (active) |
 | **[estiMINT](https://github.com/CosmoNaught/estiMINT)** | ML to estimate **EIR** and annual **cases/1000** from surveillance + coverage. | 🚧 Growing |
