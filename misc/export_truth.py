@@ -3,7 +3,11 @@
     python misc/export_truth.py
 
 Run this by hand, once, on a machine with the simulation database. It is not part of the
-render. Quarto reads the CSVs it writes, so the docs never depend on DuckDB.
+render. Quarto reads the CSVs it writes, so the docs never depend on DuckDB, and `duckdb` is
+deliberately absent from pyproject.toml for that reason. Install it into the render venv only
+when you need to re-export:
+
+    uv pip install duckdb --python .venv/bin/python
 
 For each of three held-out parameter sets it writes four series. The simulator's own
 stochastic runs and their average are the ground truth. The pipeline series is what a user
