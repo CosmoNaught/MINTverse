@@ -2,9 +2,13 @@
 title: "The MINTverse pipeline"
 ---
 
-The emulator runs from an EIR. The first stage inverts whatever you have, a measured
-prevalence or an HBR, into the EIR that would sustain it in the setting it was measured
-in. The second stage takes that EIR and runs the intervention forward.
+MINTverse runs in two stages because the emulator takes an EIR and a user almost never has
+one. The first stage inverts whatever has been measured, a parasite prevalence or a human
+biting rate, into the EIR that would sustain it in the setting it was measured in, and the
+second stage takes that EIR and runs the campaign forward. We describe each stage in turn, the
+one function that runs both, and the domain outside which neither can be trusted.
+
+{{< include ../_truth-setup.qmd >}}
 
 ## The two stages
 
@@ -45,8 +49,8 @@ describing a setting and a campaign. It emits a 157-step trajectory for prevalen
 one for cases.
 
 Between them sits `calculate_dn0`, a lookup against published resistance curves rather
-than a fitted model. It turns a procurement decision (which nets, at what coverage) into
-the single lethality number both stages consume.
+than a fitted model. It turns a net mix (which formulations, at what coverage) into the
+single lethality number both stages consume.
 
 ## Using the pipeline
 
@@ -67,15 +71,34 @@ expose as a field.
 
 `stateMINT` was trained on output from
 [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), the individual-based
-transmission model. It reproduces that simulator to within its training error, in
-milliseconds rather than minutes.
+transmission model, and it reproduces that simulator to within its training error in
+milliseconds rather than minutes. The figure below runs the whole chain on a parameter set
+that was held out of training, and plots it against the simulator it is standing in for.
 
-The emulator approximates the simulator. The simulator approximates reality. A trajectory
-from `stateMINT` is a fast answer to the question "what would `malariasimulation` have
-said?", not a direct claim about a district. Every structural assumption in the simulator
-is inherited wholesale, and the emulator adds an approximation error of its own on top.
+```{python}
+#| fig-cap: "One held-out parameter set, under a campaign of nets and indoor spraying. The white line is malariasimulation, averaged over the individual stochastic runs drawn in grey. The red line is the pipeline, from a measured prevalence through estiMINT to stateMINT."
+#| fig-alt: "Prevalence over seven years. The red pipeline prediction follows the white simulator average through the pre-campaign equilibrium and the drop at year zero, settling around one percentage point below it in the final years."
+fig, ax = plt.subplots(figsize=(7.6, 3.4))
+truth_panel(ax, 27, "prevalence", oracle=False)
+ax.plot([], [], color=TRUTH, lw=3.4, label="malariasimulation")
+ax.plot([], [], color=PIPELINE, lw=1.8, label="pipeline")
+ax.set_xlabel("years from campaign")
+ax.set_ylabel("prevalence")
+ax.legend(fontsize=8)
+plt.tight_layout()
+plt.show()
+```
 
-## Domain limits {#where-validity-is-decided}
+The red line follows the white one through the pre-campaign equilibrium and through the drop
+when the campaign lands, and it reproduces the shape of the recovery, though it settles around
+a percentage point below the simulator in the final years. That residual is the emulator's, and
+it is the size of error to expect. Note also that agreement here is agreement with the
+simulator and not with a district. Every structural assumption `malariasimulation` makes is
+inherited whole, so a `stateMINT` trajectory answers what the simulator would have said rather
+than what a district will do. [Accuracy and speed](validation.qmd) quantifies both halves of
+that error.
+
+## Domain limits
 
 The emulator is only as good as the region of covariate space it saw in training, and
 `estimint` is only as good as the prevalences it was fitted against. Both have limits,
@@ -105,8 +128,9 @@ that hyperendemic are rare in the parameter grid the simulations were drawn from
 A scenario sitting at the edge of the domain therefore requires a sensitivity check.
 Perturb the inputs and see whether the conclusion still holds.
 
-## Next
+## See also
 
-- [EIR, HBR, prevalence, and cases](equilibrium.qmd) — what each quantity is and which stage produces it.
-- [Interventions and nets](interventions.qmd) — how a net mix becomes `dn0`.
-- [One call, end to end](../06-scenarios/run-scenarios.qmd) — `run_scenarios` in practice.
+Each of the four quantities that move through the pipeline, and the stage that produces it,
+is described in [EIR, HBR, prevalence, and cases](equilibrium.qmd), and the step from a net
+mix to `dn0` in [Interventions and nets](interventions.qmd). Please see
+[Running scenarios](../06-scenarios/run-scenarios.qmd) for `run_scenarios` in use.

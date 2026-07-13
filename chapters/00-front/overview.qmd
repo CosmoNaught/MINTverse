@@ -30,19 +30,41 @@ simulation is detailed and slow. A single scenario takes minutes of computation,
 exploring an intervention space, or fitting to a survey, means running it thousands of
 times.
 
-`stateMINT` is trained on a large library of those simulation runs. It reproduces their
-output in about 6 ms per scenario on a CPU, and roughly 1 ms on a GPU. At that speed you
-can sweep hundreds of intervention packages, or back-calculate transmission from a
-survey, in the time the simulation would take for one run.
+`stateMINT` is trained on a large library of those simulation runs, and reproduces their
+output in a few milliseconds per scenario on a CPU. At that speed you can sweep hundreds of
+intervention packages, or back-calculate transmission from a survey, in the time the
+simulation would take for one run.
 
-On 1,954 parameter sets held out of training entirely, the emulator tracks the simulator
-to a mean absolute error of 0.0044 in prevalence, under half a percentage point. The R²
-is 0.999, with no systematic bias. See
+The figure below is the whole stack running on a strongly seasonal parameter set that was held
+out of training, plotted against the simulator it replaces. Its error is close to the emulator's
+average across the whole held-out split.
+
+{{< include ../_truth-setup.qmd >}}
+
+```{python}
+#| fig-cap: "A held-out, strongly seasonal parameter set under a net campaign. The white line is malariasimulation, averaged over the individual stochastic runs drawn in grey. The red line is MINTverse, starting from a measured prevalence."
+#| fig-alt: "Two panels, prevalence and clinical cases over seven years, both oscillating sharply with the season. The red MINTverse prediction lies on top of the white simulator average throughout, before and after the campaign at year zero."
+fig, axes = plt.subplots(1, 2, figsize=(11.0, 3.3))
+for ax, predictor, ylab in zip(axes, ("prevalence", "cases"),
+                               ("prevalence", "cases per 1000 per day")):
+    truth_panel(ax, 16, predictor, oracle=False)
+    ax.set_xlabel("years from campaign")
+    ax.set_ylabel(ylab)
+axes[0].plot([], [], color=TRUTH, lw=3.4, label="malariasimulation")
+axes[0].plot([], [], color=PIPELINE, lw=1.8, label="MINTverse")
+axes[0].legend(fontsize=8)
+plt.tight_layout()
+plt.show()
+```
+
+Across 1,954 parameter sets held out of training entirely, the emulator tracks the simulator
+to a mean absolute error of 0.0044 in prevalence, which is under half a percentage point, at an
+R² of 0.999 and with no systematic bias. Please see
 [Accuracy and speed](../03-concepts/validation.qmd) for the trajectory-by-trajectory
-comparisons.
+comparison and for what the error costs when the EIR has to be estimated rather than known.
 
-Outside its training range the emulator is not reliable. `estimint` clamps out-of-range
-covariates silently, so a setting well beyond that range still comes back with an
+Note that outside its training range the emulator is not reliable, and that `estimint` clamps
+out-of-range covariates silently, so a setting well beyond that range still comes back with an
 answer.
 
 ## What you need to run it

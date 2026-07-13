@@ -7,6 +7,7 @@ project:
     - chapters/
   resources:
     - misc/icon-mint.svg
+    - data/
 
 website:
   title: "MINTverse"
