@@ -13,7 +13,11 @@ are both ordinary, and they cannot share a library directory. A Python project t
 every other project. That is what a *virtual environment* is. You create one at the start of
 every Python project.
 
-*(RStudio user, this is exactly `renv`, and for exactly the same reason. The difference is that in Python it is not optional.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+This is exactly `renv`, and for exactly the same reason. The difference is that in Python it is not optional.
+:::
 
 ## What `pip` is
 
@@ -24,7 +28,11 @@ can find it.
 pip install pandas
 ```
 
-*(RStudio user, this is `install.packages("dplyr")`. The repository it downloads from is [PyPI](https://pypi.org), which is CRAN. `import pandas` is then `library(dplyr)`.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+This is `install.packages("dplyr")`. The repository it downloads from is [PyPI](https://pypi.org), which is CRAN. `import pandas` is then `library(dplyr)`.
+:::
 
 The critical difference from R is that `pip` installs into **whichever interpreter is running
 it**. If you have three Pythons, you have three `pip`s, and they install into three different
@@ -53,7 +61,11 @@ A virtual environment is a directory, conventionally `.venv`, inside the project
 Rebuilding it from the lockfile restores it identically. It belongs to one project, and it is
 never committed to version control.
 
-*(RStudio user, `.venv/` is `renv/library/`, and it is `.gitignore`d for the same reason.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+`.venv/` is `renv/library/`, and it is `.gitignore`d for the same reason.
+:::
 
 ## The uv workflow
 
@@ -80,7 +92,11 @@ No interpreter is named by hand, so the wrong one cannot be named.
 To add a package later it is `uv add <name>`, to remove one `uv remove <name>`, and to
 reproduce someone else's project after cloning it, `uv sync`.
 
-*(RStudio user, `uv add` is `install.packages()` **and** `renv::snapshot()` in one step. It installs the package and records it. `uv sync` is `renv::restore()`.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+`uv add` is `install.packages()` **and** `renv::snapshot()` in one step. It installs the package and records it. `uv sync` is `renv::restore()`.
+:::
 
 ### What it writes
 
@@ -125,11 +141,28 @@ python3.12 -m venv .venv
 Then **activate** it. This is the step with no `uv` equivalent. It edits the current shell's
 `PATH` so that `python` and `pip` resolve to the ones inside `.venv`:
 
+::: {.panel-tabset group="os"}
+
+## Linux
+
 ```bash
-source .venv/bin/activate          # Linux, macOS (bash, zsh)
-.venv\Scripts\Activate.ps1         # Windows (PowerShell)
-.venv\Scripts\activate.bat         # Windows (cmd.exe)
+source .venv/bin/activate
 ```
+
+## macOS
+
+```bash
+source .venv/bin/activate
+```
+
+## Windows
+
+```powershell
+.venv\Scripts\Activate.ps1        # PowerShell
+.venv\Scripts\activate.bat        # cmd.exe
+```
+
+:::
 
 The prompt gains a `(.venv)` prefix, which is your visible confirmation. Activation lasts for
 that one shell session and is forgotten when the terminal closes. Now install:
@@ -171,10 +204,27 @@ all.
 
 The second is the **interpreter path**. Ask the shell which `python` it will run:
 
+::: {.panel-tabset group="os"}
+
+## Linux
+
 ```bash
-which python          # Linux, macOS
-where python          # Windows
+which python
 ```
+
+## macOS
+
+```bash
+which python
+```
+
+## Windows
+
+```powershell
+where python
+```
+
+:::
 
 The path you want runs through your project's `.venv`. Anything under `/usr/bin`,
 `/usr/local/bin`, `/opt/homebrew/bin` or `C:\Python312\` is a system Python. The packages you

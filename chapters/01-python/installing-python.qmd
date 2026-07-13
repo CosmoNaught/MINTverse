@@ -12,7 +12,11 @@ install command and then fail on syntax it does not recognise. Settle the versio
 python3 --version
 ```
 
-*(RStudio user, this is `R.version.string`. The difference is that you may have several Pythons on the machine and this only tells you about the first one on your `PATH`.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+This is `R.version.string`. The difference is that you may have several Pythons on the machine, and this only tells you about the first one on your `PATH`.
+:::
 
 **Install `uv` first, and let it install Python**. `uv` is a self-contained binary that does
 not need an existing Python to run. It works on a machine with no usable interpreter at all.
@@ -22,17 +26,29 @@ not need an existing Python to run. It works on a machine with no usable interpr
 `uv` is distributed as a single binary and installed with one command. Nothing to compile,
 and no Python involved.
 
-**Linux and macOS**
+::: {.panel-tabset group="os"}
+
+## Linux
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Windows**, in PowerShell:
+## macOS
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+## Windows
+
+In PowerShell.
 
 ```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
+
+:::
 
 The installer writes one binary to `~/.local/bin` (or `%USERPROFILE%\.local\bin`) and puts
 that directory on your `PATH`. The `PATH` change applies only to shells started afterwards,
@@ -55,7 +71,11 @@ uv python install 3.12
 `uv` downloads a standalone build of CPython 3.12 and keeps it in its own directory, separate
 from any Python the operating system already has. Nothing system-wide is touched.
 
-*(RStudio user, there is no R equivalent, because you only ever have one R. The nearest thing is `rig` or the version dropdown in RStudio Server.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+There is no R equivalent, because you only ever have one R. The nearest thing is `rig`, or the version dropdown in RStudio Server.
+:::
 
 To see every interpreter `uv` can find, managed or otherwise:
 
@@ -91,7 +111,11 @@ If installing new tooling is not an option, each platform has a conventional rou
 give you an interpreter but none of the environment management. You will be using `venv` and
 `pip` by hand. Please see [Environments and packages](environments.qmd).
 
-On **Linux**, the `venv` module is packaged separately on Debian and Ubuntu, and you need it:
+::: {.panel-tabset group="os"}
+
+## Linux
+
+The `venv` module is packaged separately on Debian and Ubuntu, so you need it explicitly.
 
 ```bash
 sudo apt update
@@ -104,16 +128,17 @@ On Fedora:
 sudo dnf install python3.12
 ```
 
-On **macOS**, Apple's `/usr/bin/python3` exists for the operating system's own use. It is
-several versions behind and should be left alone. Install a separate one with
-[Homebrew](https://brew.sh):
+## macOS
+
+Apple's `/usr/bin/python3` exists for the operating system's own use. It is several versions
+behind and should be left alone, so install a separate one with [Homebrew](https://brew.sh).
 
 ```bash
 brew install python@3.12
 ```
 
 Homebrew puts its Python under `/opt/homebrew/bin` (Apple silicon) or `/usr/local/bin`
-(Intel), ahead of `/usr/bin` on the `PATH`. Confirm the shell agrees:
+(Intel), ahead of `/usr/bin` on the `PATH`. Confirm the shell agrees.
 
 ```bash
 which python3
@@ -123,22 +148,25 @@ python3 --version
 If `which python3` still answers `/usr/bin/python3`, the shell is finding Apple's copy first
 and the `PATH` needs fixing before you go on.
 
-On **Windows**, download 3.12 or later from
-[python.org/downloads](https://www.python.org/downloads/) and run the installer. On the first
-screen, tick **Add python.exe to PATH** before clicking *Install Now*. Without it, `python`
-is not a command, `pip` is not a command, and VS Code will not find the interpreter unless
-you type its full path.
+## Windows
 
-Then, in a fresh PowerShell window, confirm which interpreter the shell finds first:
+Download 3.12 or later from [python.org/downloads](https://www.python.org/downloads/) and run
+the installer. On the first screen, tick **Add python.exe to PATH** before clicking *Install
+Now*. Without it, `python` is not a command, `pip` is not a command, and VS Code will not find
+the interpreter unless you type its full path.
+
+Then, in a fresh PowerShell window, confirm which interpreter the shell finds first.
 
 ```powershell
 python --version
 where python
 ```
 
-`where python` lists every `python.exe` on the `PATH` in search order. If the first entry
-sits under `C:\Users\<you>\AppData\Local\Microsoft\WindowsApps`, that is the Microsoft Store
-stub rather than a real interpreter. The python.org install has not reached the front.
+`where python` lists every `python.exe` on the `PATH` in search order. If the first entry sits
+under `C:\Users\<you>\AppData\Local\Microsoft\WindowsApps`, that is the Microsoft Store stub
+rather than a real interpreter, and the python.org install has not reached the front.
+
+:::
 
 ::: {.callout-warning}
 ## Never install packages into the system Python
@@ -148,7 +176,11 @@ system are written in it. `sudo pip install` can replace a library one of them d
 Recent Linux distributions block this outright with an `externally-managed-environment`
 error. Do not reach for `--break-system-packages`. Create a project environment instead.
 
-*(RStudio user, R lets you get away with a single shared library because CRAN polices compatibility. Nothing polices PyPI, so Python does not let you.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+R lets you get away with a single shared library because CRAN polices compatibility. Nothing polices PyPI, so Python does not let you.
+:::
 :::
 
 ## See also

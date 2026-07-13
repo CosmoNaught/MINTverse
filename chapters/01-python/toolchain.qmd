@@ -40,7 +40,11 @@ inside it. There is no activation step, so activation cannot be forgotten. It is
 fastest of the options, and resolving and installing this stack takes seconds rather than
 minutes.
 
-*(RStudio user, `uv` is doing roughly what `renv` does when it bootstraps a project library and keeps it in step with a lockfile. The extra trick is that it also installs R itself, the interpreter, which `renv` does not.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+`uv` does roughly what `renv` does when it bootstraps a project library and keeps it in step with a lockfile. The extra trick is that it also installs the interpreter itself, which `renv` does not do for R.
+:::
 
 Use **VS Code and `uv`**. `pip` still runs underneath. You will meet it in other people's
 instructions, so it is worth knowing what it is even if you never type it.

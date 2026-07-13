@@ -164,6 +164,30 @@ div.callout.callout-style-default > .callout-header { background: rgba(255,255,2
 .callout.callout-important { border-left-color: $violet; }
 .callout.callout-warning, .callout.callout-caution { border-left-color: #d9a441; }
 
+// ---- RStudio asides: one box wherever a Python idea has an R counterpart. It carries its
+//      own colour and an exclamation badge in place of Quarto's icon, so an R reader can
+//      find them by eye and everyone else can skip them.
+.callout.callout-note.rstudio { border-left-color: $violet; }
+.callout-note.rstudio .callout-icon-container { display: none; }
+.callout-note.rstudio .callout-title-container { display: flex; align-items: center; }
+.callout-note.rstudio .callout-title-container::before {
+  content: "!";
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: $violet;
+  color: #fff;
+  font-family: $font-family-sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
 // tables on dark
 .table { --bs-table-color: #{$gray-300}; --bs-table-border-color: #{$border-soft}; }
 thead th { color: $text-primary; border-bottom-color: $mint !important; }
@@ -187,6 +211,37 @@ thead th { color: $text-primary; border-bottom-color: $mint !important; }
 .chapter-outline a:hover { color: $mint; text-decoration: none !important; }
 .chapter-outline > ul > li > a { font-size: 1.15rem; font-weight: 600; }
 .chapter-outline ul ul a { font-size: 0.95rem; font-weight: 400; }
+
+// ---- platform tabsets (Linux / macOS / Windows). Grouped on `os`, so choosing a platform
+//      on one page selects it on every other. The content pane is transparent, letting the
+//      code panel inside read exactly as it does outside a tabset.
+.panel-tabset > .nav-tabs {
+  gap: 0.25rem;
+  border-bottom: 1px solid $border-soft;
+}
+.panel-tabset > .nav-tabs .nav-link {
+  padding: 0.4rem 0.85rem;
+  color: $text-muted;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.panel-tabset > .nav-tabs .nav-link:hover { color: $gray-300; border-bottom-color: $border-soft; }
+.panel-tabset > .nav-tabs .nav-link.active {
+  color: $mint;
+  background: none;
+  border-bottom-color: $mint;
+}
+.panel-tabset > .tab-content {
+  padding: 0.9rem 0 0;
+  border: none;
+  background: none;
+}
+.panel-tabset > .tab-content > .tab-pane > :first-child { margin-top: 0; }
+.panel-tabset > .tab-content > .tab-pane > :last-child { margin-bottom: 0; }
 
 // ---- code: dark glass panels with a mint spine ----
 div.sourceCode {

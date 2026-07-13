@@ -1,6 +1,6 @@
 ---
 pagetitle: "MINTverse: malaria intervention modelling"
-description: "Two Python packages for malaria intervention modelling. estiMINT estimates the EIR from a measured prevalence, and stateMINT emulates the prevalence and case trajectories that follow a campaign."
+description: "Documentation and guidance for using the malariasimulation machine learning emulator for prevalence and incidence analysis."
 page-layout: full
 toc: false
 anchor-sections: false
@@ -13,11 +13,8 @@ anchor-sections: false
     <p class="mint-eyebrow">Malaria intervention modelling</p>
     <h1 class="mint-wordmark">MINTverse</h1>
     <p class="mint-subtitle">
-      MINTverse is two Python packages, estiMINT and stateMINT, the first estimating the EIR
-      from a measured prevalence and the setting it was measured in, the second emulating the
-      prevalence and case trajectories that follow a campaign. The emulator returns a
-      trajectory in milliseconds, where the individual-based simulation it replaces takes
-      minutes.
+      Documentation and guidance for using the malariasimulation machine learning emulator for
+      prevalence and incidence analysis.
     </p>
     <div class="mint-actions">
       <a class="mint-btn mint-btn-primary" href="chapters/02-getting-started/index.html">Get started</a>

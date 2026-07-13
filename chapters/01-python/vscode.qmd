@@ -30,24 +30,34 @@ send a line to it, the line is evaluated, and the variable stays in memory.
 
 ## Installing
 
-On **Linux**, download the `.rpm` or `.deb` from
-[code.visualstudio.com](https://code.visualstudio.com/) and install it with the package
-manager. On Fedora it is worth adding Microsoft's repository once, after which the editor
-updates with the rest of the system:
+Download it from [code.visualstudio.com](https://code.visualstudio.com/).
+
+::: {.panel-tabset group="os"}
+
+## Linux
+
+Take the `.rpm` or the `.deb` and install it with the package manager. On Fedora it is worth
+adding Microsoft's repository once, after which the editor updates with the rest of the system.
 
 ```bash
 sudo dnf install code    # after enabling the Microsoft repo
 ```
 
-A Flatpak is also available from Flathub. It is sandboxed, and it can make interpreters
-outside the sandbox harder to reach. Prefer the native package if you have the choice.
+A Flatpak is also available from Flathub. It is sandboxed, and it can make interpreters outside
+the sandbox harder to reach, so prefer the native package if you have the choice.
 
-On **macOS**, download the `.zip`, unzip it, and drag *Visual Studio Code.app* into
-*Applications*. Then launch it once from *Applications* so that macOS registers it.
+## macOS
 
-On **Windows**, download the **User Installer** `.exe` and run it. It writes into your own
-profile and needs no administrator rights, which matters on a managed machine. The System
-Installer exists for multi-user machines and asks for admin rights.
+Download the `.zip`, unzip it, and drag *Visual Studio Code.app* into *Applications*. Then
+launch it once from *Applications* so that macOS registers it.
+
+## Windows
+
+Download the **User Installer** `.exe` and run it. It writes into your own profile and needs no
+administrator rights, which matters on a managed machine. The System Installer exists for
+multi-user machines and asks for admin rights.
+
+:::
 
 ## Extensions
 
@@ -140,7 +150,11 @@ print(net_types())
 If that prints the four net types, the interpreter, the environment and the editor all agree.
 You are ready for [Installation](../02-getting-started/installation.qmd).
 
-*(RStudio user, steps 1 to 3 are "open the .Rproj, and start typing in the console". The interpreter selection is the part with no counterpart, because RStudio only ever has one R to choose from.)*
+::: {.callout-note .rstudio}
+## RStudio users
+
+Steps 1 to 3 are "open the .Rproj, and start typing in the console". The interpreter selection is the part with no counterpart, because RStudio only ever has one R to choose from.
+:::
 
 ## See also
 
