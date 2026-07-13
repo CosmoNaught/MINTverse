@@ -2,18 +2,17 @@
 title: "Getting Started"
 ---
 
-Both packages come from PyPI, `pip install estimint mintstate` brings in the pair, and one
-district then goes from a measured prevalence, through the EIR inversion, to a prevalence
-trajectory, in a single call to `run_scenarios`. `stateMINT` is published on PyPI under the
-distribution name `mintstate`, so the name in the install command is not the name in the import,
-and both go into a virtual environment rather than the single shared library R keeps. Python
-3.12 is the minimum. The emulator's weights are fetched on first use. They are cached under
-`~/.cache/huggingface` rather than shipped in the wheel, which makes the first `run_scenarios`
-of a new install slower than every call that follows it. Please see [Python for Malaria
-Modellers](../01-python/index.qmd) if virtual environments are new.
+Both packages come from PyPI, and `pip install estimint mintstate` brings in the pair.
+`stateMINT` is published under the distribution name `mintstate`, so the name in the install
+command is not the name in the import. Python 3.12 is the minimum.
+
+The emulator's weights are not shipped in the wheel. They are fetched from Hugging Face on first
+use and cached under `~/.cache/huggingface`, which makes the first `run_scenarios` of a new
+install slower than every call that follows it. Please see
+[Python for Malaria Modellers](../01-python/index.qmd) if virtual environments are new.
 
 ::: {.chapter-outline}
-- [Installation](installation.qmd) — The install command, the extras, and where the model weights live.
-- [Quickstart](quickstart.qmd) — A switch to pyrethroid-PBO nets, from a measured prevalence to a plotted trajectory.
-- [Coming from R](coming-from-r.qmd) — The tidyverse idioms in pandas, and what a dataclass is.
+- [Installation](installation.qmd) — `pip install estimint mintstate`, the extras, and the weights.
+- [Quickstart](quickstart.qmd) — one scenario, from a prevalence to a trajectory.
+- [Coming from R](coming-from-r.qmd) — the pandas translation table, and dataclasses.
 :::

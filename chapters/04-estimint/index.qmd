@@ -2,19 +2,18 @@
 title: "estiMINT: EIR and HBR"
 ---
 
-`estimint` supplies the entomological inoculation rate (EIR) that every model downstream needs,
-inverting either a parasite prevalence or a human biting rate (HBR) into the EIR that would
-sustain it, and converting between EIR and HBR in both directions. What comes back is always a
-single equilibrium value rather than a trajectory, because the trajectories come from
-[stateMINT](../05-statemint/index.qmd). That distinction is set out in
-[EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd).
+`estimint` supplies the EIR the emulator runs from. It inverts a prevalence or an HBR into the
+EIR that would sustain it, and converts between EIR and HBR in both directions.
+
+Everything it returns is an equilibrium value at the campaign. The trajectories come from
+[stateMINT](../05-statemint/index.qmd).
 
 ::: {.chapter-outline}
-- [Nets and dn0](nets-and-dn0.qmd) — A net mix and a resistance level become the two numbers the models consume.
-- [Estimating EIR from prevalence](estimating-eir.qmd) — The core inversion, and the reason a lookup table will not do.
-- [EIR and HBR](eir-and-hbr.qmd) — The other two models, and the error a round trip through both accumulates.
-- [Mosquito density and EIR](mosquito-density.qmd) — The effect of larviciding, or of a wetter climate, on transmission.
-- [estiMINT API](api.qmd) — The inference surface, function by function.
+- [Nets and dn0](nets-and-dn0.qmd) — `calculate_dn0`, `net_types`, and resistance.
+- [Estimating EIR from prevalence](estimating-eir.qmd) — the `prevalence` model.
+- [EIR and HBR](eir-and-hbr.qmd) — the `hbr` and `eir_to_hbr` models, and round-trip error.
+- [Mosquito density and EIR](mosquito-density.qmd) — `estimate_eir_with_mosquito_delta`.
+- [estiMINT API](api.qmd) — every function and dataclass.
 :::
 
 ## The three models

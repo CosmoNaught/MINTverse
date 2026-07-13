@@ -2,17 +2,14 @@
 title: "Internals"
 ---
 
-The three pages that follow document the machinery behind the user-facing calls, the five
-steps `run_scenarios` performs in order, the six objects that make up an estiMINT model
-bundle, and the network stateMINT pushes its covariates through. None of it is needed to run
-a scenario. All of it is needed to extend the stack or to read its source, and the same detail
-accounts for behaviour the packages never announce, such as an input clamped to the edge of
-its domain.
+The three pages that follow document the machinery behind the user-facing calls. None of it is
+needed to run a scenario. It is needed to extend the stack, to read its source, or to account for
+behaviour the packages never announce, such as an input clamped to the edge of its domain.
 
 ::: {.chapter-outline}
-- [Pipeline architecture](architecture.qmd) — The five steps of `run_scenarios`, the three EIR paths, and the one batched call.
-- [estiMINT internals](estimint-internals.qmd) — The model bundle, the monotone sweep over a boosted tree, and the clamped input domains.
-- [stateMINT internals](statemint-internals.qmd) — The Mamba2 backbone, the sixteen-column input tensor, and the target transforms.
+- [Pipeline architecture](architecture.qmd) — the order of operations inside `run_scenarios`.
+- [estiMINT internals](estimint-internals.qmd) — the model bundle, the calibrator, and the monotone sweep.
+- [stateMINT internals](statemint-internals.qmd) — the Mamba2 backbone, the input tensor, and the target transforms.
 :::
 
 The pages are independent and can be read in any order, though each assumes the user-facing

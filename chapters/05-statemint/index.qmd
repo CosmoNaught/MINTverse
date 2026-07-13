@@ -2,31 +2,25 @@
 title: "stateMINT: the emulator"
 ---
 
-`stateMINT` takes the EIR at the point a campaign is deployed, the setting it belongs to, and the
-campaign under evaluation, and returns prevalence and clinical-case trajectories over six years,
-three before the campaign and three after. The EIR comes from
-[estiMINT](../04-estimint/index.qmd). The *state* in the name is the state-space architecture, a
-Mamba2 layer carrying a hidden vector along the sequence, and not an epidemiological compartment,
-a distinction drawn out in [The models](../03-concepts/models.qmd).
+`stateMINT` takes an EIR, the setting it belongs to, and the campaign under evaluation, and
+returns prevalence and clinical-case trajectories over six years, three before the campaign and
+three after. The EIR comes from [estiMINT](../04-estimint/index.qmd).
 
-Those trajectories belong to an individual-based malaria transmission model, the lineage
-implemented in [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), which is slow
-enough that one scenario takes minutes and a grid of net products crossed with coverages and
-resistance levels is a cluster job. `stateMINT` trains on a library of those runs and reproduces
-their output in milliseconds. A fifty-scenario batch takes under a second on a laptop CPU. Like
-any emulator, it is trustworthy only inside the range of settings it was trained on.
+It emulates [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), which takes
+minutes per scenario. Trained on a library of those runs, `stateMINT` reproduces their output in
+milliseconds, so a fifty-scenario batch runs in under a second on a laptop CPU. Like any
+emulator it is trustworthy only inside the range it was trained on.
 
-The trained weights are not shipped in the wheel but live on Hugging Face at
-[`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), as two checkpoints of about 38 MB
-each, one for prevalence and one for cases, and the first call downloads and caches them. Every
-later call reads the cache.
+The weights live on Hugging Face at
+[`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), two checkpoints of about 38 MB,
+one for prevalence and one for cases. The first call downloads and caches them.
 
 ::: {.chapter-outline}
-- [Covariates and the time grid](covariates.qmd) — The twelve covariates that describe a setting and a campaign, and the grid they are laid on.
-- [Calling the emulator](the-emulator.qmd) — Loading a checkpoint and getting a trajectory out of it.
-- [Plotting trajectories](plotting.qmd) — Reading the output against the real time axis.
-- [Performance and caching](performance.qmd) — The download and the compilation are paid once, and then batches are cheap.
-- [stateMINT API](api.qmd) — The inference surface, function by function.
+- [Covariates and the time grid](covariates.qmd) — the twelve covariates, and the 157 windows.
+- [Calling the emulator](the-emulator.qmd) — `from_pretrained` and `.predict`.
+- [Plotting trajectories](plotting.qmd) — the time axis, and a tidy frame.
+- [Performance and caching](performance.qmd) — cold start, batching, and the GPU.
+- [stateMINT API](api.qmd) — `Mamba2Regressor` and `ModelArtifact`.
 :::
 
 ## Inputs and outputs

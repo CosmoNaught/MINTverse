@@ -2,21 +2,19 @@
 title: "Running Scenarios"
 ---
 
-`run_scenarios` takes a list of settings and campaigns and returns one row for each, deriving
-`dn0` from the net mix and the resistance level, inverting whatever transmission measure was
-supplied into an EIR, applying any mosquito-density adjustment, assembling the twelve covariates,
-and running the emulator over the 157-window grid. Scalar summaries and full trajectories come
-back side by side. One call does all of it.
+`run_scenarios` takes a list of settings and campaigns and returns one row for each, with the
+scalar summaries and the full trajectories side by side. It derives `dn0` from the net mix and
+the resistance level, inverts whatever transmission measure was supplied, applies any
+mosquito-density adjustment, and runs the emulator over the 157-window grid.
 
-`run_scenarios` is exported from `estimint` but drives both packages, since the inversion is done
-by estiMINT's XGBoost models and the trajectories by stateMINT's Mamba2 emulator. Nothing is
-imported from `stateMINT` directly.
+It is exported from `estimint` but drives both packages. Nothing is imported from `stateMINT`
+directly.
 
 ::: {.chapter-outline}
-- [Running scenarios](run-scenarios.qmd) — The `Scenario` and `EirTarget` fields, and every column that comes back.
-- [A scenario grid](scenario-grid.qmd) — Five campaigns run against one shared baseline.
-- [Trajectories and cases](comparing.qmd) — Prevalence, clinical incidence, and the burden each campaign averts.
-- [Exporting results](exporting.qmd) — Scalar summaries to CSV, trajectories to a tidy table R can read.
+- [Running scenarios](run-scenarios.qmd) — `Scenario`, `EirTarget`, and the returned columns.
+- [A scenario grid](scenario-grid.qmd) — five campaigns against one baseline.
+- [Trajectories and cases](comparing.qmd) — prevalence, clinical incidence, and cases averted.
+- [Exporting results](exporting.qmd) — CSV, and a tidy table R can read.
 :::
 
 Two ways of driving the API run through the pages that follow, the first varying every axis at
