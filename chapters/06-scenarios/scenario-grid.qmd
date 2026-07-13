@@ -2,10 +2,9 @@
 title: "A scenario grid"
 ---
 
-A scenario grid holds several campaigns run against one shared setting, built so that the
-campaign is the only thing that differs between the arms. The five arms below all start from the
-same district, at under-5 prevalence 0.45, pyrethroid resistance 0.30, and pyrethroid-only nets
-at 0.70 coverage.
+A scenario grid holds several campaigns run against one shared setting. The five arms below all
+start from the same district, at under-5 prevalence 0.45, pyrethroid resistance 0.30, and
+pyrethroid-only nets at 0.70 coverage.
 
 - **Withdraw the nets.** No campaign at all. This is the counterfactual the other four are measured against, and it is the arm that results if a campaign is not restated.
 - **Replace like for like** with pyrethroid-only nets at the same 0.70 coverage.
@@ -14,16 +13,13 @@ at 0.70 coverage.
 - **PBO plus IRS at 0.60 plus LSM at 0.30.**
 
 Every arm carries the same `EirTarget`, so the baseline EIR is inverted from the same prevalence
-under the same current net mix. All five start from an identical transmission intensity and an
-identical pre-campaign trajectory. Any difference between them is caused by the campaign and
+under the same current net mix. Any difference between the arms is caused by the campaign and
 nothing else.
 
 ## Building the grid
 
-The shared fields go in a dictionary. They are splatted into each `Scenario`, an idiom R writes
-as `do.call(Scenario, c(district, list(name = "PBO", ...)))`, and writing those fields out five
-times over instead would invite a typo in one arm's `Q0` that silently breaks the comparison the
-grid exists to make.
+The shared fields go in a dictionary and are splatted into each `Scenario`, an idiom R writes as
+`do.call(Scenario, c(district, list(name = "PBO", ...)))`.
 
 ```{python}
 from estimint import run_scenarios
@@ -61,13 +57,11 @@ res = run_scenarios(grid)
 res.shape
 ```
 
-Five rows come back, one per arm. The columns are the same twenty-three that a single scenario
-returns.
+The columns are the same twenty-three that a single scenario returns.
 
 ## The shared baseline
 
-Check the baseline columns first. If the five arms did not start from the same place, none of the
-comparisons that follow would mean anything.
+Check the baseline columns first.
 
 ```{python}
 res[["name", "dn0_use", "itn_use", "eir_baseline", "prev_y9"]]
@@ -75,11 +69,9 @@ res[["name", "dn0_use", "itn_use", "eir_baseline", "prev_y9"]]
 
 All five arms share the same `dn0_use`, the same `itn_use`, an `eir_baseline` of about 32
 infectious bites per person per year, and a `prev_y9` of about 0.456 against the 0.45 that went
-in. They are indistinguishable up to the campaign. They diverge only after it.
+in. They diverge only after the campaign.
 
 ## The summary table
-
-The campaign columns and the two endline outcomes are what the grid was built for.
 
 ```{python}
 res[[
@@ -90,27 +82,24 @@ res[[
 
 Read the `dn0_future` column first. At resistance 0.30 a pyrethroid-only net kills about 0.31 of
 the mosquitoes that touch it, a PBO net about 0.48, and a pyrrole net about 0.55. The ordering of
-the three net arms follows from that column and nothing else, since every other covariate is held
-fixed.
+the three net arms follows from that column, since every other covariate is held fixed.
 
 The combination arm carries the PBO `dn0_future` (the nets are the same nets) and adds spraying
 at 0.60 and larviciding at 0.30 on top, so the endline prevalence it reaches comes out an order
-of magnitude below any net-only arm. Swapping one net for another moves prevalence by a few
-points. Adding a second and a third vector-control measure moves it considerably further.
+of magnitude below any net-only arm.
 
 ## Withdrawal
 
 The first row was built by passing the district dictionary and nothing else, with no `itn_future`
-and no `net_type_future`. It reports the values the defaults supply.
+and no `net_type_future`.
 
 ```{python}
 res.loc[res["name"] == "Withdraw", ["net_future", "dn0_future", "itn_future", "irs_future"]]
 ```
 
 `net_future` is `"none"`, `dn0_future` is 0, `itn_future` is 0, and the district has been
-modelled as stopping net distribution altogether. Note that no warning is raised. The call
-succeeds, the frame comes back, and the trajectory is plausible. The only indication is the
-rebound, and it reads as wrong only to a reader who was expecting the nets to continue.
+modelled as stopping net distribution altogether. No warning is raised. The call succeeds, the
+frame comes back, and the trajectory is plausible. The only indication is the rebound.
 
 ```{python}
 import numpy as np
@@ -122,10 +111,8 @@ float(withdraw["prev_endline"]), float(like_for_like["prev_endline"])
 ```
 
 The withdrawal arm ends about one and a half prevalence points above like-for-like replacement, a
-gap small enough to be mistaken for noise by a reader who was not looking for it. The difference
-in cumulative case burden between the two is considerably larger, as
-[Trajectories and cases](comparing.qmd) works out. Keep the arm in the grid deliberately. It is
-the counterfactual that makes cases averted a meaningful quantity.
+gap small enough to be mistaken for noise. The difference in cumulative case burden between the
+two is considerably larger, as [Trajectories and cases](comparing.qmd) works out.
 
 ## See also
 

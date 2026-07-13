@@ -2,8 +2,8 @@
 title: "Calling the emulator"
 ---
 
-Getting a trajectory out of stateMINT takes two calls, one that fetches a checkpoint from
-Hugging Face and one that runs it over a list of scenarios.
+Getting a trajectory out of stateMINT takes two calls, one to fetch a checkpoint from Hugging
+Face and one to run it over a list of scenarios.
 
 ## Loading a checkpoint
 
@@ -24,7 +24,7 @@ print(prevalence.model_config["predictor"])
 The classmethod hangs off `Mamba2Regressor`, but what it hands back is a `ModelArtifact`, a
 container holding the network (`.model`), its architecture (`.model_config`), the input recipe
 (`.preprocessing_config`) and the fitted covariate scaler (`.scaler`). You call `.predict` on the
-artifact, not the network. The network on its own would not know how to scale your covariates.
+artifact, not the network.
 :::
 
 `predictor` selects which of the two checkpoints to fetch. The two are separately trained
@@ -40,10 +40,9 @@ cases = Mamba2Regressor.from_pretrained(
 print("same scaler means:", np.allclose(prevalence.scaler.mean_, cases.scaler.mean_))
 ```
 
-Load the artifact that matches the quantity you want. Note that running covariates through the
-prevalence artifact and reading the result as case counts raises no error at all, because the two
-artifacts take the same twelve inputs and return the same shape, and the scaling applied to them
-is the scaling fitted for a different target.
+Load the artifact that matches the quantity you want. Both take the same twelve inputs and return
+the same shape, so reading a prevalence prediction as case counts raises no error. It returns a
+wrong answer, scaled for the other target.
 
 ## Predicting
 
@@ -73,8 +72,7 @@ print(f"prevalence at the campaign: {y[0, 78]:.3f}")
 
 Column 78 is the window the campaign lands in, and the value there sits close to the 0.45 given
 to estiMINT. [Covariates and the time grid](covariates.qmd) derives that index from the checkpoint
-rather than assuming it. A single scenario is still a list of one. Three scenarios come back
-stacked, in the order you supplied them.
+rather than assuming it. Scenarios come back stacked, in the order you supplied them.
 
 ```{python}
 campaigns = [
@@ -90,10 +88,9 @@ print(np.round(Y[:, -1], 3))   # prevalence three years on
 
 ## Transformed space
 
-The networks are trained on transformed targets, a logit for prevalence and a `log1p` for cases,
-and `.predict` inverts the transform by default, so what comes back is the quantity itself.
-`transformed=True` suppresses the inversion. You want that only when scoring the network against
-a held-out set in its training space.
+The networks are trained on transformed targets, a logit for prevalence and a `log1p` for cases.
+`.predict` inverts the transform by default. `transformed=True` suppresses the inversion. You want
+that only when scoring the network against a held-out set in its training space.
 
 ```{python}
 raw = prevalence.predict([district], transformed=True)
@@ -107,8 +104,8 @@ print("sigmoid(raw) :", np.round(1 / (1 + np.exp(-raw[0, :3])), 3))
 ## Negative case counts
 
 The inverse of `log1p` is `expm1`, so a prediction slightly below zero in log space becomes a case
-count slightly below zero. The magnitude is a fraction of a case. Under a strong campaign, where
-true incidence is close to the floor, it happens often.
+count slightly below zero, by a fraction of a case. Under a strong campaign, where true incidence
+is close to the floor, it happens often.
 
 ```{python}
 aggressive = dict(
@@ -123,10 +120,9 @@ c = np.maximum(c, 0.0)
 print(f"after flooring : {c.min():.4f}")
 ```
 
-Floor the case trajectory with `np.maximum` before you plot it or sum it, since
-[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies exactly this floor and results that
-come out of the pipeline are already clean, while results that come straight out of a checkpoint
-are not.
+Floor the case trajectory with `np.maximum` before you plot it or sum it.
+[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies exactly this floor, so only results
+taken straight from a checkpoint need it.
 
 Prevalence needs no such treatment. A logit inverts through a sigmoid, and a sigmoid cannot leave
 `[0, 1]`.
@@ -143,15 +139,13 @@ print(X.shape, X.dtype)
 ```
 
 The sixteen channels are the twelve scaled covariates plus four time features locating each window
-in the year and relative to the campaign. A normal analysis has no need of them, and their one use
-is confirming that the masking does what you think. The order of the channels is set out in
+in the year and relative to the campaign. The order of the channels is set out in
 [stateMINT internals](../07-under-the-hood/statemint-internals.qmd).
 
 ## Pinning the revision
 
-`revision` is optional and defaults to `main`, which moves, so a re-run of an unpinned analysis
-months from now may not be running the weights it ran today. The published tags run from `v1.0.0`
-to `v1.2.2`. Pass one explicitly.
+`revision` is optional and defaults to `main`, which moves, so an unpinned analysis may not re-run
+on the weights it ran today. The published tags run from `v1.0.0` to `v1.2.2`. Pass one explicitly.
 
 ```python
 Mamba2Regressor.from_pretrained("dide-ic/stateMINT", predictor="cases", revision="v1.2.2")
@@ -160,6 +154,5 @@ Mamba2Regressor.from_pretrained("dide-ic/stateMINT", predictor="cases", revision
 ## See also
 
 The 157 columns go onto a real time axis in [Plotting trajectories](plotting.qmd). Fifty scenarios
-in one call are far cheaper than fifty calls of one, because the download and the compilation are
-paid once per session. Please see [Performance and caching](performance.qmd) for the timings and
-the cache settings.
+in one call are far cheaper than fifty calls of one, and [Performance and caching](performance.qmd)
+has the timings and the cache settings.

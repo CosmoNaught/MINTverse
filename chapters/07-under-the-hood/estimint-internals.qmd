@@ -8,15 +8,13 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-Most of what `estimint` does beyond a plain XGBoost prediction exists to turn a step function
-into a smooth one. A boosted tree predicts a staircase, while the climb from prevalence to EIR
-is smooth and monotonic, so the calibrator and the monotone sweep inside `run_xgb_model` are
-what stop a district at 30 per cent prevalence and one at 31 from being handed the same answer.
+A boosted tree predicts a staircase, while the climb from prevalence to EIR is smooth and
+monotonic. The calibrator and the monotone sweep inside `run_xgb_model` are what stop a district
+at 30 per cent prevalence and one at 31 from being handed the same answer.
 
 ## The model bundle
 
-`load_xgb_model` returns a dictionary rather than a bare booster, and the booster is only one
-component of six.
+`load_xgb_model` returns a dictionary of six components rather than a bare booster.
 
 ```{python}
 from estimint import load_xgb_model, run_xgb_model
@@ -27,8 +25,8 @@ for key, value in model.items():
     print(f"{key:14s} {type(value).__name__}")
 ```
 
-`features` is the ordered list of columns the booster expects, and the order is load-bearing,
-because `run_xgb_model` selects the frame's columns by this list before building the `DMatrix`.
+The order of `features` is load-bearing, because `run_xgb_model` selects the frame's columns by
+this list before building the `DMatrix`.
 
 ```{python}
 print("class       :", model["class"])
@@ -46,8 +44,7 @@ seventh feature and the target. `prevalence` takes `prev_y9` and returns EIR, `h
 ## From booster to EIR
 
 EIR spans several orders of magnitude across the training library, so the booster is trained on
-`log10` of it rather than on the EIR itself, and a raw prediction means nothing until it has
-been undone. One row travels five steps.
+`log10` of it rather than on the EIR itself. One row travels five steps.
 
 1. The booster predicts the target it was trained on, $\log_{10}(\text{EIR})$.
 2. That is exponentiated, $10^{\hat{y}}$.
@@ -63,13 +60,11 @@ print("qmap knots   :", len(model["calibrator"]["qmap"]["xq"]))
 
 ## Monotone smoothing
 
-Those five steps give a staircase, so `run_xgb_model` does not return them. On every call it
-detects the monotonic driving feature (`prev_y9` or `hbr_y9`) and evaluates the model across a
-dense 501-point sweep of it, with the other six covariates held at the query's values. That
-sweep is smoothed into a monotone curve, and the query is read off the curve by interpolation.
-A single row therefore lands on the same response as a full sweep, because both are
-interpolated from the same 501 points. The `eir_to_hbr` model has no monotonic driver and is
-predicted directly.
+On every call, `run_xgb_model` detects the monotonic driving feature (`prev_y9` or `hbr_y9`) and
+evaluates the model across a dense 501-point sweep of it, with the other six covariates held at
+the query's values. That sweep is smoothed into a monotone curve, and the query is read off the
+curve by interpolation. A single row therefore lands on the same response as a full sweep. The
+`eir_to_hbr` model has no monotonic driver and is predicted directly.
 
 ```{python}
 #| fig-cap: "The raw booster-plus-calibrator prediction in blue, and the smoothed monotone curve `run_xgb_model` returns in green, across the `prev_y9` domain."
@@ -107,9 +102,7 @@ plt.show()
 ```
 
 The blue line climbs in flats and jumps while the green line rises through the same territory
-without them. This is because the green line is read off the monotone fit to the sweep rather
-than off the trees themselves, which keeps their trend and drops their discretisation. The
-smoothing is not cosmetic at the margin.
+without them.
 
 ```{python}
 print(f"largest relative gap: {np.max(np.abs(smoothed - staircase) / staircase):.1%}")
@@ -118,9 +111,8 @@ print(f"largest relative gap: {np.max(np.abs(smoothed - staircase) / staircase):
 ## Input domains and clamping
 
 The sweep has fixed endpoints, with `prev_y9` running from 0.005 to 0.80 on a linear grid and
-`hbr_y9` from 5 × 10³ to 7 × 10⁷ on a log grid, because HBR spans four orders of magnitude in
-the training data. The query is interpolated onto that curve, so an input past either endpoint
-silently returns the endpoint value.
+`hbr_y9` from 5 × 10³ to 7 × 10⁷ on a log grid. The query is interpolated onto that curve, so an
+input past either endpoint silently returns the endpoint value.
 
 ```{python}
 probe = pd.DataFrame([{**setting, "prev_y9": p} for p in [0.001, 0.005, 0.30, 0.80, 0.95]])
@@ -133,8 +125,8 @@ EIR, usually means the input has passed an endpoint rather than that the epidemi
 saturated. No warning is raised.
 :::
 
-The training filter is tighter still at the low end, since the bundled prevalence model was
-fitted to simulations at or above 0.02, which makes the curve below that extrapolation.
+The bundled prevalence model was fitted to simulations at or above 0.02, which makes the curve
+below that extrapolation.
 
 ```{python}
 print(model["preprocess"]["prevalence_filter"])
@@ -143,14 +135,13 @@ print(model["preprocess"]["prevalence_filter"])
 ## Unpickling
 
 `load_xgb_model` unpickles a `.pkl` shipped inside the wheel, and unpickling executes arbitrary
-code by construction, so the load is a trust boundary. The file is a first-party artefact
-installed from PyPI alongside the code that loads it, which is no worse than trusting the
-package itself. Note that this matters as soon as you point `load_xgb_model` at a path someone
-sent you.
+code, so the load is a trust boundary. The bundled file is a first-party artefact installed from
+PyPI alongside the code that loads it. The boundary matters as soon as you point
+`load_xgb_model` at a path someone sent you.
 
 ## See also
 
 The inversion is put to work in
-[Estimating EIR from prevalence](../04-estimint/estimating-eir.qmd), which runs the prevalence
-model over one setting and sweeps it. Please see [stateMINT internals](statemint-internals.qmd)
-for the emulator that consumes the EIR it returns.
+[Estimating EIR from prevalence](../04-estimint/estimating-eir.qmd). Please see
+[stateMINT internals](statemint-internals.qmd) for the emulator that consumes the EIR it
+returns.

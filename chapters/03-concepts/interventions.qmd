@@ -9,9 +9,7 @@ plt.style.use("styles/mint.mplstyle")
 ```
 
 MINTverse models three vector-control levers, insecticide-treated nets (ITNs), indoor
-residual spraying (IRS), and larval source management (LSM). Nets carry most of the detail.
-A net choice and a resistance level are reduced to a single lethality number before either
-package will look at them.
+residual spraying (IRS), and larval source management (LSM).
 
 ## Net types
 
@@ -25,9 +23,8 @@ ITNs are grouped into four formulations. Their names are the keyword arguments t
 | `py_pyrrole` | Pyrethroid with a pyrrole (chlorfenapyr) | Kill that does not decay with pyrethroid resistance |
 | `py_ppf` | Pyrethroid with pyriproxyfen (PPF) | An effect on the next generation, folded into `lsm` |
 
-The long forms are the canonical values. `net_types()` returns them alphabetically, which
-puts `ppf` before `pyrrole`, so indexing into the list rather than naming the net is a
-common source of error.
+`net_types()` returns the long forms alphabetically, which puts `ppf` before `pyrrole`, so
+indexing into the list rather than naming the net is a common source of error.
 
 ```{python}
 import numpy as np
@@ -41,10 +38,9 @@ The short aliases are accepted everywhere the long forms are.
 
 ## Net effectiveness and dn0
 
-A net's effect on transmission is summarised by `dn0`, the probability that a mosquito is
-killed when it contacts a treated net. The value depends on the insecticide and on the local
-level of pyrethroid resistance, and `calculate_dn0` takes those two things, a resistance
-level and a net mix, and returns the usage-weighted `dn0` along with the total coverage.
+`dn0` is the probability that a mosquito is killed when it contacts a treated net. It depends
+on the insecticide and on the local level of pyrethroid resistance. `calculate_dn0` takes a
+resistance level and a net mix, and returns the usage-weighted `dn0` with the total coverage.
 
 ```{python}
 mix = calculate_dn0(0.5, py_only=0.4, py_pbo=0.2)
@@ -55,15 +51,13 @@ mix
 ## `itn_use` is already the total coverage
 
 `DN0Result.itn_use` is the **sum of the shares you passed**, which here is 0.4 + 0.2 =
-0.6. It is not a scaling factor waiting to be applied. Multiplying it by a usage figure a
-second time halves the coverage, which lowers the modelled protection and raises the EIR
-the setting is judged to need. No warning is issued.
+0.6. Multiplying it by a usage figure a second time halves the coverage. No warning is
+issued.
 :::
 
 ## Resistance response
 
-We set usage to 1.0 for one net type at a time and sweep resistance from 0 to 1, which gives
-the resistance response of each formulation on its own terms.
+Usage is set to 1.0 for one net type at a time.
 
 ```{python}
 nets = ["py_only", "py_pbo", "py_pyrrole", "py_ppf"]
@@ -93,19 +87,17 @@ ax.legend()
 plt.show()
 ```
 
-Notice that the highest and the lowest curve never change places, and that the gap between
-them widens as resistance rises. The amber pyrrole curve sits above the other three at every
-resistance level and the blue pyrethroid-only curve below them all, and the ratio between the
-two grows from about 1.7 at zero resistance to about 2.5 at 0.9. This is because
-chlorfenapyr kills through a pathway that pyrethroid resistance does not act on, so the amber
-curve gives up only the pyrethroid share of its lethality. The blue curve has nothing else to
-give up. It reaches zero when resistance is total.
+The amber pyrrole curve sits above the other three at every resistance level and the blue
+pyrethroid-only curve below them all. The ratio between the two grows from about 1.7 at zero
+resistance to about 2.5 at 0.9. Chlorfenapyr kills through a pathway that pyrethroid
+resistance does not act on, so the amber curve gives up only the pyrethroid share of its
+lethality. The blue curve has nothing else to give up. It reaches zero when resistance is
+total.
 
-Notice also the green PBO curve and the purple PPF curve crossing at about 0.92, and the
-sharp fall in all four curves beyond 0.75. Green runs above purple almost everywhere. Only in
-the last few hundredths does purple come out ahead. This is because PBO works by restoring
-the kill of the pyrethroid itself, and there is nothing left to restore once resistance is
-near total, while PPF carries a component that survives it.
+The green PBO curve and the purple PPF curve cross at about 0.92. Green runs above purple
+everywhere below that. PBO works by restoring the kill of the pyrethroid itself, and there is
+nothing left to restore once resistance is near total, while PPF carries a component that
+survives it.
 
 The resistance-to-`dn0` curves come from the same published source that `malariasimulation`
 uses. They are a lookup table rather than a fitted model.
@@ -114,48 +106,44 @@ uses. They are a lookup table rather than a fitted model.
 
 IRS and LSM enter as coverage proportions. `irs_use` is the spraying coverage in place now,
 `irs_future` the coverage under the campaign being evaluated, and `lsm` the larval term, all
-on a 0 to 1 scale. Neither has a `dn0`-style effectiveness term, so the coverage itself is
-the input.
+on a 0 to 1 scale. Neither has a `dn0`-style effectiveness term.
 
-PPF nets feed into the LSM term. `run_scenarios` folds PPF coverage into `lsm` before the
-emulator runs, at a factor of 0.248. The factor is not configurable.
+`run_scenarios` folds PPF coverage into `lsm` before the emulator runs, at a factor of 0.248.
+The factor is not configurable.
 
 $$
 \texttt{lsm\_eff} = \min\big(\texttt{py\_ppf} \times 0.248 + \texttt{lsm},\ 1.0\big)
 $$
 
-So a scenario with PPF nets at 0.5 coverage and LSM at 0.30 reaches the emulator with an
-effective LSM of $0.5 \times 0.248 + 0.30 = 0.424$.
+PPF nets at 0.5 coverage and LSM at 0.30 reach the emulator as $0.5 \times 0.248 + 0.30 =
+0.424$.
 
 ::: {.callout-important}
 ## The `lsm` column is `lsm_eff`
 
 The `lsm` column in the `run_scenarios` output is reported after the PPF contribution has
-been added, so it is not the `lsm` you passed. If you are reconciling a scenario's inputs
-against its outputs, or diffing two scenarios, this is the column that will not match.
+been added, so it is not the `lsm` you passed. It is the column that will not match when you
+reconcile a scenario's inputs against its outputs.
 :::
 
 ## Limitations of dn0
 
 `dn0` summarises the probability of death on contact, and nothing else. Repellence is not in
-it. Neither the protection that repellence gives nor the diversion of biting it produces is
-anywhere in the number.
+it.
 
-Nor does it capture attrition. A net mix is a snapshot at the decision point, and `dn0` and
-`itn_use` are held constant across the trajectory, so a campaign's protection arrives in full
-at day 3285 and holds.
+Nor does it capture attrition. `dn0` and `itn_use` are held constant across the trajectory,
+so a campaign's protection arrives in full at day 3285 and holds.
 
 A single mix covers the whole population. A district where half the villages have new nets
-and half have five-year-old nets is not a district uniformly in the middle, but it will be
-represented as one.
+and half have five-year-old nets will be represented as one uniformly in the middle.
 
-Note that a setting above 0.75 resistance sits in the steep part of every curve, where a
-small error in the resistance level supplied produces a large error in `dn0`. Vary it in a
-sensitivity check rather than trusting a single value.
+A setting above 0.75 resistance sits in the steep part of every curve, where a small error in
+the resistance level supplied produces a large error in `dn0`. Vary it in a sensitivity check
+rather than trusting a single value.
 
 ## See also
 
 `calculate_dn0` appears in a working scenario in [Nets and
-dn0](../04-estimint/nets-and-dn0.qmd), and what consumes `dn0` on the other side is set out
-in [The models](models.qmd). Please see [Comparing
-campaigns](../06-scenarios/comparing.qmd) for net types set against each other.
+dn0](../04-estimint/nets-and-dn0.qmd), and what consumes `dn0` is set out in [The
+models](models.qmd). Please see [Comparing campaigns](../06-scenarios/comparing.qmd) for net
+types set against each other.

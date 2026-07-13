@@ -8,18 +8,13 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-We take one district from a measured prevalence to a plotted trajectory. Under-5 prevalence
-there is 0.45, pyrethroid resistance is 0.30, and the nets in the ground are pyrethroid-only
-at 0.70 coverage. Transmission is perennial. The campaign replaces those nets with
-pyrethroid-PBO at the same coverage.
+We take one district from a measured prevalence to a plotted trajectory.
 
 ## One scenario
 
-A `Scenario` holds one candidate campaign, describing both the setting as it stands and the
-intervention that switches on at the campaign, with the five fields between `name` and
-`eir_target` giving the setting, the `py_*` fields the current net mix, and the `*_future`
-fields the campaign itself. `EirTarget(0.45, "prevalence")` tells `run_scenarios` that 0.45 is
-a measured prevalence rather than an EIR, so it is inverted into a baseline EIR first. The
+A `Scenario` holds one candidate campaign, the setting as it stands and the intervention that
+switches on at the campaign. `EirTarget(0.45, "prevalence")` tells `run_scenarios` that 0.45
+is a measured prevalence rather than an EIR, so it is inverted into a baseline EIR first. The
 emulator never sees the prevalence.
 
 ```{python}
@@ -44,18 +39,16 @@ pbo = Scenario(
 ::: {.callout-important}
 ## Future coverage must be set explicitly
 
-Note that `itn_future=0.70` does not mean "keep the nets you have". Leave it out and both
-`dn0_future` and `itn_future` are set to zero, which models the nets being **withdrawn** at
-the campaign rather than continuing. The same holds for `irs_future`, which does not inherit
-`irs`. Every intervention you want to persist past the campaign must be restated in its
-`_future` field, even when nothing about it changes.
+`itn_future=0.70` does not mean "keep the nets you have". Leave it out and both `dn0_future`
+and `itn_future` are set to zero, which models the nets being **withdrawn** at the campaign.
+`irs_future` does not inherit `irs` either. Every intervention you want to persist past the
+campaign must be restated in its `_future` field.
 :::
 
 ## Run the scenario
 
-`run_scenarios` takes a list of scenarios, one here and hundreds later. It converts each net
-mix and resistance level to `dn0`, inverts each measured prevalence to a baseline EIR, and
-calls the emulator. It returns one row per scenario.
+`run_scenarios` converts each net mix and resistance level to `dn0`, inverts each measured
+prevalence to a baseline EIR, and calls the emulator. It returns one row per scenario.
 
 ```{python}
 results = run_scenarios([pbo])
@@ -63,23 +56,19 @@ results = run_scenarios([pbo])
 results.drop(columns=["prevalence", "cases"]).T
 ```
 
-Each row of that transposed column is one field of the result. `dn0_use` is the lethality of
-the nets in the ground today, and `dn0_future` the lethality of the PBO nets replacing them.
-Coverage is unchanged at 0.70. The switch between those two numbers is the whole intervention.
-`eir_baseline` is the transmission intensity implied by a prevalence of 0.45 in this setting.
-The units are infectious bites per person per year. `prev_y9` is prevalence at the campaign,
+`dn0_use` is the lethality of the nets in the ground today, and `dn0_future` that of the PBO
+nets replacing them. `eir_baseline` is the transmission intensity implied by that prevalence,
+in infectious bites per person per year. `prev_y9` is prevalence at the campaign,
 `prev_endline` three years after it, and `cases_endline` the clinical case rate there.
 
 `hbr_baseline` and `hbr_new` are `NaN`. They are only computed when a prevalence input is
-paired with a non-zero `mosquito_delta`, and this scenario perturbs nothing about mosquito
-density.
+paired with a non-zero `mosquito_delta`.
 
 ## The trajectory
 
 The two columns dropped from the table, `prevalence` and `cases`, hold the trajectories, each
-cell a 157-element NumPy array rather than a tidy long table. The elements are 14-day windows
-starting at day 2190, with the campaign at day 3285. Expressed as years from the campaign,
-that is three years of baseline against three years of response.
+cell a 157-element NumPy array. The elements are 14-day windows starting at day 2190, with the
+campaign at day 3285.
 
 ```{python}
 import numpy as np
@@ -107,22 +96,20 @@ ax.set_ylim(0, None)
 plt.show()
 ```
 
-Prevalence drops sharply once the PBO nets go out. The green line reaches its minimum about a
-year past the grey dashed campaign line, then climbs back over the remaining two years to
-finish close to where it started. This is because the insecticide on a net decays across the
-three years it spends in the field. The endline value on its own understates the campaign.
+The green line reaches its minimum about a year past the grey dashed campaign line, then
+climbs back over the remaining two years to finish close to where it started. The insecticide
+on a net decays across the three years it spends in the field. The endline value on its own
+understates the campaign.
 
-The three years before the campaign are not flat. Nor are they expected to be. `EirTarget`
-pins prevalence at the campaign, where `prev_y9` comes out at 0.456 against the 0.45 that was
-measured, and everything to the left of the dashed line is the emulator's own history of the
-setting under the nets already in place.
+The three years before the campaign are not flat. `EirTarget` pins prevalence at the campaign,
+where `prev_y9` comes out at 0.456 against the 0.45 that was measured. Everything left of the
+dashed line is the emulator's own history of the setting under the nets already in place.
 
 ## See also
 
-The four quantities moving through this scenario are defined in [EIR, HBR, prevalence, and
+The four quantities are defined in [EIR, HBR, prevalence, and
 cases](../03-concepts/equilibrium.qmd), and the resistance curves behind `dn0` in [Nets and
 dn0](../04-estimint/nets-and-dn0.qmd). Every field of `Scenario` is covered in [One call, end
-to end](../06-scenarios/run-scenarios.qmd), and [Comparing
-campaigns](../06-scenarios/comparing.qmd) runs five campaigns against each other in this same
-district. Please see [Coming from R](coming-from-r.qmd) for the pandas idioms behind these
-tables.
+to end](../06-scenarios/run-scenarios.qmd). [Comparing
+campaigns](../06-scenarios/comparing.qmd) runs five campaigns against each other. [Coming from
+R](coming-from-r.qmd) covers the pandas idioms behind these tables.

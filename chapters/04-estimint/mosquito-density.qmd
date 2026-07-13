@@ -8,11 +8,10 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-Larviciding, a wetter decade and a new irrigation scheme all act on the size of the mosquito
-population rather than through the nets, and `estimate_eir_with_mosquito_delta` is the estimator
-for that class of change. It takes a measured prevalence, a setting and a fractional change in
-mosquito density, and returns the EIR the setting settles at once the new density holds. That is
-an equilibrium value, not a trajectory.
+`estimate_eir_with_mosquito_delta` covers changes that act on the size of the mosquito population
+rather than through the nets, such as larviciding or a new irrigation scheme. It takes a
+prevalence, a setting and a fractional change in mosquito density, and returns the EIR that
+follows. That is an equilibrium value, not a trajectory.
 
 ## The signature
 
@@ -34,7 +33,7 @@ halving and `0.0` no change. It must be greater than `-1`.
 estiMINT 1.4 accepted loose keyword arguments such as `prevalence=...` and `dn0_use=...`, one
 call per scenario, and loaded the models itself. That form has been removed. The current call
 takes a **DataFrame** and an explicit **`models` dict**, and it is vectorised, so pass every
-scenario as a row of one frame rather than looping.
+scenario as a row of one frame.
 :::
 
 ## The ratio method
@@ -45,20 +44,17 @@ The method runs in five steps, and the reason for each is given in
 1. The prevalence and the setting give a **baseline EIR**, via the prevalence model.
 2. That EIR and the setting give a **baseline HBR**, via `eir_to_hbr`.
 3. The **new HBR** is the baseline scaled by the density change, `hbr_new = hbr_baseline * (1 + mosquito_delta)`. Density enters here, and only here.
-4. The `hbr` model predicts an EIR at **both** HBR values, the baseline and the new one.
+4. The `hbr` model predicts an EIR at **both** HBR values.
 5. The **new EIR** is the *baseline* EIR times the **ratio** of those two predictions.
 
 The EIR the `hbr` model predicts at `hbr_new` is not itself the answer, because every prediction
-from that model inherits the round-trip bias measured in [EIR and HBR](eir-and-hbr.qmd), where
-an EIR of 13.40 put through both models comes back as 14.23. Taking a ratio cancels it. What
-survives is the *relative* response of EIR to a change in biting, applied to a baseline EIR the
-prevalence model produced without touching the HBR models.
+from that model inherits the round-trip bias measured in [EIR and HBR](eir-and-hbr.qmd), where an
+EIR of 13.40 comes back as 14.23. Taking a ratio cancels it.
 
 ## A density sweep
 
 The setting from [Estimating EIR from prevalence](estimating-eir.qmd), at a prevalence of 0.30,
-runs over five density changes, a halving of the mosquitoes, a cut of a quarter, no change at
-all, and two increases.
+runs over five density changes.
 
 ```{python}
 import pandas as pd
@@ -85,22 +81,16 @@ result.round(3)
 ```
 
 The frame comes back on the same index as `inputs`, so the delta that produced each row joins
-straight back on.
+back on.
 
 ```{python}
 summary = inputs[["mosquito_delta"]].join(result[["eir_baseline", "eir_new", "eir_multiplier"]])
 summary.round(3)
 ```
 
-`eir_baseline` is identical down the column, as it must be, because the prevalence and the
-setting did not change and only the mosquitoes did. Halving the vector population takes the EIR
-from about 13.4 to about 5.8. A 60% rise takes it to about 20.9.
+`eir_baseline` is identical down the column, because only the mosquitoes changed.
 
 ## The EIR multiplier
-
-Halving the mosquitoes cuts the EIR by rather more than half, a multiplier of 0.43 rather than
-0.50, while a 60% increase raises it by rather less than 60%, a multiplier of 1.56 rather than
-1.60. Plotting the multiplier against a proportional reference shows where the two part company.
 
 ```{python}
 #| fig-cap: "EIR multiplier against fractional change in mosquito density, compared with a proportional response."
@@ -125,13 +115,10 @@ plt.show()
 
 The blue multiplier curve sits on the dashed green proportional line for modest changes either
 side of zero, and within about 10% in each direction a proportional response is accurate to a
-percent or so. At both extremes the blue curve drops below the green one. This is because deep
-cuts take the EIR down faster than they take the mosquitoes, so removing three quarters of them
-leaves about a fifth of the baseline EIR rather than a quarter. Large increases run the other
-way. A doubling of the vector population falls short of doubling transmission.
-
-The gap is a few percent rather than a factor. It is why the response is read off the model
-instead of assumed linear, and why `eir_multiplier` comes back beside the EIR.
+percent or so. At both extremes the blue curve drops below the green one. Deep cuts take the EIR
+down faster than they take the mosquitoes, so removing three quarters of them leaves about a
+fifth of the baseline EIR rather than a quarter. A doubling of the vector population falls short
+of doubling transmission.
 
 ::: {.callout-warning}
 ## A note on the input mode
@@ -139,16 +126,14 @@ instead of assumed linear, and why `eir_multiplier` comes back beside the EIR.
 `mosquito_delta` is honoured when the driving input is a **prevalence**. In the scenario API of
 [Running scenarios](../06-scenarios/run-scenarios.qmd), where the input mode is chosen through
 `EirTarget(value, input_mode)`, a non-zero `mosquito_delta` is **silently ignored** for
-`input_mode="eir"` and `input_mode="hbr"`. Note that no warning is raised and no error is
-thrown, and the EIR comes back unchanged. For the ratio to cancel the bias the method needs a
-baseline EIR that is independent of the HBR models, and only a prevalence input supplies one.
-If you already have an EIR or an HBR and want a density change applied to it, scale the HBR
-yourself and convert.
+`input_mode="eir"` and `input_mode="hbr"`. No warning is raised, no error is thrown, and the EIR
+comes back unchanged. The ratio needs a baseline EIR that is independent of the HBR models, and
+only a prevalence input supplies one. To apply a density change to an EIR or an HBR you already
+have, scale the HBR yourself and convert.
 :::
 
 ## See also
 
-The full inference surface, every loader, estimator and dataclass the package exposes, is set
-out in [estiMINT API](api.qmd). Please see
-[Running scenarios](../06-scenarios/run-scenarios.qmd) for `mosquito_delta` carried through a
-whole scenario, from the density change to the case counts.
+[estiMINT API](api.qmd) sets out every loader, estimator and dataclass the package exposes.
+[Running scenarios](../06-scenarios/run-scenarios.qmd) carries `mosquito_delta` through a whole
+scenario, from the density change to the case counts.

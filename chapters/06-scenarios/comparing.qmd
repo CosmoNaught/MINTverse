@@ -9,10 +9,7 @@ plt.style.use("styles/mint.mplstyle")
 ```
 
 The grid from [A scenario grid](scenario-grid.qmd) holds five campaigns run against one shared
-baseline. What comes back is five rows of scalars and five pairs of 157-step trajectories. We
-plot the prevalence trajectories, then the clinical cases, and then integrate the cases to get
-the burden each campaign averts. The scalar columns come last, because a single window of a
-trajectory turns out to be a poor summary of it.
+baseline. What comes back is five rows of scalars and five pairs of 157-step trajectories.
 
 Rebuilding the grid takes the same setting and the same five `Scenario` objects.
 
@@ -61,9 +58,6 @@ idx_y9
 
 ## Prevalence trajectories
 
-All five arms share a baseline, so they are identical until the campaign and separate only
-after it.
-
 ```{python}
 #| fig-cap: "Under-five prevalence under five campaigns run against one baseline, from three years before the campaign to three years after. The dashed line marks the campaign."
 #| fig-alt: "Line chart of under-five prevalence for five scenarios sharing an x-axis in years since the campaign. All five overlap before the campaign at around 0.45. Afterwards the withdrawal arm climbs to about 0.50, the three net arms dip and rebound to between 0.46 and 0.48, and the combination arm falls below 0.05 and stays there."
@@ -86,8 +80,7 @@ other four and stays there. This is because IRS and larval source management do 
 same three-year clock a net does.
 
 The three net arms end the horizon within about two prevalence points of each other, having
-been separated by considerably more at their minimum. Whatever separates the products is
-therefore largest in the middle of the horizon and smallest at its end.
+been separated by considerably more at their minimum.
 
 ## Clinical cases
 
@@ -110,18 +103,15 @@ plt.show()
 Incidence oscillates from one 14-day window to the next, far more than prevalence does. By the
 right-hand edge the three net arms have converged into a band that overlaps the withdrawal arm.
 This is because prevalence measures existing infection, while incidence records new episodes per
-window. Incidence inherits the sampling noise of the window it is counted over, and prevalence
-smooths it away.
-
-That oscillation is why the final window is a bad way to summarise the series.
+window. Incidence inherits the sampling noise of the window it is counted over.
 
 ```{python}
 res[["name", "cases_endline"]].sort_values("cases_endline").round(4)
 ```
 
 Sorted on `cases_endline` alone, withdrawing the nets comes out ahead of every net arm. That is
-an artefact of the column, not something the campaigns did. Two things go wrong with it. The
-window is noisy, as the panel above shows. Clinical incidence is also not a monotone function of
+an artefact of the column, not something the campaigns did. The window is noisy, as the panel
+above shows. Clinical incidence is also not a monotone function of
 transmission, and the withdrawal arm has spent three years at higher prevalence, so the
 simulator's immunity dynamics carry that through into fewer clinical episodes per person late in
 the horizon.
@@ -136,8 +126,7 @@ instead.
 
 ## Cases averted
 
-The quantity that reflects the whole horizon is the area under the incidence curve from the
-campaign onwards. Integrate `cases` from `idx_y9`, with the timestep expressed in years.
+Integrate `cases` from `idx_y9`, with the timestep expressed in years.
 
 ```{python}
 step_years = window / 365
@@ -190,19 +179,17 @@ plt.show()
 
 Integrated over the three years the nets are in the field, the three net arms are separated by
 around fourteen percentage points of averted burden. At endline they were separated by two
-prevalence points. The two disagree because the endline column is one window and the integral is
-all of them.
+prevalence points.
 
 The ordering of the net arms follows `dn0_future` and nothing else, so it is only as good as the
 resistance level supplied. At a resistance of 0.30 the pyrethroid-only and the pyrrole net are
-far apart, while at 0.0 they are much closer. Note that a resistance estimate carries error, and
-re-running the grid across its plausible range is the way to see how much of the ordering
-survives it.
+far apart, while at 0.0 they are much closer. A resistance estimate carries error, so re-run the
+grid across its plausible range to see how much of the ordering survives it.
 
 ## See also
 
-[Exporting results](exporting.qmd) gets these tables and trajectories out of Python, and
+[Exporting results](exporting.qmd) gets these tables and trajectories out of Python.
 [Nets and dn0](../04-estimint/nets-and-dn0.qmd) covers the resistance curves that set the
-ordering of the net arms. Please see
-[EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) for why clinical incidence is
-not monotone in transmission.
+ordering of the net arms.
+[EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) covers why clinical incidence
+is not monotone in transmission.

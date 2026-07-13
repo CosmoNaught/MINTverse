@@ -2,17 +2,14 @@
 title: "Performance and caching"
 ---
 
-Two fixed costs stand between a fresh session and a prediction, the download of the weights from
-Hugging Face and the JAX compilation of the network, and both are paid once per session. The
-compilation is paid again for each new batch size. Prediction itself is orders of magnitude
-cheaper than either of those, and cheaper still per scenario when the scenarios are handed over
-in a single batch rather than one call at a time.
+A session pays two fixed costs before its first prediction, the download of the weights from
+Hugging Face and the JAX compilation of the network. The compilation is paid again for each new
+batch size. Prediction itself is far cheaper than either.
 
 ## Setup cost
 
-`preload_models` warms everything the pipeline needs, loading the three estiMINT
-gradient-boosted models and both stateMINT checkpoints. It downloads them if they are not
-already cached.
+`preload_models` loads the three estiMINT gradient-boosted models and both stateMINT
+checkpoints, downloading them if they are not already cached.
 
 ```{python}
 import time
@@ -25,14 +22,14 @@ print("estiMINT :", list(eir_models))
 print("stateMINT:", list(emulator_models))
 ```
 
-Call it once at the top of a script or a notebook. On a cold machine most of that time is the
-download, roughly 38 MB per predictor. On a warm one it is deserialisation from disk. Note that
-`preload_models` tracks `main` rather than a pinned tag, so load the checkpoints yourself with
+Call it once at the top of a script. On a cold machine most of that time is the download, roughly
+38 MB per predictor. On a warm one it is deserialisation from disk. `preload_models` tracks
+`main` rather than a pinned tag, so load the checkpoints yourself with
 [`from_pretrained(..., revision=...)`](the-emulator.qmd) when the exact weights matter.
 
 ## The cache
 
-Weights land in the standard Hugging Face cache. Every later load reads from it.
+Weights land in the standard Hugging Face cache.
 
 ```{python}
 from huggingface_hub import constants
@@ -54,10 +51,8 @@ export HF_HUB_OFFLINE=1
 
 ## Batching
 
-`.predict` is a single compiled forward pass over the whole batch, and because JAX compiles the
-network on first use and recompiles it whenever the batch size changes, a loop of fifty
-single-scenario calls performs fifty separate forward passes and gets none of the parallelism
-the hardware can give.
+`.predict` is a single compiled forward pass over the whole batch, and JAX compiles the network
+on first use and recompiles it whenever the batch size changes.
 
 ```{python}
 import numpy as np
@@ -108,23 +103,20 @@ print(f"50 calls, 1 scenario   : {looped * 1000:7.0f} ms   ({looped / 50 * 1000:
 print(f"speed-up               : {looped / second:.1f}x")
 ```
 
-Notice that the second call costs a small fraction of the first, and that the fifty looped calls
-cost several times the one batched call doing the same work. This is because a call enters the
-compiled forward pass once, whatever the batch size. The loop pays it fifty times over.
+A call enters the compiled forward pass once, whatever the batch size. The loop pays it fifty
+times over.
 
 Build the whole list first, then call `.predict` once. A grid of a few hundred rows is still a
-single call, and still under a second. Note that the timings printed above came off whatever
-machine rendered the cells. The durable part of the comparison is the ratio between one batched
-call and fifty looped ones, not the absolute milliseconds.
+single call, and still under a second. The timings above came off whatever machine rendered the
+cells, so trust the ratio rather than the absolute milliseconds.
 
 ## CPU and GPU
 
-The timings above are CPU timings, and a CPU is entirely adequate at the scale of a scenario grid,
-since the emulator is small, two Mamba2 layers with `d_model` 256. There is no reason to reach for
-a GPU to compare a dozen campaigns. On a GPU the same forward pass is roughly six times faster,
-measured on an NVIDIA L40S, and both sit several orders of magnitude below the minutes a
-`malariasimulation` run of the same twelve simulated years takes. The measurements, and what the
-speed costs in accuracy, are in [Accuracy and speed](../03-concepts/validation.qmd).
+The timings above are CPU timings, and a CPU is adequate at the scale of a scenario grid, since
+the emulator is small, two Mamba2 layers with `d_model` 256. On a GPU the same forward pass is
+roughly six times faster, measured on an NVIDIA L40S, and both sit orders of magnitude below the
+minutes a `malariasimulation` run of the same twelve simulated years takes. The measurements, and
+what the speed costs in accuracy, are in [Accuracy and speed](../03-concepts/validation.qmd).
 
 For a sweep of thousands of scenarios, a CUDA 12 build of JAX is available as an extra.
 
@@ -133,11 +125,11 @@ pip install "mintstate[gpu]"
 ```
 
 Nothing in the API changes when a GPU is present. JAX places the computation on the accelerator
-if it finds one, and without a CUDA-enabled JAX installed it falls back to CPU and warns. Note
-that the warning is the only sign that the GPU is not in use, so read it rather than suppress it.
+if it finds one, and without a CUDA-enabled JAX it falls back to CPU and warns, which is the only
+sign the GPU is not in use.
 
 ## See also
 
-Batching across a cross product of campaigns and settings is worked through in [A scenario
-grid](../06-scenarios/scenario-grid.qmd), which builds the list once and hands the whole grid to a
-single call. Please see [stateMINT API](api.qmd) for the inference surface, argument by argument.
+[A scenario grid](../06-scenarios/scenario-grid.qmd) batches a cross product of campaigns and
+settings into one call. [stateMINT API](api.qmd) documents the inference surface argument by
+argument.

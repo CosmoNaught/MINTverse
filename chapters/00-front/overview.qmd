@@ -2,42 +2,30 @@
 title: "Overview"
 ---
 
-Evaluating a malaria intervention takes two steps. The first is to estimate how intense
-transmission is in the setting, and the second is to predict how prevalence and clinical
-cases respond to a change in nets, spraying, or larviciding. MINTverse does both with
-trained models that stand in for a full individual-based simulation. There are two
-packages.
+MINTverse estimates how intense transmission is in a setting, and predicts how prevalence
+and clinical cases respond to a change in nets, spraying, or larviciding. It does both with
+trained models that stand in for a full individual-based simulation.
 
 | Package | What it does |
 |---------|--------------|
 | `estimint` | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
 | `stateMINT` | Emulates the individual-based model. Given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
 
-Use `estimint` on its own if you only want transmission intensity, and `stateMINT` on its
-own if you already have an EIR and want a trajectory. One call, `run_scenarios`, chains
-them. It derives net effectiveness from the net mix and the resistance level, calls the
-`estimint` models for the EIR, and hands the result to the emulator.
+One call, `run_scenarios`, chains them.
 
 `pip install estimint mintstate` installs both packages. The distribution you install is
 called `mintstate`, but the module you import is `stateMINT`.
 
 ## Why an emulator
 
-The trajectories `stateMINT` returns are those of an individual-based malaria
-transmission model, the same model lineage implemented in the departmental
-[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/) package. That
-simulation is detailed and slow. A single scenario takes minutes of computation, and
-exploring an intervention space, or fitting to a survey, means running it thousands of
-times.
+The trajectories `stateMINT` returns are those of an individual-based malaria transmission
+model, the same lineage as the departmental
+[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/) package. A single scenario
+of that simulation takes minutes, and exploring an intervention space, or fitting to a survey,
+means running it thousands of times.
 
 `stateMINT` is trained on a large library of those simulation runs, and reproduces their
-output in a few milliseconds per scenario on a CPU. At that speed you can sweep hundreds of
-intervention packages, or back-calculate transmission from a survey, in the time the
-simulation would take for one run.
-
-The figure below is the whole stack running on a strongly seasonal parameter set that was held
-out of training, plotted against the simulator it replaces. Its error is close to the emulator's
-average across the whole held-out split.
+output in a few milliseconds per scenario on a CPU.
 
 {{< include ../_truth-setup.qmd >}}
 
@@ -57,22 +45,19 @@ plt.tight_layout()
 plt.show()
 ```
 
-Across 1,954 parameter sets held out of training entirely, the emulator tracks the simulator
-to a mean absolute error of 0.0044 in prevalence, which is under half a percentage point, at an
-R² of 0.999 and with no systematic bias. Please see
-[Accuracy and speed](../03-concepts/validation.qmd) for the trajectory-by-trajectory
-comparison and for what the error costs when the EIR has to be estimated rather than known.
+Across 1,954 parameter sets held out of training, the emulator tracks the simulator
+to a mean absolute error of 0.0044 in prevalence, at an R² of 0.999 and with no systematic
+bias. Please see [Accuracy and speed](../03-concepts/validation.qmd) for the
+trajectory-by-trajectory comparison.
 
-Note that outside its training range the emulator is not reliable, and that `estimint` clamps
-out-of-range covariates silently, so a setting well beyond that range still comes back with an
-answer.
+Outside its training range the emulator is not reliable, and `estimint` clamps out-of-range
+covariates silently, so a setting well beyond that range still comes back with an answer.
 
 ## What you need to run it
 
-The emulator is parameterised by twelve numbers. You do not supply them directly, because
-`run_scenarios` derives several of them from the ones you do.
+`run_scenarios` derives several of the emulator's twelve covariates from the ones below.
 
-**One measure of transmission.** Exactly one of the following, whichever you have:
+**One measure of transmission.** Exactly one of the following:
 
 | You have | Pass it as | Typical source |
 |---|---|---|
@@ -80,12 +65,9 @@ The emulator is parameterised by twelve numbers. You do not supply them directly
 | A human biting rate | `EirTarget(250000, "hbr")` | Entomological trapping |
 | An EIR already | `EirTarget(20, "eir")` | A previous calibration |
 
-`estimint` produces single values, not trajectories. It converts whichever of the three
-measures you supply into the EIR the emulator runs from, and the EIR and HBR it reports are
-equilibrium quantities at the moment the campaign starts. Only prevalence and cases have
-trajectories, and those come from `stateMINT`. Please see
-[EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) for how the four quantities
-move through the pipeline.
+The EIR and HBR `estimint` reports are equilibrium values at the moment the campaign starts,
+not trajectories. Please see [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd)
+for how the four quantities move through the pipeline.
 
 **The setting.** Four numbers describing the district and its mosquitoes:
 
@@ -97,19 +79,18 @@ move through the pipeline.
 | `res_use` | Pyrethroid resistance, 0 to 1 | Bioassay data on the local vector population |
 
 **The interventions in place now.** The current net mix, as usage shares by net type (`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`).
-Leave the net keys out entirely if there are no nets. You do **not** compute the net killing
-effect yourself, because `calculate_dn0` turns the mix and the resistance level into the `dn0`
-covariate the models consume.
+Leave the net keys out if there are no nets. You do **not** compute the net killing
+effect yourself, because `calculate_dn0` turns the mix and the resistance level into the
+`dn0` covariate.
 
 **The campaign you want to evaluate.** The net type and coverage from the campaign onwards (`net_type_future`, `itn_future`), and any spraying, larviciding or routine distribution that comes with it (`irs_future`, `lsm`, `routine`).
-These default to zero, which means the intervention is **withdrawn** at the campaign.
 
-Everything else is optional. `mosquito_delta`, which describes a change in mosquito density,
-has no effect on the result at its default of zero.
+Everything else is optional. `mosquito_delta`, a change in mosquito density, has no effect at
+its default of zero.
 
-You do not need a GPU, a `malariasimulation` installation, R, any training data, or any
-weights on disk. Installation pulls the estiMINT models with the wheel. The emulator weights
-download once from Hugging Face on first use.
+You do not need a GPU, a `malariasimulation` installation, R, or any training data.
+Installation pulls the estiMINT models with the wheel. The emulator weights download once from
+Hugging Face on first use.
 
 ::: {.callout-important}
 ## Future coverage must be set explicitly
@@ -122,10 +103,7 @@ in the future keys. Please see [Covariates and the time grid](../05-statemint/co
 
 ## Where to start
 
-MINTverse is written for researchers studying transmission and interventions, and we assume
-more familiarity with malaria epidemiology and with R than with Python or machine learning, so
-where a Python idiom differs from its R counterpart in a way that matters we spell the
-difference out. If Python is new, [Python for Malaria Modellers](../01-python/index.qmd)
-covers the interpreter, the environment, and the notebook from scratch. Otherwise install the
-packages and run a first estimate in [Getting Started](../02-getting-started/index.qmd). For
-the ideas behind the models, read [Core Concepts](../03-concepts/index.qmd).
+If Python is new, [Python for Malaria Modellers](../01-python/index.qmd) covers the
+interpreter, the environment, and the notebook. Otherwise run a first estimate in
+[Getting Started](../02-getting-started/index.qmd). For the ideas behind the models, read
+[Core Concepts](../03-concepts/index.qmd).

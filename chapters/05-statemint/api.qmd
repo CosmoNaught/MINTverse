@@ -2,10 +2,8 @@
 title: "stateMINT API"
 ---
 
-The inference surface of `stateMINT` is one classmethod and one dataclass, and everything else in the package
-(the training loop, the checkpointer, the data fetchers) exists to produce the checkpoints rather than to consume
-them, so none of it is needed to run a prediction. You install `mintstate` and import `stateMINT`, capital MINT.
-The mismatch between the two names is the most common source of confusion in the package.
+The inference surface of `stateMINT` is one classmethod and one dataclass. You install `mintstate` and import
+`stateMINT`, capital MINT. The mismatch between the two names is the most common source of confusion in the package.
 
 ## `Mamba2Regressor.from_pretrained`
 
@@ -30,7 +28,8 @@ Load a trained checkpoint from a Hugging Face repository or a local folder.
 | `cache_dir` | Override the Hugging Face cache location for this call. Prefer the `HF_HOME` environment variable, which applies to everything. |
 | `local_dir` | Load from a folder on disk instead of the Hub. Nothing is downloaded and `revision` is ignored. |
 
-**Returns** a `ModelArtifact` rather than a `Mamba2Regressor`, since the network alone would not know how to scale your covariates, and the artifact carries the fitted scaler and the preprocessing recipe alongside the weights.
+**Returns** a `ModelArtifact`, not a `Mamba2Regressor`. The artifact carries the fitted scaler and the
+preprocessing recipe alongside the weights.
 
 ```{python}
 from stateMINT.model import Mamba2Regressor
@@ -109,8 +108,7 @@ artifact.prepare_inputs(
 
 `.prepare_inputs` runs the first half of `.predict` and stops before the network. The covariates are broadcast
 across the 157 windows, the five campaign covariates are masked to zero before the intervention day, the twelve
-are scaled, and four time features are appended to give the sixteen channels the network consumes. Its use is
-diagnostic, confirming that a change to a scenario reaches the model where it is expected to.
+are scaled, and four time features are appended to give the sixteen channels the network consumes.
 
 **Returns** a `float32` array of shape `(B, n_steps, input_size)`, which is `(B, 157, 16)` for both current checkpoints.
 
@@ -126,6 +124,5 @@ print(f"steps affected by lsm: {int(changed.sum())} of {X.shape[1]}, from step {
 
 ## See also
 
-The reasoning behind these arguments is set out in [Calling the emulator](the-emulator.qmd), along with what
-goes wrong when the wrong checkpoint is read. Please see
-[Running scenarios](../06-scenarios/run-scenarios.qmd) for the pipeline that wraps this surface into a single call.
+[Calling the emulator](the-emulator.qmd) gives the reasoning behind these arguments, and what goes wrong when the
+wrong checkpoint is read. [Running scenarios](../06-scenarios/run-scenarios.qmd) wraps this surface into a single call.

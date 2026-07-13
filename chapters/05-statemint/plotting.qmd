@@ -9,14 +9,12 @@ plt.style.use("styles/mint.mplstyle")
 ```
 
 The columns of a `(B, 157)` array are fortnightly windows spanning six years of simulation.
-Plot against time relative to the campaign. That puts the campaign at zero and the response to
-its right.
+Plot against time relative to the campaign. The campaign then sits at zero.
 
 ## The setting
 
 The running example is a district with a measured under-5 prevalence of 0.45, pyrethroid
-resistance at 0.30, and pyrethroid-only nets at 70% coverage. The EIR comes from estiMINT, the
-net lethality from `calculate_dn0`.
+resistance at 0.30, and pyrethroid-only nets at 70% coverage.
 
 ```{python}
 import numpy as np
@@ -83,8 +81,7 @@ print(prev.shape, case.shape)
 
 ## The time axis
 
-The axis is worth rebuilding from the checkpoint rather than from memory. The three numbers
-that define it sit in the preprocessing config.
+The axis is worth rebuilding from the checkpoint rather than from memory.
 
 ```{python}
 cfg = prevalence.preprocessing_config
@@ -122,16 +119,14 @@ plt.show()
 ## Interpreting the figure
 
 The blue, green and amber curves lie on top of one another to the left of the dashed rule, and
-separate only to the right of it. This is because the campaign covariates are masked
-before day 3285, so scenarios that differ only in their campaign share an identical pre-campaign
-history. Note that curves separating before the rule mean something in the present has changed,
-most often `dn0_use`, `itn_use` or the EIR.
+separate only to the right of it. The campaign covariates are masked before day 3285. Curves
+separating before the rule mean something in the present has changed, most often `dn0_use`,
+`itn_use` or the EIR.
 
-Notice too that the shared baseline is not flat. `model_start_day` is day 2190 and the campaign
-is day 3285, one three-year mass-distribution cycle apart, so the window opens on the previous
+That shared baseline is not flat, because `model_start_day` is day 2190 and the campaign is day
+3285, one three-year mass-distribution cycle apart, so the window opens on the previous
 distribution and closes on the next. Prevalence falls through the first year as those nets take
-effect, then climbs for two more as they wear out and are not replaced, reaching the campaign
-at the top of the cycle. The saw-tooth repeats to the right of the rule.
+effect, then climbs for two more as they wear out and are not replaced.
 
 ```{python}
 pre = prev[:, :idx_y9 + 1]
@@ -147,24 +142,22 @@ for a, mean in annual.items():
     print(f"mean prevalence, year {a:+d}   : {mean:.3f}")
 ```
 
-That output carries two checks. The three campaigns are identical before the rule, and at the
-campaign step the trajectory passes within a few thousandths of 0.45, the prevalence estiMINT
-was given. Run that round trip on every scenario.
+The three campaigns are identical before the rule, and at the campaign step the trajectory
+passes within a few thousandths of 0.45, the prevalence estiMINT was given. Run that round trip
+on every scenario.
 
 The agreement holds at `idx_y9` and not on average, because the annual means run from 0.33 to
-0.46 and a scenario judged by its mean will look badly wrong when it is not. `prev_y9` is a
-point on the trajectory, and `idx_y9` is where to read it. A trajectory that misses the measured
-prevalence there means something is wrong upstream, most often in `dn0_use` or `itn_use`.
+0.46. A trajectory that misses the measured prevalence at `idx_y9` means something is wrong
+upstream, most often in `dn0_use` or `itn_use`.
 
 Three years on the curves are ordered as the `dn0` table predicts, with amber pyrrole lowest,
-green PBO above it, and blue pyrethroid-only highest in both panels. This is because they differ
-only in `dn0_future`, and at 30% resistance the pyrrole net kills the largest share of the
-mosquitoes that touch it. The gaps are modest.
+green PBO above it, and blue pyrethroid-only highest in both panels. They differ only in
+`dn0_future`, and at 30% resistance the pyrrole net kills the largest share of the mosquitoes
+that touch it.
 
 ## A tidy frame
 
-Two arrays and an axis are enough for matplotlib. Anything else (a `ggplot`-shaped workflow,
-a `groupby`, a CSV for a collaborator) wants the data long, one row per scenario per timestep.
+A `groupby` or a CSV for a collaborator wants the data long, one row per scenario per timestep.
 
 ```{python}
 tidy = pd.DataFrame({
@@ -181,22 +174,20 @@ tidy.head()
 
 `prev.ravel()` flattens row by row, the order `np.repeat` lays the labels out in, so the result
 is three blocks of 157 rows. The `astype(float)` widens the emulator's `float32` output to
-double, which stops rounding from producing things like `274.299988`. From here
-`tidy.to_csv("trajectories.csv", index=False)` writes a file anyone can open in R, and a
-`groupby` totals the case burden of each campaign.
+double, which stops rounding from producing things like `274.299988`.
+`tidy.to_csv("trajectories.csv", index=False)` writes a file anyone can open in R.
 
 ```{python}
 post = tidy[tidy["years"] >= 0]
 post.groupby("net", sort=False)["cases"].sum().round(1)
 ```
 
-Filter to `years >= 0` before totalling anything. Summing over all 157 windows adds the same
-three baseline years to every product, and the absolute differences survive that, since the
-baseline is shared, but every total is inflated by the same constant, so cases averted and
-relative reduction both come out understated.
+Summing over all 157 windows adds the same three baseline years to every product, so cases
+averted and relative reduction both come out understated. Filter to `years >= 0` before
+totalling anything.
 
 ## See also
 
 Batching many of these into a single call is covered in [Performance and
-caching](performance.qmd). Please see [Trajectories and cases](../06-scenarios/comparing.qmd) for
-the same three-product comparison driven through the pipeline rather than assembled by hand.
+caching](performance.qmd). [Trajectories and cases](../06-scenarios/comparing.qmd) drives the
+same three-product comparison through the pipeline.

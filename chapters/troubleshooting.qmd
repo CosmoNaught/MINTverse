@@ -4,9 +4,8 @@ title: "Troubleshooting"
 
 ## Installed versions
 
-Most installation problems are answered by four lines run in the session that failed. Almost all
-of them come down to a mismatch between the interpreter that installed the packages and the
-interpreter that is importing them.
+Most installation problems come down to a mismatch between the interpreter that installed the
+packages and the interpreter that is importing them, which these four lines will show.
 
 ```{python}
 import sys
@@ -18,8 +17,7 @@ print("estimint  ", version("estimint"))
 print("mintstate ", version("mintstate"))
 ```
 
-`sys.executable` prints the full path of the interpreter that is actually running the code, and
-in a notebook that path belongs to the kernel rather than to whatever the terminal has
+In a notebook `sys.executable` belongs to the kernel rather than to whatever the terminal has
 activated. If it is not the environment you installed into, the kernel is the problem and the
 packages are fine.
 
@@ -31,19 +29,17 @@ packages are fine.
 ModuleNotFoundError: No module named 'stateMINT'
 ```
 
-There are two causes worth telling apart before you reinstall anything. The first is that
-`estimint` was installed without the emulator, since plain `pip install estimint` gives you the
-EIR and HBR models and nothing else. The emulator arrives with a second distribution.
+There are two causes. The first is that `estimint` was installed without the emulator, since
+plain `pip install estimint` gives you the EIR and HBR models and nothing else.
 
 ```bash
 pip install estimint mintstate
 ```
 
 The second cause is that the interpreter running your code is not the interpreter you installed
-into. That is the usual explanation when the install succeeded and the import still fails, since
-a notebook kernel is a specific Python and not necessarily the one the terminal has activated.
-Print `sys.executable` in the notebook and compare. Please see [Environments and
-packages](01-python/environments.qmd) and [Notebooks](01-python/notebooks.qmd).
+into, which is the usual explanation when the install succeeded and the import still fails.
+Please see [Environments and packages](01-python/environments.qmd) and
+[Notebooks](01-python/notebooks.qmd).
 
 ### No distribution named `statemint`
 
@@ -53,8 +49,7 @@ ERROR: No matching distribution found for statemint
 ```
 
 The distribution is called **`mintstate`** and the module it installs is called **`stateMINT`**.
-The capitals matter to the import, even though pip is relaxed about the name it is handed.
-Install both packages unless you have a reason not to.
+The capitals matter to the import.
 
 ```bash
 pip install mintstate            # the emulator on its own
@@ -64,7 +59,7 @@ pip install estimint mintstate   # both packages, what you normally want
 ### An interpreter older than 3.12
 
 Both packages require Python 3.12 or newer. On an older interpreter pip either refuses the wheel
-or resolves to an earlier release that predates the requirement, so check the version first.
+or resolves to an earlier release that predates the requirement.
 
 ```bash
 python --version
@@ -82,10 +77,9 @@ ValueError: unknown net type: 'pyrethroid-pbo' (have ['py_only', 'py_pbo', 'py_p
 'py_pyrrole', 'pyrethroid_only', 'pyrethroid_pbo', 'pyrethroid_ppf', 'pyrethroid_pyrrole'])
 ```
 
-The net types are Python identifiers. A name written with a hyphen where the accepted strings
-carry `_` is rejected, so `net_type_future="pyrethroid_pbo"` and `net_type_future="py_pbo"` are
-both taken while `"pyrethroid-pbo"` is not. The message lists the eight strings that work, four
-full names and four short aliases.
+The net types are Python identifiers, so a name written with a hyphen where the accepted strings
+carry `_` is rejected. The message lists the eight strings that work, four full names and four
+short aliases.
 
 ### `ValueError: Missing static covariates`
 
@@ -93,11 +87,11 @@ full names and four short aliases.
 ValueError: Missing static covariates: ['lsm']
 ```
 
-All twelve static covariates are mandatory. There are no defaults, not even for an intervention
-you are not running, so `lsm=0.0` means no larviciding while omitting `lsm` means an incomplete
-input. The twelve, in order, are `eir`, `dn0_use`, `dn0_future`, `Q0`, `phi_bednets`,
-`seasonal`, `routine`, `itn_use`, `irs_use`, `itn_future`, `irs_future` and `lsm`. [Covariates
-and the time grid](05-statemint/covariates.qmd) takes them one at a time.
+All twelve static covariates are mandatory and none has a default. Passing `lsm=0.0` means no
+larviciding, while omitting `lsm` means an incomplete input. The twelve, in order, are `eir`,
+`dn0_use`, `dn0_future`, `Q0`, `phi_bednets`, `seasonal`, `routine`, `itn_use`, `irs_use`,
+`itn_future`, `irs_future` and `lsm`. [Covariates and the time
+grid](05-statemint/covariates.qmd) takes them one at a time.
 
 ### `ValueError: Missing required columns`
 
@@ -105,9 +99,8 @@ and the time grid](05-statemint/covariates.qmd) takes them one at a time.
 ValueError: Missing required columns: irs_use, itn_use, phi_bednets, prev_y9, seasonal
 ```
 
-`run_xgb_model` raises this when the DataFrame you passed lacks a column the model was trained
-on, and each model carries its own feature list, which you can read straight off the loaded
-model.
+`run_xgb_model` raises this when the DataFrame lacks a column the model was trained on. Each
+model carries its own feature list, readable off the loaded model.
 
 ```{python}
 from estimint import load_xgb_model
@@ -115,18 +108,16 @@ from estimint import load_xgb_model
 print(load_xgb_model("prevalence")["features"])
 ```
 
-A DataFrame built from that list cannot raise the error. Note that the prevalence column must be
-named `prev_y9`, with `prevalence` accepted as an alias and nothing else.
+The prevalence column must be named `prev_y9`, with `prevalence` accepted as an alias and
+nothing else.
 
 ## A slow first run
 
-The XGBoost models ship inside the `estimint` wheel and load instantly, while the emulator
-weights live on the Hugging Face Hub at `dide-ic/stateMINT` and are fetched on first use,
-roughly 38 MB per predictor. A first `run_scenarios` on a cold cache therefore spends most of
-its time downloading, after which the weights sit under `~/.cache/huggingface` and are never
-fetched again. The second run is fast.
+The XGBoost models ship inside the `estimint` wheel and load instantly. The emulator weights
+live on the Hugging Face Hub at `dide-ic/stateMINT` and are fetched on first use, roughly 38 MB
+per predictor. They then sit under `~/.cache/huggingface` and are never fetched again.
 
-Pay it up front if the wait is inconvenient.
+Pay the download up front if the wait is inconvenient.
 
 ```{python}
 from estimint import preload_models
@@ -134,7 +125,6 @@ from estimint import preload_models
 preload_models()
 ```
 
-That warms the XGBoost models and pulls both predictors, and nothing then downloads mid-session.
 On a machine with no outbound network, fetch the weights once somewhere that has one, copy the
 cache across, and set `HF_HUB_OFFLINE=1` so the Hub client never attempts a call.
 
@@ -149,8 +139,8 @@ calling `Booster.save_model` from that version first, then load it back in curre
 version.
 ```
 
-Predictions are unaffected. The bundled models were serialised by an earlier XGBoost than the
-one you have, and XGBoost loads them correctly and warns about it anyway.
+The bundled models were serialised by an earlier XGBoost than the one you have. XGBoost loads
+them correctly and warns anyway, and predictions are unaffected.
 
 ### The JAX CUDA warning
 
@@ -159,24 +149,21 @@ WARNING:jax._src.xla_bridge:An NVIDIA GPU may be present on this machine, but a
 CUDA-enabled jaxlib is not installed. Falling back to cpu.
 ```
 
-The CPU path is supported. The emulator runs on JAX, and a machine with no GPU, or with a GPU
-but a CPU-only `jaxlib`, gets the absence reported once. JAX then falls back to the CPU, where
-ten scenarios take about a second. Install `"mintstate[gpu]"` only if you have CUDA 12 and a
-batch large enough to earn it.
+The emulator runs on JAX, and a machine with no GPU, or with a GPU but a CPU-only `jaxlib`, gets
+the absence reported once. JAX falls back to the CPU, where ten scenarios take about a second.
+Install `"mintstate[gpu]"` only if you have CUDA 12 and a batch large enough to earn it.
 
 ## Results that look wrong
 
 ### A flat or pinned trajectory
 
 `estimint` clamps its inputs silently. The models were fitted on a bounded range, so `prev_y9`
-is held to $[0.005, 0.80]$ and `hbr_y9` to $[5 \times 10^{3}, 7 \times 10^{7}]$, and a
-prevalence of 0.92 arrives at the model as 0.80 while a prevalence of 0.001 arrives as 0.005. No
-warning is raised and the run completes as normal.
+is held to $[0.005, 0.80]$ and `hbr_y9` to $[5 \times 10^{3}, 7 \times 10^{7}]$. A prevalence of
+0.92 arrives at the model as 0.80 and a prevalence of 0.001 arrives as 0.005, with no warning.
 
 A trajectory that is implausibly flat, or that will not move when you change an input that
-should move it, usually means the inputs sit outside the calibrated domain. You are either at
-the clamp, or in a corner of covariate space the emulator never saw in training. Check the
-inputs before you read the output.
+should move it, usually means the inputs sit outside the calibrated domain, either at the clamp
+or in a corner of covariate space the emulator never saw in training.
 
 ### An unexpected rebound in prevalence
 
@@ -202,27 +189,22 @@ hold = Scenario(
 )
 ```
 
-Note that leaving those three fields out specifies a withdrawal, and the rebound is then exactly
-what the model predicts when the nets go away.
 :::
 
 ### `NaN` in `hbr_baseline` and `hbr_new`
 
-The `NaN` is expected. `run_scenarios` fills those two columns only when the scenario used a
-prevalence input and a non-zero `mosquito_delta`, and leaves them `NaN` otherwise. This is
-because `mosquito_delta` is ignored when `input_mode` is `"eir"` or `"hbr"`, the density
-adjustment being defined on the prevalence pathway alone.
+`run_scenarios` fills those two columns only when the scenario used a prevalence input and a
+non-zero `mosquito_delta`. `mosquito_delta` is ignored when `input_mode` is `"eir"` or `"hbr"`,
+the density adjustment being defined on the prevalence pathway alone.
 
 ### An `lsm` different from the one passed
 
 `run_scenarios` folds a PPF net mix into effective larval source management before the emulator
-ever runs. The `lsm` in the returned table need not be the `lsm` you handed it, since the rule
-is `lsm_eff = min(py_ppf * 0.248 + lsm, 1.0)` and `lsm_eff` is what gets reported. Please see
+runs, by `lsm_eff = min(py_ppf * 0.248 + lsm, 1.0)`. The reported `lsm` is `lsm_eff`. Please see
 [estiMINT internals](07-under-the-hood/estimint-internals.qmd).
 
 ## See also
 
-Where a package actually lands, and which interpreter then finds it, is worked through in
-[Environments and packages](01-python/environments.qmd), while the cold-start download and the
-offline cache are covered by [Performance and caching](05-statemint/performance.qmd). Please see
-[Running scenarios](06-scenarios/run-scenarios.qmd) for the campaign fields in context.
+- [Environments and packages](01-python/environments.qmd), on which interpreter finds a package.
+- [Performance and caching](05-statemint/performance.qmd), on the cold cache and offline use.
+- [Running scenarios](06-scenarios/run-scenarios.qmd), on the campaign fields in context.
