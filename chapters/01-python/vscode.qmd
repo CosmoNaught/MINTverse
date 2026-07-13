@@ -1,0 +1,148 @@
+---
+title: "Working in VS Code"
+---
+
+An integrated development environment is an editor that knows what language you are writing.
+It runs the code without you retyping it into a terminal, shows what variables currently
+hold, jumps to a function's definition, and reports a syntax error before you run anything.
+RStudio is one. Python has no single equivalent with RStudio's market share.
+[Visual Studio Code](https://code.visualstudio.com/) is the closest match. It is free, it
+runs on all three operating systems, and it has extensions for Python and for Quarto.
+
+## The map from RStudio
+
+VS Code has the same four regions, under different names and in a different arrangement.
+
+| RStudio | VS Code | Note |
+|---|---|---|
+| Source pane | Editor | The centre of the window. Tabs across the top. |
+| Console | Terminal, and the Interactive Window | Two separate things, where R has one. |
+| Environment pane | Variables view, and the Debug pane | The Variables view appears in the Interactive Window and in notebooks. |
+| Files pane | Explorer | The sidebar, opened with the top icon or `Ctrl+Shift+E`. |
+| Plots pane | Inline output | A figure appears under the cell that drew it, not in a pane of its own. |
+| Packages pane | (none) | Packages belong to the project environment, not the editor. See [Environments and packages](environments.qmd). |
+
+The split between Terminal and Interactive Window is the one that has no RStudio counterpart.
+The **Terminal**, opened from *View → Terminal*, is an ordinary shell where `uv add` and
+`python main.py` are typed, and it has no knowledge of Python. The **Interactive Window** is
+a live Python session attached to your editor, and it behaves like the RStudio console. You
+send a line to it, the line is evaluated, and the variable stays in memory.
+
+## Installing
+
+On **Linux**, download the `.rpm` or `.deb` from
+[code.visualstudio.com](https://code.visualstudio.com/) and install it with the package
+manager. On Fedora it is worth adding Microsoft's repository once, after which the editor
+updates with the rest of the system:
+
+```bash
+sudo dnf install code    # after enabling the Microsoft repo
+```
+
+A Flatpak is also available from Flathub. It is sandboxed, and it can make interpreters
+outside the sandbox harder to reach. Prefer the native package if you have the choice.
+
+On **macOS**, download the `.zip`, unzip it, and drag *Visual Studio Code.app* into
+*Applications*. Then launch it once from *Applications* so that macOS registers it.
+
+On **Windows**, download the **User Installer** `.exe` and run it. It writes into your own
+profile and needs no administrator rights, which matters on a managed machine. The System
+Installer exists for multi-user machines and asks for admin rights.
+
+## Extensions
+
+Open the Extensions view from the sidebar (`Ctrl+Shift+X`, `Cmd+Shift+X` on macOS) and
+install:
+
+- **Python**, published by Microsoft. It supplies the interpreter selector, the Interactive Window, debugging, and code completion.
+- **Jupyter**, published by Microsoft. Opens and runs `.ipynb` notebooks inside the editor. See [Notebooks](notebooks.qmd).
+- **Quarto**, published by Posit. Optional, and only if you intend to write `.qmd` documents. It gives you the render button and a preview.
+
+Nothing else is required. The rest of the marketplace can be ignored.
+
+## Common problems
+
+### 1. Open a folder
+
+RStudio's unit of work is a project. VS Code's is a folder, and almost everything depends on
+it. Use *File → Open Folder…* and choose the directory your code lives in, the one that will
+hold `pyproject.toml` and `.venv`. Open a lone `.py` file instead and VS Code has no project
+to reason about. It cannot find your environment, relative paths behave unexpectedly, and the
+interpreter selector offers nothing useful. Whenever the editor seems not to know about your
+environment, check the window title first. If it does not name your project folder, that is
+the fault.
+
+### 2. Selecting the interpreter
+
+VS Code does not reliably guess the correct interpreter. It has to be chosen explicitly. Open
+the **command palette** with `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) and type
+`Python: Select Interpreter`.
+
+The list that appears usually holds several entries, a system Python or two, perhaps a
+Homebrew one, perhaps one `uv` manages, and yours, if you have opened the right folder. Yours
+is the entry whose path runs through your project directory and contains `.venv`. It has this
+form:
+
+```{.text .diagram}
+./.venv/bin/python                            (Linux, macOS)
+.\.venv\Scripts\python.exe                    (Windows)
+```
+
+VS Code marks it *Recommended* when it is inside the open folder. That is the entry to
+select. The chosen interpreter is then shown in the **status bar** at the bottom-right of the
+window. It is worth checking there before diagnosing a `ModuleNotFoundError`.
+
+::: {.callout-note}
+## Terminals and the active environment
+
+Selecting an interpreter changes what the editor runs. A terminal that was already open keeps
+whatever environment it started with. Open a new terminal after selecting, or prefix commands
+with `uv run`, which needs no activation at all.
+:::
+
+### 3. The Interactive Window
+
+In RStudio, `Ctrl+Enter` sends the current line to the console and steps to the next. In VS
+Code with the Python extension, **`Shift+Enter`** sends the current line, or the selection,
+to the Interactive Window, starting one if it is not already running. State persists between
+sends, exactly as in the R console. A variable assigned in one line is still available five
+lines later.
+
+This makes a plain `.py` file behave like an R script under RStudio, which is often a better
+way to work than a notebook. The Interactive Window shows figures inline. It has a
+**Variables** button that opens the equivalent of the Environment pane.
+
+`#%%` on a line of a `.py` file marks a *cell*. VS Code draws a divider there and offers a
+*Run Cell* link above it. You get notebook-style chunked execution in a text file that diffs
+cleanly in version control.
+
+## A new project
+
+The whole loop, `uv` and VS Code together, starts in a terminal:
+
+```bash
+uv init malaria-scenarios       # create the project
+cd malaria-scenarios
+uv add estimint mintstate       # install both packages into its own .venv
+```
+
+Then in VS Code:
+
+1. *File → Open Folder…* and choose `malaria-scenarios`. The window title should now name it.
+2. `Ctrl+Shift+P` → `Python: Select Interpreter` → pick the entry containing `.venv`, marked *Recommended*.
+3. Open `main.py`, put a line in it, and press `Shift+Enter`.
+
+```python
+from estimint import net_types
+print(net_types())
+```
+
+If that prints the four net types, the interpreter, the environment and the editor all agree.
+You are ready for [Installation](../02-getting-started/installation.qmd).
+
+*(RStudio user: steps 1 to 3 are "open the .Rproj, and start typing in the console". The interpreter selection is the part with no counterpart, because RStudio only ever has one R to choose from.)*
+
+## Next
+
+- [Environments and packages](environments.qmd) — create the `.venv` that the interpreter selector should be pointing at.
+- [Notebooks](notebooks.qmd) — the same interpreter question, in its notebook form.

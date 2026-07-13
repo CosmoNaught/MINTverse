@@ -1,0 +1,180 @@
+---
+title: "Estimating EIR from prevalence"
+---
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.style.use("styles/mint.mplstyle")
+```
+
+A parasite survey gives prevalence. The transmission model requires an EIR, so `estimint`
+inverts the one into the other, returning the EIR that would have produced the prevalence you
+measured. The inversion does not run on prevalence alone. The model takes six covariates
+describing the setting alongside it.
+
+## The prevalence model
+
+Load it by name. The model is bundled in the wheel, so the call is offline and takes
+milliseconds.
+
+```{python}
+import pandas as pd
+from estimint import load_xgb_model, run_xgb_model
+
+prev_model = load_xgb_model("prevalence")
+prev_model["features"]
+```
+
+All seven columns are required. Six of them describe the setting, and the seventh, `prev_y9`,
+carries the driving input.
+
+| Column | Meaning |
+|---|---|
+| `dn0_use` | Probability a mosquito dies on contact with a net. From `calculate_dn0`. |
+| `Q0` | Human blood index, 0 to 1 |
+| `phi_bednets` | Share of bites taken while people are in bed |
+| `seasonal` | 0 perennial, 1 strongly seasonal |
+| `itn_use` | ITN coverage, 0 to 1. From `calculate_dn0`. |
+| `irs_use` | IRS coverage, 0 to 1 |
+| `prev_y9` | Parasite prevalence in the deployment year, 0 to 1 |
+
+A missing column raises a `ValueError` naming it. `prevalence` is accepted as an alias for
+`prev_y9` and copied across for you, which is convenient, because it is also the column name
+`estimate_eir_with_mosquito_delta` expects.
+
+`run_xgb_model` takes the frame and the model, and returns a plain NumPy array. One element
+per row.
+
+```{python}
+setting = dict(
+    dn0_use=0.33, Q0=0.87, phi_bednets=0.82,
+    seasonal=0.0, itn_use=0.6, irs_use=0.0,
+)
+
+one = pd.DataFrame([{**setting, "prevalence": 0.30}])
+eir = run_xgb_model(one, prev_model)
+
+type(eir), eir
+```
+
+A prevalence of 30% in this setting implies about 13.4 infectious bites per person per
+year.
+
+## The shape of the relationship
+
+Holding the setting fixed and sweeping the prevalence shows how the EIR behaves.
+
+```{python}
+sweep = pd.DataFrame(
+    [{**setting, "prevalence": p} for p in [0.05, 0.10, 0.20, 0.30, 0.45, 0.60, 0.75]]
+)
+sweep["eir"] = run_xgb_model(sweep, prev_model)
+
+sweep[["prevalence", "eir"]].round(2)
+```
+
+The EIR is nowhere near linear in prevalence. Doubling prevalence from 0.30 to 0.60 does not
+double the EIR but raises it roughly fivefold. Between 0.60 and 0.75 the EIR more than doubles
+again.
+
+```{python}
+#| fig-cap: "Inferred EIR against prevalence, holding the setting fixed."
+#| fig-alt: "A line rising slowly from near zero at 5% prevalence then climbing very steeply above 60% prevalence, reaching about 160 infectious bites per person per year at 75%."
+import numpy as np
+
+grid = pd.DataFrame([{**setting, "prevalence": p} for p in np.linspace(0.05, 0.75, 71)])
+grid["eir"] = run_xgb_model(grid, prev_model)
+
+fig, ax = plt.subplots()
+ax.plot(grid["prevalence"], grid["eir"], color="#00d4aa")
+ax.set_xlabel("Prevalence")
+ax.set_ylabel("EIR (infectious bites per person per year)")
+plt.show()
+```
+
+Precision in the prevalence you supply therefore matters far more at the top of the range than
+at the bottom. An input that is a few points out at 70% prevalence moves the inferred EIR by
+tens of bites per year.
+
+## The role of the setting
+
+If EIR were a function of prevalence alone, a lookup table would do the job and no model
+would be needed.
+
+The district in the running example has a measured prevalence of 0.45, pyrethroid
+resistance of 0.30, and pyrethroid-only nets. In the sweep below the net coverage is the
+only quantity that varies, and the measured prevalence is held at 0.45 throughout.
+
+```{python}
+from estimint import calculate_dn0
+
+rows = []
+for coverage in [0.0, 0.3, 0.5, 0.7, 0.9]:
+    nets = calculate_dn0(0.30, py_only=coverage)
+    rows.append({
+        "coverage": coverage,
+        "dn0_use": nets.dn0,
+        "itn_use": nets.itn_use,
+        "Q0": 0.85, "phi_bednets": 0.80, "seasonal": 0.0, "irs_use": 0.0,
+        "prevalence": 0.45,
+    })
+
+nets_vs_eir = pd.DataFrame(rows)
+nets_vs_eir["eir"] = run_xgb_model(nets_vs_eir, prev_model)
+
+nets_vs_eir[["coverage", "dn0_use", "itn_use", "prevalence", "eir"]].round(3)
+```
+
+Every row reports the same prevalence. The inferred EIR rises by roughly two thirds across the
+column. That is why understating `itn_use`, the error described in
+[Nets and dn0](nets-and-dn0.qmd), biases the inferred EIR downwards. It is also why the same
+measured prevalence in two districts with different net coverage does not imply the same
+transmission.
+
+## The global model
+
+Passing the model to every call is repetitive. `set_global_model` registers one as the default,
+after which `run_xgb_model` may be called with the frame alone.
+
+```{python}
+from estimint import set_global_model, get_global_model
+
+set_global_model(prev_model)
+run_xgb_model(one)
+```
+
+`get_global_model` returns whatever is registered, or `None` if nothing is.
+
+```{python}
+get_global_model()["class"]
+```
+
+That is a convenience for interactive work. In a script that touches more than one of the three
+models, pass the model explicitly. The global slot holds exactly one, and a stray
+`set_global_model` elsewhere in the session will change what an unqualified call resolves to.
+
+::: {.callout-note}
+## The valid range
+
+`prev_y9` is clamped to `[0.005, 0.80]`. Values outside that band are quietly pulled to the
+nearest edge, and no warning is raised.
+
+```{python}
+edges = pd.DataFrame(
+    [{**setting, "prevalence": p} for p in [0.001, 0.005, 0.80, 0.95]]
+)
+edges["eir"] = run_xgb_model(edges, prev_model)
+
+edges[["prevalence", "eir"]].round(3)
+```
+
+A prevalence of 0.001 and one of 0.005 return the same EIR, as do 0.80 and 0.95. The
+model reports nothing unusual. If a sweep of prevalences produces an implausibly flat EIR
+at either end, the cause is almost always this clamp rather than the epidemiology.
+:::
+
+## Next
+
+- [EIR and HBR](eir-and-hbr.qmd) — the same inversion from entomological data instead.
+- [Mosquito density and EIR](mosquito-density.qmd) — what happens to the EIR when the vector population changes.

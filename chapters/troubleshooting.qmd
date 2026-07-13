@@ -1,0 +1,228 @@
+---
+title: "Troubleshooting"
+---
+
+## Installed versions
+
+Most installation problems are answered by four lines, run in the same session that
+failed.
+
+```{python}
+import sys
+from importlib.metadata import version
+
+print("python    ", sys.version.split()[0])
+print("executable", sys.executable)
+print("estimint  ", version("estimint"))
+print("mintstate ", version("mintstate"))
+```
+
+`sys.executable` prints the full path of the interpreter that is actually running the
+code. In a notebook, compare that path against the environment you installed into. If
+they differ, the kernel is the problem. The packages are fine.
+
+## Installation and imports
+
+### `ModuleNotFoundError: No module named 'stateMINT'`
+
+```text
+ModuleNotFoundError: No module named 'stateMINT'
+```
+
+There are two causes. Telling them apart is worth doing before you reinstall anything.
+The first is that `estimint` was installed without the emulator. Plain
+`pip install estimint` gives you the EIR and HBR models and nothing else, and the
+emulator arrives with the extra:
+
+```bash
+pip install estimint mintstate
+```
+
+The second is that the interpreter running your code is not the interpreter you
+installed into. That is the usual explanation when the install succeeded and the import
+still fails. A notebook kernel is a specific Python, not necessarily the one your
+terminal has activated. Print `sys.executable` in the notebook and compare. See
+[Environments and Packages](01-python/environments.qmd) and
+[Notebooks](01-python/notebooks.qmd).
+
+### No distribution named `statemint`
+
+```text
+ERROR: Could not find a version that satisfies the requirement statemint
+ERROR: No matching distribution found for statemint
+```
+
+The distribution is called **`mintstate`** and the module it installs is called
+**`stateMINT`**. The capitals matter. Install both unless you have a reason not to:
+
+```bash
+pip install mintstate            # the emulator on its own
+pip install estimint mintstate   # both packages; what you normally want
+```
+
+### An interpreter older than 3.12
+
+Both packages require **Python 3.12 or newer**. On an older interpreter, pip either
+refuses the wheel or silently resolves to an earlier release that predates the
+requirement. Check the interpreter version first:
+
+```bash
+python --version
+```
+
+If that prints 3.11 or below, create a new environment on 3.12+ rather than trying to
+upgrade in place. [Installing Python](01-python/installing-python.qmd) covers this.
+
+## Inputs the models reject
+
+### `ValueError: unknown net type`
+
+```text
+ValueError: unknown net type: 'pyrethroid-pbo' (have ['py_only', 'py_pbo', 'py_ppf',
+'py_pyrrole', 'pyrethroid_only', 'pyrethroid_pbo', 'pyrethroid_ppf', 'pyrethroid_pyrrole'])
+```
+
+The name has a hyphen where an underscore belongs. The net types are Python identifiers,
+so `net_type_future="pyrethroid_pbo"` and `net_type_future="py_pbo"` are both accepted
+while `"pyrethroid-pbo"` is not. The error message lists the eight strings that work.
+Four are full names and four are short aliases.
+
+### `ValueError: Missing static covariates`
+
+```text
+ValueError: Missing static covariates: ['lsm']
+```
+
+The emulator takes twelve static covariates. All twelve are mandatory, and there are no
+defaults, not even for an intervention you are not using. `lsm=0.0` means no
+larviciding. Omitting `lsm` means an incomplete input. The twelve, in order, are
+`eir`, `dn0_use`, `dn0_future`, `Q0`, `phi_bednets`, `seasonal`, `routine`,
+`itn_use`, `irs_use`, `itn_future`, `irs_future`, `lsm`. See
+[Covariates and the time grid](05-statemint/covariates.qmd).
+
+### `ValueError: Missing required columns`
+
+```text
+ValueError: Missing required columns: irs_use, itn_use, phi_bednets, prev_y9, seasonal
+```
+
+Raised by `run_xgb_model` when the DataFrame you passed lacks a column the model was
+trained on. Each model carries its own feature list. You can read it:
+
+```{python}
+from estimint import load_xgb_model
+
+print(load_xgb_model("prevalence")["features"])
+```
+
+A DataFrame built from that list cannot raise the error. The prevalence column must be
+named `prev_y9`. `prevalence` is accepted as an alias, and nothing else is.
+
+## A slow first run
+
+The XGBoost models ship inside the `estimint` wheel and load instantly. The emulator
+weights do not. They live on the Hugging Face Hub at `dide-ic/stateMINT` and are fetched
+on first use, roughly 38 MB per predictor. A first `run_scenarios` on a cold cache
+spends most of its time downloading. The weights are then cached under
+`~/.cache/huggingface` and never fetched again. The second run is fast.
+
+If the wait is inconvenient in the middle of a session, do it up front:
+
+```{python}
+from estimint import preload_models
+
+preload_models()
+```
+
+That warms the XGBoost models and pulls both predictors. On a machine with no network
+access, download the weights once somewhere that has one, copy the cache across, and set
+`HF_HUB_OFFLINE=1` so the Hub client never attempts a call. See
+[Performance and caching](05-statemint/performance.qmd).
+
+## Warnings you can ignore
+
+### The XGBoost serialisation warning
+
+```text
+WARNING: If you are loading a serialized model (like pickle in Python, RDS in R) or
+configuration generated by an older version of XGBoost, please export the model by
+calling `Booster.save_model` from that version first, then load it back in current
+version.
+```
+
+The bundled models were serialised by an earlier XGBoost than the one you have. XGBoost
+loads them correctly and warns anyway. Predictions are unaffected.
+
+### The JAX CUDA warning
+
+```text
+WARNING:jax._src.xla_bridge:An NVIDIA GPU may be present on this machine, but a
+CUDA-enabled jaxlib is not installed. Falling back to cpu.
+```
+
+The emulator runs on JAX. On a machine with no GPU, or with a GPU but a CPU-only
+`jaxlib`, JAX reports the absence once and then runs on the CPU. The CPU path is
+supported. Ten scenarios take about a second. Install `"mintstate[gpu]"` only if you
+have CUDA 12 and a batch large enough to justify it.
+
+## Results that look wrong
+
+### A flat or pinned trajectory
+
+`estimint` clamps its inputs to the range the models were fitted on, and it does so
+silently. `prev_y9` is clamped to $[0.005, 0.80]$ and `hbr_y9` to
+$[5 \times 10^{3}, 7 \times 10^{7}]$. A prevalence of 0.92 arrives at the model as 0.80,
+and a prevalence of 0.001 arrives as 0.005. No warning is raised, and the run completes.
+
+A trajectory that is implausibly flat, or that will not move when you change an input
+that should move it, usually means you are outside the calibrated domain. You are either
+at the clamp, or in a corner of covariate space the emulator never saw in training.
+Check the inputs before you interpret the output.
+
+### An unexpected rebound in prevalence
+
+::: {.callout-important}
+## Future coverage must be set explicitly
+
+`itn_future`, `net_type_future` and `irs_future` describe the campaign rather than the
+status quo. If `itn_future` is 0 or `net_type_future` is `None`, then `dn0_future` and
+`itn_future` are both set to 0, which models the nets being **withdrawn** at the
+campaign. `irs_future` likewise does not inherit from `irs`.
+
+To hold an intervention steady across the campaign you must restate it:
+
+```{python}
+from estimint import Scenario, EirTarget
+
+hold = Scenario(
+    name="hold", res_use=0.30, Q0=0.85, phi=0.80, seasonal=0.0, irs=0.60,
+    eir_target=EirTarget(0.45, "prevalence"),
+    py_only=0.70,
+    itn_future=0.70, net_type_future="pyrethroid_only",  # restate the nets
+    irs_future=0.60,                                     # restate the spraying
+)
+```
+
+If those three fields are left out, the scenario specifies a withdrawal. The rebound is
+what the model predicts when the nets are removed.
+:::
+
+### `NaN` in `hbr_baseline` and `hbr_new`
+
+The `NaN` is expected. `run_scenarios` populates those columns only when the scenario
+used a prevalence input *and* a non-zero `mosquito_delta`, and leaves them `NaN`
+otherwise. `mosquito_delta` is silently ignored when `input_mode` is `"eir"` or `"hbr"`,
+since the density adjustment is defined on the prevalence pathway only.
+
+### An `lsm` that differs from the one you passed
+
+That is expected too. `run_scenarios` folds a PPF net mix into effective larval source
+management before the emulator ever runs. The rule is
+`lsm_eff = min(py_ppf * 0.248 + lsm, 1.0)`, and `lsm_eff` is what the returned table
+reports. See [estiMINT internals](07-under-the-hood/estimint-internals.qmd).
+
+## Next
+
+- [Environments and Packages](01-python/environments.qmd) — where a package actually goes.
+- [Performance and caching](05-statemint/performance.qmd) — cold starts and offline machines.
+- [Running Scenarios](06-scenarios/index.qmd) — the campaign fields in context.

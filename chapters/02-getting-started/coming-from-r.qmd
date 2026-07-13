@@ -1,0 +1,254 @@
+---
+title: "Coming from R"
+---
+
+Almost everything you do to a data frame in the tidyverse has a one-line pandas
+equivalent. The verbs are renamed, the pipe becomes a full stop, and columns are
+addressed with square brackets rather than bare names.
+
+## The translation table
+
+| Task | R / tidyverse | Python / pandas |
+|---|---|---|
+| Data frame | `data.frame()`, `tibble()` | `pd.DataFrame()` |
+| Chain operations | `df %>% f() %>% g()` | `df.f().g()` |
+| Filter rows | `filter(df, prev > 0.4)` | `df[df["prev"] > 0.4]` |
+| Add a column | `mutate(df, x = a * b)` | `df.assign(x=lambda d: d["a"] * d["b"])` |
+| Grouped summary | `df %>% group_by(g) %>% summarise(m = mean(x))` | `df.groupby("g").agg(m=("x", "mean"))` |
+| Sort | `arrange(df, desc(x))` | `df.sort_values("x", ascending=False)` |
+| Select columns | `select(df, a, b)` | `df[["a", "b"]]` |
+| First rows | `head(df)` | `df.head()` |
+| Structure | `str(df)` | `df.info()` |
+| Vector | `c(1, 2, 3)` | `[1, 2, 3]` |
+| Named list | `list(a = 1, b = 2)` | `{"a": 1, "b": 2}` |
+| Empty | `NULL` | `None` |
+| Missing number | `NA_real_` | `np.nan` |
+| Index a loop | `seq_along(x)` | `enumerate(x)` |
+| Map over a vector | `sapply(x, f)` | `[f(i) for i in x]` |
+
+Two rows of it need more than an entry. The first is the boolean mask
+`df[df["prev"] > 0.4]`, which reads oddly at first, but `df["prev"] > 0.4` is a vector of
+`True` and `False`, exactly as in R, and indexing a data frame with it keeps the `True`
+rows.
+
+A Python list is also not an R vector. It is untyped and performs no arithmetic, so
+`[1, 2, 3] * 2` repeats the list instead of doubling the numbers, and for vector
+arithmetic you need a NumPy array or a pandas column.
+
+## The same work, in pandas
+
+Five districts, each with a measured prevalence, a resistance level, and current net
+coverage.
+
+```{python}
+import numpy as np
+import pandas as pd
+
+districts = pd.DataFrame({
+    "district":   ["Kilombero", "Rufiji", "Ulanga", "Kilosa", "Morogoro"],
+    "prevalence": [0.45, 0.31, 0.52, 0.18, 0.27],
+    "resistance": [0.30, 0.55, 0.30, 0.70, 0.55],
+    "itn_use":    [0.70, 0.65, 0.55, 0.80, 0.60],
+})
+
+districts
+```
+
+`str()` becomes `.info()`, which reports column names, how many values are present, and
+the type of each column.
+
+```{python}
+districts.info()
+```
+
+A full pipeline becomes a chain of methods. Where in R you would write
+
+```r
+districts %>%
+  filter(prevalence > 0.25) %>%
+  mutate(high_burden = prevalence > 0.40) %>%
+  arrange(desc(prevalence)) %>%
+  select(district, prevalence, high_burden)
+```
+
+in pandas the same four steps chain off the object itself. The outer brackets are there
+only so the chain can be split across lines.
+
+```{python}
+(
+    districts
+    [districts["prevalence"] > 0.25]
+    .assign(high_burden=lambda d: d["prevalence"] > 0.40)
+    .sort_values("prevalence", ascending=False)
+    [["district", "prevalence", "high_burden"]]
+)
+```
+
+`assign` takes a `lambda`, an unnamed one-line function, because the new column is
+computed from the frame *as it stands at that point in the chain*, which does not yet
+have a name. `lambda d: d["prevalence"] > 0.40` says "given the frame, call it `d`,
+return this".
+
+`group_by` plus `summarise` becomes `groupby().agg()`, where each keyword names an
+output column and takes a `(column, function)` pair.
+
+```{python}
+(
+    districts
+    .groupby("resistance")
+    .agg(n=("district", "size"), mean_prev=("prevalence", "mean"))
+    .reset_index()
+)
+```
+
+`reset_index()` turns the grouping key back into an ordinary column. Without it,
+`resistance` stays as the frame's index, which is closer to R's row names than to a
+column.
+
+`sapply` becomes a list comprehension, with the expression first and then what it ranges
+over. Here it maps a resistance level to `dn0`, the probability that a mosquito dies on
+contact with a treated net.
+
+```{python}
+from estimint import calculate_dn0
+
+levels = [0.0, 0.25, 0.50, 0.75]
+dn0 = [calculate_dn0(r, py_pbo=0.7).dn0 for r in levels]
+
+pd.DataFrame({"resistance": levels, "dn0": dn0})
+```
+
+When the position matters as well as the value, `enumerate` does the job of `seq_along`
+and returns both. Python counts from zero.
+
+```{python}
+for i, r in enumerate(levels):
+    print(i, r)
+```
+
+## Dataclasses
+
+`Scenario` and `EirTarget` are *dataclasses*. R has no direct equivalent, and the nearest
+thing is a `list()` with a fixed, named set of fields that you cannot misspell.
+
+```r
+# R: a list will take anything you give it
+s <- list(name = "PBO switch", res_use = 0.30, resitance = 0.30)
+```
+
+That typo is silent in R. `s$resistance` returns `NULL`, and the mistake surfaces much
+later as a strange number. A dataclass declares its fields up front, so an unknown one is
+rejected at the point of construction.
+
+```{python}
+from dataclasses import fields
+from estimint import Scenario, EirTarget
+
+print([f.name for f in fields(Scenario)])
+```
+
+There are seventeen fields. Seven are required and have no default (`name`, `res_use`,
+`Q0`, `phi`, `seasonal`, `irs` and `eir_target`). The other ten default to zero or
+`None`, so a scenario only states what it changes.
+
+```{python}
+pbo = Scenario(
+    name="PBO switch",
+    res_use=0.30,
+    Q0=0.85,
+    phi=0.80,
+    seasonal=0.0,
+    irs=0.0,
+    eir_target=EirTarget(0.45, "prevalence"),
+    py_only=0.70,
+    itn_future=0.70,
+    net_type_future="pyrethroid_pbo",
+)
+```
+
+Fields are read back with a full stop, where R would use `$`. They nest. `eir_target` is
+itself a dataclass, so its fields are reached the same way.
+
+```{python}
+print(pbo.name)
+print(pbo.res_use, pbo.py_only)
+print(pbo.eir_target.input_value, pbo.eir_target.input_mode)
+print(pbo.net_type_future, pbo.itn_future, pbo.lsm)
+```
+
+`pbo.lsm` was never given a value and is already `0.0`. Defaults are filled in at
+construction, so every scenario is complete whether or not each field was named.
+
+Misspell a field and the object cannot be constructed.
+
+```{python}
+try:
+    Scenario(
+        name="typo",
+        res_use=0.30,
+        Q0=0.85,
+        phi=0.80,
+        seasonal=0.0,
+        irs=0.0,
+        eir_target=EirTarget(0.45),
+        resistance=0.30,          # not a field of Scenario
+    )
+except TypeError as err:
+    print("TypeError:", err)
+```
+
+The error is raised at construction and names the offending keyword. It does not surface
+part-way through a long grid run.
+
+## Scenarios as objects
+
+An R controller took parallel vectors. One vector of names, one of resistance levels and
+one of net types, all the same length, with position *i* of each belonging to
+scenario *i*. A scenario was spread across a dozen vectors, and nothing enforced that
+they stayed aligned. Drop an element from one vector and every scenario after it shifts
+silently.
+
+Python inverts that arrangement. Each scenario is one `Scenario` object, complete in
+itself, and `run_scenarios` takes a list of them.
+
+```{python}
+setting = dict(
+    res_use=0.30, Q0=0.85, phi=0.80, seasonal=0.0, irs=0.0,
+    eir_target=EirTarget(0.45, "prevalence"),
+    py_only=0.70,
+)
+
+candidates = [
+    Scenario(name="Like-for-like", **setting, itn_future=0.70,
+             net_type_future="pyrethroid_only"),
+    Scenario(name="PBO switch", **setting, itn_future=0.70,
+             net_type_future="pyrethroid_pbo"),
+    Scenario(name="Pyrrole switch", **setting, itn_future=0.70,
+             net_type_future="pyrethroid_pyrrole"),
+]
+
+len(candidates)
+```
+
+`setting` is a dict of everything the three campaigns share. `**setting` unpacks it into
+each constructor. The shared arguments are written once, so they cannot drift apart. Only
+the campaign differs between the three.
+
+The list can also be viewed as a table, one row per scenario. It is a convenient check on
+the candidates before running them.
+
+```{python}
+pd.DataFrame([
+    {"name": s.name, "net": s.net_type_future, "itn_future": s.itn_future}
+    for s in candidates
+])
+```
+
+Passing `candidates` to `run_scenarios` returns one row of results per scenario, in
+order.
+
+## Next
+
+- Run one scenario end to end: [Quickstart](quickstart.qmd).
+- Every field of `Scenario`, in full: [One call, end to end](../06-scenarios/run-scenarios.qmd).
+- A grid of campaigns rather than a list: [A scenario grid](../06-scenarios/scenario-grid.qmd).

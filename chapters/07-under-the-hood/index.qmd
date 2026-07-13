@@ -1,0 +1,14 @@
+---
+title: "Under the Hood"
+---
+
+Between the call and the trajectory, a scenario becomes a covariate vector, a boosted tree
+becomes a smooth monotone response, and a sixteen-column tensor is pushed through a
+state-space network. None of that is needed to use the stack. All of it matters if you are
+extending it.
+
+::: {.chapter-outline}
+- [Pipeline architecture](architecture.qmd) — the order of operations inside `run_scenarios`.
+- [estiMINT internals](estimint-internals.qmd) — the model bundle, the calibrator, the monotone sweep.
+- [stateMINT internals](statemint-internals.qmd) — the Mamba2 backbone, the input tensor, the target transforms.
+:::

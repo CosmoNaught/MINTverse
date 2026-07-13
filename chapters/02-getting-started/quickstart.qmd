@@ -1,0 +1,137 @@
+---
+title: "Quickstart"
+---
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.style.use("styles/mint.mplstyle")
+```
+
+A district has measured under-5 prevalence at 0.45. Pyrethroid resistance in the local
+vector population is 0.30, and the nets currently in use are pyrethroid-only at 0.70
+coverage. Biting is mostly on humans (`Q0 = 0.85`) and mostly in bed
+(`phi_bednets = 0.80`). Transmission is perennial, and there is no spraying.
+
+The next mass distribution is due. The question is what effect switching those nets to
+pyrethroid-PBO would have.
+
+## One scenario
+
+A `Scenario` holds one candidate campaign. It describes both the setting as it is now and
+the intervention that switches on at the campaign. The seven fields before `eir_target`
+give the setting, the `py_*` fields give the current net mix, and the `*_future` fields
+give the campaign.
+
+`EirTarget(0.45, "prevalence")` tells `run_scenarios` that 0.45 is a measured prevalence
+and not an EIR. It is inverted into a baseline EIR before the emulator sees anything.
+
+```{python}
+from estimint import Scenario, EirTarget, run_scenarios
+
+pbo = Scenario(
+    name="PBO switch",
+    res_use=0.30,          # pyrethroid resistance
+    Q0=0.85,               # share of bites taken on humans
+    phi=0.80,              # share of bites taken in bed
+    seasonal=0.0,          # 0 perennial, 1 strongly seasonal
+    irs=0.0,               # current IRS coverage
+    eir_target=EirTarget(0.45, "prevalence"),
+
+    py_only=0.70,          # current nets: pyrethroid-only at 70% coverage
+
+    itn_future=0.70,       # the campaign: same coverage...
+    net_type_future="pyrethroid_pbo",   # ...different net
+)
+```
+
+::: {.callout-important}
+## Future coverage must be set explicitly
+
+`itn_future=0.70` is not "keep the nets you have". Leave it out and both `dn0_future` and
+`itn_future` are set to zero, which models the nets being **withdrawn** at the campaign
+rather than continuing. The same holds for `irs_future`, which does not inherit `irs`.
+Every intervention you want to persist past the campaign must be restated in its
+`_future` field, even when nothing about it changes.
+:::
+
+## Running a scenario
+
+`run_scenarios` takes a list of scenarios, one here and hundreds later. It converts net
+mix and resistance to `dn0`, converts prevalence to a baseline EIR, and then calls the
+emulator. It returns one row per scenario.
+
+```{python}
+results = run_scenarios([pbo])
+
+results.drop(columns=["prevalence", "cases"]).T
+```
+
+Each row of that transposed column is one field of the result. `dn0_use` is the lethality
+of the nets in the ground today, and `dn0_future` the lethality of the PBO nets replacing
+them. Coverage is unchanged at 0.70, so the switch between the two is the whole
+intervention. `eir_baseline` is the transmission intensity implied by a prevalence of
+0.45 in this setting, in infectious bites per person per year. `prev_y9` is prevalence at
+the campaign, `prev_endline` three years after it, and `cases_endline` the clinical case
+rate there.
+
+`hbr_baseline` and `hbr_new` are `NaN`. They are only computed when a prevalence input is
+paired with a non-zero `mosquito_delta`. This scenario perturbs nothing about mosquito
+density.
+
+## The trajectory
+
+The two columns dropped from the table, `prevalence` and `cases`, are the trajectories.
+Each cell holds a 157-element NumPy array rather than a tidy long table.
+
+The grid is 157 windows of 14 days, starting at day 2190, with the campaign at day 3285.
+Expressing it as years from the campaign puts zero where the nets change. That gives
+three years of pre-campaign baseline, followed by three years of response.
+
+```{python}
+import numpy as np
+
+prev = results.loc[0, "prevalence"]
+
+abs_t = 2190 + 14 * np.arange(len(prev))   # day of each 14-day window
+years = (abs_t - 3285) / 365               # years from the campaign
+
+print(prev.shape, years[0].round(2), years[-1].round(2))
+```
+
+```{python}
+#| fig-cap: "Under-5 prevalence for a switch to pyrethroid-PBO nets at 0.70 coverage, in a setting with resistance 0.30 and a measured prevalence of 0.45. The dashed line marks the campaign."
+#| fig-alt: "A line chart of prevalence against years from the campaign. Prevalence wanders between about 0.29 and 0.50 over the three years before the campaign and reaches 0.46 at it, then drops sharply to about 0.26 a year after the campaign before climbing back to about 0.47 by the end of the third year."
+fig, ax = plt.subplots(figsize=(7, 4))
+
+ax.plot(years, prev, color="#00d4aa", lw=2)
+ax.axvline(0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
+
+ax.set_xlabel("Years from the campaign")
+ax.set_ylabel("Under-5 prevalence")
+ax.set_ylim(0, None)
+
+plt.show()
+```
+
+Prevalence falls sharply once the PBO nets go out. It reaches its minimum about a year
+later, then rises again over the rest of the horizon. The endline value on its own
+understates the campaign, since prevalence at three years is well above its minimum at
+one.
+
+The three years to the left of the line are not flat. Nor are they expected to be.
+`EirTarget` pins prevalence at the campaign, where `prev_y9` is 0.456 against the 0.45
+that was measured. What precedes it is the emulator's own history of the setting under
+the nets already in place.
+
+Whether PBO is worth the extra cost per net depends on the alternatives. One scenario
+cannot say. [Comparing campaigns](../06-scenarios/comparing.qmd) sets five
+options against each other in this same district: withdraw, replace like-for-like, PBO,
+pyrrole, and PBO plus IRS and LSM.
+
+## Next
+
+- What EIR, HBR, prevalence and cases each mean: [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd).
+- Where `dn0` comes from: [Nets and dn0](../04-estimint/nets-and-dn0.qmd).
+- Every field of `Scenario`, and a grid of them: [One call, end to end](../06-scenarios/run-scenarios.qmd).
+- Coming to Python from R: [Coming from R](coming-from-r.qmd).

@@ -1,0 +1,143 @@
+---
+title: "The models"
+---
+
+MINTverse ships four trained models. Three are gradient-boosted trees in `estimint` that
+convert between transmission quantities, and one is a sequence model in `stateMINT` that
+produces trajectories. Nothing is fitted, tuned or configured at call time. All you
+choose is which model to call and what to put in.
+
+## The three estiMINT conversions
+
+Each of the three answers one question. All three share the same six covariates
+describing the setting (`dn0_use`, `Q0`, `phi_bednets`, `seasonal`, `itn_use` and
+`irs_use`), plus the quantity being converted.
+
+| Name | Extra input | Returns |
+|---|---|---|
+| `"prevalence"` | `prev_y9` | EIR |
+| `"hbr"` | `hbr_y9` | EIR |
+| `"eir_to_hbr"` | `eir` | HBR |
+
+`load_xgb_model` returns a dictionary rather than a bare booster, because the booster is
+only part of the estimator.
+
+```{python}
+from estimint import load_xgb_model
+
+model = load_xgb_model("prevalence")
+
+print("features   ", model["features"])
+print("transform  ", model["preprocess"]["transform"], "->", model["preprocess"]["inverse"])
+print("calibrator ", model["calibrator"]["kind"])
+print("rounds     ", model["best_nrounds"])
+```
+
+Three things in that output explain the behaviour of `run_xgb_model`. The first is that
+the target is `log10`. EIR spans several orders of magnitude, and on the raw scale
+squared error would be dominated entirely by the high-transmission rows while the low end
+was fitted as noise. Training against $\log_{10}(\mathrm{EIR})$ makes the loss relative,
+so a factor-of-two error costs the same at EIR 2 as at EIR 200. `run_xgb_model` inverts
+the transform (`pow10`) before returning, so you always get an EIR in natural units.
+
+The second is a quantile-mapping calibrator that sits after the booster. It is there
+because a boosted-tree ensemble regresses towards the mean. Its predictions come out
+compressed relative to the truth, and the compression is greatest in the tails, where the
+extreme settings are. Quantile mapping corrects the marginal distribution of predictions
+back onto the distribution of the training targets, restoring the spread that the loss
+function shrank.
+
+The third is a monotone smoothing pass over the result. Trees are piecewise-constant. A
+raw booster predicting EIR from prevalence produces a staircase, flat over a range of
+prevalences and then a step, and it can also be locally non-monotone, so that a slightly
+higher prevalence maps to a slightly lower EIR. That is physically wrong, and it prevents
+any reliable inversion or optimisation against the model. The smoothing pass enforces
+monotonicity along the input being converted.
+
+The calibration and the smoothing are baked into the fitted artefact rather than applied
+batch-wise across whatever rows you happen to pass. A single-row query therefore still
+lands on a smooth, monotone curve. You can call the model one row at a time, in any
+order. Sweep prevalence from 0.05 to 0.75 and the resulting EIRs rise monotonically, on a
+curve rather than a staircase.
+
+The models are bundled inside the wheel. Nothing is downloaded, and `load_xgb_model` is a
+local file read.
+
+## The stateMINT emulator
+
+`stateMINT` is a Mamba2 state-space model, implemented in JAX and Flax and trained to
+reproduce [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). It takes a
+setting and a campaign and returns 157 steps of prevalence, or 157 steps of cases.
+
+The architecture is stored in the artefact and can be read back.
+
+```{python}
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+)
+
+for key, value in artifact.model_config.items():
+    print(f"{key:<12} {value}")
+```
+
+The configuration is two layers, `d_model` 256, `d_state` 128, and 16 input channels per
+timestep. The 16 channels are the twelve static covariates, with the `after_intervention`
+ones switched on at day 3285, plus four derived time channels that `prepare_inputs`
+builds. It is a small model by current standards, which is why it runs comfortably on a
+CPU.
+
+`from_pretrained` returns a **`ModelArtifact`** rather than a `Mamba2Regressor`, so the
+network itself is `artifact.model`. The artefact bundles it with the scaler and the two
+config dictionaries. A set of weights without its scaler is useless. `predictor` is baked
+into the checkpoint, and prevalence and cases are two separately trained models with
+separate scalers. Loading the wrong one returns a prediction for the other quantity,
+without any error being raised.
+
+### Causality
+
+The model is **causal**, so the prediction at step $t$ depends only on the inputs at
+steps $1 \dots t$ and never on anything later. The architecture enforces this rather than
+leaving the training to learn it. Prevalence in the second year after a campaign cannot
+be influenced by what happens in the third.
+
+Causality is what makes the pre-campaign baseline meaningful. The `after_intervention`
+covariates are zero for every step before day 3285, and the model cannot see forward, so
+the first 78 steps of a trajectory are computed as though no campaign were coming. Two
+scenarios that differ only in their campaign share an identical baseline, so any
+difference between their curves is the campaign.
+
+### Model space and natural units
+
+Prevalence is trained in **logit** space and cases in **log1p** space. Both transforms
+exist because the raw targets are badly shaped for squared error. A proportion trained
+directly on 0–1 can be predicted outside its own bounds, and squared error over a
+proportion treats the difference between 0.01 and 0.02 as negligible when
+epidemiologically it is a doubling. The logit fixes both. Case counts are non-negative
+and heavily skewed, and `log1p` handles the zeros that a plain log would not.
+
+`predict` inverts the transform by default, so prevalence comes back in $[0, 1]$ and
+cases come back as counts. Passing `transformed=True` returns model space instead. That
+is what you want when computing residuals or comparing against training targets, since
+errors should be assessed on the scale the loss was defined on. It is almost never what
+you want when plotting.
+
+::: {.callout-note}
+## The meaning of "state"
+
+The *state* in `stateMINT` is the state of a **state-space model**, a hidden vector
+carried through a linear recurrence that lets the network summarise everything it has
+seen up to step $t$ in fixed memory. `d_state` 128 is the width of that vector.
+
+It is **not** an epidemiological compartment. There is no susceptible, exposed, infected
+or recovered class anywhere in the model. The emulator learned a mapping from covariates
+to observed trajectories, and never represented the compartmental structure that
+generated them. If you need S/I/R dynamics, you need the simulator, not the emulator.
+:::
+
+## Next
+
+- [Covariates and the time grid](../05-statemint/covariates.qmd) — the twelve inputs in detail.
+- [Calling the emulator](../05-statemint/the-emulator.qmd) — `predict` in practice.
+- [estiMINT internals](../07-under-the-hood/estimint-internals.qmd) — the calibration pipeline in full.

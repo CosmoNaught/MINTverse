@@ -1,0 +1,15 @@
+estimint:
+  version: "1.5.4"
+  repo: "https://github.com/mrc-ide/estiMINT-python"
+  pypi: "https://pypi.org/project/estimint/"
+
+statemint:
+  dist: "mintstate"
+  version: "0.3.1"
+  repo: "https://github.com/mrc-ide/stateMINT"
+  pypi: "https://pypi.org/project/mintstate/"
+
+weights:
+  repo: "dide-ic/stateMINT"
+  revision: "v1.2.2"
+  url: "https://huggingface.co/dide-ic/stateMINT"

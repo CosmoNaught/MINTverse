@@ -1,0 +1,107 @@
+---
+title: "EIR, HBR, prevalence, and cases"
+---
+
+Four quantities move through the pipeline. Each is either a single number or a path
+through time, and that is what decides which package produces it.
+
+## The four quantities
+
+The **entomological inoculation rate (EIR)** is infectious bites per person per year. It
+sets the force of infection in the underlying model, and it is the quantity the emulator
+runs from. `estimint` infers it from prevalence or from HBR.
+
+The **human biting rate (HBR)** is bites per person per year, infectious or not. It is
+the EIR divided by the sporozoite rate, so the numbers are large, typically in the tens
+or hundreds of thousands per year. `mosquito_delta` acts through the HBR.
+
+Prevalence is reported throughout MINTverse as the under-five value on a 0 to 1 scale. It
+appears both as an input (`prev_y9`, a single number describing the setting at the
+decision point) and as an output (a 157-step trajectory from the emulator).
+
+Cases are clinical malaria episodes, all-age, per 1000 population, and an emulator output
+only. Nothing in the pipeline takes cases as an input, and there is no cases-to-anything
+inversion. They are floored at zero.
+
+## Values and series
+
+| Quantity | What it is | Units | Value or series | Produced by |
+|---|---|---|---|---|
+| EIR | transmission intensity | infectious bites / person / year | single value | `estimint` |
+| HBR | biting pressure | bites / person / year | single value | `estimint` |
+| Prevalence | infected share, under-5 | proportion, 0–1 | input value **or** 157-step series | input; `stateMINT` |
+| Cases | clinical episodes, all-age | per 1000 population | 157-step series | `stateMINT` |
+
+`estimint` returns an equilibrium, the transmission intensity that a setting sustains at
+the moment the decision is taken. It has no time axis and cannot acquire one. It cannot
+say what the EIR will be two years after a PBO campaign, because the model does not
+represent time at all.
+
+Only `stateMINT` returns a path. A trajectory, a comparison of trajectories, or an
+endline value three years out has to come from the emulator.
+
+::: {.callout-note}
+## EIR and equilibrium
+
+`estimate_eir_with_mosquito_delta` returns two numbers, `eir_baseline` and `eir_new`.
+Both are equilibria. `eir_new` is the intensity a setting would settle at with a
+different mosquito density, not the EIR at some later date, and the two values do not
+bracket a trajectory between them. Any transient between the two is the emulator's
+business.
+:::
+
+## The year-9 framing
+
+Every trajectory the emulator returns is laid on the same grid. The grid is built around
+the campaign.
+
+The simulations behind `stateMINT` run a six-year burn-in first, letting the
+transmission model settle into equilibrium from arbitrary initial conditions. That
+burn-in is **discarded**, and never reaches the emulator.
+
+What remains starts at day 2190, the start of year 6, and runs in 14-day windows. The
+first three years are pre-campaign baseline, during which nothing changes. At day 3285,
+the start of year 9, the campaign switches on. `dn0_future`, `itn_future`, `irs_future`,
+`lsm` and `routine` are zero for every step before that day, and take their value from it
+onwards. Roughly three years of response follow.
+
+The grid is written into the artefact rather than hard-coded, so it can be read back.
+
+```{python}
+import numpy as np
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+)
+cfg = artifact.preprocessing_config
+
+abs_t = cfg["model_start_day"] + cfg["window_size"] * np.arange(cfg["n_steps"])
+years = (abs_t - cfg["intervention_day"]) / 365
+idx_y9 = int(np.argmin(np.abs(abs_t - cfg["intervention_day"])))
+
+print(f"steps                {cfg['n_steps']}")
+print(f"window               {cfg['window_size']} days")
+print(f"grid starts          day {abs_t[0]}")
+print(f"campaign             day {cfg['intervention_day']} -> step {idx_y9} (day {abs_t[idx_y9]})")
+print(f"grid ends            day {abs_t[-1]}")
+print(f"years from campaign  {years[0]:+.2f} to {years[-1]:+.2f}")
+```
+
+The name `prev_y9` is literal. It is the annual mean under-five prevalence in year 9, the
+year the campaign lands. When you pass a measured prevalence to `estimint`, you are
+asserting that this is the setting as it stands on the day the nets are distributed.
+
+The three pre-campaign years also serve as a sanity check. No campaign acts on them, so
+they show the setting under the nets it already has. A baseline that starts somewhere
+other than the prevalence you supplied indicates that the covariates do not describe the
+setting you think they do.
+
+Plotting in `years` rather than raw days puts the campaign at zero, so scenarios line
+up on one x-axis.
+
+## Next
+
+- [Interventions and nets](interventions.qmd) — what changes at day 3285.
+- [The models](models.qmd) — the three estimators and the emulator.
+- [Estimating EIR from prevalence](../04-estimint/estimating-eir.qmd) — the inversion in practice.

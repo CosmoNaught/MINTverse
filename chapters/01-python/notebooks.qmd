@@ -1,0 +1,127 @@
+---
+title: "Notebooks"
+---
+
+A notebook is a document that interleaves code, its output, and prose. You write a cell, run
+it, and the result is stored underneath it in the same file. It suits exploratory work, such
+as a scenario sweep where each step depends on looking at the last one. It also suits an
+analysis you intend to hand to a colleague with the figures already in it.
+
+The nearest R equivalent is R Markdown or Quarto, with one important difference. An `.Rmd` is
+rendered from top to bottom in a fresh session, and the output is a separate HTML or PDF
+file. A notebook is a **live session** that you drive cell by cell, in whatever order you
+choose, with the output stored inside the notebook itself. Every way a notebook can mislead
+you follows from that live state.
+
+## What an `.ipynb` file is
+
+An `.ipynb` file is JSON. It holds a list of cells, each with a type (`code` or `markdown`),
+its source text, and the outputs the last run produced. Alongside them sits metadata naming
+the kernel it expects.
+
+```json
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "source": ["from estimint import net_types\n", "print(net_types())\n"],
+      "outputs": [{"output_type": "stream", "text": ["[...]\n"]}]
+    }
+  ],
+  "metadata": {"kernelspec": {"name": "python3", "display_name": "Python 3"}}
+}
+```
+
+Two consequences follow from the format. Outputs are committed along with the code, so a
+notebook in a repository shows its figures without anyone rerunning it. The JSON does not
+diff well, since a one-character edit to a cell can produce a hundred lines of change, most
+of it re-encoded image data. For code you intend to maintain, a plain `.py` file with `#%%`
+cell markers gives you the same chunked execution and a diff you can read. See
+[Working in VS Code](vscode.qmd).
+
+## Opening a notebook
+
+Open a notebook in VS Code by clicking it in the Explorer. With the Jupyter extension
+installed, it renders as cells rather than as JSON.
+
+Then, before running anything, look at the top-right of the notebook, where a button names
+the **kernel**. A kernel is a Python process that the notebook sends cells to and receives
+results from. It is a specific interpreter, *not* inherited from your terminal, nor
+necessarily from the interpreter you chose for the editor. Click it, choose *Python
+Environments…*, and select the `.venv` inside your project, the one from
+[Environments and packages](environments.qmd), with a path like `.venv/bin/python` or
+`.venv\Scripts\python.exe`.
+
+*(RStudio user: the kernel is the R session behind the console, except that RStudio only ever has one R to attach, so you have never had to pick. Here you do.)*
+
+::: {.callout-important}
+## Kernel selection and `ModuleNotFoundError`
+
+You installed MINTverse into the project's `.venv`. If the notebook's kernel is the system
+Python, the packages are not on its path and the import fails. Reinstalling them does not
+change that. Fix the kernel, not the install.
+
+The check is a single cell, run from inside the notebook itself:
+
+```python
+import sys
+print(sys.executable)
+```
+
+If the path printed does not run through your project's `.venv`, that is the fault.
+:::
+
+## Execution order and hidden state
+
+Cells run in the order you press the button in, not the order they appear in the file. The
+number in brackets beside each cell (`[1]`, `[2]`, `[7]`) is the order in which it was last
+run. A notebook whose numbers do not ascend from top to bottom has been run out of order. Its
+state may not correspond to any reading of it.
+
+The state is hidden in the sense that it lives in the kernel rather than in the document.
+Reading the notebook does not tell you what the kernel currently holds.
+
+*(RStudio user: this is the same hazard as a long-lived console session with `.RData` quietly carrying objects between runs, which is why "Restart R and Run All Chunks" exists. The Python equivalent is *Restart Kernel and Run All Cells*, and it is worth the same discipline.)*
+
+Each of these is routine, and each one invalidates a notebook without raising an error:
+
+- A variable is defined in a cell that has since been deleted, so the cells below it continue to work in the current session and fail in any new one.
+- A cell has been edited but not re-run, so the code on screen is not the code that produced the output beneath it.
+- A cell was run twice, and it appended to a list or advanced a counter both times.
+
+The remedy is **Restart and Run All**, from the toolbar at the top of the notebook. It
+restarts the kernel, discards every variable, and runs the cells top to bottom in document
+order. If the notebook completes without error that way, its results follow from its code.
+Run it before you share a notebook, and before you rely on a number that came out of one.
+
+## Installing packages from inside a notebook
+
+A cell containing `!pip install estimint` shells out to whatever `pip` is first on the `PATH`
+of the process that launched the notebook. That is frequently not the environment the kernel
+runs in. The package is installed into a different interpreter, the install reports success,
+and the following cell still cannot import it.
+
+If you must install from inside a notebook, address the kernel's own interpreter explicitly:
+
+```python
+import sys
+!{sys.executable} -m pip install estimint mintstate
+```
+
+`sys.executable` is the interpreter running the notebook. `-m pip` is then guaranteed to be
+that interpreter's `pip`. Better still, keep installation out of notebooks altogether,
+declare the dependencies with `uv add`, and let the notebook assume they are there.
+
+## The companion notebook
+
+`MINTverse-tutorial.ipynb`, in the MINTverse repository, works the whole pipeline in one
+sitting. It starts from a measured prevalence, a net mix and a resistance level, and derives
+an EIR. It then plots the prevalence and case trajectories of a set of candidate campaigns
+against each other. It is the same material as chapters 4 to 6, in a form you can run and
+edit in place. Open it with the project's `.venv` selected as the kernel.
+
+## Next
+
+- [Installation](../02-getting-started/installation.qmd) — install the packages into that environment.
+- [Quickstart](../02-getting-started/quickstart.qmd) — the first scenario, end to end.

@@ -1,0 +1,175 @@
+---
+title: "Covariates and the time grid"
+---
+
+The emulator takes twelve numbers. They describe the setting as it stands and the campaign
+being evaluated. Everything the model knows about a district is in those twelve values.
+
+## The twelve covariates
+
+The names, and their canonical order, are carried in the checkpoint itself.
+
+```{python}
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+)
+
+for i, name in enumerate(artifact.preprocessing_config["static_covars"], start=1):
+    print(f"{i:2d}. {name}")
+```
+
+You pass them as a dictionary, one per scenario, so you do not have to reproduce the order
+above. All twelve keys must be present.
+
+| Covariate | Meaning | Range | Where it comes from |
+|---|---|---|---|
+| `eir` | Infectious bites per person per year | > 0, roughly 0.1–200 | [estiMINT](../04-estimint/estimating-eir.qmd), from a measured prevalence |
+| `dn0_use` | Probability a mosquito dies on contact with a treated net, under the nets in place now | 0–0.56 | `calculate_dn0` on the current net mix ([Nets and dn0](../04-estimint/nets-and-dn0.qmd)) |
+| `dn0_future` | The same probability, under the campaign net | 0–0.56 | `calculate_dn0` on the campaign net mix |
+| `Q0` | Human blood index | 0–1, typically 0.7–0.95 | Vector species bionomics |
+| `phi_bednets` | Share of bites taken while people are in bed | 0–1, typically 0.6–0.9 | Vector species bionomics |
+| `seasonal` | Transmission profile. 0 perennial, 1 strongly seasonal | 0 or 1 | The setting |
+| `routine` | Routine (continuous) net distribution running alongside the campaign | 0 or 1 | The campaign |
+| `itn_use` | ITN coverage now | 0–1 | Survey or programme data |
+| `irs_use` | IRS coverage now | 0–1 | Programme data |
+| `itn_future` | ITN coverage from the campaign onwards | 0–1 | The campaign |
+| `irs_future` | IRS coverage from the campaign onwards | 0–1 | The campaign |
+| `lsm` | Larval source management coverage from the campaign onwards | 0–1 | The campaign |
+
+`dn0_use` and `itn_use` describe the nets between them, and the emulator reads them as a pair.
+
+Omitting a covariate is an error. The error names the ones you left out.
+
+```{python}
+covars = {
+    "eir": 31.96, "dn0_use": 0.311, "dn0_future": 0.485,
+    "Q0": 0.85, "phi_bednets": 0.80, "seasonal": 0,
+    "routine": 0.0, "itn_use": 0.70, "irs_use": 0.0,
+    "itn_future": 0.70, "irs_future": 0.0, "lsm": 0.0,
+}
+
+incomplete = {k: v for k, v in covars.items() if k != "lsm"}
+
+try:
+    artifact.predict([incomplete])
+except ValueError as err:
+    print(f"{type(err).__name__}: {err}")
+```
+
+## `_use` and `_future`
+
+Three quantities appear twice. The `_use` suffix is the state of the world before the
+campaign. The `_future` suffix is the campaign itself, in force from day 3285 onwards.
+
+- `dn0_use` → `dn0_future`: the net product changes, so its lethality changes.
+- `itn_use` → `itn_future`: the coverage the campaign achieves.
+- `irs_use` → `irs_future`: spraying before, and spraying after.
+
+`lsm` and `routine` have no `_use` counterpart, since they exist only as campaign quantities.
+
+## The pre-campaign window
+
+Five covariates (`dn0_future`, `itn_future`, `irs_future`, `lsm` and `routine`) are held
+at zero for every timestep before the intervention day, whatever you pass. They take their
+value only from day 3285 onwards.
+
+```{python}
+print(artifact.preprocessing_config["after_intervention"])
+```
+
+Two scenarios that are identical in the present and different in every campaign field have
+feature matrices that are indistinguishable until the campaign starts.
+
+```{python}
+import numpy as np
+
+withdraw = dict(covars, dn0_future=0.0, itn_future=0.0, irs_future=0.0, lsm=0.0, routine=0.0)
+package  = dict(covars, dn0_future=0.55, itn_future=0.90, irs_future=0.60, lsm=0.30, routine=1.0)
+
+X = artifact.prepare_inputs([withdraw, package])
+identical = np.isclose(X[0], X[1]).all(axis=1)
+first_difference = int(np.argmin(identical))
+
+print(f"input shape          : {X.shape}")
+print(f"rows identical to    : step {first_difference - 1}")
+print(f"first differing step : {first_difference}")
+print(f"identical before it  : {bool(identical[:first_difference].all())}")
+```
+
+So the emulator cannot represent a larviciding programme that has been running for years,
+or a routine distribution channel that predates the campaign. Whatever you put in `lsm` or
+`routine` begins at day 3285. The pre-campaign period is described entirely by `eir`,
+`dn0_use`, `itn_use`, `irs_use`, `Q0`, `phi_bednets` and `seasonal`. If an existing
+larviciding programme is depressing transmission, that suppression is already inside the
+EIR you estimated from the observed prevalence.
+
+::: {.callout-important}
+## Future coverage
+
+Leaving `itn_future` and `dn0_future` at zero does not mean *keep the nets as they are*. It
+means *the nets are withdrawn from day 3285 onwards*. The same holds for `irs_future`. It does
+not inherit `irs_use`.
+
+To model an existing programme continuing you have to restate it, setting `itn_future` to the
+coverage the campaign sustains and `dn0_future` to the lethality of the net it distributes.
+The same trap has the same shape at the [`run_scenarios`](../06-scenarios/run-scenarios.qmd)
+level. `net_type_future`, `itn_future` and `irs_future` all default to nothing, and a
+`Scenario` that omits them is a scenario in which the intervention is withdrawn.
+
+The failure is silent, and the result is a plausible trajectory of the wrong scenario.
+:::
+
+## The time grid
+
+Nothing about the axis is passed in. The emulator reconstructs it from four numbers in the
+checkpoint's preprocessing config, and they are worth reading out rather than hard-coding.
+
+```{python}
+cfg = artifact.preprocessing_config
+
+n_steps          = cfg["n_steps"]
+window_size      = cfg["window_size"]
+model_start_day  = cfg["model_start_day"]
+intervention_day = cfg["intervention_day"]
+
+print(f"n_steps          = {n_steps}")
+print(f"window_size      = {window_size} days")
+print(f"model_start_day  = {model_start_day}")
+print(f"intervention_day = {intervention_day}")
+```
+
+The simulation is run for longer than this. The first six years are burn-in and are
+discarded. What survives is `n_steps` windows of `window_size` days, beginning at
+`model_start_day`.
+
+```{python}
+abs_t = model_start_day + window_size * np.arange(n_steps)
+years = (abs_t - intervention_day) / 365
+idx_y9 = int(np.argmin(np.abs(abs_t - intervention_day)))
+
+print(f"abs_t  : day {abs_t[0]} to day {abs_t[-1]}")
+print(f"years  : {years[0]:+.2f} to {years[-1]:+.2f}")
+print(f"idx_y9 : {idx_y9}  (day {abs_t[idx_y9]})")
+```
+
+`abs_t` is the absolute simulation day of each window, and `years` recentres it on the
+campaign. That is the axis worth plotting against, negative before, positive after, and zero
+the day the nets go out.
+
+`idx_y9` is the index of the window nearest the campaign, the *ninth year* of the simulation.
+That is where the name comes from, and where estiMINT's `prev_y9` is measured. At day 3282 it
+is the last window before the switch, three days short of it.
+
+Read the baseline off `idx_y9`, and check the emulator there against the prevalence you fed
+the pipeline. Do not read it off the mean of the pre-campaign years. Day 2190 sits exactly
+1095 days (three years) before the campaign, which is one mass-distribution cycle. The
+baseline window opens on the previous net distribution and closes on the next one. It is not
+a flat equilibrium, and its annual means are nowhere near `prev_y9`. The shape it has is
+plotted in [Plotting trajectories](plotting.qmd).
+
+## Next
+
+- [Calling the emulator](the-emulator.qmd) — turn these covariates into a trajectory.
+- [Nets and dn0](../04-estimint/nets-and-dn0.qmd) — where `dn0_use` and `dn0_future` come from.

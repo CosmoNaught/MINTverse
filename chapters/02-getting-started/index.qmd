@@ -1,0 +1,12 @@
+---
+title: "Getting Started"
+---
+
+Install both packages. Run one procurement decision from a measured prevalence to a
+plotted curve, and translate the R idioms you already use into pandas.
+
+::: {.chapter-outline}
+- [Installation](installation.qmd) — one command, the extras, and where the model weights live.
+- [Quickstart](quickstart.qmd) — a net switch, end to end, in one page.
+- [Coming from R](coming-from-r.qmd) — tidyverse to pandas, and what a dataclass is.
+:::

@@ -1,0 +1,14 @@
+---
+title: "Core Concepts"
+---
+
+What each package computes, what the four quantities mean, how a net choice becomes a
+model input, and how closely the emulator reproduces the simulator it stands in for.
+
+::: {.chapter-outline}
+- [The MINTverse pipeline](pipeline.qmd) — two stages, and why the chain runs from prevalence rather than to it.
+- [EIR, HBR, prevalence, and cases](equilibrium.qmd) — the four quantities, their units, and the equilibrium-versus-trajectory distinction.
+- [Interventions and nets](interventions.qmd) — net types, resistance, and `dn0`.
+- [The models](models.qmd) — three XGBoost models and one state-space emulator.
+- [Accuracy and speed](validation.qmd) — the emulator against the simulator on held-out runs, and what a prediction costs.
+:::

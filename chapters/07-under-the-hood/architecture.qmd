@@ -1,0 +1,181 @@
+---
+title: "Pipeline architecture"
+---
+
+`run_scenarios` sequences the net calculation, estiMINT's EIR estimation, and the stateMINT
+emulator, then assembles the result. It has no model of its own. The order matters, because
+each step consumes what the previous one produced.
+
+## The order of operations
+
+For a list of scenarios, `run_scenarios` performs the same five steps in the same order
+every time.
+
+1. **Bednet effects.** Each scenario carries a current net mix (`py_only`, `py_pbo`,
+   `py_pyrrole`, `py_ppf`) and a campaign (`net_type_future` at `itn_future` coverage).
+   Both go through [`calculate_dn0`](../04-estimint/nets-and-dn0.qmd) at the scenario's
+   resistance level, giving `dn0_use` and `itn_use` for today's nets and `dn0_future` and
+   `itn_future` for the campaign. If `itn_future` is zero, or `net_type_future` is unset,
+   the future effect is `DN0Result(0.0, 0.0)`, an explicit pair of zeros rather than a
+   copy of the present.
+2. **Effective LSM.** Pyriproxyfen suppresses emergence, so a PPF net does part of the
+   job of larval source management. The PPF share of the *current* mix is folded into the
+   LSM coverage the emulator sees:
+
+   $$\texttt{lsm\_eff} = \min(\texttt{py\_ppf} \times 0.248 + \texttt{lsm},\; 1.0)$$
+
+3. **EIR.** Each scenario is dispatched down one of three paths (below).
+4. **Covariate assembly.** The twelve static covariates are built for each scenario, with
+   the estimated EIR in the `eir` slot.
+5. **Emulation.** One batched `predict` call per predictor (prevalence and cases) across
+   every scenario at once.
+
+## The three EIR paths
+
+`EirTarget.input_mode` and `mosquito_delta` together decide how the baseline EIR is
+obtained. The scenarios are grouped, and each group is handled in one batched call.
+
+| Condition | Path |
+|---|---|
+| `input_mode == "eir"` | The supplied value is used unchanged. No model runs. |
+| `input_mode` is `"prevalence"` or `"hbr"`, with `mosquito_delta == 0` | The value is appended to the six intervention covariates as `prev_y9` or `hbr_y9`, and the matching XGBoost model predicts the EIR. |
+| `input_mode == "prevalence"` with a non-zero `mosquito_delta` | Routed to `estimate_eir_with_mosquito_delta`, which estimates the baseline EIR, converts it to an HBR, scales that HBR by `1 + mosquito_delta`, and reads the EIR back off the HBR model as a **ratio** against the round trip. |
+
+The ratio in the third path exists because the prevalence → EIR → HBR → EIR round trip does
+not close exactly. Taking the ratio of two HBR-model predictions cancels most of the
+round-trip error. So `mosquito_delta` is meaningful only for a prevalence input, and the
+other two modes ignore it silently, since neither performs the round trip that the ratio
+corrects for.
+
+The middle path is the only one that populates `eir_baseline` from a model, and the third
+the only one that populates `hbr_baseline` and `hbr_new`. Those two columns are `NaN`
+otherwise.
+
+## One batched call
+
+Step 5 is a single `predict` per predictor for the whole list, and the covariate dicts are
+stacked into one `(B, 157, 16)` tensor and pushed through the network once. A JAX forward
+pass over ten scenarios costs barely more than one. A loop over `run_scenarios([s])` pays
+the fixed overhead ten times, and re-traces the model for the new batch shape.
+
+```{python}
+import time
+import numpy as np
+import pandas as pd
+from estimint import Scenario, EirTarget, run_scenarios, preload_models
+
+preload_models()
+
+setting = dict(res_use=0.30, Q0=0.85, phi=0.80, seasonal=0.0, irs=0.0)
+
+grid = [
+    Scenario(
+        name=f"pbo_{cov:.2f}", **setting, py_only=0.70,
+        eir_target=EirTarget(0.45, "prevalence"),
+        net_type_future="py_pbo", itn_future=float(cov),
+    )
+    for cov in np.linspace(0.1, 0.9, 10)
+]
+
+run_scenarios(grid)          # warm the batched shape
+run_scenarios(grid[:1])      # warm the single-scenario shape
+
+t0 = time.perf_counter()
+batched = run_scenarios(grid)
+t_batched = time.perf_counter() - t0
+
+t0 = time.perf_counter()
+looped = pd.concat([run_scenarios([s]) for s in grid], ignore_index=True)
+t_looped = time.perf_counter() - t0
+
+print(f"one call, ten scenarios : {t_batched:.2f} s")
+print(f"ten calls, one each     : {t_looped:.2f} s  ({t_looped / t_batched:.1f}x)")
+print("identical trajectories  :",
+      np.allclose(np.stack(batched["prevalence"]), np.stack(looped["prevalence"])))
+```
+
+Pass a list. The results are identical either way, and the loop repeats the fixed overhead
+once per scenario.
+
+## Effective LSM in the output
+
+The fold in step 2 means the `lsm` column that comes back is not always the `lsm` that
+went in. Half the population on PPF nets contributes `0.5 × 0.248 = 0.124` of effective
+larval source management on top of whatever was supplied.
+
+```{python}
+scenarios = [
+    Scenario(
+        name="pyrethroid now", **setting, py_only=0.70, lsm=0.30,
+        eir_target=EirTarget(0.45, "prevalence"),
+        net_type_future="py_pbo", itn_future=0.70,
+    ),
+    Scenario(
+        name="ppf now", **setting, py_ppf=0.50, lsm=0.30,
+        eir_target=EirTarget(0.45, "prevalence"),
+        net_type_future="py_pbo", itn_future=0.70,
+    ),
+]
+
+run_scenarios(scenarios)[["name", "dn0_use", "itn_use", "lsm", "eir_baseline"]]
+```
+
+The fold reads the *current* mix only. A campaign that switches to PPF nets
+(`net_type_future="py_ppf"`) raises `dn0_future` but adds nothing to `lsm`.
+
+## Pre-campaign masking
+
+The emulator sees all twelve covariates at all 157 timesteps. Five of them (`dn0_future`,
+`itn_future`, `irs_future`, `lsm` and `routine`) are set to zero for every timestep before
+day 3285, and take their supplied value from that day on. The masking is applied in the
+feature builder, in raw units, before standardisation.
+
+```{python}
+from stateMINT.model import Mamba2Regressor
+
+art = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+)
+config = art.preprocessing_config
+
+keep = dict(
+    eir=31.96, dn0_use=0.311, dn0_future=0.457, Q0=0.85, phi_bednets=0.80,
+    seasonal=0.0, routine=0.0, itn_use=0.70, irs_use=0.0,
+    itn_future=0.70, irs_future=0.0, lsm=0.0,
+)
+withdraw = {**keep, "dn0_future": 0.0, "itn_future": 0.0}
+
+X = art.prepare_inputs([keep, withdraw])
+
+abs_t = np.arange(
+    config["model_start_day"],
+    config["model_start_day"] + config["window_size"] * config["n_steps"],
+    config["window_size"],
+)
+before = abs_t < config["intervention_day"]
+
+print("after_intervention :", config["after_intervention"])
+print("identical before day 3285 :", np.allclose(X[0, before], X[1, before]))
+print("identical after day 3285  :", np.allclose(X[0, ~before], X[1, ~before]))
+```
+
+Two scenarios that differ only in their campaign are the *same tensor* for the first three
+years. The five after-intervention columns are the model's entire description of the
+post-campaign world. Nothing else in the vector carries a campaign.
+
+A zero in `itn_future` is a real zero. It is read as no net coverage from day 3285 onwards,
+and the model does not fill it in from `itn_use`. The `withdraw` scenario above is a
+withdrawal because its `dn0_future` and `itn_future` are zero, and for no other reason.
+
+::: {.callout-important}
+The `_future` fields do not carry the present forward, so leaving `itn_future` at 0, or
+`net_type_future` at `None`, models the nets being **withdrawn** at the campaign.
+`irs_future` does not inherit from `irs` either. To hold an intervention steady across the
+campaign, you must restate it.
+:::
+
+## Next
+
+- [Mosquito density and EIR](../04-estimint/mosquito-density.qmd) — the ratio method in full.
+- [Covariates and the time grid](../05-statemint/covariates.qmd) — the twelve covariates and the 157 windows.
+- [estiMINT internals](estimint-internals.qmd) — what the XGBoost models do with those six covariates.

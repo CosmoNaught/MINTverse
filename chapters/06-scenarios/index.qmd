@@ -1,0 +1,28 @@
+---
+title: "Running Scenarios"
+---
+
+A district has a fixed budget, a measured prevalence, a known resistance level, and a
+shortlist of net products. It has to work out which campaign, run against that same
+baseline, produces the fewest clinical cases. That means building several scenarios
+that differ only in the campaign, running them together, and comparing the results.
+
+`run_scenarios` does all of that in one call. It derives `dn0` from the net mix and the
+resistance level, inverts the measured prevalence to an EIR, assembles the twelve
+static covariates, and runs the emulator over the 157-window grid. What comes back is one
+row per scenario. Scalar summaries and full trajectories sit side by side.
+
+The function is exported from `estimint` but drives both packages. The inversion uses
+estiMINT's XGBoost models, while the trajectories come from stateMINT's Mamba2
+emulator.
+
+::: {.chapter-outline}
+- [One call, end to end](run-scenarios.qmd) — the `Scenario` and `EirTarget` fields, and every column that comes back.
+- [A scenario grid](scenario-grid.qmd) — five candidate campaigns against one baseline.
+- [Comparing campaigns](comparing.qmd) — rankings, trajectories, and cases averted.
+- [Exporting results](exporting.qmd) — scalar summaries to CSV, trajectories to a tidy table R can read.
+:::
+
+The worked example throughout is one district with under-5 prevalence 0.45, pyrethroid
+resistance 0.30, pyrethroid-only nets at 0.70 coverage, `Q0 = 0.85`,
+`phi_bednets = 0.80`, perennial transmission, and neither IRS nor LSM in place.

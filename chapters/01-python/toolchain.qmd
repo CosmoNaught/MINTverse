@@ -1,0 +1,79 @@
+---
+title: "Python tools"
+---
+
+In R the tooling is largely invisible. You install R, you install RStudio, and from then on
+`install.packages()` puts a package somewhere sensible and `library()` finds it again. There
+is one R underneath, one library, and nothing to choose.
+
+Python asks you to make those choices yourself. A Python project routinely needs a different
+set of package versions from the project next to it. Four pieces do the job.
+
+| Piece | What it is | *RStudio user:* |
+|---|---|---|
+| **The interpreter** | The `python` program itself. There can be several on one machine, of different versions, and it matters which one you get. | This is `R` itself, except you may have three of them, and Python will not tell you which one you just used. |
+| **`pip`** | The package installer. `pip install pandas` fetches pandas from PyPI and puts it somewhere the interpreter can find it. | This is `install.packages()`. PyPI is CRAN. |
+| **A virtual environment** | A private package library belonging to one project, plus the interpreter that reads it. | This is `renv`, a per-project library with a lockfile. The difference is that in Python it is the default way of working, not a discipline you opt into. |
+| **`uv`** | One tool that installs Python interpreters, creates the environment, and drives `pip` for you. | The closest thing is `renv` plus an R version manager, rolled together. |
+
+Then there is the editor. Unlike the other four it has an obvious counterpart already.
+
+| Piece | What it is | *RStudio user:* |
+|---|---|---|
+| **VS Code** | The editor. Runs scripts, runs notebooks, gives you a console and a variable pane. | This is RStudio, the one piece with a close counterpart. |
+
+## Why uv
+
+You can assemble a working Python setup out of the raw parts. Install an interpreter, run
+`python -m venv` to make an environment, then activate it in your shell and `pip install`
+into it. Remember to activate it again tomorrow. This is what most Python documentation
+written before about 2024 tells you to do, and it works.
+
+It has one recurring failure mode. It accounts for most of the time a newcomer loses.
+**The interpreter that installed the package and the interpreter that ran the code were not
+the same one.** The package is installed but cannot be imported. The machine has more than
+one Python, and the wrong one was used.
+
+[`uv`](https://docs.astral.sh/uv/) removes that failure by never asking you to name an
+interpreter. It installs Python for you, creates the environment for you, and runs your code
+inside it. There is no activation step, so activation cannot be forgotten. It is also the
+fastest of the options, and resolving and installing this stack takes seconds rather than
+minutes.
+
+*(RStudio user: `uv` is doing roughly what `renv` does when it bootstraps a project library and keeps it in step with a lockfile. The extra trick is that it also installs R itself, the interpreter, which `renv` does not.)*
+
+Use **VS Code and `uv`**. `pip` still runs underneath. You will meet it in other people's
+instructions, so it is worth knowing what it is even if you never type it.
+
+## Using uv
+
+Almost everything you do in a `uv` project is one of three commands.
+
+```bash
+uv init my-project     # start a project        (RStudio: File > New Project)
+uv add estimint        # install a package      (R: install.packages("estimint"))
+uv run python main.py  # run something in it    (RStudio: Source)
+```
+
+There is no fourth command for "activate the environment". There is no activation step at
+all. `uv run` guarantees the environment is correct and up to date before it executes
+anything.
+
+## Project files
+
+```{.text .diagram}
+my-project/
+├── .venv/           the private package library. Disposable. Never commit it.
+├── pyproject.toml   what the project asks for.   (R: the DESCRIPTION file)
+├── uv.lock          what it actually resolved to. (R: renv.lock)
+└── main.py          your code
+```
+
+Commit `pyproject.toml` and `uv.lock`. Ignore `.venv/`. A colleague who clones the repository
+and runs `uv sync` then ends up with bit-for-bit the packages you had.
+
+## Next
+
+- [Installing Python](installing-python.qmd) — get `uv`, and let it get Python.
+- [Working in VS Code](vscode.qmd) — the editor, mapped onto RStudio.
+- [Environments and packages](environments.qmd) — the same ground in detail, including `pip`.

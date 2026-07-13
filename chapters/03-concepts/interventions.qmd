@@ -1,0 +1,169 @@
+---
+title: "Interventions and nets"
+---
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.style.use("styles/mint.mplstyle")
+```
+
+MINTverse models three vector-control levers, insecticide-treated nets (ITNs), indoor
+residual spraying (IRS), and larval source management (LSM). Nets carry most of the
+detail. A net choice and a resistance level have to be reduced to a single lethality
+number before either package will look at them.
+
+## Net types
+
+ITNs are grouped into four formulations, and their names are the keyword arguments to
+`calculate_dn0` and `Scenario`, as well as the allowed values of `net_type_future`.
+
+| Name | Formulation | What it adds |
+|---|---|---|
+| `py_only` | Pyrethroid only | The baseline net |
+| `py_pbo` | Pyrethroid with PBO | Restores kill in resistant populations |
+| `py_pyrrole` | Pyrethroid with a pyrrole (chlorfenapyr) | Kill that does not decay with pyrethroid resistance |
+| `py_ppf` | Pyrethroid with pyriproxyfen (PPF) | An effect on the next generation, folded into `lsm` |
+
+The long forms are the canonical values, and `net_types()` returns them alphabetically,
+which puts `ppf` before `pyrrole`. Indexing into the list rather than naming the net is
+therefore a common source of error.
+
+```{python}
+import numpy as np
+import pandas as pd
+from estimint import calculate_dn0, net_types
+
+net_types()
+```
+
+The short aliases are accepted everywhere the long forms are.
+
+## Net effectiveness and dn0
+
+A net's effect on transmission is summarised by `dn0`, the probability that a mosquito
+is killed when it contacts a treated net. The value depends on the insecticide and on
+the resistance level.
+
+`calculate_dn0` takes a resistance level and a net mix, and returns the usage-weighted
+`dn0` along with the total coverage.
+
+```{python}
+mix = calculate_dn0(0.5, py_only=0.4, py_pbo=0.2)
+mix
+```
+
+::: {.callout-warning}
+## `itn_use` is already the total coverage
+
+`DN0Result.itn_use` is the **sum of the shares you passed**, which here is 0.4 + 0.2 =
+0.6. It is not a scaling factor waiting to be applied. Multiplying it by a usage figure a
+second time halves the coverage, which lowers the modelled protection and raises the EIR
+the setting is judged to need. No warning is issued when this happens.
+:::
+
+## How resistance affects each net
+
+Setting usage to 1.0 for one net type at a time and sweeping resistance from 0 to 1
+gives the resistance response of each formulation on its own terms.
+
+```{python}
+nets = ["py_only", "py_pbo", "py_pyrrole", "py_ppf"]
+resistance = np.linspace(0.0, 1.0, 41)
+
+dn0 = pd.DataFrame(
+    {net: [calculate_dn0(r, **{net: 1.0}).dn0 for r in resistance] for net in nets},
+    index=pd.Index(resistance, name="resistance"),
+)
+
+dn0.loc[[0.0, 0.25, 0.5, 0.75, 1.0]].round(4)
+```
+
+```{python}
+#| fig-cap: "Probability a mosquito dies on contact with a net (`dn0`), against pyrethroid resistance, for each net type at full usage."
+#| fig-alt: "Four declining curves of dn0 against resistance from 0 to 1. Pyrrole is highest throughout, starting near 0.56 and staying flattest before falling away past 0.75. PBO starts near 0.51 and PPF near 0.41; the two converge at high resistance and cross at about 0.92, after which PPF is the higher of the two. Pyrethroid-only is lowest throughout, starting near 0.34 and falling to zero at full resistance."
+fig, ax = plt.subplots()
+
+for net in nets:
+    ax.plot(dn0.index, dn0[net], label=net)
+
+ax.set_xlabel("Pyrethroid resistance")
+ax.set_ylabel("dn0 (probability of death on contact)")
+ax.set_xlim(0, 1)
+ax.set_ylim(0, None)
+ax.legend()
+plt.show()
+```
+
+Four features of the curves bear on procurement. The first is that the best and the worst
+net do not change. The pyrrole net is the most lethal at every resistance level, and
+pyrethroid-only is the least lethal at every resistance level. Neither ranking depends on
+the local resistance, so a pyrrole net is never the wrong choice on effectiveness grounds
+and a pyrethroid-only net is never the right one.
+
+PBO and PPF swap places at high resistance. PBO is the better of the two up to about 0.92
+resistance, above which PPF overtakes it. The crossover sits at the extreme end of the
+range and rarely decides a procurement, but it is a reason not to read the ordering of
+the middle two nets off a single number.
+
+The gap also widens with resistance. At zero resistance a pyrrole net is worth about 1.7
+times a pyrethroid-only net, while by 0.75 it is worth more than twice as much. The case
+for a next-generation net is weakest exactly where resistance is low.
+
+Fourth, the decline is steep at the far end. All four curves fall away sharply after
+declining gently to about 0.75. Pyrethroid-only reaches zero at full resistance, and the
+other three retain a residual kill. A setting at 0.9 resistance sits in the steep part of
+the curve, where a small error in the resistance level you supply produces a large error
+in `dn0`.
+
+The resistance-to-`dn0` curves come from the same published source that
+`malariasimulation` uses.
+
+## IRS and LSM
+
+IRS coverage enters as `irs_use` for the present and `irs_future` for the campaign being
+evaluated. LSM enters as `lsm`. Both are coverage proportions on a 0 to 1 scale, and
+neither has a `dn0`-style effectiveness term, so the coverage itself is the input.
+
+PPF nets interact with LSM, because `run_scenarios` folds PPF coverage into the LSM term
+before the emulator runs.
+
+$$
+\texttt{lsm\_eff} = \min\big(\texttt{py\_ppf} \times 0.248 + \texttt{lsm},\ 1.0\big)
+$$
+
+So a scenario with PPF nets at 0.5 coverage and LSM at 0.30 reaches the emulator with
+an effective LSM of $0.5 \times 0.248 + 0.30 = 0.424$.
+
+::: {.callout-important}
+## The `lsm` you get back is not the `lsm` you passed
+
+The `lsm` column in the `run_scenarios` output is `lsm_eff`, after the PPF
+contribution has been added. If you are reconciling a scenario's inputs against its
+outputs, or diffing two scenarios, this is the column that will not match. The 0.248 is
+why.
+:::
+
+## What dn0 does not capture
+
+`dn0` summarises the probability of death on contact, and nothing else. It does not
+capture **repellence**. Neither the protection that repellence gives nor the diversion of
+biting it produces is anywhere in the number.
+
+Nor does it capture **attrition**. A net mix is a snapshot at the decision point, and
+`dn0` and `itn_use` are held constant across the whole trajectory. A campaign's
+protection is modelled as arriving in full at day 3285 and holding.
+
+A single mix is also assumed to apply across the whole population. A district where half
+the villages have new nets and half have five-year-old nets is not the same as a district
+uniformly in the middle, but that is how it will be represented.
+
+The resistance level you supply should be the local pyrethroid resistance at the
+decision point. Given the steepness of the curves above 0.75, vary it in a sensitivity
+check rather than trusting a single value.
+
+## Next
+
+- [Nets and dn0](../04-estimint/nets-and-dn0.qmd) — `calculate_dn0` in a working scenario.
+- [The models](models.qmd) — what consumes `dn0` on the other side.
+- [Comparing campaigns](../06-scenarios/comparing.qmd) — net types set against each other.

@@ -1,0 +1,18 @@
+# Quarto documentation build output (see _quarto.yml, render.sh)
+/_book/
+/.quarto/
+.quarto-preview.log
+.quarto-preview.err
+# /_freeze/ is intentionally tracked: it holds the executed cell outputs.
+
+# Render environment
+.venv/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+__pycache__/
+.ipynb_checkpoints/
+
+# Quarto intermediate notebooks
+*.quarto_ipynb

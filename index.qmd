@@ -1,0 +1,80 @@
+---
+pagetitle: "MINTverse: malaria intervention modelling"
+description: "Two Python packages for malaria intervention modelling. estiMINT estimates the EIR from a prevalence survey; stateMINT emulates the prevalence and case trajectories under a campaign."
+page-layout: full
+toc: false
+anchor-sections: false
+---
+
+```{=html}
+<section class="mint-landing">
+
+  <div class="mint-hero">
+    <p class="mint-eyebrow">Malaria intervention modelling</p>
+    <h1 class="mint-wordmark">MINTverse</h1>
+    <p class="mint-subtitle">
+      MINTverse is two Python packages. estiMINT estimates the EIR from a prevalence
+      survey. stateMINT emulates the prevalence and case trajectories under a campaign
+      in milliseconds, where the individual-based simulation behind it takes minutes.
+    </p>
+    <div class="mint-actions">
+      <a class="mint-btn mint-btn-primary" href="chapters/02-getting-started/index.html">Get started</a>
+      <a class="mint-btn mint-btn-ghost" href="chapters/01-python/index.html">New to Python?</a>
+      <a class="mint-btn mint-btn-ghost" href="https://github.com/CosmoNaught/MINTverse" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+
+  <div class="mint-features">
+    <div class="mint-card">
+      <h3>estiMINT</h3>
+      <p>Estimates the transmission intensity (EIR) and the biting rate (HBR) from a measured prevalence and the setting it was measured in.</p>
+    </div>
+    <div class="mint-card">
+      <h3>stateMINT</h3>
+      <p>Emulates the individual-based model. Predicts how under-5 prevalence and clinical cases move over the three years after a campaign, in milliseconds.</p>
+    </div>
+    <div class="mint-card">
+      <h3>New to Python?</h3>
+      <p>Readers coming from R, and meeting Python for the first time, should start with <a href="chapters/01-python/index.html">Python for Malaria Modellers</a>. It covers interpreters, environments, and notebooks, from scratch.</p>
+    </div>
+  </div>
+
+  <section class="mint-section" aria-labelledby="mint-install-heading">
+    <h2 class="mint-section-heading mint-section-heading-accent" id="mint-install-heading">Install</h2>
+    <pre class="mint-codeblock"><code>pip install estimint mintstate</code></pre>
+  </section>
+
+  <section class="mint-section" aria-labelledby="mint-toc-heading">
+    <h2 class="mint-section-heading" id="mint-toc-heading">Contents</h2>
+    <div class="mint-toc">
+      <ul class="mint-toc-front">
+        <li><a href="chapters/00-front/overview.html">Overview</a></li>
+        <li><a href="chapters/00-front/reader-guide.html">How to Read These Docs</a></li>
+      </ul>
+      <ul class="mint-toc-chapters">
+        <li class="mint-toc-ch"><a href="chapters/01-python/index.html">Python for Malaria Modellers</a></li>
+        <li class="mint-toc-ch"><a href="chapters/02-getting-started/index.html">Getting Started</a></li>
+        <li class="mint-toc-ch"><a href="chapters/03-concepts/index.html">Core Concepts</a></li>
+        <li class="mint-toc-ch"><a href="chapters/04-estimint/index.html">estiMINT: EIR and HBR</a></li>
+        <li class="mint-toc-ch"><a href="chapters/05-statemint/index.html">stateMINT: the Emulator</a></li>
+        <li class="mint-toc-ch"><a href="chapters/06-scenarios/index.html">Running Scenarios</a></li>
+        <li class="mint-toc-ch"><a href="chapters/07-under-the-hood/index.html">Under the Hood</a></li>
+      </ul>
+      <ul class="mint-toc-back">
+        <li><a href="chapters/troubleshooting.html">Troubleshooting</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mint-section" aria-labelledby="mint-cite-heading">
+    <h2 class="mint-section-heading" id="mint-cite-heading">Cite MINTverse</h2>
+    <pre class="mint-codeblock"><code>@software{santoni2026mintverse,
+  author = {Santoni, Cosmo and Thapar, Anmol},
+  title  = {MINTverse: estiMINT and stateMINT for malaria intervention modelling},
+  year   = {2026},
+  url    = {https://github.com/CosmoNaught/MINTverse}
+}</code></pre>
+  </section>
+
+</section>
+```

@@ -1,0 +1,146 @@
+---
+title: "Accuracy and speed"
+---
+
+How closely `stateMINT` tracks `malariasimulation` on runs it never saw in training, and
+what a prediction costs.
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+plt.style.use("styles/mint.mplstyle")
+
+traj = pd.read_csv("data/validation/trajectories.csv")
+summary = pd.read_csv("data/validation/summary.csv").iloc[0]
+run_mae = pd.read_csv("data/validation/run_mae.csv")
+latency = pd.read_csv("data/validation/latency.csv")
+```
+
+## The held-out split
+
+The emulator was trained on a library of `malariasimulation` runs. The split is by parameter
+set, 70% training, 15% validation and 15% test. The figures use the **test split only**, taken
+from the split file that shipped with the trained weights. Every trajectory is a parameter set
+the model never saw, in any epoch.
+
+```{python}
+#| echo: false
+print(f"held-out runs      {int(summary['n_runs']):,}")
+print(f"time points        {int(summary['n_points']):,}")
+```
+
+## Truth against emulator
+
+Five held-out runs span the transmission range from the 10th to the 90th percentile of EIR. The
+dashed white line is `malariasimulation`, the ground truth. The solid coloured line is the
+emulator.
+
+```{python}
+#| label: fig-validation
+#| fig-cap: "Out-of-sample prevalence trajectories. The dashed white line is the simulator; the solid coloured line is stateMINT. Five held-out parameter sets across the transmission range."
+#| fig-alt: "Five panels of prevalence over time. In each, the emulator's solid coloured line lies almost exactly under the simulator's dashed white ground-truth line, before and after the campaign."
+panels = sorted(traj["panel"].unique())
+fig, axes = plt.subplots(1, len(panels), figsize=(14.5, 3.1), sharey=True)
+
+for ax, p in zip(axes, panels):
+    d = traj[traj["panel"] == p]
+    ax.plot(d["years_from_campaign"], d["emulator"], color="#3987e5", lw=2.6,
+            label="stateMINT", zorder=2)
+    ax.plot(d["years_from_campaign"], d["truth"], color="#ffffff", lw=1.5,
+            ls=(0, (4, 2.6)), label="malariasimulation", zorder=3)
+    ax.axvline(0, color="#8b93a3", ls="--", lw=0.9, alpha=0.6, zorder=1)
+    ax.set_title(f"EIR {d['eir'].iloc[0]:g}", fontsize=9.5)
+    ax.set_xlabel("years from campaign")
+
+axes[0].set_ylabel("prevalence")
+axes[0].legend(fontsize=8, loc="best")
+plt.tight_layout()
+plt.show()
+```
+
+The truth is dashed over the top of the emulator, so any disagreement between the two would show
+as the white line separating from the blue. The two lines stay close across all five panels. The
+emulator tracks the pre-campaign equilibrium, the drop when the intervention lands, and the shape
+of the recovery, including the sharp annual oscillation of a strongly seasonal setting in the
+right-hand panel.
+
+The simulator traces are noisy. An individual-based model produces a stochastic trajectory, and
+the emulator predicts the smooth expectation through it. Part of the residual you see is therefore
+the simulator's own Monte Carlo noise rather than emulator error.
+
+## Error on the held-out set
+
+```{python}
+#| echo: false
+metrics = pd.DataFrame([
+    ("Mean absolute error",        f"{summary['mae_mean']:.4f}"),
+    ("Median absolute error",      f"{summary['mae_median']:.4f}"),
+    ("90th percentile of MAE",     f"{summary['mae_p90']:.4f}"),
+    ("Worst run",                  f"{summary['mae_max']:.4f}"),
+    ("RMSE",                       f"{summary['rmse_mean']:.4f}"),
+    ("Mean bias",                  f"{summary['bias_mean']:+.5f}"),
+    ("R²",                         f"{summary['r2']:.5f}"),
+], columns=["", "prevalence"])
+metrics.style.hide(axis="index")
+```
+
+These numbers are in prevalence units, so a mean absolute error of **0.0044** means the
+emulator's prevalence is typically within about **0.4 percentage points** of the simulator's, and
+a run at 30% prevalence is typically reproduced between roughly 29.6% and 30.4%.
+The mean bias is about −0.0004, so the emulator is not systematically high or low.
+
+```{python}
+#| label: fig-error-dist
+#| fig-cap: "Distribution of per-run mean absolute error across the held-out split."
+#| fig-alt: "A histogram of per-run mean absolute error, concentrated near zero with a short right tail."
+fig, ax = plt.subplots(figsize=(7.2, 3.2))
+ax.hist(run_mae["mae"], bins=60, color="#199e70", edgecolor="none")
+ax.axvline(summary["mae_median"], color="#e66767", lw=1.6,
+           label=f"median {summary['mae_median']:.4f}")
+ax.axvline(summary["mae_p90"], color="#c98500", lw=1.6, ls="--",
+           label=f"90th pct {summary['mae_p90']:.4f}")
+ax.set_xlabel("mean absolute error, per held-out run")
+ax.set_ylabel("runs")
+ax.legend()
+plt.show()
+```
+
+The distribution is tight and right-skewed. The worst single run in the held-out set is off by
+about 0.057, under six percentage points of prevalence.
+
+That error sets the resolution of any scenario comparison. Differences between campaigns smaller
+than about half a percentage point of prevalence sit inside the emulator's own error, and should
+not be interpreted.
+
+## Speed
+
+A `malariasimulation` run of the same 12 simulated years takes minutes. The emulator is a single
+forward pass.
+
+```{python}
+#| echo: false
+lat = latency.copy()
+lat.columns = ["batch size", "total (ms)", "per scenario (ms)"]
+lat.round(2).style.hide(axis="index")
+```
+
+On CPU, a single isolated call costs more per scenario than a batched one. Most of that difference
+is fixed dispatch overhead rather than computation. Amortised across a batch, the cost settles at
+about **6 ms per scenario**. Passing a list to `predict` or `run_scenarios` is therefore markedly
+cheaper than looping over it, which is why the API takes a list.
+
+On a GPU the same forward pass takes roughly **1 ms** (measured on an NVIDIA L40S). For inference
+at the scale of a scenario grid, the CPU is entirely adequate. The GPU matters when you are
+sweeping thousands of parameter sets.
+
+A campaign comparison that would previously have been a batch job on a cluster can be run inside a
+loop, or behind a web form, at interactive speed.
+
+## Next
+
+- [The models](models.qmd) — what is actually inside the emulator.
+- [Performance and caching](../05-statemint/performance.qmd) — cold starts, batching, and the GPU extra.
+- [Comparing campaigns](../06-scenarios/comparing.qmd) — putting the speed to use.

@@ -1,0 +1,231 @@
+---
+title: "Comparing campaigns"
+---
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.style.use("styles/mint.mplstyle")
+```
+
+The grid from [A scenario grid](scenario-grid.qmd) holds five campaigns run against one
+baseline. The policy question is which net to buy. The frame does not answer it directly.
+It gives five rows and twenty-three columns, and the answer depends on which column the arms
+are ranked on. A column that summarises the horizon badly gives a different ordering of the
+products from one that summarises it well.
+
+Rebuilding it takes the same district dictionary and the same five `Scenario` objects.
+
+```{python}
+import numpy as np
+import pandas as pd
+from estimint import run_scenarios, preload_models
+from estimint.scenarios import Scenario, EirTarget
+
+district = dict(
+    res_use=0.30, Q0=0.85, phi=0.80, seasonal=0.0, irs=0.0,
+    py_only=0.70, routine=0.0,
+    eir_target=EirTarget(0.45, "prevalence"),
+)
+
+grid = [
+    Scenario(name="Withdraw", **district),
+    Scenario(name="Pyrethroid-only", itn_future=0.70,
+             net_type_future="pyrethroid_only", **district),
+    Scenario(name="PBO", itn_future=0.70,
+             net_type_future="pyrethroid_pbo", **district),
+    Scenario(name="Pyrrole", itn_future=0.70,
+             net_type_future="pyrethroid_pyrrole", **district),
+    Scenario(name="PBO + IRS + LSM", itn_future=0.70,
+             net_type_future="pyrethroid_pbo", irs_future=0.60, lsm=0.30, **district),
+]
+
+res = run_scenarios(grid)
+```
+
+And recover the time grid from the emulator's own configuration.
+
+```{python}
+_, artifacts = preload_models()
+cfg = artifacts["prevalence"].preprocessing_config
+
+n_steps = cfg["n_steps"]
+window = cfg["window_size"]
+
+abs_t = cfg["model_start_day"] + window * np.arange(n_steps)
+years = (abs_t - cfg["intervention_day"]) / 365
+idx_y9 = int(np.argmin(np.abs(abs_t - cfg["intervention_day"])))
+
+idx_y9
+```
+
+## Ranking on endline prevalence
+
+Endline prevalence is the simplest comparison. `prev_endline` is prevalence in the final
+14-day window, three years after the campaign. Sort ascending and put the change from
+`prev_y9` beside it.
+
+```{python}
+by_prevalence = (
+    res[["name", "prev_y9", "prev_endline"]]
+    .assign(change=lambda d: d["prev_endline"] - d["prev_y9"])
+    .sort_values("prev_endline")
+    .reset_index(drop=True)
+)
+by_prevalence.round(4)
+```
+
+The order follows `dn0_future`. Pyrrole ranks ahead of PBO, PBO ahead of pyrethroid-only,
+and pyrethroid-only ahead of no campaign, with the combination arm well ahead of all three.
+In the `change` column, only the combination arm ends *below* where it started. Every
+net-only arm ends higher than prevalence at the campaign, because endline sits three years
+after distribution, by which time all three products are at their least effective. The three
+net products are separated by under two prevalence points at endline. That is not much on
+which to spend a procurement budget.
+
+## Ranking on endline cases
+
+Ranking on `cases_endline` rather than on prevalence produces a different order. It is also
+a surprising one.
+
+```{python}
+by_cases = (
+    res[["name", "cases_endline"]]
+    .sort_values("cases_endline")
+    .reset_index(drop=True)
+)
+by_cases.round(4)
+```
+
+Withdrawing the nets now appears as the second-best option, ahead of any of the three
+products the district might actually buy. That is an artefact of the summary column rather
+than anything the campaigns did. The two rankings disagree because `cases_endline` is a poor
+summary of the horizon.
+
+::: {.callout-note}
+## Reading the endline
+
+`cases_endline` is clinical incidence in a single 14-day window three years after the
+campaign, and two things go wrong with it. The window is noisy, since the incidence series
+oscillates from one fortnight to the next. Clinical incidence is also not a monotone
+function of transmission. The withdrawal arm has spent three years at higher prevalence, and
+the simulator's immunity dynamics carry that through into fewer clinical episodes per person
+late in the horizon.
+
+Rank campaigns on the integrated cases series rather than on a single window of it.
+:::
+
+## Trajectories
+
+Both panels carry all five arms, with the dashed line marking the campaign.
+
+```{python}
+#| fig-cap: "Prevalence and clinical incidence under five candidate campaigns, from three years before the campaign to three years after. All five arms are identical until the dashed line."
+#| fig-alt: "Two stacked line charts sharing an x-axis in years since the campaign. The upper panel shows under-five prevalence for five scenarios: all overlap before the campaign at around 0.45, then diverge. Withdrawal climbs to about 0.50; pyrethroid-only, PBO and pyrrole dip and rebound to between 0.46 and 0.48; the PBO plus IRS plus LSM arm falls to below 0.05 and stays there. The lower panel shows clinical incidence, with the same ordering and a visible oscillation from window to window."
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(7.2, 6.6))
+
+for _, row in res.iterrows():
+    axes[0].plot(years, np.asarray(row["prevalence"]), label=row["name"])
+    axes[1].plot(years, np.asarray(row["cases"]), label=row["name"])
+
+for ax in axes:
+    ax.axvline(0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
+    ax.set_ylim(0, None)
+
+axes[0].set_ylabel("Prevalence (under 5)")
+axes[0].legend(ncol=2)
+axes[1].set_ylabel("Clinical incidence")
+axes[1].set_xlabel("Years since campaign")
+
+plt.show()
+```
+
+The five lines coincide until the campaign. The three net arms then reduce prevalence, reach
+a minimum roughly a year in, and converge back towards each other as their insecticide
+decays. The withdrawal arm rises throughout the post-campaign period. The combination arm
+falls well below the other four and stays there, because IRS and LSM do not decay on the
+same three-year clock as a net.
+
+The lower panel shows why the endline point is unreliable. The incidence series oscillates
+from one window to the next. By the right-hand edge the net arms have converged into a band
+that overlaps the withdrawal arm. The final window carries no information about the three
+years in between, over which the benefit of the campaign accrues.
+
+## Cases averted
+
+The decision turns on the total clinical burden over the years the campaign is meant to
+cover. That is the area under the incidence curve from the campaign to the end of the
+horizon. Integrate `cases` from `idx_y9` onwards, with the timestep expressed in years.
+
+```{python}
+step_years = window / 365
+
+burden = pd.Series(
+    {
+        row["name"]: float(np.trapezoid(np.asarray(row["cases"])[idx_y9:], dx=step_years))
+        for _, row in res.iterrows()
+    },
+    name="burden",
+)
+
+burden.round(3)
+```
+
+`cases` is reported on the emulator's own incidence scale. Every arm shares that scale, so
+differences and percentages between arms are meaningful without pinning the units. The
+counterfactual is the withdrawal arm.
+
+```{python}
+baseline = burden["Withdraw"]
+
+averted = (
+    pd.DataFrame(
+        {
+            "burden": burden,
+            "averted": baseline - burden,
+            "averted_pct": 100 * (baseline - burden) / baseline,
+        }
+    )
+    .sort_values("averted", ascending=False)
+    .rename_axis("campaign")
+)
+
+averted.round(2)
+```
+
+```{python}
+#| fig-cap: "Post-campaign clinical burden averted relative to withdrawing the nets, integrated over the three years after the campaign."
+#| fig-alt: "Horizontal bar chart of percentage of clinical burden averted relative to net withdrawal. PBO plus IRS plus LSM averts about 96 per cent, pyrrole about 40 per cent, PBO about 36 per cent, and pyrethroid-only about 26 per cent."
+bars = averted.drop(index="Withdraw").sort_values("averted_pct")
+
+fig, ax = plt.subplots(figsize=(7.2, 3.4))
+ax.barh(bars.index, bars["averted_pct"], height=0.55)
+ax.set_axisbelow(True)
+ax.set_xlabel("Clinical burden averted vs withdrawal (%)")
+ax.set_xlim(0, 100)
+
+plt.show()
+```
+
+## Product choice
+
+The three net-only arms are separated by under two prevalence points at endline. Over the
+three years the nets are in the field they are separated by fourteen percentage points of
+averted burden. Pyrethroid-only averts about a quarter of the burden that withdrawing the
+nets would incur, PBO about a third, and pyrrole about two fifths. None of that is visible
+in an endline column.
+
+The ordering follows `dn0_future` and nothing else. It is only as good as the resistance
+level supplied. At resistance 0.30 the difference between a pyrethroid-only net and a
+pyrrole net is substantial. At resistance 0.0 it is much smaller, and the cheaper net
+becomes a reasonable choice. The resistance estimate has error bars, so re-run the grid
+across its plausible range before committing to a product.
+
+The combination arm averts almost all of the burden, at a cost the emulator does not
+represent.
+
+## Next
+
+- [Exporting results](exporting.qmd) — get these tables and trajectories out of Python.
+- [Nets and dn0](../04-estimint/nets-and-dn0.qmd) — how `res_use` sets the ordering.
+- [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) — why cases are not monotone in transmission.

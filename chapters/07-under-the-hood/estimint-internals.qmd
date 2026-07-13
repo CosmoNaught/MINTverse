@@ -1,0 +1,161 @@
+---
+title: "estiMINT internals"
+---
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.style.use("styles/mint.mplstyle")
+```
+
+A boosted tree is a step function, and the relationship between prevalence and EIR is not. A
+district at 30 per cent prevalence and one at 31 per cent should not return the same EIR,
+and a one-point rise in prevalence should not leave the estimate flat and then jump. Most of
+what `estimint` does beyond a plain XGBoost prediction exists to reconcile those two facts.
+
+## The model bundle
+
+`load_xgb_model` returns a dictionary rather than a bare booster, and the booster is only
+one component of six.
+
+```{python}
+from estimint import load_xgb_model, run_xgb_model
+
+model = load_xgb_model("prevalence")
+
+for key, value in model.items():
+    print(f"{key:14s} {type(value).__name__}")
+```
+
+`features` is the ordered list of columns the booster expects. The order is load-bearing.
+`run_xgb_model` selects the frame's columns by this list before building the `DMatrix`.
+
+```{python}
+print("class       :", model["class"])
+print("features    :", model["features"])
+print("best_nrounds:", model["best_nrounds"])
+print("calibrator  :", sorted(model["calibrator"]))
+print("transform   :", model["preprocess"]["transform"], "->", model["preprocess"]["inverse"])
+print("target      :", model["preprocess"]["target"])
+```
+
+The three bundled models share the same six intervention covariates and differ in their
+seventh feature and their target. The `prevalence` model takes `prev_y9` and returns EIR,
+the `hbr` model takes `hbr_y9` and returns EIR, and the `eir_to_hbr` model takes `eir` and
+returns HBR.
+
+## From booster to EIR
+
+EIR spans several orders of magnitude across the training library, so the booster is not
+trained on it directly. The target is `log10` of the EIR. A prediction has to be undone
+before it means anything. The full path for one row is:
+
+1. the booster predicts $\log_{10}(\text{EIR})$;
+2. that is exponentiated, $10^{\hat{y}}$;
+3. the result passes through the quantile-mapping calibrator, `calibrator["qmap"]`, which
+   maps the model's predictive distribution onto the distribution of the simulations;
+4. it is multiplied by `calibrator["scale"]`, a residual correction very close to 1;
+5. it is floored at zero.
+
+```{python}
+print("scale        :", model["calibrator"]["scale"])
+print("qmap knots   :", len(model["calibrator"]["qmap"]["xq"]))
+```
+
+## The monotone sweep
+
+Steps 1 to 5 give a staircase, because the trees are step functions. Rather than return it,
+`run_xgb_model` detects that the model is driven by a monotonic feature (`prev_y9` or
+`hbr_y9`). For *every* call, it evaluates the model across a dense 501-point sweep of that
+feature, with the other six held at the query's values. The staircase from the sweep is
+smoothed into a monotone curve, and the query is read off that curve by interpolation.
+
+This is why a single-row prediction still falls on a smooth monotone response. The curve
+does not depend on the number of rows in the query, so a single query and a full sweep
+agree, because both are interpolated from the same 501 points.
+
+```{python}
+#| fig-cap: "The raw booster-plus-calibrator staircase, and the smoothed monotone curve `run_xgb_model` returns, across the `prev_y9` domain."
+#| fig-alt: "Log-scaled EIR against prevalence from 0.005 to 0.80. The raw prediction is a visible staircase; the smoothed curve follows it closely but rises without steps."
+import numpy as np
+import pandas as pd
+import xgboost as xgb
+from estimint.utils import predict_qmap_w
+
+setting = {
+    "dn0_use": 0.33, "Q0": 0.87, "phi_bednets": 0.82,
+    "seasonal": 0.0, "itn_use": 0.60, "irs_use": 0.0,
+}
+
+sweep = np.linspace(0.005, 0.80, 501)
+queries = pd.DataFrame([{**setting, "prev_y9": p} for p in sweep])
+
+# The staircase: exactly steps 1-5, with no smoothing.
+X = queries[model["features"]].values.astype(np.float64)
+raw = np.power(10, model["booster"].predict(xgb.DMatrix(X)))
+staircase = np.maximum(
+    0, model["calibrator"]["scale"] * predict_qmap_w(raw, model["calibrator"]["qmap"])
+)
+
+smoothed = run_xgb_model(queries, model)
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(sweep, staircase, label="booster + calibrator")
+ax.plot(sweep, smoothed, label="run_xgb_model")
+ax.set_yscale("log")
+ax.set_xlabel("prev_y9")
+ax.set_ylabel("EIR (infectious bites per person per year)")
+ax.legend()
+plt.show()
+```
+
+The two agree in shape. The smoothing is not cosmetic at the margin.
+
+```{python}
+print(f"largest relative gap: {np.max(np.abs(smoothed - staircase) / staircase):.1%}")
+```
+
+The `eir_to_hbr` model has no monotonic driving feature and is predicted directly, without
+a sweep.
+
+## Input domains and clamping
+
+The sweep has fixed endpoints. `prev_y9` runs from 0.005 to 0.80 on a linear grid, and
+`hbr_y9` from 5 × 10³ to 7 × 10⁷ on a log grid, because HBR spans four orders of magnitude
+in the training data. A query is read off the curve by linear interpolation, so a query
+outside the domain returns the endpoint value.
+
+```{python}
+probe = pd.DataFrame([{**setting, "prev_y9": p} for p in [0.001, 0.005, 0.30, 0.80, 0.95]])
+pd.DataFrame({"prev_y9": probe["prev_y9"], "eir": run_xgb_model(probe, model)})
+```
+
+A prevalence of 0.95 returns the answer for 0.80, and 0.001 returns the answer for 0.005.
+No warning is raised.
+
+::: {.callout-warning}
+A trajectory that looks implausibly flat, or a grid whose top rows all return the same EIR,
+usually means the input is past the endpoint rather than that the epidemiology has
+saturated. Out-of-domain inputs are clamped in silence.
+:::
+
+The training filter is tighter still at the low end. The bundled prevalence model was fitted
+to simulations with prevalence at or above 0.02, so the curve between 0.005 and 0.02 is
+extrapolation.
+
+```{python}
+print(model["preprocess"]["prevalence_filter"])
+```
+
+## The pickle boundary
+
+`load_xgb_model` unpickles a `.pkl` shipped inside the wheel, and unpickling executes
+arbitrary code by construction, so this is a trust boundary. The file is a first-party
+artefact, installed from PyPI alongside the code that loads it, which is no worse than
+trusting the package itself. It matters if you point `load_xgb_model` at a path someone
+sent you.
+
+## Next
+
+- [Estimating EIR from prevalence](../04-estimint/estimating-eir.qmd) — the inversion in use.
+- [stateMINT internals](statemint-internals.qmd) — the emulator that consumes this EIR.

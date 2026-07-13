@@ -2,184 +2,118 @@
 
 # MINTverse
 
-**24 minutes → 10 milliseconds (≈125,000×).**  
-From agent-based simulation to neural emulation — decisions faster than the blink of an eye.
+**Malaria intervention modelling from Python.**
 
-[**Website**](https://CosmoNaught.github.io/MINTverse) · [**Docs**](https://github.com/CosmoNaught/MINTverse) · **London • Imperial College London**
-
-</div>
-
----
-
-<div align="center">
-
-### Why MINTverse
-
-**Ingest. Estimate. Emulate.**  
-One toolkit across **R** and **Python** to go from raw *malariasimulation* outputs to live, queryable dashboards and ML surrogates — fast.
+[**Documentation**](https://cosmonaught.github.io/MINTverse) · MRC Centre for Global Infectious Disease Analysis · Imperial College London
 
 </div>
 
-
 ---
 
-## ✨ What you get
+## What MINTverse is
 
-- **Ingest at scale** — turn bulky *malariasimulation* outputs into a lean, queryable **DuckDB** store.
-- **Estimation models** — infer **EIR** and **cases/1000** from routine surveillance + coverage.
-- **Emulators** — GRU/LSTM surrogates that run **in milliseconds** for scenario planning.
-- **End-to-end orchestration** — reproducible pipelines from simulation to decision support.
-- **Built for speed** — CPU/GPU-aware, minimal overhead, designed to ship.
+MINTverse is two Python packages. One call, `run_scenarios`, chains them.
 
----
-
-## 🧭 Ecosystem
-
-> Core libraries live under **CosmoNaught** on GitHub. Items marked **COMING SOON** are planned or in private development.
-
-| Package | What it does | Status |
+| Package | Import | What it does |
 |---|---|---|
-| **[MINTs](https://github.com/CosmoNaught/MINT)** | Malaria Intervention **Simulator** — primary DB generator & agent-based wrapper. | ✅ Stable (active) |
-| **[segMINT](https://github.com/CosmoNaught/segMINT)** | Ingest large *malariasimulation* outputs, build **DuckDBs**, plot/query fast. | ✅ Stable (active) |
-| **[MINTed](https://github.com/CosmoNaught/MINTed)** | Docs, tutorials, and reproducible examples for the ecosystem. | ✅ Stable (active) |
-| **[estiMINT](https://github.com/CosmoNaught/estiMINT)** | ML to estimate **EIR** and annual **cases/1000** from surveillance + coverage. | 🚧 Growing |
-| **[MINTe](https://github.com/CosmoNaught/MINTelligence)** | Python **RNN** forecaster/emulator (GRU/LSTM) for prevalence & cases with CLI + API. | ✅ Active |
-| **[MINTer](https://github.com/CosmoNaught/MINTer)** | Orchestrator for full pipelines & scenarios; R emulator (pre‑trained GRU/LSTM); integrates with *malariasimulation*. | ✅ Active |
+| [estiMINT](https://github.com/mrc-ide/estiMINT-python) | `estimint` | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
+| [stateMINT](https://github.com/mrc-ide/stateMINT) | `stateMINT` | Emulates the individual-based model. Given a setting and an intervention package, returns the prevalence and case trajectories over the campaign. |
 
-**Support**
+`stateMINT` is trained on a large library of runs of an individual-based malaria
+transmission model of the same lineage as
+[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). The simulation
+takes minutes per scenario, and the emulator reproduces its output in milliseconds.
 
-- **[spearMINT](https://github.com/CosmoNaught/spearMINT)** — Shared utilities & experiment helpers for R packages.  
-- **[pepperMINT](https://github.com/CosmoNaught/pepperMINT)** — Shared utilities for Python packages. **COMING SOON**
+`estimint` clamps out-of-range covariates silently, so a setting outside the training
+range still returns an answer. The documentation gives the ranges.
 
----
+## Install
 
-## 🧱 Architecture
+```bash
+pip install estimint mintstate
+```
 
-The ecosystem is modular: **simulate → ingest → estimate → emulate → orchestrate**.
+Both packages require Python 3.12 or newer, and the command above installs both. You
+install `mintstate` but import `stateMINT`. A GPU is optional
+(`pip install "mintstate[gpu]"`, CUDA 12). On a CPU, a batch of ten scenarios takes
+about a second.
 
-![MINTverse architecture](./architecture.svg)
+## Example
 
----
+The example below considers a district at 45% under-5 prevalence, with 70%
+pyrethroid-only net coverage and 30% pyrethroid resistance, and compares three options
+for the next campaign.
 
-## ⚡ Benchmarks (summary)
+```python
+from estimint import Scenario, EirTarget, run_scenarios
 
-| Metric | Claim | Test setup |
-|---|---:|---|
-| Per‑simulation latency | **12 ms** | PyTorch→CUDA, batch=1, fp16 |
-| Speedup vs ABM | **≈125,000×** | 24 min ABM → 12 ms emulation |
-| Throughput | **100 sims/sec** | Consumer GPU (e.g., RTX 4070/3080) |
-| Fit accuracy | **R² = 0.998** | 250k sequences, held‑out eval |
+setting = dict(
+    res_use=0.30, Q0=0.85, phi=0.80, seasonal=0.0, irs=0.0,
+    eir_target=EirTarget(0.45, "prevalence"), py_only=0.70,
+)
 
-> **Details:** See [full benchmark methodology](#benchmark-methodology).
+results = run_scenarios([
+    Scenario(name="withdraw", **setting),
+    Scenario(name="like-for-like", **setting, itn_future=0.70, net_type_future="pyrethroid_only"),
+    Scenario(name="switch to PBO", **setting, itn_future=0.70, net_type_future="pyrethroid_pbo"),
+])
 
----
+print(results[["name", "eir_baseline", "prev_y9", "prev_endline", "cases_endline"]])
+```
 
-## 🔒 Security & data integrity
+```text
+            name  eir_baseline   prev_y9  prev_endline  cases_endline
+0       withdraw     31.960129  0.456028      0.498149       2.127164
+1  like-for-like     31.960129  0.456028      0.483688       2.433113
+2  switch to PBO     31.960129  0.456028      0.470118       2.412444
+```
 
-- Deterministic seeds and version‑pinned pipelines for reproducibility.
-- Data stays local by default; no PII is required.
-- Optional hashed run manifests for audit trails (`runs/manifest.json`).
+All three scenarios start from the same baseline EIR of 31.96, so the differences
+between rows come only from the campaign. Each row also carries `prevalence` and
+`cases` as 157-element arrays of fortnightly values spanning three years before the
+campaign and three years after.
 
----
+The `_future` fields describe the campaign, not the status quo. If `net_type_future`
+and `itn_future` are omitted, the nets are *withdrawn* at the campaign, which is what
+the first scenario above does deliberately.
 
-## 📚 Cite MINTverse
+## Documentation
 
-If you use MINTverse in academic or policy work, please cite:
+<https://cosmonaught.github.io/MINTverse>
+
+The documentation is seven chapters, running from a standing start in Python through to
+the internals of the two packages. Every code block on the site is executed when the
+site is built.
+
+## Building the docs
+
+The site is [Quarto](https://quarto.org). Code cells execute at render, so the build
+needs the packages installed.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install estimint mintstate matplotlib jupyter
+./render.sh
+```
+
+`./render.sh` builds into `_book/`. `./render.sh --preview` serves a live-reloading
+local preview, and `./render.sh index.qmd` renders a single file. The first build
+downloads the emulator weights (about 38 MB per predictor) from
+[Hugging Face](https://huggingface.co/dide-ic/stateMINT) and caches them; subsequent
+builds are much faster, and `_freeze/` caches executed output.
+
+## Cite MINTverse
 
 ```bibtex
-@software{mintverse_2025,
-  author  = {Santoni, Cosmo},
-  title   = {MINTverse: Neural Emulation for Infectious Disease Models},
-  year    = {2025},
-  url     = {https://CosmoNaught.github.io/MINTverse},
-  note    = {Version 0.8.0}
+@software{santoni2026mintverse,
+  author = {Santoni, Cosmo and Thapar, Anmol},
+  title  = {MINTverse: estiMINT and stateMINT for malaria intervention modelling},
+  year   = {2026},
+  url    = {https://github.com/CosmoNaught/MINTverse}
 }
 ```
 
----
+## Licence
 
-## 🤝 Contributing
-
-- Open issues with the corresponding MINTverse package.
-- Please add/extend tests and docs for any new behavior.
-
----
-
-## 🙌 Acknowledgements
-
-Built from the ground up for public health decision‑making.  
-Made possible by the help of all the wonderful people and hard work across the **MRC Centre for Global Infectious Disease Analysis** at **Imperial College London**.
-
----
-
-## Appendix
-
-## Benchmark methodology
-
-**Emulator (LSTM) timings.**  
-`run_benchmarks(run_sizes = {1,2,4,8,16,32,64,128,256,512}, cpu_cores = {1,2,4,8,16}, gpu_ids = {0}, model_types = {LSTM}, repeats = 9, discard = 1, warmup_gpu_runs = 3)`
-
-**ABM (MalariaSim) timings.**  
-`run_benchmarks_malariasim(run_sizes = {1,2,4,8,16}, cpu_cores = {1,2,4}, sim_reps = 8, repeats = 1, discard = 0, scenarios_dir = "benchmark_out/scenarios")`
-
-**Run definition & comparability.**  
-- ABM: one “run” = **8 stochastic replicates per scenario** (`sim_reps = 8`) executed sequentially; reported wall time is for the full 8-rep bundle.  
-- Emulator: one “run” = one full-horizon forward pass per scenario.  
-- Both systems share the **same time horizon** and the **same scenarios** (MalariaSim reuses the emulator’s saved CSVs in `benchmark_out/scenarios/N_*.csv`) for 1:1 comparability.
-
-**CPU/GPU setup.**  
-- CPU-single: `torch.set_num_threads(1)`  
-- CPU-parallel: `future::multisession` with chunking ≈ `N/(2×workers)`  
-- GPU: single device (`CUDA_VISIBLE_DEVICES=0`) with 3 warm-up runs; **no multi-GPU**.
-
-**Statistics.**  
-- Emulator results are **p50 (median)** across 9 repetitions with the **fastest repetition discarded**.  
-- ABM used a lighter harness (`repeats = 1`), so CIs are not reported.
-
-**Example anchors from raw runs.**  
-- ABM (CPU, N=1) **1,414.762 s** (≈23.6 min) vs LSTM-GPU (N=1) **0.012 s** → **117,897×**  
-- ABM (CPU, N=16) **22,366.091 s** (≈6.21 h) vs LSTM-GPU **0.168 s** → **133,131×**
-
-**Environment capture.**  
-Full environment (OS; R/Python/Torch/CUDA; CPU/GPU model; core counts) is captured per run in `benchmark_out/environment_*.json`.
-
-**Deterministic configuration.**  
-`torch.backends.cudnn.deterministic = TRUE`, `torch.backends.cudnn.benchmark = FALSE`.  
-A non-deterministic “turbo” profile (`benchmark = TRUE`) exists for exploratory runs but is **not** used for the reported numbers unless explicitly stated.
-
-**Hardware (single-machine, laptop class).**  
-Intel Core Ultra 9 185H (16C/22T), 62 GiB LPDDR5-7467, NVIDIA RTX 3500 Ada (12 GiB VRAM), Fedora Linux 41 (kernel 6.15.7), NVIDIA driver 575.64.03.  
-ABM CPU workers are capped (≤4) to avoid thermal throttling on laptop CPUs; replicates are executed sequentially because each replicate takes ~3–5 minutes and we deploy/consume 8-rep bundles operationally. We can provide alternative “equal-budget” ABM runs (e.g., higher-core CPU or cloud) on request to show how ABM wall-clock changes under greater parallelism.
-
-**Data pipeline (DuckDB).**  
-Simulation outputs are flattened from RDS and materialised into a single DuckDB table (`simulation_results`) in memory by default, with optional persistence to a `.duckdb` file via `write_database()`. Training/validation queries run locally (no external DB), with `PRAGMA threads` and `PRAGMA memory_limit` set per machine. Query shapes use window functions and aggregations; derived targets (*prevalence*, *cases per 1000*) are computed at load time.  
-*Empirical performance (full corpus ≈ 574,095,360 rows; DuckDB v1.1.3-dev165; Intel Core Ultra 9 185H, 62 GiB RAM; `threads=16`, `memory_limit='24GB'`):*  
-p50 ≈ **0.50 s** for `COUNT(*)`, **1.46 s** for a 30-day aggregated cases query (`GROUP BY`), and **11.4 s** for a 7-step rolling prevalence window.  
-<sub>Note: `COUNT(*)` may benefit from metadata; the aggregation/window figures reflect typical workloads.</sub>
-
----
-
-## Glossary
-
-- **ABM** — Agent-Based Model.
-- **LSTM / GRU** — Recurrent neural network architectures (Long Short-Term Memory / Gated Recurrent Unit).
-- **R²** — Coefficient of determination.
-- **p50** — Median (50th percentile).
-- **CI** — Confidence interval.
-- **sMAPE** — Symmetric Mean Absolute Percentage Error.
-- **MAE / RMSE / MSE** — Mean Absolute Error / Root Mean Squared Error / Mean Squared Error.
-- **Bias** — Mean(pred − true).
-- **CUDA** — NVIDIA’s GPU compute platform.
-- **VRAM** — GPU memory.
-- **DuckDB** — In-process analytical database (single file or in-memory).
-- **PRAGMA** — DuckDB engine settings (e.g., `threads`, `memory_limit`).
-- **HFT** — High-Frequency Trading (latency reference point).
-
----
-
-<div align="center">
-
-**MINTverse — designed for researchers, engineered for impact.**  
-Questions? Open an issue or reach out via the website above.
-
-</div>
+MIT. See [LICENSE](LICENSE).

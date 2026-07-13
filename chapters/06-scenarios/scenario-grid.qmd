@@ -1,0 +1,159 @@
+---
+title: "A scenario grid"
+---
+
+The district has to decide what to put in the next distribution. Five options are on the
+table:
+
+1. **Withdraw the nets.** There is no campaign at all. This is not a serious policy, but it
+   is the counterfactual every other option is measured against. It is also the arm that
+   results if the campaign is not restated.
+2. **Replace like for like** with pyrethroid-only nets at the same 0.70 coverage.
+3. **Switch to PBO**, again at 0.70.
+4. **Switch to pyrrole**, again at 0.70.
+5. **PBO plus IRS at 0.60 plus LSM at 0.30.** This is the most expensive package.
+
+Every arm shares the same setting (prevalence 0.45, resistance 0.30, pyrethroid-only nets at
+0.70 now) and therefore the same `EirTarget`. The baseline EIR is inverted from the same
+prevalence under the same current net mix. All five scenarios therefore start from an
+identical transmission intensity and an identical pre-campaign trajectory. Any difference
+between them is caused by the campaign and nothing else.
+
+## Building the grid
+
+The shared fields go in a dictionary and are splatted into each `Scenario`. Only the
+campaign is written out per arm.
+
+```{python}
+from estimint import run_scenarios
+from estimint.scenarios import Scenario, EirTarget
+
+district = dict(
+    res_use=0.30,
+    Q0=0.85,
+    phi=0.80,
+    seasonal=0.0,
+    irs=0.0,
+    py_only=0.70,     # the nets in place today
+    routine=0.0,
+    eir_target=EirTarget(0.45, "prevalence"),
+)
+
+grid = [
+    Scenario(name="Withdraw", **district),
+    Scenario(
+        name="Pyrethroid-only",
+        itn_future=0.70, net_type_future="pyrethroid_only",
+        **district,
+    ),
+    Scenario(
+        name="PBO",
+        itn_future=0.70, net_type_future="pyrethroid_pbo",
+        **district,
+    ),
+    Scenario(
+        name="Pyrrole",
+        itn_future=0.70, net_type_future="pyrethroid_pyrrole",
+        **district,
+    ),
+    Scenario(
+        name="PBO + IRS + LSM",
+        itn_future=0.70, net_type_future="pyrethroid_pbo",
+        irs_future=0.60, lsm=0.30,
+        **district,
+    ),
+]
+
+len(grid)
+```
+
+If R is your first language, the dictionary-splat idiom is the Python equivalent of
+`do.call(Scenario, c(district, list(name = "PBO", ...)))`. Use it rather than repeating the
+shared fields five times over. A typo in one arm's `Q0` would silently break the comparison.
+
+## One call
+
+`run_scenarios` takes the list, loads the models once, and puts the five scenarios through
+the emulator as a single batch. Five arms cost barely more than one.
+
+```{python}
+res = run_scenarios(grid)
+res.shape
+```
+
+What comes back is five rows, one per arm, and the same twenty-three columns as before.
+
+## The shared baseline
+
+Check it before reading anything else. If the five arms did not start from the same place,
+none of the comparisons that follow would mean anything.
+
+```{python}
+res[["name", "dn0_use", "itn_use", "eir_baseline", "prev_y9"]]
+```
+
+All five arms share the same `dn0_use`, the same `itn_use`, an `eir_baseline` of about 32
+infectious bites per person per year, and a `prev_y9` of about 0.456 against the 0.45 that
+went in. They are indistinguishable up to the campaign. They diverge only after it.
+
+## The summary table
+
+The campaign columns and the two endline outcomes are what the grid was built for.
+
+```{python}
+res[[
+    "name", "net_future", "dn0_future", "itn_future",
+    "irs_future", "lsm", "prev_endline", "cases_endline",
+]]
+```
+
+Read the `dn0_future` column first. At resistance 0.30 a pyrethroid-only net kills about
+0.31 of the mosquitoes that touch it, a PBO net about 0.48, and a pyrrole net about 0.55.
+The ranking of the three net arms follows from that ordering and nothing else, since every
+other covariate is held fixed.
+
+The combination arm has the PBO `dn0_future` (the nets are the same nets) but adds spraying
+at 0.60 and larviciding at 0.30 on top. The endline prevalence it reaches is an order of
+magnitude below any net-only arm. Within nets, the product choice changes prevalence by a
+few points. Adding a second and third vector-control measure changes it considerably
+further. Whether the district can afford that is not a question the emulator answers.
+
+## The withdrawal arm
+
+The first row of the grid shows the values the defaults produce.
+
+```{python}
+res.loc[res["name"] == "Withdraw", ["net_future", "dn0_future", "itn_future", "irs_future"]]
+```
+
+`net_future` is `"none"`, `dn0_future` is 0, and `itn_future` is 0. That row was built by
+passing the district dictionary and nothing else, with no `itn_future` and no
+`net_type_future`. Those are the values the defaults supply.
+
+If the campaign is not restated, the district has been modelled as stopping net distribution
+altogether. No warning is raised. The call succeeds, the frame comes back, and the
+trajectory is plausible. The only indication is the rebound, and it is obviously wrong only
+to a reader who was expecting the nets to continue.
+
+```{python}
+import numpy as np
+
+withdraw = res.loc[res["name"] == "Withdraw"].iloc[0]
+like_for_like = res.loc[res["name"] == "Pyrethroid-only"].iloc[0]
+
+float(withdraw["prev_endline"]), float(like_for_like["prev_endline"])
+```
+
+Here the withdrawal arm ends about one and a half prevalence points above like-for-like
+replacement. The gap is small enough to be mistaken for noise by a reader who was not
+looking for it. The difference in cumulative case burden between the two is considerably
+larger, as [Comparing campaigns](comparing.qmd) works out.
+
+Keep the arm deliberately. It is the counterfactual that makes "cases averted" a meaningful
+quantity.
+
+## Next
+
+- [Comparing campaigns](comparing.qmd) — rank the five arms and count the cases averted.
+- [Exporting results](exporting.qmd) — get the grid out of Python.
+- [Nets and dn0](../04-estimint/nets-and-dn0.qmd) — the resistance curves behind `dn0_future`.

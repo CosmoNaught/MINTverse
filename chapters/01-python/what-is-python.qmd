@@ -1,0 +1,136 @@
+---
+title: "What Python is"
+---
+
+R was designed by statisticians for statistics. A vector is the basic unit, arithmetic is
+elementwise, and a data frame is part of the language you are handed on day one. Python was
+designed as a general language for writing software of any kind. The scientific apparatus
+(arrays, data frames, plots and models) arrives as libraries bolted on top of it. Nothing
+about statistical work is built in. That is why almost every useful Python script begins with
+a handful of imports.
+
+## Indexing and slicing
+
+R counts from one and includes both ends of a range. Python counts from zero, and a slice
+`a:b` runs from `a` up to but not including `b`. A negative index counts back from the end.
+In R, that is instead how you delete an element.
+
+```{python}
+prevalence = [0.12, 0.28, 0.45, 0.61]
+
+print(prevalence[0])     # first element
+print(prevalence[-1])    # last element
+print(prevalence[0:2])   # positions 0 and 1; position 2 is excluded
+print(len(prevalence[0:2]))
+```
+
+The half-open convention means the length of a slice is always `b - a`. Consecutive slices
+`[0:2]` and `[2:4]` tile the sequence without overlapping. It is also where most of an R
+user's off-by-one errors come from.
+
+## Lists and vectors
+
+In R, `x * 2` doubles every element, and an operation between vectors of unequal length
+recycles the shorter one. Python's built-in `list` has no such behaviour. Multiplying a list
+by an integer repeats the list rather than scaling it. The idiomatic elementwise map is a
+*list comprehension*, and the idiomatic numerical map is a NumPy array, which does vectorise.
+
+```{python}
+import numpy as np
+
+resistance = [0.0, 0.25, 0.5, 0.75]
+
+print(resistance * 2)                    # the list is repeated, not scaled
+print([r * 2 for r in resistance])       # comprehension: the elementwise map
+print(np.array(resistance) * 2)          # a NumPy array does vectorise
+```
+
+The comprehension `[f(x) for x in xs]` covers the ground that `sapply` and `lapply` cover in
+R:
+
+```r
+resistance <- c(0.0, 0.25, 0.5, 0.75)
+sapply(resistance, function(r) r * 2)
+```
+
+There is no recycling rule anywhere in Python. Two NumPy arrays of unequal length raise an
+error instead of silently repeating the shorter one.
+
+## Block structure
+
+R marks a block with braces and ignores the indentation. Python has no braces. The
+indentation is itself the block structure, with a colon to open it. Mixing tabs and spaces,
+or indenting inconsistently, is a syntax error. Four spaces is the convention, and any editor
+set up for Python will insert them for you.
+
+```{python}
+for r in [0.0, 0.5, 1.0]:
+    if r > 0.4:
+        print(r, "high resistance")
+    else:
+        print(r, "low resistance")
+```
+
+## Assignment
+
+Python assigns with `=`. The arrow `<-` is not an operator at all, so `x <- 3` parses as `x`
+less than negative three. R's distinction between `=` and `<-` has no equivalent here, and
+none is needed.
+
+## Methods
+
+R applies generic functions to data, as in `summary(x)`, `nrow(df)` and `toupper(s)`. Python
+attaches most functions to the object itself as *methods*, called with a dot, as in
+`s.upper()`, `df.head()` and `nets.append(...)`. A method usually knows about the object's
+internal state, and some of them modify it in place rather than returning a copy. That is a
+habit R mostly avoids. A small number of true generics survive, `len` and `print` among them.
+
+The other collection you will meet constantly is the *dictionary*. It is a mapping from keys
+to values, written with braces, and it keeps its keys in the order they were inserted. A
+named list in R is the natural analogue. It is how MINTverse passes a setting around.
+
+```{python}
+setting = {"Q0": 0.85, "phi_bednets": 0.80, "seasonal": 0.0}
+
+print(setting["Q0"])          # look up by key
+setting["irs_use"] = 0.0      # add a key by assigning to it
+print(list(setting.keys()))   # .keys() is a method on the dict
+```
+
+## Imports and namespaces
+
+`library(dplyr)` puts every exported function of dplyr into your search path, and from then
+on you write `filter(...)` as if it were part of the language. Python keeps a module's
+contents behind its own name:
+
+```{python}
+import numpy as np
+
+print(np.sqrt(16.0))
+```
+
+`np.sqrt` is reached through the module, and there is no bare `sqrt` in scope. You can pull
+individual names into the current namespace with `from estimint import calculate_dn0`, which
+is what MINTverse code tends to do for the handful of functions it uses often. Python code
+therefore tells you where every function came from. Two libraries can both define `filter`
+without either one masking the other.
+
+## Why the models are in Python
+
+The libraries that train and serve machine-learning models are Python-first, and in most
+cases Python-only. XGBoost, which underlies `estimint`, has an R interface. JAX and Flax, the
+array and neural-network libraries `stateMINT` is written in, do not. Neither does Hugging
+Face, whose model hub is where the `stateMINT` weights are stored and versioned.
+
+The emulator is a state-space network trained in JAX and distributed as a Hugging Face
+artefact. There is no R binding to it, and writing one would mean reimplementing the forward
+pass.
+
+`run_scenarios` returns a pandas DataFrame. That writes to CSV or Parquet in a line, and R
+reads either format directly. Working across both languages is routine; see
+[Coming from R](../02-getting-started/coming-from-r.qmd).
+
+## Next
+
+- [Installing Python](installing-python.qmd) — an interpreter new enough to run MINTverse.
+- [Coming from R](../02-getting-started/coming-from-r.qmd) — the R-to-Python translation table for this stack.

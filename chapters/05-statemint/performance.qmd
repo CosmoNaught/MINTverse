@@ -1,0 +1,148 @@
+---
+title: "Performance and caching"
+---
+
+A prediction takes milliseconds. Reaching the first one takes seconds, because the weights
+have to be downloaded from Hugging Face and JAX has to compile the network. Both costs are
+paid once per session. The compilation is paid again for each new batch size.
+
+## Setup cost
+
+`preload_models` warms everything the pipeline needs, loading the three estiMINT
+gradient-boosted models and both stateMINT checkpoints. It downloads them if they are not
+already cached.
+
+```{python}
+import time
+from estimint import preload_models
+
+t0 = time.perf_counter()
+eir_models, emulator_models = preload_models()
+print(f"preload_models: {time.perf_counter() - t0:.2f} s")
+print("estiMINT :", list(eir_models))
+print("stateMINT:", list(emulator_models))
+```
+
+Call it once at the top of a script or a notebook. On a cold machine most of that time is
+the download, roughly 38 MB per predictor. On a warm one it is deserialisation from disk.
+
+`preload_models` tracks `main` on the model repository rather than a pinned tag. When the
+exact weights matter, load the checkpoints yourself with
+[`from_pretrained(..., revision=...)`](the-emulator.qmd).
+
+## The cache
+
+Weights land in the standard Hugging Face cache. Every later load reads from it.
+
+```{python}
+from huggingface_hub import constants
+
+print(constants.HF_HUB_CACHE)
+```
+
+Two environment variables control this. Both must be set before the first import.
+
+| Variable | Effect |
+|---|---|
+| `HF_HOME` | Relocates the whole cache. Point it at a shared or scratch filesystem on a cluster, where a home directory quota will not hold 80 MB of weights. |
+| `HF_HUB_OFFLINE=1` | Forbids network access. Loads succeed from the cache and fail loudly otherwise. Set it on a compute node with no outbound route, and pre-populate the cache from the login node. |
+
+```bash
+export HF_HOME=/scratch/$USER/hf
+export HF_HUB_OFFLINE=1
+```
+
+## Batching
+
+`.predict` is a single compiled forward pass over the whole batch. The network is JIT
+compiled by JAX on first use, and recompiled whenever the batch size changes. A loop of fifty
+single-scenario calls performs fifty forward passes, and gets none of the parallelism the
+hardware is capable of.
+
+```{python}
+import numpy as np
+from stateMINT.model import Mamba2Regressor
+
+prevalence = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+)
+
+district = {
+    "eir": 31.96, "dn0_use": 0.311, "dn0_future": 0.485,
+    "Q0": 0.85, "phi_bednets": 0.80, "seasonal": 0,
+    "routine": 0.0, "itn_use": 0.70, "irs_use": 0.0,
+    "itn_future": 0.70, "irs_future": 0.0, "lsm": 0.0,
+}
+
+batch = [dict(district, eir=float(e)) for e in np.linspace(5, 60, 50)]
+len(batch)
+```
+
+The first call on a given batch size pays the compilation cost. The second does not.
+
+```{python}
+t0 = time.perf_counter()
+prevalence.predict(batch)
+first = time.perf_counter() - t0
+
+t0 = time.perf_counter()
+prevalence.predict(batch)
+second = time.perf_counter() - t0
+
+print(f"first call  (compile + run): {first * 1000:7.0f} ms")
+print(f"second call (run only)     : {second * 1000:7.0f} ms")
+```
+
+The same fifty scenarios are then run as fifty separate calls, each already compiled for a
+batch of one.
+
+```{python}
+prevalence.predict([district])          # pay the batch-of-one compilation
+
+t0 = time.perf_counter()
+for scenario in batch:
+    prevalence.predict([scenario])
+looped = time.perf_counter() - t0
+
+print(f"one call, 50 scenarios : {second * 1000:7.0f} ms   ({second / 50 * 1000:.1f} ms each)")
+print(f"50 calls, 1 scenario   : {looped * 1000:7.0f} ms   ({looped / 50 * 1000:.1f} ms each)")
+print(f"speed-up               : {looped / second:.1f}x")
+```
+
+Build the whole list of scenario dicts, then call `.predict` once. A scenario grid of a few
+hundred rows is still a single call, and still under a second.
+
+::: {.callout-note}
+## Interpreting the timings
+
+The numbers above came off whatever machine happened to run the cells. Yours will differ with
+its CPU, its JAX build and whatever else it is doing. The durable part of the comparison is
+the ratio between one batched call and fifty looped ones. The absolute milliseconds are not.
+:::
+
+## CPU and GPU
+
+Those timings are CPU timings. The emulator is small, two Mamba2 layers with `d_model` 256,
+and a CPU is entirely adequate at the scale of a scenario grid. There is no reason to use a
+GPU to compare a dozen campaigns.
+
+Amortised across a batch, a single scenario costs roughly **6 ms** on CPU. The same forward
+pass on a GPU takes about **1 ms** (measured on an NVIDIA L40S). Either figure is several
+orders of magnitude below the minutes a `malariasimulation` run of the same twelve simulated
+years would take. See [Accuracy and speed](../03-concepts/validation.qmd) for the
+measurements, and for what the speed costs in accuracy.
+
+If you are running thousands of scenarios, a CUDA 12 build of JAX is available as an extra.
+
+```bash
+pip install "mintstate[gpu]"
+```
+
+Nothing in the API changes. JAX places the computation on the accelerator if it finds one, and
+without a CUDA-enabled JAX installed it falls back to CPU and warns. Read that warning rather
+than suppressing it. It is the only indication that the GPU is not being used.
+
+## Next
+
+- [stateMINT API](api.qmd) — the full inference surface.
+- [A scenario grid](../06-scenarios/scenario-grid.qmd) — batching across a grid of campaigns.

@@ -1,0 +1,138 @@
+---
+title: "Installation"
+---
+
+MINTverse is two packages. `estimint` maps a measured prevalence to transmission
+intensity, and `stateMINT` emulates the prevalence and case trajectories that follow an
+intervention. Install both:
+
+```bash
+pip install estimint mintstate
+```
+
+The equivalent inside a project managed by [uv](https://docs.astral.sh/uv/), rather than
+a bare environment, is:
+
+```bash
+uv add estimint mintstate
+```
+
+Python 3.12 or newer is required. Both packages declare it, and neither will install on
+an older interpreter.
+
+::: {.callout-note}
+## The distribution name is not the import name
+
+`stateMINT` is published on PyPI as **`mintstate`**, so you install `mintstate` and you
+import `stateMINT`:
+
+```python
+import stateMINT          # correct
+import mintstate          # ModuleNotFoundError
+```
+
+`estimint` has no such split. The distribution and the module are both `estimint`.
+:::
+
+`pip install "estimint[scenarios]"` installs the same two packages, because that extra
+declares `mintstate` as a dependency. It adds nothing else.
+
+## Extras
+
+An extra is an optional set of dependencies, named in square brackets after the package.
+`estimint` on its own provides the EIR and HBR models and nothing else. It has no
+emulator. Without one it cannot produce trajectories. The remaining extras are only
+needed if you are refitting the models or want the bundled plotting helpers.
+
+| Extra | Command | What it adds |
+|---|---|---|
+| `scenarios` | `pip install "estimint[scenarios]"` | `stateMINT`, the same as naming `mintstate` yourself. |
+| `viz` | `pip install "estimint[viz]"` | matplotlib, for the bundled plotting helpers. |
+| `download` | `pip install "estimint[download]"` | The fetchers used to pull training data. |
+| `train` | `pip install "estimint[train]"` | duckdb, scikit-learn and pyarrow, for refitting the XGBoost models. |
+| `all` | `pip install "estimint[all]"` | All four of the above. |
+
+`stateMINT` carries a single extra, for machines with an NVIDIA GPU:
+
+| Extra | Command | What it adds |
+|---|---|---|
+| `gpu` | `pip install "mintstate[gpu]"` | `jax[cuda12]`, so the emulator runs on an NVIDIA GPU with CUDA 12. |
+
+The emulator runs on JAX. The CPU build is fast enough for inference, and a ten-scenario
+batch takes about a second. A GPU is worth installing if you are training, or sweeping a
+grid of thousands.
+
+## Model weights
+
+`estimint` ships its three XGBoost models (prevalence, HBR and EIR-to-HBR) inside the
+wheel. `load_xgb_model("prevalence")` reads a file that is already on disk. It never
+needs a network.
+
+`stateMINT` does need a network on first use. Its checkpoints live in the Hugging Face
+repository [`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), with a
+separately trained checkpoint for each predictor under `prevalence/` and `cases/`. Each
+predictor is about 38 MB.
+
+The first call that needs one fetches it and caches it under `~/.cache/huggingface`.
+Every later call reads the cache. The first `run_scenarios` of a new install therefore
+needs a working network, and is slower than every one that follows.
+
+Warm both caches up front so that the download does not land in the middle of a session.
+`preload_models()` loads the XGBoost models and pulls the stateMINT weights:
+
+```python
+from estimint import preload_models
+
+preload_models()
+```
+
+## Working offline
+
+On a cluster node or an air-gapped machine, warm the cache somewhere with a network
+first. Then set `HF_HUB_OFFLINE=1`, so Hugging Face never attempts a request and resolves
+everything from `~/.cache/huggingface`:
+
+```bash
+export HF_HUB_OFFLINE=1
+```
+
+If the cache directory itself is unavailable, put the weights somewhere you control and
+load them from a path. `from_pretrained` takes a `local_dir`, and will read a directory
+laid out like the repository instead of calling the Hub:
+
+```python
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT",
+    predictor="prevalence",
+    revision="v1.2.2",
+    local_dir="/shared/models/stateMINT",
+)
+```
+
+## Verifying the install
+
+`importlib.metadata` reports the version of an installed distribution, not of an imported
+module. The emulator's version is therefore recorded under `mintstate` and not under
+`stateMINT`. `net_types()` asks `estimint` which net formulations it knows about.
+
+```{python}
+import importlib.metadata as md
+
+import estimint
+import stateMINT
+
+print("estimint  (import estimint) ", md.version("estimint"))
+print("mintstate (import stateMINT)", md.version("mintstate"))
+print()
+print("net types:", estimint.net_types())
+```
+
+Four net formulations and no error confirms that both packages are installed correctly.
+
+## Next
+
+- Run a scenario end to end: [Quickstart](quickstart.qmd).
+- If pandas is unfamiliar: [Coming from R](coming-from-r.qmd).
+- If an import or a download fails: [Troubleshooting](../troubleshooting.qmd).

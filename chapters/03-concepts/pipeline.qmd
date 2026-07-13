@@ -1,0 +1,112 @@
+---
+title: "The MINTverse pipeline"
+---
+
+The emulator runs from an EIR. The first stage inverts whatever you have, a measured
+prevalence or an HBR, into the EIR that would sustain it in the setting it was measured
+in. The second stage takes that EIR and runs the intervention forward.
+
+## The two stages
+
+```{.text .diagram}
+  net mix (py_only, py_pbo, py_pyrrole, py_ppf)
+  pyrethroid resistance
+                    │
+                    │  estimint.calculate_dn0
+                    ▼
+                  dn0_use ─────────────┐
+                                       │
+  measured prevalence                  │
+  Q0, phi_bednets, seasonal            │
+  itn_use, irs_use                     │
+                    │                  │
+                    │  estimint: XGBoost (prevalence -> EIR)
+                    ▼                  │
+                   EIR ────────────────┤
+                                       │
+                                       ▼
+                            12 static covariates
+                    eir, dn0_use, dn0_future, Q0, phi_bednets,
+                    seasonal, routine, itn_use, irs_use,
+                    itn_future, irs_future, lsm
+                                       │
+                                       │  stateMINT: Mamba2 emulator
+                                       ▼
+                       prevalence[157] and cases[157]
+                       14-day steps, campaign at day 3285
+```
+
+Stage one is `estimint`, three gradient-boosted trees and a curve fit. It is cheap and
+deterministic, and returns the equilibrium at the decision point. It has no notion of
+time.
+
+Stage two is `stateMINT`, a sequence model taking the twelve covariates, one row
+describing a setting and a campaign. It emits a 157-step trajectory for prevalence and
+one for cases.
+
+Between them sits `calculate_dn0`, a lookup against published resistance curves rather
+than a fitted model. It turns a procurement decision (which nets, at what coverage) into
+the single lethality number both stages consume.
+
+## Using the pipeline
+
+`run_scenarios` executes the diagram above. It takes a list of `Scenario` objects,
+derives `dn0` from each net mix, calls the XGBoost models for the baseline EIR, applies
+any mosquito-density adjustment, assembles the twelve covariates, and runs the emulator.
+One row comes back per scenario, with the trajectories stored as 157-element arrays in
+the `prevalence` and `cases` cells.
+
+That is the path for almost all work. The low-level functions (`calculate_dn0`,
+`load_xgb_model`, `run_xgb_model` and `Mamba2Regressor.from_pretrained`) allow the
+pipeline to be entered part-way. Use them when EIR is already known from an
+entomological study and prevalence should not be inverted at all, when the EIR itself is
+the required answer, or when you are sweeping a covariate that `Scenario` does not
+expose as a field.
+
+## What the emulator is emulating
+
+`stateMINT` was trained on output from
+[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), the individual-based
+transmission model. It reproduces that simulator to within its training error, in
+milliseconds rather than minutes.
+
+The emulator approximates the simulator. The simulator approximates reality. A trajectory
+from `stateMINT` is a fast answer to the question "what would `malariasimulation` have
+said?", not a direct claim about a district. Every structural assumption in the simulator
+is inherited wholesale, and the emulator adds an approximation error of its own on top.
+
+## Domain limits {#where-validity-is-decided}
+
+The emulator is only as good as the region of covariate space it saw in training, and
+`estimint` is only as good as the prevalences it was fitted against. Both have limits,
+and both enforce them silently.
+
+`estimint` clamps its inputs to the calibrated domain, so that `prev_y9` is clamped to
+$[0.005,\ 0.80]$ and `hbr_y9` to $[5 \times 10^{3},\ 7 \times 10^{7}]$.
+
+::: {.callout-warning}
+## Silent clamping
+
+Nothing is raised, logged, or flagged. A prevalence of 0.92 is clamped to 0.80 before the
+model sees it, and a prevalence of 0.001 is clamped to 0.005. The value that comes back
+looks like every other number the model returns.
+
+Two habits guard against this. The first is to check your inputs against the bounds
+before you call. The second is to treat an implausibly flat trajectory, or an EIR that
+does not change as prevalence is increased, as the signature of a clamped input rather
+than a finding.
+:::
+
+Below 0.005 the prevalence-to-EIR relationship becomes near-vertical, and a vanishing
+change in prevalence maps to a large change in EIR. The inversion there is unstable in a
+way no amount of training data fixes. Above 0.80 the training library thins out. Settings
+that hyperendemic are rare in the parameter grid the simulations were drawn from.
+
+A scenario sitting at the edge of the domain therefore requires a sensitivity check.
+Perturb the inputs and see whether the conclusion still holds.
+
+## Next
+
+- [EIR, HBR, prevalence, and cases](equilibrium.qmd) — what each quantity is and which stage produces it.
+- [Interventions and nets](interventions.qmd) — how a net mix becomes `dn0`.
+- [One call, end to end](../06-scenarios/run-scenarios.qmd) — `run_scenarios` in practice.
