@@ -23,8 +23,8 @@ emulator, then assembles the result. It has no model of its own.
 
 ## The three EIR paths
 
-`EirTarget.input_mode` and `mosquito_delta` together decide how the baseline EIR is obtained. The
-scenarios are grouped by path, and each group is handled in one batched call.
+`EirTarget.input_mode` and `mosquito_delta` decide how the baseline EIR is obtained, with the
+scenarios grouped by path and each group handled in one batched call.
 
 | Condition | Path |
 |---|---|
@@ -32,9 +32,9 @@ scenarios are grouped by path, and each group is handled in one batched call.
 | `input_mode` is `"prevalence"` or `"hbr"`, with `mosquito_delta == 0` | The value is appended to the six intervention covariates as `prev_y9` or `hbr_y9`, and the matching XGBoost model predicts the EIR. |
 | `input_mode == "prevalence"` with a non-zero `mosquito_delta` | Routed to `estimate_eir_with_mosquito_delta`, which estimates the baseline EIR, converts it to an HBR, scales that HBR by `1 + mosquito_delta`, and reads the EIR back off the HBR model as a **ratio** against the round trip. |
 
-The ratio is taken because the prevalence → EIR → HBR → EIR round trip does not close exactly.
-`mosquito_delta` is meaningful only for a prevalence input, and the other two modes ignore it in
-silence.
+The ratio is taken because the prevalence → EIR → HBR → EIR round trip does not close exactly, and
+`mosquito_delta` is meaningful only for a prevalence input, ignored in silence by the other two
+modes.
 
 Only the middle path populates `eir_baseline` from a model, and only the third populates
 `hbr_baseline` and `hbr_new`. Those columns are `NaN` otherwise.
@@ -81,7 +81,7 @@ print("identical trajectories  :",
       np.allclose(np.stack(batched["prevalence"]), np.stack(looped["prevalence"])))
 ```
 
-Pass a list. The ratio is the durable part of the comparison, and the absolute times are not.
+The ratio is the durable part of the comparison and the absolute times are not. Pass a list.
 
 ## Effective LSM in the output
 
@@ -111,8 +111,8 @@ The fold reads the current mix only, so a campaign that switches to PPF nets
 ## Pre-campaign masking
 
 Five of the twelve covariates (`dn0_future`, `itn_future`, `irs_future`, `lsm` and `routine`) are
-held at zero before day 3285 and take their supplied value from that day on, masked in raw units in
-the feature builder, before standardisation.
+held at zero before day 3285 and take their supplied value from that day on. The masking happens in
+raw units in the feature builder, before standardisation.
 
 ```{python}
 from stateMINT.model import Mamba2Regressor
@@ -143,7 +143,7 @@ print("identical before day 3285 :", np.allclose(X[0, before], X[1, before]))
 print("identical after day 3285  :", np.allclose(X[0, ~before], X[1, ~before]))
 ```
 
-The five after-intervention columns are the model's entire description of the post-campaign world.
+The model sees nothing else of the post-campaign world.
 
 ::: {.callout-important}
 The `_future` fields do not carry the present forward, so leaving `itn_future` at 0, or

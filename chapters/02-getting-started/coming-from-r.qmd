@@ -67,7 +67,7 @@ districts %>%
   select(district, prevalence, high_burden)
 ```
 
-The outer brackets are there only so the chain can be split across lines.
+The outer brackets only let the chain span lines.
 
 ```{python}
 (
@@ -84,9 +84,9 @@ from the frame *as it stands at that point in the chain*, which does not yet hav
 Nothing is mutated in place.
 
 `group_by` plus `summarise` becomes `groupby().agg()`, where each keyword names an output
-column and takes a `(column, function)` pair. `reset_index()` turns the grouping key back
-into a column. Without it, `resistance` stays as the frame's index, which is closer to R's
-row names than to a column.
+column and takes a `(column, function)` pair. `reset_index()` turns the grouping key back into
+a column. Without it, `resistance` stays as the frame's index, which is closer to R's row names
+than to a column.
 
 ```{python}
 (
@@ -122,7 +122,7 @@ for i, r in enumerate(levels):
 
 `Scenario` and `EirTarget` are dataclasses, and the nearest thing R has is a `list()` whose
 named fields are fixed in advance. A misspelled keyword is rejected with a `TypeError` at
-construction, rather than returning `NULL`. Seven of the seventeen fields are required
+construction rather than returning `NULL`. Seven of the seventeen fields are required
 (`name`, `res_use`, `Q0`, `phi`, `seasonal`, `irs` and `eir_target`). The other ten default to
 zero or `None`.
 
@@ -195,6 +195,6 @@ Passing `candidates` to `run_scenarios` returns one row of results per scenario,
 
 ## See also
 
-One scenario end to end is [Quickstart](quickstart.qmd). Every field of `Scenario` in full is
-in [Running scenarios](../06-scenarios/run-scenarios.qmd). A grid rather than a list is
+[Quickstart](quickstart.qmd) runs one scenario end to end, and every field of `Scenario` in
+full is in [Running scenarios](../06-scenarios/run-scenarios.qmd). A grid rather than a list is
 [A scenario grid](../06-scenarios/scenario-grid.qmd).

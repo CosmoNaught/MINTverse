@@ -5,12 +5,13 @@ title: "EIR, HBR, prevalence, and cases"
 ## The four quantities
 
 The **entomological inoculation rate (EIR)** is infectious bites per person per year, and it
-sets the force of infection. `stateMINT` runs from it, and `estimint` infers it from a
+sets the force of infection, which is why `stateMINT` runs from it. `estimint` infers it from a
 prevalence or an HBR.
 
-The **human biting rate (HBR)** is bites per person per year, infectious or not. It is the EIR
-divided by the sporozoite rate, so the numbers run to tens or hundreds of thousands per year.
-`mosquito_delta` scales mosquito density and reaches the transmission model through the HBR.
+The **human biting rate (HBR)** is bites per person per year, infectious or not, which is the
+EIR divided by the sporozoite rate, so the numbers run to tens or hundreds of thousands per
+year. `mosquito_delta` scales mosquito density and reaches the transmission model through the
+HBR.
 
 Prevalence is reported throughout MINTverse as the under-five value on a 0 to 1 scale.
 
@@ -46,9 +47,10 @@ Every trajectory is laid on one grid of 157 fortnightly steps, built around the 
 lands. The simulations behind `stateMINT` run a six-year burn-in first, letting the transmission
 model settle into equilibrium. That burn-in is **discarded** and never reaches the emulator.
 
-What remains starts at day 2190, the start of year 6. The first three years are pre-campaign
+What remains starts at day 2190, the start of year 6, and the first three years are pre-campaign
 baseline. At day 3285, the start of year 9, the campaign switches on. `dn0_future`, `itn_future`,
-`irs_future`, `lsm` and `routine` are zero before that day and take their value from it onwards.
+`irs_future`, `lsm` and `routine` take their value from that day onwards. They are zero before
+it.
 
 The grid is written into the artefact.
 
@@ -73,11 +75,11 @@ print(f"grid ends            day {abs_t[-1]}")
 print(f"years from campaign  {years[0]:+.2f} to {years[-1]:+.2f}")
 ```
 
-`prev_y9` is the annual mean under-five prevalence in year 9, the year the campaign lands.
-Passing a measured prevalence to `estimint` asserts it describes the setting on the day the nets
-are distributed.
+`prev_y9` is the annual mean under-five prevalence in year 9, the year the campaign lands, so
+passing a measured prevalence to `estimint` asserts that it describes the setting on the day the
+nets are distributed.
 
-The pre-campaign years show the setting under the nets it already has. A baseline that starts
+The pre-campaign years show the setting under the nets it already has, so a baseline that starts
 somewhere other than the prevalence you supplied means the covariates do not describe your
 setting. Plotting in `years` puts the campaign at zero.
 

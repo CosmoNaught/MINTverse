@@ -4,8 +4,7 @@ title: "The MINTverse pipeline"
 
 MINTverse runs in two stages because the emulator takes an EIR and a user almost never has
 one. The first stage inverts what was measured, a parasite prevalence or a human biting rate,
-into the EIR that would sustain it. The second stage takes that EIR and runs the campaign
-forward.
+into the EIR that would sustain it. The second stage runs the campaign forward from that EIR.
 
 {{< include ../_truth-setup.qmd >}}
 
@@ -39,13 +38,13 @@ forward.
                        14-day steps, campaign at day 3285
 ```
 
-Stage one is `estimint`, three gradient-boosted trees and a curve fit. It is cheap and
-deterministic, and returns the equilibrium at the decision point. It has no notion of
+Stage one is `estimint`, three gradient-boosted trees and a curve fit, cheap and
+deterministic, returning the equilibrium at the decision point. It has no notion of
 time.
 
 Stage two is `stateMINT`, a sequence model taking the twelve covariates, one row
-describing a setting and a campaign. It emits a 157-step trajectory for prevalence and
-one for cases.
+describing a setting and a campaign. It emits 157-step trajectories for prevalence and
+cases.
 
 Between them sits `calculate_dn0`, a lookup against published resistance curves rather
 than a fitted model. It turns a net mix into the single lethality number both stages
@@ -53,10 +52,10 @@ consume.
 
 ## Using the pipeline
 
-`run_scenarios` executes the diagram above. It takes a list of `Scenario` objects,
-derives `dn0` from each net mix, applies any mosquito-density adjustment, and returns one
-row per scenario, with the trajectories stored as 157-element arrays in the `prevalence`
-and `cases` cells.
+`run_scenarios` executes the diagram above, taking a list of `Scenario` objects, deriving
+`dn0` from each net mix, applying any mosquito-density adjustment, and returning one row
+per scenario, with the trajectories stored as 157-element arrays in the `prevalence` and
+`cases` cells.
 
 The low-level functions (`calculate_dn0`, `load_xgb_model`, `run_xgb_model` and
 `Mamba2Regressor.from_pretrained`) allow the pipeline to be entered part-way. Use them
@@ -68,7 +67,7 @@ a field.
 
 `stateMINT` was trained on output from
 [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), the individual-based
-transmission model, and it reproduces that simulator to within its training error in
+transmission model, and it reproduces that simulator to within its training error. It does so in
 milliseconds rather than minutes.
 
 ```{python}
@@ -86,7 +85,7 @@ plt.show()
 ```
 
 The red line follows the white one through the pre-campaign equilibrium and the drop when the
-campaign lands, and it settles around a percentage point below the simulator in the final
+campaign lands. It settles around a percentage point below the simulator in the final
 years. That residual is the emulator's, and it is the size of error to expect. Every
 structural assumption `malariasimulation` makes is inherited whole, so a `stateMINT`
 trajectory answers what the simulator would have said rather than what a district will do.
@@ -94,8 +93,8 @@ trajectory answers what the simulator would have said rather than what a distric
 
 ## Domain limits
 
-The emulator is only as good as the covariate space it saw in training, and `estimint`
-only as good as the prevalences it was fitted against.
+The emulator is only as good as the covariate space it saw in training. `estimint` is only as
+good as the prevalences it was fitted against.
 
 `estimint` clamps its inputs to the calibrated domain, so that `prev_y9` is clamped to
 $[0.005,\ 0.80]$ and `hbr_y9` to $[5 \times 10^{3},\ 7 \times 10^{7}]$.
@@ -113,10 +112,10 @@ of a clamped input rather than a finding.
 :::
 
 Below 0.005 the prevalence-to-EIR relationship becomes near-vertical, and a vanishing
-change in prevalence maps to a large change in EIR. Above 0.80 the training library thins
-out, because settings that hyperendemic are rare in the parameter grid the simulations
-were drawn from. A scenario at the edge of the domain needs a sensitivity check. Perturb
-the inputs and see whether the conclusion still holds.
+change in prevalence maps to a large change in EIR, while above 0.80 the training library
+thins out, because settings that hyperendemic are rare in the parameter grid the
+simulations were drawn from. A scenario at the edge of the domain needs a sensitivity
+check. Perturb the inputs and check the conclusion holds.
 
 ## See also
 

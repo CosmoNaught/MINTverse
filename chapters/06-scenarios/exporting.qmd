@@ -39,7 +39,7 @@ res = run_scenarios(grid)
 
 ## An output directory
 
-A `pathlib.Path` is an object rather than a string, one that composes with the `/` operator and
+A `pathlib.Path` is an object rather than a string, one that composes with the `/` operator. It
 can make its own directory on disk.
 
 ```{python}
@@ -49,13 +49,13 @@ outputs.mkdir(exist_ok=True)
 outputs.resolve()
 ```
 
-`exist_ok=True` makes the call idempotent, so the cell can be re-run. Paths resolve against the
-working directory of the session, which under Quarto is the project root, so `outputs/` lands at
-the top of the project. `resolve()` prints the absolute path.
+`exist_ok=True` makes the call idempotent, so the cell can be re-run, and paths resolve against
+the working directory of the session, which under Quarto is the project root, so `outputs/` lands
+at the top of the project. `resolve()` prints the absolute path.
 
 ## The scalar summary
 
-Twenty-one of the twenty-three columns are scalars. Drop the other two first.
+Twenty-one of the twenty-three columns are scalars, so drop the other two first.
 
 ```{python}
 summary = res.drop(columns=["prevalence", "cases"])
@@ -85,10 +85,10 @@ type(cell), len(cell), cell[:60]
 ```
 
 What comes back is a single string some 1,700 characters long rather than the 157 numbers that
-went in. No error is raised. The file is valid CSV, the column is text from then on. In R,
-`read_csv` types it as `chr` and moves on.
+went in, and the file is valid CSV, the column text from then on, so in R, `read_csv` types it as
+`chr` and moves on. No error is raised.
 
-The array is not truncated, because NumPy elides only arrays above a thousand elements. Every
+The array is not truncated, because NumPy elides only arrays above a thousand elements, so every
 number is present, embedded in one string with newlines running through it, and recovering them
 means parsing that string. Drop the array columns before writing instead.
 
@@ -98,7 +98,7 @@ means parsing that string. Drop the array columns before writing instead.
 
 ## Tidy format
 
-The trajectories want their own file in long form, one row per scenario per timestep, which is the
+The trajectories want their own file in long form, one row per scenario per timestep. That is the
 shape `ggplot2` and `dplyr` expect. Recover the time grid from the emulator, then stack the arrays.
 
 ```{python}
@@ -162,10 +162,11 @@ ggplot(traj, aes(x = years, y = prevalence, colour = name)) +
 ```
 
 `read_csv` types the columns from the data, so `name` is a character vector and everything else a
-double. The `years` column puts the campaign at zero, which makes `geom_vline(xintercept = 0)` the
-R equivalent of the dashed campaign rule on the matplotlib figures. For a longer-lived pipeline,
-prefer Parquet, with `trajectories.to_parquet()` on the Python side and `arrow::read_parquet()` on
-the R side, which preserves the dtypes exactly and produces smaller files.
+double, and the `years` column puts the campaign at zero, which makes `geom_vline(xintercept = 0)`
+the R equivalent of the dashed campaign rule on the matplotlib figures. For a longer-lived
+pipeline, prefer Parquet, with `trajectories.to_parquet()` on the Python side and
+`arrow::read_parquet()` on the R side. It preserves the dtypes exactly and produces smaller
+files.
 
 ## See also
 

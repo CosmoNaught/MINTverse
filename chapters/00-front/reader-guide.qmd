@@ -4,22 +4,22 @@ title: "Orientation"
 
 ## Two packages
 
-`estimint` estimates transmission intensity from a measured prevalence and the setting it was measured in, meaning the net mix, the resistance level, and the local vector's biting behaviour. It returns the EIR, and the human biting rate that EIR implies. Everything it produces is a single equilibrium value.
+`estimint` estimates transmission intensity from a measured prevalence and the setting it was measured in, meaning the net mix, the resistance level, and the local vector's biting behaviour, returning the EIR and the human biting rate that EIR implies. Everything it produces is a single equilibrium value.
 
 `stateMINT` emulates the individual-based model, and given twelve covariates describing the setting and the campaign it returns 157 fortnightly values of prevalence, or of clinical cases, over three years either side of the campaign. The emulator is the only source of trajectories.
 
-`run_scenarios`, in `estimint`, runs both. It converts a net mix into net effectiveness, estimates the baseline EIR, and calls the emulator. The order is forced, because the emulator takes an EIR and a user almost never has one. Use it unless you need one of the models on its own.
+`run_scenarios`, in `estimint`, runs both, converting a net mix into net effectiveness, estimating the baseline EIR, and calling the emulator. The order is forced, because the emulator takes an EIR and a user almost never has one. Use it unless you need one of the models on its own.
 
 ## Reading paths
 
-Readers new to Python should start at [Python for Malaria Modellers](../01-python/index.qmd), which begins with installing an interpreter, and readers already comfortable with Python should start at [Getting Started](../02-getting-started/index.qmd), which covers installation, a first scenario, and the R idioms that do not carry over. [Core Concepts](../03-concepts/index.qmd) explains the models, and [Internals](../07-under-the-hood/index.qmd) covers the internals, which nobody needs in order to use MINTverse.
+Readers new to Python should start at [Python for Malaria Modellers](../01-python/index.qmd), which begins with installing an interpreter, and readers already comfortable with Python should start at [Getting Started](../02-getting-started/index.qmd), which covers installation, a first scenario, and the R idioms that do not carry over. [Core Concepts](../03-concepts/index.qmd) explains the models, and [Internals](../07-under-the-hood/index.qmd) covers the internals. Nobody needs those to use MINTverse.
 
 ## Conventions
 
 Python blocks are executed, and the output below each one is what the code produced. Shell blocks, and the occasional R block shown for comparison, are transcripts.
 
-`pip install estimint mintstate` installs both packages. You install `mintstate` but import `stateMINT`, with the capitals. That mismatch is the commonest cause of a failed import, and the first entry in [Troubleshooting](../troubleshooting.qmd).
+`pip install estimint mintstate` installs both packages, though you install `mintstate` and import `stateMINT`, with the capitals, a mismatch that is the commonest cause of a failed import. It is the first entry in [Troubleshooting](../troubleshooting.qmd).
 
 ## Entry points
 
-The examples use a small set of functions, four from `estimint` and one from `stateMINT`, documented argument by argument in the [estiMINT API](../04-estimint/api.qmd) and the [stateMINT API](../05-statemint/api.qmd).
+The examples use a small set of functions, four from `estimint` and one from `stateMINT`. Each is documented argument by argument in the [estiMINT API](../04-estimint/api.qmd) and the [stateMINT API](../05-statemint/api.qmd).

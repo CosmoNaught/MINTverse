@@ -11,9 +11,9 @@ plt.style.use("styles/mint.mplstyle")
 ## Architecture
 
 stateMINT is built on Mamba2, a state-space sequence model whose mechanism is a linear
-recurrence. The model carries a hidden state of width `d_state` = 128 from one timestep to
-the next, updating it with the current input and reading the output from it. It is causal.
-The prediction at step $t$ depends only on the inputs up to $t$.
+recurrence, carrying a hidden state of width `d_state` = 128 from one timestep to the next,
+updating it with the current input and reading the output from it. It is causal. The
+prediction at step $t$ depends only on the inputs up to $t$.
 
 A linear projection lifts the 16 input features to `d_model` = 256, two Mamba2 blocks run
 over the sequence, dropout is applied, and a linear head reads one output per timestep.
@@ -31,7 +31,7 @@ cases = Mamba2Regressor.from_pretrained(
 prevalence.model_config
 ```
 
-The two predictors are separately trained checkpoints of the same architecture. They share no
+The two predictors are separately trained checkpoints of the same architecture, sharing no
 weights, no scaler, not even a dropout rate.
 
 ```{python}
@@ -101,8 +101,8 @@ The blue and orange curves in the left panel wind through six cycles without a b
 pair gives `seasonal` its effect, a phase for the seasonal amplitude to attach to.
 
 In the right panel the blue flag steps to 1 at the campaign, while the orange ramp climbs
-linearly from there. The model is told both that the campaign has happened and how long ago,
-so waning is learned against time since deployment.
+linearly from there, telling the model both that the campaign has happened and how long ago.
+Waning is learned against time since deployment.
 
 ## Standardisation
 
@@ -123,15 +123,15 @@ pd.DataFrame({
 
 The scaler's means and standard deviations are those of the simulations the emulator was
 fitted to, so an EIR of 400 sits 3.3 standard deviations out from the training mean. The
-model will return a value there, but it is not a value to rely on.
+model will return a value there, but it is not one to rely on.
 
 Masking happens in raw units and standardisation afterwards, so a pre-campaign `itn_future`
 appears in the tensor as $(0 - \mu) / s$, not as 0.
 
 ## Target transforms
 
-Prevalence is a proportion and is learned in **logit** space. Cases are counts with a long
-right tail and are learned in **log1p** space.
+Prevalence is a proportion and is learned in **logit** space, while cases are counts with a
+long right tail and are learned in **log1p** space.
 
 `predict` inverts the transform for you, a sigmoid for prevalence and `expm1` for cases.
 Pass `transformed=True` for the model's own space.
@@ -154,11 +154,10 @@ print("smallest log1p  :", float(z_cases.min()))
 print("smallest cases  :", float(y_cases.min()))
 ```
 
-A sigmoid cannot leave [0, 1]. Prevalence is bounded by construction. `expm1` is not bounded
-below, and when the head's log1p output falls under zero, as it can after an effective
-campaign in a low-burden setting, `predict` returns a case count slightly below zero.
-`run_scenarios` floors the case series with
-`np.maximum(..., 0.0)` where a bare `predict` does not.
+Prevalence is bounded by construction, because a sigmoid cannot leave [0, 1], while `expm1` is
+not bounded below, and when the head's log1p output falls under zero, as it can after an
+effective campaign in a low-burden setting, `predict` returns a case count slightly below zero.
+`run_scenarios` floors the case series with `np.maximum(..., 0.0)`. A bare `predict` does not.
 
 ## The weights repository
 

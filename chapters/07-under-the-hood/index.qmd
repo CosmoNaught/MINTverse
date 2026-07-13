@@ -5,7 +5,7 @@ title: "Internals"
 The three pages that follow document the machinery behind the user-facing calls, the five
 steps `run_scenarios` performs in order, the six objects that make up an estiMINT model
 bundle, and the network stateMINT pushes its covariates through. None of it is needed to run
-a scenario. All of it is needed to extend the stack, or to read its source. The same detail
+a scenario. All of it is needed to extend the stack or to read its source, and the same detail
 accounts for behaviour the packages never announce, such as an input clamped to the edge of
 its domain.
 

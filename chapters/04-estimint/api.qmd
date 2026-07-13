@@ -20,8 +20,9 @@ from estimint.scenarios import Scenario, EirTarget   # also importable from `est
 load_xgb_model(path: str | Path | None = None) -> dict
 ```
 
-Load one of the three bundled models. Despite the parameter name, `path` usually takes a
-**model name**.
+Load one of the three bundled models.
+
+Despite the parameter name, `path` usually takes a **model name**.
 
 | Parameter | Meaning |
 |---|---|
@@ -56,11 +57,11 @@ Run a loaded model over one or more settings, one prediction per row.
 | `new_data` | DataFrame (or dict of columns) with the six setting covariates plus that model's driving column. `prevalence` is accepted as an alias for `prev_y9`. |
 | `model` | A model dict from `load_xgb_model`. If `None`, the model registered by `set_global_model` is used, and if none is registered, `ValueError` is raised. |
 
-Returns a `numpy.ndarray` of `float64`, not a Series and not a DataFrame. A missing column raises
-`ValueError` naming the column it wanted. Extra columns are ignored.
+Returns a `numpy.ndarray` of `float64`, not a Series and not a DataFrame, and a missing column
+raises `ValueError` naming the column it wanted. Extra columns are ignored.
 
-Note that inputs are **silently clamped** to the range each model was fitted over, `prev_y9` to
-`[0.005, 0.80]` and `hbr_y9` to `[5e3, 7e7]`.
+Note that inputs are **silently clamped** to the range each model was fitted over. `prev_y9` goes
+to `[0.005, 0.80]` and `hbr_y9` to `[5e3, 7e7]`.
 
 ```python
 eir = run_xgb_model(
@@ -80,8 +81,8 @@ set_global_model(model: dict) -> None
 get_global_model() -> dict | None
 ```
 
-Register a default model for `run_xgb_model`. The slot holds one model, so pass the model
-explicitly if a script touches more than one of the three.
+Register a default model for `run_xgb_model`, remembering that the slot holds one model. Pass the
+model explicitly if a script touches more than one of the three.
 
 ```python
 set_global_model(load_xgb_model("prevalence"))
@@ -135,8 +136,8 @@ A named tuple with two fields.
 | `dn0` | Probability a mosquito dies on contact with a net. The **usage-weighted average** across the mix, so it does not scale with coverage. Feed to `dn0_use`. |
 | `itn_use` | Total ITN coverage. The **sum** of the shares passed in. Feed to `itn_use` as it stands. |
 
-Note that `itn_use` is already the coverage. Multiplying it by a usage fraction a second time
-silently understates coverage and biases the inferred EIR downwards.
+Note that `itn_use` is already the coverage, so multiplying it by a usage fraction a second time
+silently understates it. The inferred EIR then comes back too low.
 
 ## Density
 
@@ -154,8 +155,8 @@ New equilibrium EIR after a fractional change in mosquito density, by the ratio 
 | `inputs` | One row per scenario, with the columns `prevalence`, `mosquito_delta`, `dn0_use`, `Q0`, `phi_bednets`, `seasonal`, `itn_use` and `irs_use`. |
 | `models` | Keyword-only. A dict holding all three of `"prevalence"`, `"hbr"` and `"eir_to_hbr"`. |
 
-`mosquito_delta` is a fraction, so `0.25` is a 25% increase and `-0.5` a halving, and it must be
-greater than `-1`. Returns a DataFrame on the index of `inputs`, with the columns
+`mosquito_delta` is a fraction greater than `-1`, so `0.25` is a 25% increase and `-0.5` a
+halving, and what comes back is a DataFrame on the index of `inputs`, with the columns
 `eir_baseline`, `eir_new`, `eir_multiplier`, `hbr_baseline` and `hbr_new`.
 
 ```python
@@ -208,7 +209,7 @@ models nets being withdrawn at the campaign. `net_type_future` must be underscor
 run_scenarios(scenarios: list[Scenario], *, hf_repo: str = "dide-ic/stateMINT") -> pd.DataFrame
 ```
 
-Run the whole pipeline, one row per scenario. The `prevalence` and `cases` columns come back
+Run the whole pipeline, one row per scenario, where the `prevalence` and `cases` columns come back
 holding 157-element NumPy arrays in the cells rather than in tidy long form.
 
 ```python
@@ -221,7 +222,7 @@ results = run_scenarios([scenario_a, scenario_b])
 preload_models(*, hf_repo: str = "dide-ic/stateMINT") -> tuple[dict, dict]
 ```
 
-Warm the XGBoost models and fetch the stateMINT weights ahead of the first `run_scenarios` call.
+Warm the XGBoost models and fetch the stateMINT weights before the first `run_scenarios` call.
 
 ## See also
 

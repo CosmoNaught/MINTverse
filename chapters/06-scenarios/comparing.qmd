@@ -9,9 +9,8 @@ plt.style.use("styles/mint.mplstyle")
 ```
 
 The grid from [A scenario grid](scenario-grid.qmd) holds five campaigns run against one shared
-baseline. What comes back is five rows of scalars and five pairs of 157-step trajectories.
-
-Rebuilding the grid takes the same setting and the same five `Scenario` objects.
+baseline. What comes back is five rows of scalars and five pairs of 157-step trajectories, and
+rebuilding it takes the same setting and the same five `Scenario` objects.
 
 ```{python}
 import numpy as np
@@ -72,15 +71,15 @@ ax.legend(ncol=2, fontsize=8)
 plt.show()
 ```
 
-The five lines coincide to the left of the dashed line, which is the shared run-up under the
+The five lines coincide to the left of the dashed line. That is the shared run-up under the
 pyrethroid-only nets already in place. After the campaign the three net arms reduce prevalence,
-reach a minimum roughly a year in, and then converge back towards one another as their
-insecticide decays. The withdrawal arm rises throughout. The combination arm falls well below the
-other four and stays there. This is because IRS and larval source management do not decay on the
-same three-year clock a net does.
+reach a minimum roughly a year in, and converge towards one another as their insecticide decays,
+while the withdrawal arm rises throughout and the combination arm falls well below the other four
+and stays there. This is because IRS and larval source management do not decay on the same
+three-year clock a net does.
 
-The three net arms end the horizon within about two prevalence points of each other, having
-been separated by considerably more at their minimum.
+The three net arms end the horizon within about two prevalence points of each other. At their
+minimum they were separated by considerably more.
 
 ## Clinical cases
 
@@ -100,21 +99,20 @@ ax.legend(ncol=2, fontsize=8)
 plt.show()
 ```
 
-Incidence oscillates from one 14-day window to the next, far more than prevalence does. By the
-right-hand edge the three net arms have converged into a band that overlaps the withdrawal arm.
-This is because prevalence measures existing infection, while incidence records new episodes per
-window. Incidence inherits the sampling noise of the window it is counted over.
+Incidence oscillates from one 14-day window to the next, far more than prevalence does, and by
+the right-hand edge the three net arms have converged into a band that overlaps the withdrawal
+arm. This is because prevalence measures existing infection, while incidence records new episodes
+per window. Incidence inherits the window's sampling noise.
 
 ```{python}
 res[["name", "cases_endline"]].sort_values("cases_endline").round(4)
 ```
 
-Sorted on `cases_endline` alone, withdrawing the nets comes out ahead of every net arm. That is
-an artefact of the column, not something the campaigns did. The window is noisy, as the panel
-above shows. Clinical incidence is also not a monotone function of
-transmission, and the withdrawal arm has spent three years at higher prevalence, so the
-simulator's immunity dynamics carry that through into fewer clinical episodes per person late in
-the horizon.
+Sorted on `cases_endline` alone, withdrawing the nets comes out ahead of every net arm, an
+artefact of the column rather than something the campaigns did. The window is noisy, as the panel
+above shows. Clinical incidence is also not a monotone function of transmission, and the
+withdrawal arm has spent three years at higher prevalence, so the simulator's immunity dynamics
+carry that through into fewer clinical episodes per person late in the horizon.
 
 ::: {.callout-note}
 ## A note on endline columns
@@ -182,8 +180,8 @@ around fourteen percentage points of averted burden. At endline they were separa
 prevalence points.
 
 The ordering of the net arms follows `dn0_future` and nothing else, so it is only as good as the
-resistance level supplied. At a resistance of 0.30 the pyrethroid-only and the pyrrole net are
-far apart, while at 0.0 they are much closer. A resistance estimate carries error, so re-run the
+resistance level supplied, and at a resistance of 0.30 the pyrethroid-only and the pyrrole net
+are far apart, while at 0.0 they are much closer. A resistance estimate carries error. Re-run the
 grid across its plausible range to see how much of the ordering survives it.
 
 ## See also

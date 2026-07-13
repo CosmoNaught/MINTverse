@@ -13,9 +13,9 @@ We take one district from a measured prevalence to a plotted trajectory.
 ## One scenario
 
 A `Scenario` holds one candidate campaign, the setting as it stands and the intervention that
-switches on at the campaign. `EirTarget(0.45, "prevalence")` tells `run_scenarios` that 0.45
-is a measured prevalence rather than an EIR, so it is inverted into a baseline EIR first. The
-emulator never sees the prevalence.
+switches on at the campaign, where `EirTarget(0.45, "prevalence")` tells `run_scenarios` that
+0.45 is a measured prevalence rather than an EIR. That prevalence is inverted into a baseline
+EIR first. The emulator never sees the prevalence.
 
 ```{python}
 from estimint import Scenario, EirTarget, run_scenarios
@@ -61,8 +61,8 @@ nets replacing them. `eir_baseline` is the transmission intensity implied by tha
 in infectious bites per person per year. `prev_y9` is prevalence at the campaign,
 `prev_endline` three years after it, and `cases_endline` the clinical case rate there.
 
-`hbr_baseline` and `hbr_new` are `NaN`. They are only computed when a prevalence input is
-paired with a non-zero `mosquito_delta`.
+`hbr_baseline` and `hbr_new` are `NaN`, because they are only computed when a prevalence input
+is paired with a non-zero `mosquito_delta`.
 
 ## The trajectory
 
@@ -97,13 +97,13 @@ plt.show()
 ```
 
 The green line reaches its minimum about a year past the grey dashed campaign line, then
-climbs back over the remaining two years to finish close to where it started. The insecticide
-on a net decays across the three years it spends in the field. The endline value on its own
-understates the campaign.
+climbs back over the remaining two years to finish close to where it started, because the
+insecticide on a net decays across the three years it spends in the field. The endline value on
+its own understates the campaign.
 
-The three years before the campaign are not flat. `EirTarget` pins prevalence at the campaign,
-where `prev_y9` comes out at 0.456 against the 0.45 that was measured. Everything left of the
-dashed line is the emulator's own history of the setting under the nets already in place.
+`EirTarget` pins prevalence at the campaign, where `prev_y9` comes out at 0.456 against the
+0.45 that was measured, and everything left of the dashed line is the emulator's own history of
+the setting under the nets already in place. The three years before the campaign are not flat.
 
 ## See also
 

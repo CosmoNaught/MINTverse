@@ -13,8 +13,8 @@ residual spraying (IRS), and larval source management (LSM).
 
 ## Net types
 
-ITNs are grouped into four formulations. Their names are the keyword arguments to
-`calculate_dn0` and `Scenario`, and they are the allowed values of `net_type_future`.
+ITNs are grouped into four formulations whose names are the keyword arguments to `calculate_dn0`
+and `Scenario`. They are the allowed values of `net_type_future`.
 
 | Name | Formulation | What it adds |
 |---|---|---|
@@ -34,13 +34,14 @@ from estimint import calculate_dn0, net_types
 net_types()
 ```
 
-The short aliases are accepted everywhere the long forms are.
+Short aliases are accepted everywhere the long forms are.
 
 ## Net effectiveness and dn0
 
-`dn0` is the probability that a mosquito is killed when it contacts a treated net. It depends
-on the insecticide and on the local level of pyrethroid resistance. `calculate_dn0` takes a
-resistance level and a net mix, and returns the usage-weighted `dn0` with the total coverage.
+`dn0` is the probability that a mosquito is killed when it contacts a treated net, and it
+depends on the insecticide and on the local level of pyrethroid resistance. `calculate_dn0`
+takes a resistance level and a net mix, and returns the usage-weighted `dn0` with the total
+coverage.
 
 ```{python}
 mix = calculate_dn0(0.5, py_only=0.4, py_pbo=0.2)
@@ -88,11 +89,10 @@ plt.show()
 ```
 
 The amber pyrrole curve sits above the other three at every resistance level and the blue
-pyrethroid-only curve below them all. The ratio between the two grows from about 1.7 at zero
-resistance to about 2.5 at 0.9. Chlorfenapyr kills through a pathway that pyrethroid
-resistance does not act on, so the amber curve gives up only the pyrethroid share of its
-lethality. The blue curve has nothing else to give up. It reaches zero when resistance is
-total.
+pyrethroid-only curve below them all, and the ratio between the two grows from about 1.7 at zero
+resistance to about 2.5 at 0.9. Chlorfenapyr kills through a pathway that pyrethroid resistance
+does not act on, so the amber curve gives up only the pyrethroid share of its lethality. The blue
+curve has nothing else to give up. It reaches zero when resistance is total.
 
 The green PBO curve and the purple PPF curve cross at about 0.92. Green runs above purple
 everywhere below that. PBO works by restoring the kill of the pyrethroid itself, and there is
@@ -100,13 +100,13 @@ nothing left to restore once resistance is near total, while PPF carries a compo
 survives it.
 
 The resistance-to-`dn0` curves come from the same published source that `malariasimulation`
-uses. They are a lookup table rather than a fitted model.
+uses. They are a lookup table, not a fitted model.
 
 ## IRS and LSM
 
-IRS and LSM enter as coverage proportions. `irs_use` is the spraying coverage in place now,
-`irs_future` the coverage under the campaign being evaluated, and `lsm` the larval term, all
-on a 0 to 1 scale. Neither has a `dn0`-style effectiveness term.
+IRS and LSM enter as coverage proportions, where `irs_use` is the spraying coverage in place now,
+`irs_future` the coverage under the campaign being evaluated, and `lsm` the larval term. All
+three are on a 0 to 1 scale. Neither IRS nor LSM has a `dn0`-style effectiveness term.
 
 `run_scenarios` folds PPF coverage into `lsm` before the emulator runs, at a factor of 0.248.
 The factor is not configurable.
@@ -131,14 +131,14 @@ reconcile a scenario's inputs against its outputs.
 `dn0` summarises the probability of death on contact, and nothing else. Repellence is not in
 it.
 
-Nor does it capture attrition. `dn0` and `itn_use` are held constant across the trajectory,
-so a campaign's protection arrives in full at day 3285 and holds.
+Nor does it capture attrition, since `dn0` and `itn_use` are held constant across the
+trajectory, so a campaign's protection arrives in full at day 3285 and holds.
 
-A single mix covers the whole population. A district where half the villages have new nets
-and half have five-year-old nets will be represented as one uniformly in the middle.
+A single mix covers the whole population, so a district where half the villages have new nets
+and half have five-year-old nets is represented as one uniformly in the middle.
 
 A setting above 0.75 resistance sits in the steep part of every curve, where a small error in
-the resistance level supplied produces a large error in `dn0`. Vary it in a sensitivity check
+the resistance level supplied produces a large error in `dn0`, so vary it in a sensitivity check
 rather than trusting a single value.
 
 ## See also

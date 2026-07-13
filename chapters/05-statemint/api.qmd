@@ -2,7 +2,7 @@
 title: "stateMINT API"
 ---
 
-The inference surface of `stateMINT` is one classmethod and one dataclass. You install `mintstate` and import
+The inference surface of `stateMINT` is one classmethod and one dataclass, and you install `mintstate` but import
 `stateMINT`, capital MINT. The mismatch between the two names is the most common source of confusion in the package.
 
 ## `Mamba2Regressor.from_pretrained`

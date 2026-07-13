@@ -9,7 +9,7 @@ trajectories. Nothing is fitted, tuned or configured at call time.
 ## The three estiMINT conversions
 
 The three conversions share the same six covariates describing the setting (`dn0_use`, `Q0`,
-`phi_bednets`, `seasonal`, `itn_use` and `irs_use`), and differ only in what is converted.
+`phi_bednets`, `seasonal`, `itn_use` and `irs_use`). They differ only in what is converted.
 
 | Name | Extra input | Returns |
 |---|---|---|
@@ -17,8 +17,8 @@ The three conversions share the same six covariates describing the setting (`dn0
 | `"hbr"` | `hbr_y9` | EIR |
 | `"eir_to_hbr"` | `eir` | HBR |
 
-`load_xgb_model` returns a dictionary rather than a bare booster. The booster is only part of the
-estimator.
+What `load_xgb_model` returns is a dictionary rather than a bare booster. The booster is only
+part of the estimator.
 
 ```{python}
 from estimint import load_xgb_model
@@ -32,22 +32,21 @@ print("rounds     ", model["best_nrounds"])
 ```
 
 The target is $\log_{10}(\mathrm{EIR})$ rather than EIR, because EIR spans several orders of
-magnitude. `run_xgb_model` inverts the transform (`pow10`) before returning, so the EIR comes
+magnitude, and `run_xgb_model` inverts the transform (`pow10`) before returning. The EIR comes
 back in natural units.
 
 The quantile-mapping calibrator sits after the booster, because a boosted-tree ensemble regresses
-towards the mean and its predictions come out compressed in the tails. Quantile mapping puts the
-marginal distribution of predictions back onto the distribution of the training targets.
+towards the mean and its predictions come out compressed in the tails, and quantile mapping puts
+the marginal distribution of predictions back onto the distribution of the training targets.
 
-The monotone smoothing pass runs over the calibrated result, because trees are
-piecewise-constant. A raw booster predicting EIR from prevalence produces a staircase, and it can
-be locally non-monotone. The smoothing pass enforces monotonicity along the input being
-converted.
+The monotone smoothing pass runs over the calibrated result, because trees are piecewise-constant
+and a raw booster predicting EIR from prevalence produces a staircase that can be locally
+non-monotone. The pass enforces monotonicity along the input being converted.
 
-Calibration and smoothing are baked into the fitted artefact rather than applied batch-wise, so a
-single-row query still lands on a smooth, monotone curve.
+Calibration and smoothing are baked into the fitted artefact rather than applied batch-wise.
+A single-row query still lands on a smooth, monotone curve.
 
-The models are bundled inside the wheel. Nothing is downloaded, and `load_xgb_model` is a local
+The models are bundled inside the wheel, so nothing is downloaded. `load_xgb_model` is a local
 file read.
 
 ## The stateMINT emulator
@@ -68,24 +67,24 @@ for key, value in artifact.model_config.items():
 ```
 
 The 16 input channels are the twelve static covariates, with the `after_intervention` ones
-switched on at day 3285, plus the four derived time channels that `prepare_inputs` builds. It is
-a small model, which is why it runs comfortably on a CPU.
+switched on at day 3285, plus the four derived time channels that `prepare_inputs` builds. The
+model is small and runs comfortably on a CPU.
 
 `from_pretrained` returns a **`ModelArtifact`** rather than a `Mamba2Regressor`, so the network
 itself is `artifact.model`, bundled with the scaler and the two config dictionaries. Note that
 `predictor` is baked into the checkpoint, and that prevalence and cases are separately trained
-models with separate scalers. Loading the wrong one returns a prediction for the other quantity,
-without any error being raised.
+models with separate scalers. Loading the wrong one returns a prediction for the other quantity.
+No error is raised.
 
 ### Causality
 
-The model is **causal**. The prediction at step $t$ depends only on the inputs at steps
-$1 \dots t$ and never on anything later, and the architecture enforces this rather than leaving
-the training to learn it.
+The model is **causal**, so the prediction at step $t$ depends only on the inputs at steps
+$1 \dots t$ and never on anything later. The architecture enforces this rather than leaving the
+training to learn it.
 
 The `after_intervention` covariates are zero for every step before day 3285, and the model cannot
-see forward, so the first 78 steps are computed as though no campaign were coming. Two scenarios
-that differ only in their campaign share an identical baseline, and any difference between their
+see forward. The first 78 steps are computed as though no campaign were coming. Two scenarios
+that differ only in their campaign share an identical baseline. Any difference between their
 curves is the campaign.
 
 ### Model space and natural units
@@ -94,9 +93,9 @@ Prevalence is trained in **logit** space and cases in **log1p** space. A proport
 directly on 0–1 can be predicted outside its own bounds, and the logit fixes that. Case counts
 are non-negative and heavily skewed, and `log1p` handles the zeros that a plain log would not.
 
-`predict` inverts the transform by default. Prevalence comes back in $[0, 1]$ and cases come back
-as counts, and passing `transformed=True` returns model space instead, which is what you want
-when computing residuals against training targets.
+`predict` inverts the transform by default, so prevalence comes back in $[0, 1]$ and cases come
+back as counts, while passing `transformed=True` returns model space instead, which is what you
+want when computing residuals against training targets.
 
 ::: {.callout-note}
 ## A note on the word "state"

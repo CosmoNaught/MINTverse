@@ -9,7 +9,7 @@ entirely into `dn0_use` by `calculate_dn0`.
 
 ## Net types
 
-`net_types` returns the canonical names of the four formulations alphabetically, which puts `ppf`
+`net_types` returns the canonical names of the four formulations alphabetically. That puts `ppf`
 before `pyrrole`.
 
 ```{python}
@@ -19,7 +19,8 @@ net_types()
 ```
 
 Each formulation has a short alias, accepted anywhere a net type is and doubling as the
-keyword-argument name in the wider API.
+keyword-argument name in the wider API, with the canonical names joined by `_` throughout. Both
+spellings are case-insensitive.
 
 | Alias | Canonical name | Formulation |
 |---|---|---|
@@ -28,8 +29,7 @@ keyword-argument name in the wider API.
 | `py_ppf` | `pyrethroid_ppf` | Pyrethroid with pyriproxyfen |
 | `py_pyrrole` | `pyrethroid_pyrrole` | Pyrethroid with chlorfenapyr |
 
-Both spellings are case-insensitive. The canonical names are joined with `_` throughout, so a
-hyphen raises `ValueError: unknown net type`.
+A hyphen therefore raises `ValueError: unknown net type`.
 
 ## From a net mix to dn0
 
@@ -41,15 +41,15 @@ net = calculate_dn0(0.30, py_only=0.70)
 net
 ```
 
-What comes back is a `DN0Result`, a named tuple of exactly two fields, reachable by position or by
-attribute.
+What comes back is a `DN0Result`, a named tuple of exactly two fields. Both are reachable by
+position or by attribute.
 
 ```{python}
 net.dn0, net.itn_use
 ```
 
-Passing more than one keyword gives a mix. Shares that fall short of 1.0 leave the rest of the
-population with no net.
+Passing more than one keyword gives a mix, and shares that fall short of 1.0 leave the rest of
+the population with no net.
 
 ```{python}
 mix = calculate_dn0(0.30, py_only=0.40, py_pbo=0.30)
@@ -70,7 +70,7 @@ by_hand = (0.40 * only + 0.30 * pbo) / (0.40 + 0.30)
 round(by_hand, 5), round(mix.dn0, 5)
 ```
 
-`itn_use` is the **sum** of the shares, 0.40 + 0.30 = 0.70, and it is the total ITN coverage of the
+`itn_use` is the **sum** of the shares, 0.40 + 0.30 = 0.70. That is the total ITN coverage of the
 population.
 
 ::: {.callout-warning}
@@ -91,7 +91,7 @@ setting is judged to need.
 
 ## Resistance and dn0
 
-Holding usage at 1.0 for one formulation at a time isolates its resistance response.
+Holding usage at 1.0 isolates each formulation's resistance response.
 
 ```{python}
 import pandas as pd
@@ -109,12 +109,12 @@ table.index.name = "net type"
 table
 ```
 
-A pyrethroid-only net falls to zero at full resistance. The other three do not.
+A pyrethroid-only net falls to zero at full resistance.
 
-Pyrrole nets are the most lethal and the flattest, losing about a tenth of their `dn0` between
-resistance 0.0 and 0.75, where a pyrethroid-only net loses nearly a third. The PPF effect on the
-next generation is not represented in `dn0` at all, and reaches the emulator through the `lsm`
-term instead. The curves come from the same source `malariasimulation` uses.
+The other three do not, with pyrrole nets the most lethal and the flattest, losing about a tenth
+of their `dn0` between resistance 0.0 and 0.75, where a pyrethroid-only net loses nearly a third.
+The PPF effect on the next generation is not represented in `dn0` at all, and reaches the emulator
+through the `lsm` term instead. The curves come from the same source `malariasimulation` uses.
 
 ## Caveats
 
@@ -125,6 +125,6 @@ the decision point. The curves steepen above 0.75, so vary it in a sensitivity c
 ## See also
 
 The two numbers `calculate_dn0` returns feed the inversion set out in
-[Estimating EIR from prevalence](estimating-eir.qmd). Please see
+[Estimating EIR from prevalence](estimating-eir.qmd), and please see
 [Interventions and nets](../03-concepts/interventions.qmd) for the epidemiology behind the four
 formulations.

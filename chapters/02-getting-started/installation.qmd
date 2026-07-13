@@ -2,8 +2,8 @@
 title: "Installation"
 ---
 
-MINTverse is two packages. `estimint` maps a measured prevalence to transmission
-intensity, and `stateMINT` emulates the prevalence and case trajectories that follow an
+MINTverse is two packages, with `estimint` mapping a measured prevalence to transmission
+intensity and `stateMINT` emulating the prevalence and case trajectories that follow an
 intervention. Install both:
 
 ```bash
@@ -35,7 +35,7 @@ import mintstate          # ModuleNotFoundError
 ## Extras
 
 An extra is an optional set of dependencies, named in square brackets after the package.
-`estimint` on its own gives you the EIR and HBR models and no emulator.
+`estimint` on its own gives you the EIR and HBR models but no emulator.
 
 | Extra | Command | What it adds |
 |---|---|---|
@@ -58,8 +58,8 @@ wheel. `load_xgb_model("prevalence")` never needs a network.
 `stateMINT` does need one on first use, because its checkpoints live in the Hugging Face
 repository [`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), with a
 separately trained checkpoint of about 38 MB for each predictor under `prevalence/` and
-`cases/`. The first call that needs one fetches it and caches it under
-`~/.cache/huggingface`, and every later call reads the cache. `preload_models()` warms
+`cases/`, and the first call that needs one fetches it and caches it under
+`~/.cache/huggingface`. Every later call reads the cache. `preload_models()` warms
 both caches, loading the XGBoost models and pulling the stateMINT weights.
 
 ```python
@@ -110,7 +110,7 @@ print()
 print("net types:", estimint.net_types())
 ```
 
-Four net formulations and no error confirms that both packages are installed correctly.
+Four net formulations and no error confirms both installs.
 
 ## See also
 

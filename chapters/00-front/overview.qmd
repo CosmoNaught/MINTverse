@@ -13,19 +13,19 @@ trained models that stand in for a full individual-based simulation.
 
 One call, `run_scenarios`, chains them.
 
-`pip install estimint mintstate` installs both packages. The distribution you install is
-called `mintstate`, but the module you import is `stateMINT`.
+`pip install estimint mintstate` installs both packages, though the distribution is called
+`mintstate` while the module you import is `stateMINT`.
 
 ## Why an emulator
 
 The trajectories `stateMINT` returns are those of an individual-based malaria transmission
 model, the same lineage as the departmental
-[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/) package. A single scenario
-of that simulation takes minutes, and exploring an intervention space, or fitting to a survey,
-means running it thousands of times.
+[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/) package, where a single
+scenario takes minutes and exploring an intervention space, or fitting to a survey, means
+running it thousands of times.
 
 `stateMINT` is trained on a large library of those simulation runs, and reproduces their
-output in a few milliseconds per scenario on a CPU.
+output in a few milliseconds per scenario. It runs on a CPU.
 
 {{< include ../_truth-setup.qmd >}}
 
@@ -51,7 +51,7 @@ bias. Please see [Accuracy and speed](../03-concepts/validation.qmd) for the
 trajectory-by-trajectory comparison.
 
 Outside its training range the emulator is not reliable, and `estimint` clamps out-of-range
-covariates silently, so a setting well beyond that range still comes back with an answer.
+covariates silently. A setting far beyond it still returns an answer.
 
 ## What you need to run it
 
@@ -79,17 +79,17 @@ for how the four quantities move through the pipeline.
 | `res_use` | Pyrethroid resistance, 0 to 1 | Bioassay data on the local vector population |
 
 **The interventions in place now.** The current net mix, as usage shares by net type (`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`).
-Leave the net keys out if there are no nets. You do **not** compute the net killing
+Leave the net keys out if there are no nets, and you do **not** compute the net killing
 effect yourself, because `calculate_dn0` turns the mix and the resistance level into the
 `dn0` covariate.
 
 **The campaign you want to evaluate.** The net type and coverage from the campaign onwards (`net_type_future`, `itn_future`), and any spraying, larviciding or routine distribution that comes with it (`irs_future`, `lsm`, `routine`).
 
-Everything else is optional. `mosquito_delta`, a change in mosquito density, has no effect at
-its default of zero.
+Everything else is optional, including `mosquito_delta`, a change in mosquito density, which
+has no effect at its default of zero.
 
-You do not need a GPU, a `malariasimulation` installation, R, or any training data.
-Installation pulls the estiMINT models with the wheel. The emulator weights download once from
+You do not need a GPU, a `malariasimulation` installation, R, or any training data, as
+installation pulls the estiMINT models with the wheel. The emulator weights download once from
 Hugging Face on first use.
 
 ::: {.callout-important}

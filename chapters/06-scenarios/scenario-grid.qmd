@@ -13,8 +13,7 @@ pyrethroid-only nets at 0.70 coverage.
 - **PBO plus IRS at 0.60 plus LSM at 0.30.**
 
 Every arm carries the same `EirTarget`, so the baseline EIR is inverted from the same prevalence
-under the same current net mix. Any difference between the arms is caused by the campaign and
-nothing else.
+under the same current net mix. Any difference is caused by the campaign alone.
 
 ## Building the grid
 
@@ -80,13 +79,13 @@ res[[
 ]]
 ```
 
-Read the `dn0_future` column first. At resistance 0.30 a pyrethroid-only net kills about 0.31 of
-the mosquitoes that touch it, a PBO net about 0.48, and a pyrrole net about 0.55. The ordering of
-the three net arms follows from that column, since every other covariate is held fixed.
+Read the `dn0_future` column first, because at resistance 0.30 a pyrethroid-only net kills about
+0.31 of the mosquitoes that touch it, a PBO net about 0.48, and a pyrrole net about 0.55. The
+ordering of the three net arms follows from that column, every other covariate being held fixed.
 
 The combination arm carries the PBO `dn0_future` (the nets are the same nets) and adds spraying
-at 0.60 and larviciding at 0.30 on top, so the endline prevalence it reaches comes out an order
-of magnitude below any net-only arm.
+at 0.60 and larviciding at 0.30 on top. Its endline prevalence comes out an order of magnitude
+below any net-only arm.
 
 ## Withdrawal
 

@@ -9,9 +9,9 @@ plt.style.use("styles/mint.mplstyle")
 ```
 
 `estimate_eir_with_mosquito_delta` covers changes that act on the size of the mosquito population
-rather than through the nets, such as larviciding or a new irrigation scheme. It takes a
-prevalence, a setting and a fractional change in mosquito density, and returns the EIR that
-follows. That is an equilibrium value, not a trajectory.
+rather than through the nets, such as larviciding or a new irrigation scheme, taking a prevalence,
+a setting and a fractional change in density and returning the EIR that follows. That is an
+equilibrium value, not a trajectory.
 
 ## The signature
 
@@ -38,8 +38,7 @@ scenario as a row of one frame.
 
 ## The ratio method
 
-The method runs in five steps, and the reason for each is given in
-[EIR and HBR](eir-and-hbr.qmd).
+The method runs in five steps, each justified in [EIR and HBR](eir-and-hbr.qmd).
 
 1. The prevalence and the setting give a **baseline EIR**, via the prevalence model.
 2. That EIR and the setting give a **baseline HBR**, via `eir_to_hbr`.
@@ -80,8 +79,8 @@ result = estimate_eir_with_mosquito_delta(inputs, models=models)
 result.round(3)
 ```
 
-The frame comes back on the same index as `inputs`, so the delta that produced each row joins
-back on.
+The frame comes back on the same index as `inputs`. The delta that produced each row joins back
+on.
 
 ```{python}
 summary = inputs[["mosquito_delta"]].join(result[["eir_baseline", "eir_new", "eir_multiplier"]])
@@ -114,11 +113,11 @@ plt.show()
 ```
 
 The blue multiplier curve sits on the dashed green proportional line for modest changes either
-side of zero, and within about 10% in each direction a proportional response is accurate to a
-percent or so. At both extremes the blue curve drops below the green one. Deep cuts take the EIR
-down faster than they take the mosquitoes, so removing three quarters of them leaves about a
-fifth of the baseline EIR rather than a quarter. A doubling of the vector population falls short
-of doubling transmission.
+side of zero, and within about 10% a proportional response is accurate to a percent or so. At
+both extremes the blue curve drops below the green one, because deep cuts take
+the EIR down faster than they take the mosquitoes, so removing three quarters of them leaves about
+a fifth of the baseline EIR rather than a quarter. Doubling the vectors falls short of doubling
+transmission.
 
 ::: {.callout-warning}
 ## A note on the input mode
@@ -134,6 +133,6 @@ have, scale the HBR yourself and convert.
 
 ## See also
 
-[estiMINT API](api.qmd) sets out every loader, estimator and dataclass the package exposes.
+[estiMINT API](api.qmd) sets out every loader, estimator and dataclass the package exposes, and
 [Running scenarios](../06-scenarios/run-scenarios.qmd) carries `mosquito_delta` through a whole
 scenario, from the density change to the case counts.

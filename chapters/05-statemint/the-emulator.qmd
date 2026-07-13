@@ -27,8 +27,8 @@ container holding the network (`.model`), its architecture (`.model_config`), th
 artifact, not the network.
 :::
 
-`predictor` selects which of the two checkpoints to fetch. The two are separately trained
-networks carrying separately fitted scalers, and the scalers are not interchangeable.
+`predictor` selects which of the two checkpoints to fetch, and the two are separately trained
+networks carrying separately fitted scalers. The scalers are not interchangeable.
 
 ```{python}
 import numpy as np
@@ -40,14 +40,14 @@ cases = Mamba2Regressor.from_pretrained(
 print("same scaler means:", np.allclose(prevalence.scaler.mean_, cases.scaler.mean_))
 ```
 
-Load the artifact that matches the quantity you want. Both take the same twelve inputs and return
-the same shape, so reading a prevalence prediction as case counts raises no error. It returns a
-wrong answer, scaled for the other target.
+Load the artifact that matches the quantity you want, since both take the same twelve inputs and
+return the same shape, and reading a prevalence prediction as case counts raises no error. It
+returns a wrong answer, scaled for the other target.
 
 ## Predicting
 
-`.predict` takes a list of dicts, one per scenario, and returns a `(B, 157)` array, one row per
-scenario and one column per fortnightly window.
+`.predict` takes a list of dicts, one per scenario, and returns a `(B, 157)` array. The rows are
+scenarios and the columns are fortnightly windows.
 
 ```{python}
 district = {
@@ -71,7 +71,7 @@ print(f"prevalence at the campaign: {y[0, 78]:.3f}")
 ```
 
 Column 78 is the window the campaign lands in, and the value there sits close to the 0.45 given
-to estiMINT. [Covariates and the time grid](covariates.qmd) derives that index from the checkpoint
+to estiMINT, an index that [Covariates and the time grid](covariates.qmd) reads off the checkpoint
 rather than assuming it. Scenarios come back stacked, in the order you supplied them.
 
 ```{python}
@@ -88,9 +88,9 @@ print(np.round(Y[:, -1], 3))   # prevalence three years on
 
 ## Transformed space
 
-The networks are trained on transformed targets, a logit for prevalence and a `log1p` for cases.
-`.predict` inverts the transform by default. `transformed=True` suppresses the inversion. You want
-that only when scoring the network against a held-out set in its training space.
+The networks are trained on transformed targets, a logit for prevalence and a `log1p` for cases,
+and `.predict` inverts the transform by default. `transformed=True` suppresses the inversion. You
+want that only when scoring the network against a held-out set in its training space.
 
 ```{python}
 raw = prevalence.predict([district], transformed=True)
@@ -104,8 +104,8 @@ print("sigmoid(raw) :", np.round(1 / (1 + np.exp(-raw[0, :3])), 3))
 ## Negative case counts
 
 The inverse of `log1p` is `expm1`, so a prediction slightly below zero in log space becomes a case
-count slightly below zero, by a fraction of a case. Under a strong campaign, where true incidence
-is close to the floor, it happens often.
+count slightly below zero, by a fraction of a case, and under a strong campaign, where true
+incidence is close to the floor, it happens often.
 
 ```{python}
 aggressive = dict(
@@ -121,17 +121,17 @@ print(f"after flooring : {c.min():.4f}")
 ```
 
 Floor the case trajectory with `np.maximum` before you plot it or sum it.
-[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies exactly this floor, so only results
+[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies this floor itself, so only results
 taken straight from a checkpoint need it.
 
-Prevalence needs no such treatment. A logit inverts through a sigmoid, and a sigmoid cannot leave
-`[0, 1]`.
+Prevalence needs no such treatment, since a logit inverts through a sigmoid and a sigmoid cannot
+leave `[0, 1]`.
 
 ## The raw feature matrix
 
-`.prepare_inputs` runs the first half of `.predict` and stops. It expands the twelve covariates
-onto the time grid, masks the campaign fields before day 3285, scales everything and appends the
-time features.
+`.prepare_inputs` runs the first half of `.predict` and stops, expanding the twelve covariates
+onto the time grid and masking the campaign fields before day 3285. It then scales everything and
+appends the time features.
 
 ```{python}
 X = prevalence.prepare_inputs(campaigns)
@@ -154,5 +154,5 @@ Mamba2Regressor.from_pretrained("dide-ic/stateMINT", predictor="cases", revision
 ## See also
 
 The 157 columns go onto a real time axis in [Plotting trajectories](plotting.qmd). Fifty scenarios
-in one call are far cheaper than fifty calls of one, and [Performance and caching](performance.qmd)
+in one call are far cheaper than fifty calls of one. [Performance and caching](performance.qmd)
 has the timings and the cache settings.

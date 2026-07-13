@@ -10,14 +10,13 @@ Mamba2 layer carrying a hidden vector along the sequence, and not an epidemiolog
 a distinction drawn out in [The models](../03-concepts/models.qmd).
 
 Those trajectories belong to an individual-based malaria transmission model, the lineage
-implemented in [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). That
-simulation is slow. A single scenario takes minutes, and a grid of net products crossed with
-coverages and resistance levels is a cluster job. `stateMINT` is trained on a large library of
-those runs and reproduces their output in milliseconds. A fifty-scenario batch takes under a
-second on a laptop CPU. Like any emulator, it is trustworthy only inside the range of settings it
-was trained on.
+implemented in [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), which is slow
+enough that one scenario takes minutes and a grid of net products crossed with coverages and
+resistance levels is a cluster job. `stateMINT` trains on a library of those runs and reproduces
+their output in milliseconds. A fifty-scenario batch takes under a second on a laptop CPU. Like
+any emulator, it is trustworthy only inside the range of settings it was trained on.
 
-The trained weights are not shipped in the wheel. They live on Hugging Face at
+The trained weights are not shipped in the wheel but live on Hugging Face at
 [`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), as two checkpoints of about 38 MB
 each, one for prevalence and one for cases, and the first call downloads and caches them. Every
 later call reads the cache.
@@ -37,12 +36,12 @@ later call reads the cache.
 
 ## Inputs and outputs
 
-The input is twelve scalars rather than a time series, describing the setting and the campaign,
-and the emulator reconstructs the time grid from them. The output is an array of shape `(B, 157)`,
-one row per scenario and 157 fortnightly windows spanning day 2190 to day 4374. The campaign lands
-at day 3285, which puts three pre-campaign years at the front of every row and three response
+The input is twelve scalars rather than a time series, describing the setting and the campaign.
+The emulator reconstructs the time grid from them. The output is an array of shape `(B, 157)`,
+one row per scenario and 157 fortnightly windows spanning day 2190 to day 4374, where the campaign
+lands at day 3285, which puts three pre-campaign years at the front of every row and three response
 years at the back.
 
 Prevalence and cases are separately trained checkpoints, so asking for both means loading both and
 calling each once. No single call returns the pair. Please see
-[Running Scenarios](../06-scenarios/index.qmd) for a pipeline that loads both and calls each.
+[Running Scenarios](../06-scenarios/index.qmd) for a pipeline that does both.

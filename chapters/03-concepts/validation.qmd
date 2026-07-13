@@ -24,9 +24,8 @@ latency = pd.read_csv("data/validation/latency.csv")
 ## The held-out split
 
 The emulator was trained on a library of `malariasimulation` runs, split by parameter set into
-70% training, 15% validation and 15% test. The figures below use the test split only, taken
-from the split file that shipped with the trained weights, so every trajectory belongs to a
-parameter set the model never saw.
+70% training, 15% validation and 15% test. The figures below use the test split only, taken from
+the split file that shipped with the trained weights. The model never saw any of them.
 
 ```{python}
 #| echo: false
@@ -36,8 +35,8 @@ print(f"time points        {int(summary['n_points']):,}")
 
 ## Trajectories
 
-Five held-out runs spanning the 10th to the 90th percentile of EIR are plotted below, with the
-simulator drawn as a dashed white line over the emulator's solid blue one.
+Five held-out runs spanning the 10th to the 90th percentile of EIR are plotted below. The
+simulator is the dashed white line and the emulator the solid blue one.
 
 ```{python}
 #| fig-cap: "Out-of-sample prevalence under five held-out parameter sets. The dashed white line is malariasimulation and the solid blue line is stateMINT."
@@ -66,20 +65,20 @@ pre-campaign equilibrium, the drop when the intervention lands, and the shape of
 including the sharp annual oscillation of the strongly seasonal setting in the right-hand panel.
 
 An individual-based model produces a stochastic trajectory and the emulator predicts the smooth
-expectation through it, so part of the residual here is the simulator's own Monte Carlo noise
-rather than emulator error.
+expectation through it. Part of the residual here is the simulator's own Monte Carlo noise, not
+emulator error.
 
 ## Pipeline error and emulator error
 
-The figure above gives the emulator the EIR the simulator itself was run at. A user does not
-have that number and has to estimate it from a prevalence survey, so the error they see is the
-error of the whole chain rather than of the emulator alone.
+The figure above gives the emulator the EIR the simulator itself was run at. A user does not have
+that number and has to estimate it from a prevalence survey. The error they see is the error of
+the whole chain, not of the emulator alone.
 
 The white line below is `malariasimulation`, averaged over the stochastic runs drawn in grey
-behind it. The red line is the full pipeline, which starts from the measured year-9 prevalence
-and inverts it to an EIR with `estimint` before running `stateMINT` forward. The green dashed
-line is `stateMINT` given the simulator's own EIR. The gap between green and white is the cost
-of the emulation, and the gap between red and green is the cost of the inversion.
+behind it, and the red line is the full pipeline, which starts from the measured year-9
+prevalence and inverts it to an EIR with `estimint` before running `stateMINT` forward. The green
+dashed line is `stateMINT` given the simulator's own EIR. The gap between green and white is the
+cost of the emulation, and the gap between red and green is the cost of the inversion.
 
 ```{python}
 #| fig-cap: "Three held-out parameter sets. White is malariasimulation averaged over the grey stochastic runs, red is the full pipeline from a measured prevalence, and green dashed is the emulator given the simulator's own EIR."
@@ -103,11 +102,11 @@ plt.tight_layout()
 plt.show()
 ```
 
-In the left panel all three lines coincide. In the middle panel the red line runs above the
-white one while the green line stays on it, because `estimint` estimated an EIR of 12.5 against
-a true 11.8 and the emulator was then run forward from a transmission intensity that was too
-high. In the right panel red and green coincide but both sit slightly below the simulator once
-the campaign lands, so the residual there belongs to the emulator rather than the inversion.
+In the left panel all three lines coincide, while in the middle panel the red line runs above the
+white one and the green line stays on it, because `estimint` estimated an EIR of 12.5 against a
+true 11.8 and the emulator was then run forward from a transmission intensity that was too high.
+In the right panel red and green coincide, but both sit slightly below the simulator once the
+campaign lands. That residual belongs to the emulator, not the inversion.
 
 ```{python}
 #| echo: false
@@ -119,9 +118,8 @@ m.style.hide(axis="index").format({"true EIR": "{:.2f}", "estimated EIR": "{:.2f
                                    "MAE, emulator": "{:.4f}", "MAE, pipeline": "{:.4f}"})
 ```
 
-Where the inversion is accurate the emulator sets the floor on the error, and where the
-inversion is not, it dominates, which is why the prevalence survey a run starts from matters
-more to the answer than the emulator does.
+Where the inversion is accurate the emulator sets the floor on the error, and where the inversion
+is not, it dominates. The prevalence survey matters more than the emulator does.
 
 ## Error on the held-out set
 
@@ -159,15 +157,15 @@ plt.show()
 ```
 
 The distribution is tight and right-skewed, and the worst single run in the held-out set is off
-by about 0.057, which is under six percentage points of prevalence.
+by about 0.057. That is under six percentage points of prevalence.
 
 Differences smaller than about half a percentage point of prevalence sit inside the emulator's
-own error and should not be read as real.
+own error. They should not be read as real.
 
 ## Speed
 
-A `malariasimulation` run over the same 12 simulated years takes minutes, while the emulator is
-a single forward pass.
+A `malariasimulation` run over the same 12 simulated years takes minutes. The emulator is a
+single forward pass.
 
 ```{python}
 #| echo: false
@@ -177,11 +175,11 @@ lat.round(2).style.hide(axis="index")
 ```
 
 On CPU a single isolated call costs more per scenario than a batched one, and most of that
-difference is fixed dispatch overhead rather than computation. Passing a list to `predict` or
-`run_scenarios` is therefore cheaper than looping over it, which is why the API takes a list.
+difference is fixed dispatch overhead rather than computation, so passing a list to `predict` or
+`run_scenarios` is cheaper than looping over it. That is why the API takes a list.
 
 On a GPU the same forward pass is roughly six times faster again (measured on an NVIDIA L40S).
-For a scenario grid the CPU is adequate, and the GPU matters when you are sweeping thousands of
+The CPU is adequate for a scenario grid. The GPU matters when you are sweeping thousands of
 parameter sets.
 
 ## See also

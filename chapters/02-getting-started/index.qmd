@@ -4,12 +4,12 @@ title: "Getting Started"
 
 Both packages come from PyPI, `pip install estimint mintstate` brings in the pair, and one
 district then goes from a measured prevalence, through the EIR inversion, to a prevalence
-trajectory, in a single call to `run_scenarios`. Python 3.12 is the minimum. `stateMINT` is published on PyPI
-under the distribution name `mintstate`, so the name in the install command is not the name in
-the import. Both go into a virtual environment rather than the single shared library R keeps.
-The emulator's weights are fetched on first use. They are cached under `~/.cache/huggingface`
-rather than shipped in the wheel, which makes the first `run_scenarios` of a new install slower
-than every call that follows it. Please see [Python for Malaria
+trajectory, in a single call to `run_scenarios`. `stateMINT` is published on PyPI under the
+distribution name `mintstate`, so the name in the install command is not the name in the import,
+and both go into a virtual environment rather than the single shared library R keeps. Python
+3.12 is the minimum. The emulator's weights are fetched on first use. They are cached under
+`~/.cache/huggingface` rather than shipped in the wheel, which makes the first `run_scenarios`
+of a new install slower than every call that follows it. Please see [Python for Malaria
 Modellers](../01-python/index.qmd) if virtual environments are new.
 
 ::: {.chapter-outline}

@@ -9,7 +9,7 @@ batch size. Prediction itself is far cheaper than either.
 ## Setup cost
 
 `preload_models` loads the three estiMINT gradient-boosted models and both stateMINT
-checkpoints, downloading them if they are not already cached.
+checkpoints, downloading them if they are not cached.
 
 ```{python}
 import time
@@ -22,10 +22,10 @@ print("estiMINT :", list(eir_models))
 print("stateMINT:", list(emulator_models))
 ```
 
-Call it once at the top of a script. On a cold machine most of that time is the download, roughly
-38 MB per predictor. On a warm one it is deserialisation from disk. `preload_models` tracks
-`main` rather than a pinned tag, so load the checkpoints yourself with
-[`from_pretrained(..., revision=...)`](the-emulator.qmd) when the exact weights matter.
+On a cold machine most of that time is the download, roughly 38 MB per predictor. On a warm one
+it is deserialisation from disk. `preload_models` tracks `main` rather than a pinned tag, so load
+the checkpoints yourself with [`from_pretrained(..., revision=...)`](the-emulator.qmd) when the
+exact weights matter. Call `preload_models` once at the top of a script.
 
 ## The cache
 
@@ -51,8 +51,8 @@ export HF_HUB_OFFLINE=1
 
 ## Batching
 
-`.predict` is a single compiled forward pass over the whole batch, and JAX compiles the network
-on first use and recompiles it whenever the batch size changes.
+`.predict` is a single compiled forward pass over the whole batch. JAX compiles the network on
+first use and recompiles it whenever the batch size changes.
 
 ```{python}
 import numpy as np
@@ -106,17 +106,17 @@ print(f"speed-up               : {looped / second:.1f}x")
 A call enters the compiled forward pass once, whatever the batch size. The loop pays it fifty
 times over.
 
-Build the whole list first, then call `.predict` once. A grid of a few hundred rows is still a
-single call, and still under a second. The timings above came off whatever machine rendered the
-cells, so trust the ratio rather than the absolute milliseconds.
+A grid of a few hundred rows is still a single call, and still under a second. Build the whole
+list first and then call `.predict` once. The timings came off whatever machine rendered the
+cells, so trust the ratio rather than the milliseconds.
 
 ## CPU and GPU
 
 The timings above are CPU timings, and a CPU is adequate at the scale of a scenario grid, since
-the emulator is small, two Mamba2 layers with `d_model` 256. On a GPU the same forward pass is
-roughly six times faster, measured on an NVIDIA L40S, and both sit orders of magnitude below the
-minutes a `malariasimulation` run of the same twelve simulated years takes. The measurements, and
-what the speed costs in accuracy, are in [Accuracy and speed](../03-concepts/validation.qmd).
+the emulator is small. It is two Mamba2 layers with `d_model` 256. On a GPU the same forward pass
+is roughly six times faster, measured on an NVIDIA L40S, and both sit orders of magnitude below
+the minutes a `malariasimulation` run of the same twelve simulated years takes. The measurements,
+and what the speed costs in accuracy, are in [Accuracy and speed](../03-concepts/validation.qmd).
 
 For a sweep of thousands of scenarios, a CUDA 12 build of JAX is available as an extra.
 

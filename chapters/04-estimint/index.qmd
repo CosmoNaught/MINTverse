@@ -26,7 +26,7 @@ single equilibrium value rather than a trajectory, because the trajectories come
 
 `estimint` ships three gradient-boosted models inside the wheel, each mapping one driving input
 to one output while holding the same six covariates fixed. Nothing is downloaded. Pick the model
-whose driving input is the measured quantity.
+whose driving input you measured.
 
 | Model name | Driving input | Output |
 |---|---|---|
@@ -38,6 +38,6 @@ Each model is named for its *input*, so the model named `"hbr"` takes an HBR and
 
 All three are loaded by name with `load_xgb_model` and called with `run_xgb_model`, and the six
 shared covariates (`dn0_use`, `Q0`, `phi_bednets`, `seasonal`, `itn_use` and `irs_use`) describe
-the setting. Two of them are not survey quantities at all. `dn0_use` and `itn_use` come out of
-`calculate_dn0`, which accounts for most of the errors made with the package. Please see
+the setting, though two of them are not survey quantities at all and come out of `calculate_dn0`
+instead. Most errors made with the package start there. Please see
 [Nets and dn0](nets-and-dn0.qmd) for that calculation.

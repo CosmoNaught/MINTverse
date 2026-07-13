@@ -9,8 +9,8 @@ plt.style.use("styles/mint.mplstyle")
 ```
 
 A boosted tree predicts a staircase, while the climb from prevalence to EIR is smooth and
-monotonic. The calibrator and the monotone sweep inside `run_xgb_model` are what stop a district
-at 30 per cent prevalence and one at 31 from being handed the same answer.
+monotonic, so the calibrator and the monotone sweep inside `run_xgb_model` stop a district at 30
+per cent prevalence and one at 31 from being handed the same answer.
 
 ## The model bundle
 
@@ -62,9 +62,9 @@ print("qmap knots   :", len(model["calibrator"]["qmap"]["xq"]))
 
 On every call, `run_xgb_model` detects the monotonic driving feature (`prev_y9` or `hbr_y9`) and
 evaluates the model across a dense 501-point sweep of it, with the other six covariates held at
-the query's values. That sweep is smoothed into a monotone curve, and the query is read off the
-curve by interpolation. A single row therefore lands on the same response as a full sweep. The
-`eir_to_hbr` model has no monotonic driver and is predicted directly.
+the query's values. That sweep is smoothed into a monotone curve from which the query is read by
+interpolation. A single row lands where a full sweep does. The `eir_to_hbr` model has no monotonic
+driver and is predicted directly.
 
 ```{python}
 #| fig-cap: "The raw booster-plus-calibrator prediction in blue, and the smoothed monotone curve `run_xgb_model` returns in green, across the `prev_y9` domain."
@@ -135,8 +135,8 @@ print(model["preprocess"]["prevalence_filter"])
 ## Unpickling
 
 `load_xgb_model` unpickles a `.pkl` shipped inside the wheel, and unpickling executes arbitrary
-code, so the load is a trust boundary. The bundled file is a first-party artefact installed from
-PyPI alongside the code that loads it. The boundary matters as soon as you point
+code, so the load is a trust boundary, though the bundled file is a first-party artefact installed
+from PyPI alongside the code that loads it. The boundary matters as soon as you point
 `load_xgb_model` at a path someone sent you.
 
 ## See also
