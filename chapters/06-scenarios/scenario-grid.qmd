@@ -2,17 +2,17 @@
 title: "A scenario grid"
 ---
 
-A scenario grid holds several campaigns run against one shared setting. The five arms below all
+A scenario grid holds several campaigns run against one shared setting. The five scenarios below all
 start from the same district, at under-5 prevalence 0.45, pyrethroid resistance 0.30, and
 pyrethroid-only nets at 0.70 coverage.
 
-- **Withdraw the nets.** No campaign at all. This is the counterfactual the other four are measured against, and it is the arm that results if a campaign is not restated.
+- **Withdraw the nets.** No campaign at all. This is the counterfactual the other four are measured against, and it is what results if a campaign is not restated.
 - **Replace like for like** with pyrethroid-only nets at the same 0.70 coverage.
 - **Switch to PBO**, again at 0.70.
 - **Switch to pyrrole**, again at 0.70.
 - **PBO plus IRS at 0.60 plus LSM at 0.30.**
 
-Every arm carries the same `EirTarget`, so the baseline EIR is inverted from the same prevalence
+Every scenario carries the same `EirTarget`, so the baseline EIR is inverted from the same prevalence
 under the same current net mix. Any difference is caused by the campaign alone.
 
 ## Building the grid
@@ -49,7 +49,7 @@ len(grid)
 ## One call
 
 `run_scenarios` takes the list, loads the models once, and puts the five scenarios through the
-emulator as a single batch. Five arms cost barely more than one.
+emulator as a single batch. Five scenarios cost barely more than one.
 
 ```{python}
 res = run_scenarios(grid)
@@ -66,7 +66,7 @@ Check the baseline columns first.
 res[["name", "dn0_use", "itn_use", "eir_baseline", "prev_y9"]]
 ```
 
-All five arms share the same `dn0_use`, the same `itn_use`, an `eir_baseline` of about 32
+All five share the same `dn0_use`, the same `itn_use`, an `eir_baseline` of about 32
 infectious bites per person per year, and a `prev_y9` of about 0.456 against the 0.45 that went
 in. They diverge only after the campaign.
 
@@ -81,11 +81,11 @@ res[[
 
 Read the `dn0_future` column first, because at resistance 0.30 a pyrethroid-only net kills about
 0.31 of the mosquitoes that touch it, a PBO net about 0.48, and a pyrrole net about 0.55. The
-ordering of the three net arms follows from that column, every other covariate being held fixed.
+ordering of the three net scenarios follows from that column, every other covariate being held fixed.
 
-The combination arm carries the PBO `dn0_future` (the nets are the same nets) and adds spraying
+The combination scenario carries the PBO `dn0_future` (the nets are the same nets) and adds spraying
 at 0.60 and larviciding at 0.30 on top. Its endline prevalence comes out an order of magnitude
-below any net-only arm.
+below any net-only scenario.
 
 ## Withdrawal
 
@@ -109,12 +109,12 @@ like_for_like = res.loc[res["name"] == "Pyrethroid-only"].iloc[0]
 float(withdraw["prev_endline"]), float(like_for_like["prev_endline"])
 ```
 
-The withdrawal arm ends about one and a half prevalence points above like-for-like replacement, a
+Withdrawal ends about one and a half prevalence points above like-for-like replacement, a
 gap small enough to be mistaken for noise. The difference in cumulative case burden between the
 two is considerably larger, as [Trajectories and cases](comparing.qmd) works out.
 
 ## See also
 
-[Trajectories and cases](comparing.qmd) plots the five arms and integrates the burden each
+[Trajectories and cases](comparing.qmd) plots the five scenarios and integrates the burden each
 campaign averts, and [Exporting results](exporting.qmd) gets the grid out of Python. Please see
 [Nets and dn0](../04-estimint/nets-and-dn0.qmd) for the resistance curves behind `dn0_future`.

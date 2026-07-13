@@ -30,9 +30,9 @@ scenarios grouped by path and each group handled in one batched call.
 |---|---|
 | `input_mode == "eir"` | The supplied value is used unchanged. No model runs. |
 | `input_mode` is `"prevalence"` or `"hbr"`, with `mosquito_delta == 0` | The value is appended to the six intervention covariates as `prev_y9` or `hbr_y9`, and the matching XGBoost model predicts the EIR. |
-| `input_mode == "prevalence"` with a non-zero `mosquito_delta` | Routed to `estimate_eir_with_mosquito_delta`, which estimates the baseline EIR, converts it to an HBR, scales that HBR by `1 + mosquito_delta`, and reads the EIR back off the HBR model as a **ratio** against the round trip. |
+| `input_mode == "prevalence"` with a non-zero `mosquito_delta` | Routed to `estimate_eir_with_mosquito_delta`, which estimates the baseline EIR, converts it to an HBR, scales that HBR by `1 + mosquito_delta`, and reads the EIR back off the HBR model as a **ratio**. |
 
-The ratio is taken because the prevalence → EIR → HBR → EIR round trip does not close exactly, and
+The ratio is taken because prevalence → EIR → HBR → EIR does not return the EIR it started from, and
 `mosquito_delta` is meaningful only for a prevalence input, ignored in silence by the other two
 modes.
 

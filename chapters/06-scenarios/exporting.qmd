@@ -6,7 +6,7 @@ The frame `run_scenarios` returns does not travel as it stands, because two of i
 NumPy arrays rather than numbers, and an array written into a CSV cell comes back as text. The
 scalars and the trajectories need separate files.
 
-The grid is the five arms from [A scenario grid](scenario-grid.qmd).
+The grid is the five scenarios from [A scenario grid](scenario-grid.qmd).
 
 ```{python}
 import pathlib

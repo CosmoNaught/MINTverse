@@ -143,7 +143,7 @@ for a, mean in annual.items():
 ```
 
 The three campaigns are identical before the rule, and at the campaign step the trajectory
-passes within a few thousandths of 0.45, the prevalence estiMINT was given. Run that round trip
+passes within a few thousandths of 0.45, the prevalence estiMINT was given. Run that check
 on every scenario.
 
 The agreement holds at `idx_y9` and not on average, because the annual means run from 0.33 to

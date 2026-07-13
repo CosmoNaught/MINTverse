@@ -3,7 +3,7 @@ title: "Internals"
 ---
 
 The three pages that follow document the machinery behind the user-facing calls. None of it is
-needed to run a scenario. It is needed to extend the stack, to read its source, or to account for
+needed to run a scenario. It is needed to extend either package, to read its source, or to account for
 behaviour the packages never announce, such as an input clamped to the edge of its domain.
 
 ::: {.chapter-outline}

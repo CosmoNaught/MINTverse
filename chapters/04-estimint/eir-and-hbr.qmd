@@ -50,7 +50,7 @@ back = run_xgb_model(pd.DataFrame([{**setting, "hbr_y9": hbr}]), hbr_to_eir)[0]
 f"eir = {back:.2f}"
 ```
 
-## Round-trip error
+## Converting back
 
 ```{python}
 trip = pd.DataFrame([{
@@ -75,8 +75,8 @@ about the districts.
 ::: {.callout-note}
 ## The ratio in the density method
 
-This gap is why [`estimate_eir_with_mosquito_delta`](mosquito-density.qmd) never uses a round-tripped
-EIR as an answer. It predicts the EIR at *both* the baseline HBR and the changed HBR and keeps only
+This gap is why [`estimate_eir_with_mosquito_delta`](mosquito-density.qmd) never takes an EIR that
+has been through both models as an answer. It predicts the EIR at *both* the baseline HBR and the changed HBR and keeps only
 the **ratio** of the two, in which the common bias cancels. The ratio is then applied to a baseline
 EIR from the prevalence model, which never went near the HBR models.
 :::

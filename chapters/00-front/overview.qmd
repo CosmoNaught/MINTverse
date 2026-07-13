@@ -35,7 +35,7 @@ output in a few milliseconds per scenario. It runs on a CPU.
 fig, axes = plt.subplots(1, 2, figsize=(11.0, 3.3))
 for ax, predictor, ylab in zip(axes, ("prevalence", "cases"),
                                ("prevalence", "cases per 1000 per day")):
-    truth_panel(ax, 16, predictor, oracle=False)
+    truth_panel(ax, 16, predictor, emulator=False)
     ax.set_xlabel("years from campaign")
     ax.set_ylabel(ylab)
 axes[0].plot([], [], color=TRUTH, lw=3.4, label="malariasimulation")

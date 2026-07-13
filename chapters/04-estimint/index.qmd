@@ -11,7 +11,7 @@ Everything it returns is an equilibrium value at the campaign. The trajectories 
 ::: {.chapter-outline}
 - [Nets and dn0](nets-and-dn0.qmd) — `calculate_dn0`, `net_types`, and resistance.
 - [Estimating EIR from prevalence](estimating-eir.qmd) — the `prevalence` model.
-- [EIR and HBR](eir-and-hbr.qmd) — the `hbr` and `eir_to_hbr` models, and round-trip error.
+- [EIR and HBR](eir-and-hbr.qmd) — the `hbr` and `eir_to_hbr` models, and the error in converting back.
 - [Mosquito density and EIR](mosquito-density.qmd) — `estimate_eir_with_mosquito_delta`.
 - [estiMINT API](api.qmd) — every function and dataclass.
 :::

@@ -47,7 +47,7 @@ The method runs in five steps, each justified in [EIR and HBR](eir-and-hbr.qmd).
 5. The **new EIR** is the *baseline* EIR times the **ratio** of those two predictions.
 
 The EIR the `hbr` model predicts at `hbr_new` is not itself the answer, because every prediction
-from that model inherits the round-trip bias measured in [EIR and HBR](eir-and-hbr.qmd), where an
+from that model inherits the bias measured in [EIR and HBR](eir-and-hbr.qmd), where an
 EIR of 13.40 comes back as 14.23. Taking a ratio cancels it.
 
 ## A density sweep

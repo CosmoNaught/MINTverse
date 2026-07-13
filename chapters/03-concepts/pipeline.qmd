@@ -74,7 +74,7 @@ milliseconds rather than minutes.
 #| fig-cap: "One held-out parameter set, under a campaign of nets and indoor spraying. The white line is malariasimulation, averaged over the individual stochastic runs drawn in grey. The red line is the pipeline, from a measured prevalence through estiMINT to stateMINT."
 #| fig-alt: "Prevalence over seven years. The red pipeline prediction follows the white simulator average through the pre-campaign equilibrium and the drop at year zero, settling around one percentage point below it in the final years."
 fig, ax = plt.subplots(figsize=(7.6, 3.4))
-truth_panel(ax, 27, "prevalence", oracle=False)
+truth_panel(ax, 27, "prevalence", emulator=False)
 ax.plot([], [], color=TRUTH, lw=3.4, label="malariasimulation")
 ax.plot([], [], color=PIPELINE, lw=1.8, label="pipeline")
 ax.set_xlabel("years from campaign")
