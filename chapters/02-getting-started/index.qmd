@@ -13,10 +13,7 @@ of a new install slower than every call that follows it. Please see [Python for 
 Modellers](../01-python/index.qmd) if virtual environments are new.
 
 ::: {.chapter-outline}
-- [Installation](installation.qmd)
-    - The install command, the extras, and where the model weights live.
-- [Quickstart](quickstart.qmd)
-    - A switch to pyrethroid-PBO nets, from a measured prevalence to a plotted trajectory.
-- [Coming from R](coming-from-r.qmd)
-    - The tidyverse idioms in pandas, and what a dataclass is.
+- [Installation](installation.qmd) — The install command, the extras, and where the model weights live.
+- [Quickstart](quickstart.qmd) — A switch to pyrethroid-PBO nets, from a measured prevalence to a plotted trajectory.
+- [Coming from R](coming-from-r.qmd) — The tidyverse idioms in pandas, and what a dataclass is.
 :::

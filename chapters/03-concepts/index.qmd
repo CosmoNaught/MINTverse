@@ -12,14 +12,9 @@ lethality number, `dn0`, before either stage will accept them. Both stages have 
 domain, and both enforce it silently. Nothing is fitted at call time.
 
 ::: {.chapter-outline}
-- [The MINTverse pipeline](pipeline.qmd)
-    - The two stages, `run_scenarios`, and the domain limits both packages enforce silently.
-- [EIR, HBR, prevalence, and cases](equilibrium.qmd)
-    - The four quantities, their units, and the difference between an equilibrium and a trajectory.
-- [Interventions and nets](interventions.qmd)
-    - The four net formulations, pyrethroid resistance, and `dn0`.
-- [The models](models.qmd)
-    - Three gradient-boosted trees in `estimint`, and one state-space emulator in `stateMINT`.
-- [Accuracy and speed](validation.qmd)
-    - The emulator against the simulator on held-out runs, and what a prediction costs.
+- [The MINTverse pipeline](pipeline.qmd) — The two stages, `run_scenarios`, and the domain limits both packages enforce silently.
+- [EIR, HBR, prevalence, and cases](equilibrium.qmd) — The four quantities, their units, and the difference between an equilibrium and a trajectory.
+- [Interventions and nets](interventions.qmd) — The four net formulations, pyrethroid resistance, and `dn0`.
+- [The models](models.qmd) — Three gradient-boosted trees in `estimint`, and one state-space emulator in `stateMINT`.
+- [Accuracy and speed](validation.qmd) — The emulator against the simulator on held-out runs, and what a prediction costs.
 :::

@@ -76,6 +76,10 @@ TEASER_HEADING_RE = re.compile(
     re.I,
 )
 
+# An index item pairing a link with a gloss. The one construct allowed an em-dash, because it
+# is a label rather than a sentence. Exactly one dash, and it must follow the link.
+LINK_GLOSS = re.compile(r"^\s*[-*] \[[^\]]+\]\([^)]+\) — [^—]+$")
+
 # Numeric ranges (0–1, 0.7–0.95) are the only place an en-dash is allowed.
 EN_DASH_IN_PROSE = re.compile(r"(?<!\d)–|–(?!\d)")
 # A colon after a word, closing bracket, backtick or quote, followed by more prose on the
@@ -139,7 +143,9 @@ def violations(path: Path) -> list[tuple[int, str, str]]:
     text = path.read_text()
     hits = []
 
-    # Em-dashes anywhere outside code, including in the link glosses that list items carry.
+    # Em-dashes are banned in prose. They are allowed in exactly one place, the index items
+    # that pair a link with a gloss ("- [Title](x.qmd) — what the page covers"), which are a
+    # label and not a sentence.
     in_code = False
     for lineno, line in enumerate(text.split("\n"), 1):
         if line.lstrip().startswith("```"):
@@ -147,7 +153,7 @@ def violations(path: Path) -> list[tuple[int, str, str]]:
             continue
         if in_code or line.strip().startswith("#|"):
             continue
-        if "—" in line:
+        if "—" in line and not LINK_GLOSS.match(line):
             hits.append((lineno, "em-dash", line.strip()))
 
     for lineno, line in prose_lines(text):

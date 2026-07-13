@@ -13,14 +13,10 @@ by estiMINT's XGBoost models and the trajectories by stateMINT's Mamba2 emulator
 imported from `stateMINT` directly.
 
 ::: {.chapter-outline}
-- [Running scenarios](run-scenarios.qmd)
-    - The `Scenario` and `EirTarget` fields, and every column that comes back.
-- [A scenario grid](scenario-grid.qmd)
-    - Five campaigns run against one shared baseline.
-- [Trajectories and cases](comparing.qmd)
-    - Prevalence, clinical incidence, and the burden each campaign averts.
-- [Exporting results](exporting.qmd)
-    - Scalar summaries to CSV, trajectories to a tidy table R can read.
+- [Running scenarios](run-scenarios.qmd) — The `Scenario` and `EirTarget` fields, and every column that comes back.
+- [A scenario grid](scenario-grid.qmd) — Five campaigns run against one shared baseline.
+- [Trajectories and cases](comparing.qmd) — Prevalence, clinical incidence, and the burden each campaign averts.
+- [Exporting results](exporting.qmd) — Scalar summaries to CSV, trajectories to a tidy table R can read.
 :::
 
 Two ways of driving the API run through the pages that follow, the first varying every axis at

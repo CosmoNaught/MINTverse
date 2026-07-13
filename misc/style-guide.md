@@ -6,7 +6,19 @@ what follows and fails the build on any violation.
 
 ## Punctuation
 
-- **No em-dashes.** The malariasimulation corpus contains none. Parentheses do the aside work.
+- **No em-dashes in prose.** The malariasimulation corpus contains none. Parentheses do the
+  aside work. The one exception is a chapter-index item, where an em-dash separates a page from
+  its gloss, because that is a label rather than a sentence.
+
+  ```markdown
+  ::: {.chapter-outline}
+  - [Installation](installation.qmd) — The install command, the extras, and where the model weights live.
+  - [Quickstart](quickstart.qmd) — A switch to pyrethroid-PBO nets, from a measured prevalence to a plotted trajectory.
+  :::
+  ```
+
+  The gloss still states what the page covers. It does not tease it ("two stages, and why the
+  chain runs from prevalence rather than to it" is what we are getting away from, not the dash).
 - **No semicolons in prose.**
 - **No colons in the middle of a sentence.** A colon at the end of a line, introducing a code
   block or a list, is fine.

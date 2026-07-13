@@ -10,12 +10,9 @@ accounts for behaviour the packages never announce, such as an input clamped to 
 its domain.
 
 ::: {.chapter-outline}
-- [Pipeline architecture](architecture.qmd)
-    - The five steps of `run_scenarios`, the three EIR paths, and the one batched call.
-- [estiMINT internals](estimint-internals.qmd)
-    - The model bundle, the monotone sweep over a boosted tree, and the clamped input domains.
-- [stateMINT internals](statemint-internals.qmd)
-    - The Mamba2 backbone, the sixteen-column input tensor, and the target transforms.
+- [Pipeline architecture](architecture.qmd) — The five steps of `run_scenarios`, the three EIR paths, and the one batched call.
+- [estiMINT internals](estimint-internals.qmd) — The model bundle, the monotone sweep over a boosted tree, and the clamped input domains.
+- [stateMINT internals](statemint-internals.qmd) — The Mamba2 backbone, the sixteen-column input tensor, and the target transforms.
 :::
 
 The pages are independent and can be read in any order, though each assumes the user-facing

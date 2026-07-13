@@ -10,16 +10,11 @@ single equilibrium value rather than a trajectory, because the trajectories come
 [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd).
 
 ::: {.chapter-outline}
-- [Nets and dn0](nets-and-dn0.qmd)
-    - A net mix and a resistance level become the two numbers the models consume.
-- [Estimating EIR from prevalence](estimating-eir.qmd)
-    - The core inversion, and the reason a lookup table will not do.
-- [EIR and HBR](eir-and-hbr.qmd)
-    - The other two models, and the error a round trip through both accumulates.
-- [Mosquito density and EIR](mosquito-density.qmd)
-    - The effect of larviciding, or of a wetter climate, on transmission.
-- [estiMINT API](api.qmd)
-    - The inference surface, function by function.
+- [Nets and dn0](nets-and-dn0.qmd) — A net mix and a resistance level become the two numbers the models consume.
+- [Estimating EIR from prevalence](estimating-eir.qmd) — The core inversion, and the reason a lookup table will not do.
+- [EIR and HBR](eir-and-hbr.qmd) — The other two models, and the error a round trip through both accumulates.
+- [Mosquito density and EIR](mosquito-density.qmd) — The effect of larviciding, or of a wetter climate, on transmission.
+- [estiMINT API](api.qmd) — The inference surface, function by function.
 :::
 
 ## The three models

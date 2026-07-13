@@ -22,16 +22,11 @@ each, one for prevalence and one for cases, and the first call downloads and cac
 later call reads the cache.
 
 ::: {.chapter-outline}
-- [Covariates and the time grid](covariates.qmd)
-    - The twelve covariates that describe a setting and a campaign, and the grid they are laid on.
-- [Calling the emulator](the-emulator.qmd)
-    - Loading a checkpoint and getting a trajectory out of it.
-- [Plotting trajectories](plotting.qmd)
-    - Reading the output against the real time axis.
-- [Performance and caching](performance.qmd)
-    - The download and the compilation are paid once, and then batches are cheap.
-- [stateMINT API](api.qmd)
-    - The inference surface, function by function.
+- [Covariates and the time grid](covariates.qmd) — The twelve covariates that describe a setting and a campaign, and the grid they are laid on.
+- [Calling the emulator](the-emulator.qmd) — Loading a checkpoint and getting a trajectory out of it.
+- [Plotting trajectories](plotting.qmd) — Reading the output against the real time axis.
+- [Performance and caching](performance.qmd) — The download and the compilation are paid once, and then batches are cheap.
+- [stateMINT API](api.qmd) — The inference surface, function by function.
 :::
 
 ## Inputs and outputs
