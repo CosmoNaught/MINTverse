@@ -13,7 +13,7 @@ are both ordinary, and they cannot share a library directory. A Python project t
 every other project. That is what a *virtual environment* is. You create one at the start of
 every Python project.
 
-*(RStudio user: this is exactly `renv`, and for exactly the same reason. The difference is that in Python it is not optional.)*
+*(RStudio user, this is exactly `renv`, and for exactly the same reason. The difference is that in Python it is not optional.)*
 
 ## What `pip` is
 
@@ -24,7 +24,7 @@ can find it.
 pip install pandas
 ```
 
-*(RStudio user: this is `install.packages("dplyr")`. The repository it downloads from is [PyPI](https://pypi.org), which is CRAN. `import pandas` is then `library(dplyr)`.)*
+*(RStudio user, this is `install.packages("dplyr")`. The repository it downloads from is [PyPI](https://pypi.org), which is CRAN. `import pandas` is then `library(dplyr)`.)*
 
 The critical difference from R is that `pip` installs into **whichever interpreter is running
 it**. If you have three Pythons, you have three `pip`s, and they install into three different
@@ -53,7 +53,7 @@ A virtual environment is a directory, conventionally `.venv`, inside the project
 Rebuilding it from the lockfile restores it identically. It belongs to one project, and it is
 never committed to version control.
 
-*(RStudio user: `.venv/` is `renv/library/`, and it is `.gitignore`d for the same reason.)*
+*(RStudio user, `.venv/` is `renv/library/`, and it is `.gitignore`d for the same reason.)*
 
 ## The uv workflow
 
@@ -80,7 +80,7 @@ No interpreter is named by hand, so the wrong one cannot be named.
 To add a package later it is `uv add <name>`, to remove one `uv remove <name>`, and to
 reproduce someone else's project after cloning it, `uv sync`.
 
-*(RStudio user: `uv add` is `install.packages()` **and** `renv::snapshot()` in one step. It installs the package and records it. `uv sync` is `renv::restore()`.)*
+*(RStudio user, `uv add` is `install.packages()` **and** `renv::snapshot()` in one step. It installs the package and records it. `uv sync` is `renv::restore()`.)*
 
 ### What it writes
 
@@ -191,9 +191,9 @@ misreport.
 
 The third is the **VS Code status bar**, at the bottom-right of the window. It names the
 interpreter the editor will use for *Run*, for the Interactive Window, and for notebooks. It
-is set with `Python: Select Interpreter` from the command palette; see
-[Working in VS Code](vscode.qmd). It is independent of what your terminal has activated, and
-the two often disagree.
+is set with `Python: Select Interpreter` from the command palette, which
+[Working in VS Code](vscode.qmd) covers. It is independent of what your terminal has
+activated, and the two often disagree.
 
 ## Diagnosing a failed import
 
@@ -202,7 +202,7 @@ Almost every one of these is the wrong interpreter, not a broken package:
 - `ModuleNotFoundError: No module named 'estimint'` immediately after a successful install.
 - The install printing `Requirement already satisfied` for a package the script cannot import.
 - Code that runs in the terminal but not in VS Code, or the reverse.
-- Code that runs in a script but not in a notebook, which is the same fault, in the kernel. See [Notebooks](notebooks.qmd).
+- Code that runs in a script but not in a notebook, which is the same fault, in the kernel. Please see [Notebooks](notebooks.qmd).
 
 The diagnosis is one line. Print `sys.executable` from the place that fails, print it from
 the place that works, and compare the two:
@@ -215,10 +215,12 @@ If the two paths differ, that is the fault. The cure is either to install into t
 interpreter that fails, or to stop naming interpreters and let `uv run` do it.
 
 One wrinkle is specific to this stack. You install `mintstate` but import `stateMINT`, so
-`pip list` shows `mintstate` and no `stateMINT`. That is expected. See
+`pip list` shows `mintstate` and no `stateMINT`. That is expected. Please see
 [Installation](../02-getting-started/installation.qmd).
 
-## Next
+## See also
 
-- [Notebooks](notebooks.qmd) — kernels, which is the same interpreter question again.
-- [Installation](../02-getting-started/installation.qmd) — install MINTverse into the environment you just built.
+A notebook kernel is an interpreter like any other, so the question of which one is running
+returns in exactly the form it took here, and [Notebooks](notebooks.qmd) works through it.
+Please see [Installation](../02-getting-started/installation.qmd) for putting MINTverse into
+the environment you have just built.

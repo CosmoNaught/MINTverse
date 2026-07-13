@@ -2,10 +2,10 @@
 title: "Python for Malaria Modellers"
 ---
 
-MINTverse is written in Python. The machine-learning libraries it is built on are written in
-Python, and that settles it. You can keep the rest of your work in R, and the models are
-still reachable, but only from a Python session. If you already write Python and work in
-virtual environments, go straight to [Getting Started](../02-getting-started/index.qmd).
+MINTverse is written in Python because the machine-learning libraries it is built on are
+written in Python. You can keep the rest of your work in R, and the models are still
+reachable, but only from a Python session. If you already write Python and work in virtual
+environments, go straight to [Getting Started](../02-getting-started/index.qmd).
 
 Most of the trouble an R user has with Python is not the language. It is that a package can
 install successfully and then fail to import. The interpreter that ran `pip` and the
@@ -14,10 +14,16 @@ shared library. Python cannot, because Python projects routinely need conflictin
 of the same package. The setup below is arranged to prevent that.
 
 ::: {.chapter-outline}
-- [What Python is](what-is-python.qmd) — the language, and how it differs from R.
-- [Python tools](toolchain.qmd) — `pip`, virtual environments and `uv`, in R terms.
-- [Installing Python](installing-python.qmd) — `uv`, and an interpreter for it to install.
-- [Working in VS Code](vscode.qmd) — the editor, mapped onto the RStudio panes.
-- [Environments and packages](environments.qmd) — a package library per project.
-- [Notebooks](notebooks.qmd) — `.ipynb` files, kernels, and hidden state.
+- [What Python is](what-is-python.qmd)
+    - The language, and how it differs from R.
+- [Python tools](toolchain.qmd)
+    - `pip`, virtual environments and `uv`, in R terms.
+- [Installing Python](installing-python.qmd)
+    - `uv`, and an interpreter for it to install.
+- [Working in VS Code](vscode.qmd)
+    - The editor, mapped onto the RStudio panes.
+- [Environments and packages](environments.qmd)
+    - A package library per project.
+- [Notebooks](notebooks.qmd)
+    - `.ipynb` files, kernels, and hidden state.
 :::

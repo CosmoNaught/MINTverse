@@ -4,42 +4,22 @@ title: "Orientation"
 
 ## Two packages
 
-- **estiMINT** estimates transmission intensity. Given a measured prevalence and the setting it was measured in (the net mix, the resistance level and the biting behaviour of the local vector), it returns the EIR, and it relates EIR to the human biting rate. Everything it produces is a single equilibrium value. See [estiMINT](../04-estimint/index.qmd).
-- **stateMINT** emulates the individual-based model. Given twelve covariates describing the setting and the campaign, it returns 157 fortnightly values of prevalence, or of clinical cases, spanning three years before the campaign and three years after. See [stateMINT](../05-statemint/index.qmd).
+`estimint` estimates transmission intensity from a measured prevalence and the setting it was measured in, meaning the net mix, the resistance level, and the local vector's biting behaviour. It returns the EIR, and the human biting rate that EIR implies. Everything it produces is a single equilibrium value.
 
-`run_scenarios`, in `estimint`, runs both. It converts a net mix into net effectiveness,
-estimates the baseline EIR, and then calls the emulator with the result. Use it unless
-you need one of the models on its own. See
-[Running Scenarios](../06-scenarios/index.qmd).
+`stateMINT` emulates the individual-based model, and given twelve covariates describing the setting and the campaign it returns 157 fortnightly values of prevalence, or of clinical cases, over three years either side of the campaign. The emulator is the only source of trajectories.
+
+`run_scenarios`, in `estimint`, runs both. It converts a net mix into net effectiveness, estimates the baseline EIR, and calls the emulator. The order is forced, because the emulator takes an EIR and a user almost never has one. Use it unless you need one of the models on its own.
 
 ## Reading paths
 
-- New to Python: start at [Python for Malaria Modellers](../01-python/index.qmd), which begins with installing an interpreter and assumes nothing beyond that.
-- Comfortable with Python: start at [Getting Started](../02-getting-started/index.qmd), which covers installation, a first scenario, and a map of the R idioms that do not carry over.
-- Here for one specific task: EIR and net effectiveness are in [estiMINT](../04-estimint/index.qmd), trajectories in [stateMINT](../05-statemint/index.qmd), and whole campaigns in [Running Scenarios](../06-scenarios/index.qmd).
-- Extending the stack: [Under the Hood](../07-under-the-hood/index.qmd), none of which you need in order to use MINTverse.
+Readers new to Python should start at [Python for Malaria Modellers](../01-python/index.qmd), which begins with installing an interpreter, and readers already comfortable with Python should start at [Getting Started](../02-getting-started/index.qmd), which covers installation, a first scenario, and the R idioms that do not carry over. [Core Concepts](../03-concepts/index.qmd) explains the models, and [Internals](../07-under-the-hood/index.qmd) covers the internals, which nobody needs in order to use MINTverse.
 
 ## Conventions
 
-Python blocks are executed. The output below each one is what the code produced. Shell
-blocks, and the occasional R block shown for comparison, are transcripts.
+Python blocks are executed, and the output below each one is what the code produced. Shell blocks, and the occasional R block shown for comparison, are transcripts.
 
-`pip install estimint mintstate` installs both packages. You install `mintstate` but
-import `stateMINT`, with the capitals. That mismatch is the most common cause of a
-failed import, and the first entry in [Troubleshooting](../troubleshooting.qmd).
+`pip install estimint mintstate` installs both packages. You install `mintstate` but import `stateMINT`, with the capitals. That mismatch is the commonest cause of a failed import, and the first entry in [Troubleshooting](../troubleshooting.qmd).
 
 ## Entry points
 
-The examples use a small set of functions. Four are from `estimint` and one is from
-`stateMINT`.
-
-**From `estimint`**
-
-- `load_xgb_model` and `run_xgb_model` load and run the three bundled gradient-boosted models.
-- `calculate_dn0` converts a net mix and a resistance level into net effectiveness.
-- `estimate_eir_with_mosquito_delta` re-estimates EIR under a change in mosquito density.
-- `run_scenarios` turns a list of `Scenario` objects into a table of trajectories.
-
-**From `stateMINT`**
-
-- `Mamba2Regressor.from_pretrained` loads the emulator weights, one predictor at a time.
+The examples use a small set of functions, four from `estimint` and one from `stateMINT`, documented argument by argument in the [estiMINT API](../04-estimint/api.qmd) and the [stateMINT API](../05-statemint/api.qmd).

@@ -105,18 +105,18 @@ website:
             text: "Performance and caching"
           - href: chapters/05-statemint/api.qmd
             text: "stateMINT API"
-      - section: "Running Scenarios"
+      - section: "Scenarios"
         href: chapters/06-scenarios/index.qmd
         contents:
           - href: chapters/06-scenarios/run-scenarios.qmd
-            text: "One call, end to end"
+            text: "Running scenarios"
           - href: chapters/06-scenarios/scenario-grid.qmd
             text: "A scenario grid"
           - href: chapters/06-scenarios/comparing.qmd
-            text: "Comparing campaigns"
+            text: "Trajectories and cases"
           - href: chapters/06-scenarios/exporting.qmd
             text: "Exporting results"
-      - section: "Under the Hood"
+      - section: "Internals"
         href: chapters/07-under-the-hood/index.qmd
         contents:
           - href: chapters/07-under-the-hood/architecture.qmd

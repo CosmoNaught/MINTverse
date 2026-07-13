@@ -40,7 +40,7 @@ inside it. There is no activation step, so activation cannot be forgotten. It is
 fastest of the options, and resolving and installing this stack takes seconds rather than
 minutes.
 
-*(RStudio user: `uv` is doing roughly what `renv` does when it bootstraps a project library and keeps it in step with a lockfile. The extra trick is that it also installs R itself, the interpreter, which `renv` does not.)*
+*(RStudio user, `uv` is doing roughly what `renv` does when it bootstraps a project library and keeps it in step with a lockfile. The extra trick is that it also installs R itself, the interpreter, which `renv` does not.)*
 
 Use **VS Code and `uv`**. `pip` still runs underneath. You will meet it in other people's
 instructions, so it is worth knowing what it is even if you never type it.
@@ -72,8 +72,9 @@ my-project/
 Commit `pyproject.toml` and `uv.lock`. Ignore `.venv/`. A colleague who clones the repository
 and runs `uv sync` then ends up with bit-for-bit the packages you had.
 
-## Next
+## See also
 
-- [Installing Python](installing-python.qmd) — get `uv`, and let it get Python.
-- [Working in VS Code](vscode.qmd) — the editor, mapped onto RStudio.
-- [Environments and packages](environments.qmd) — the same ground in detail, including `pip`.
+Getting `uv` onto the machine, and letting it fetch a Python interpreter for you, is the
+subject of [installing Python](installing-python.qmd). The editor, mapped onto RStudio pane by
+pane, is covered in [working in VS Code](vscode.qmd). Please see
+[environments and packages](environments.qmd) for the same ground in detail, including `pip`.

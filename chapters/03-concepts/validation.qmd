@@ -73,7 +73,7 @@ Note that the simulator traces are noisy. An individual-based model produces a s
 trajectory and the emulator predicts the smooth expectation through it, so part of the residual
 here is the simulator's own Monte Carlo noise rather than emulator error.
 
-## The pipeline against the simulator
+## Pipeline error and emulator error
 
 The figure above gives the emulator the EIR the simulator itself was run at. A user does not
 have that number and has to estimate it from a prevalence survey, so the error they see is the
@@ -205,4 +205,4 @@ or behind a web form, at interactive speed.
 What is actually inside the emulator is described in [The models](models.qmd), and the download,
 the compilation and the GPU extra in
 [Performance and caching](../05-statemint/performance.qmd). Please see
-[Comparing campaigns](../06-scenarios/comparing.qmd) for the speed put to use.
+[Trajectories and cases](../06-scenarios/comparing.qmd) for the speed put to use.

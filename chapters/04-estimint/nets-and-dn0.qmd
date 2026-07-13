@@ -2,17 +2,16 @@
 title: "Nets and dn0"
 ---
 
-A net enters the models as two numbers: `dn0_use`, the probability that a mosquito is
-killed when it contacts a treated net, and `itn_use`, the share of the population
-sleeping under one. Which insecticide the net carries, and how resistant the local
-mosquitoes have become, is compressed entirely into `dn0_use`.
-
-`calculate_dn0` does that compression. It is the first call in almost every `estimint`
-workflow.
+A net enters both models as two numbers, `dn0_use`, the probability that a mosquito is killed when
+it contacts a treated net, and `itn_use`, the share of the population sleeping under one. Which
+insecticide the net carries, and how resistant the local mosquitoes have become, is compressed
+entirely into `dn0_use`. `calculate_dn0` does that compression. It is the first call in almost
+every `estimint` workflow.
 
 ## Net types
 
-Four formulations are modelled. `net_types` returns their canonical names, alphabetically.
+Four formulations are modelled. `net_types` returns their canonical names alphabetically, which
+puts `ppf` before `pyrrole`.
 
 ```{python}
 from estimint import net_types, calculate_dn0
@@ -20,7 +19,7 @@ from estimint import net_types, calculate_dn0
 net_types()
 ```
 
-Each has a short alias, accepted anywhere a net type is. The aliases double as the
+Each formulation has a short alias, accepted anywhere a net type is, and the aliases double as the
 keyword-argument names in the wider API.
 
 | Alias | Canonical name | Formulation |
@@ -30,45 +29,46 @@ keyword-argument names in the wider API.
 | `py_ppf` | `pyrethroid_ppf` | Pyrethroid with pyriproxyfen |
 | `py_pyrrole` | `pyrethroid_pyrrole` | Pyrethroid with chlorfenapyr |
 
-Both spellings are case-insensitive. The canonical names use underscores throughout, and a
+Both spellings are case-insensitive. The canonical names are joined with `_` throughout, so a
 hyphen raises `ValueError: unknown net type`.
 
 ## From a net mix to dn0
 
-`calculate_dn0` takes a resistance level and the net mix as keyword arguments. Each keyword is
-a net type, and each value is the share of the population using that net.
+`calculate_dn0` takes a resistance level and the net mix as keyword arguments, one keyword per net
+type, one value per share of the population using it.
 
 ```{python}
 net = calculate_dn0(0.30, py_only=0.70)
 net
 ```
 
-The return value is a `DN0Result`, a named tuple of exactly two fields. It unpacks and
-attribute-accesses alike.
+What comes back is a `DN0Result`, a named tuple of exactly two fields, which unpacks by position
+and reaches the same two values by attribute.
 
 ```{python}
 net.dn0, net.itn_use
 ```
 
-At 30% pyrethroid resistance, a pyrethroid-only net kills about 31% of the mosquitoes that
-contact it. Coverage is 70%.
+At 30% pyrethroid resistance a pyrethroid-only net kills about 31% of the mosquitoes that contact
+it. Coverage is 70%.
 
-A mix passes more than one net type. Here 40% of the population has pyrethroid-only nets and
-30% has PBO nets. The remaining 30% has no net at all.
+Passing more than one keyword gives a mix, so that here 40% of the population has pyrethroid-only
+nets, 30% has PBO nets, and the remaining 30% has no net at all.
 
 ```{python}
 mix = calculate_dn0(0.30, py_only=0.40, py_pbo=0.30)
 mix
 ```
 
-## The weighted average and the sum
+## dn0 and itn_use
 
-The two fields are constructed differently. Conflating them is the most common error in the
-package.
+The two fields are built differently, one as an average and one as a total.
 
-`dn0` is the **usage-weighted average** of the per-net-type `dn0` values across the mix. That
-makes it a property of the nets that exist rather than of how many people happen to have them.
-The weights are normalised. Reconstruct it by hand.
+`dn0` is the **usage-weighted average** of the per-net-type `dn0` values across the mix, and the
+weights are normalised over the nets in the mix rather than over the population. That makes it a
+property of the nets that exist rather than of how many people own them, so a mix covering 70% of
+the population has the same `dn0` as one covering 20% in the same proportions. Reconstruct it by
+hand.
 
 ```{python}
 only = calculate_dn0(0.30, py_only=1.0).dn0
@@ -78,15 +78,14 @@ by_hand = (0.40 * only + 0.30 * pbo) / (0.40 + 0.30)
 round(by_hand, 5), round(mix.dn0, 5)
 ```
 
-`itn_use` is the **sum** of the shares, 0.40 + 0.30 = 0.70. It is the total ITN coverage of the
-population, and it is already complete.
+`itn_use` is the **sum** of the shares, 0.40 + 0.30 = 0.70, and it is the total ITN coverage of the
+population. It is already complete.
 
 ::: {.callout-warning}
 ## A note on `itn_use`
 
 `DN0Result.itn_use` is the finished coverage figure, not a weight awaiting a coverage term.
-Multiplying it by a usage fraction a second time understates the coverage, and the error is
-silent.
+Multiplying it by a usage fraction a second time understates the coverage. The error is silent.
 
 ```{python}
 net = calculate_dn0(0.30, py_only=0.70)
@@ -94,14 +93,14 @@ net = calculate_dn0(0.30, py_only=0.70)
 net.itn_use, round(net.itn_use * 0.70, 3)  # the second value is the mistake
 ```
 
-The model then reads a district with 49% net coverage rather than 70%, and understates
-the EIR. The size of that error is measured in
+The model then reads a district with 49% net coverage rather than 70%, and understates the EIR the
+setting is judged to need. The size of that error is measured in
 [Estimating EIR from prevalence](estimating-eir.qmd).
 :::
 
 ## Resistance and dn0
 
-Holding usage at 1.0 isolates each formulation's resistance response.
+Holding usage at 1.0 for one formulation at a time isolates its resistance response.
 
 ```{python}
 import pandas as pd
@@ -119,29 +118,27 @@ table.index.name = "net type"
 table
 ```
 
-Read across a row for the decay of one formulation, and down a column to compare
-formulations at a fixed resistance.
-
-The `dn0` of a pyrethroid-only net falls to zero at full resistance. The other three retain
+Read across a row for the decay of one formulation, and down a column to compare formulations at a
+fixed resistance. A pyrethroid-only net falls to zero at full resistance. The other three retain
 some lethality across the whole range.
 
-Pyrrole nets are the most lethal and the flattest. They lose only about a tenth of their `dn0`
-between resistance 0.0 and 0.75, where a pyrethroid-only net loses nearly a third.
-
-PPF nets have a low `dn0` throughout the table. Their effect on the next generation is not
-represented in `dn0` at all, and appears only in the scenario pipeline.
-
-The resistance-to-`dn0` curves come from the same published source that
+Pyrrole nets are the most lethal and the flattest, losing about a tenth of their `dn0` between
+resistance 0.0 and 0.75, where a pyrethroid-only net loses nearly a third. PPF nets sit low
+throughout the table. Their effect on the next generation is not represented in `dn0` at all, and
+reaches the emulator through the `lsm` term instead. The curves come from the same source
 `malariasimulation` uses.
 
 ## Caveats
 
-`dn0` summarises the kill on contact and nothing else. It captures neither repellence nor the
-loss of a net to wear and disuse over a campaign. The resistance level you supply should be the
-local pyrethroid resistance at the decision point, and a single net mix is assumed to hold
-across the population.
+`dn0` summarises the kill on contact and nothing else. It captures neither repellence nor the loss
+of a net to wear and disuse over a campaign, and one net mix is assumed to hold across the whole
+population. The resistance level supplied should be the local pyrethroid resistance at the decision
+point, and because the curves steepen above 0.75, vary it in a sensitivity check.
 
-## Next
+## See also
 
-- [Estimating EIR from prevalence](estimating-eir.qmd) — feed `dn0_use` and `itn_use` into the inversion.
-- [Interventions and nets](../03-concepts/interventions.qmd) — the epidemiology behind the four formulations.
+The two numbers `calculate_dn0` returns feed the inversion set out in
+[Estimating EIR from prevalence](estimating-eir.qmd), which also measures how far a double-counted
+`itn_use` drags the inferred EIR down. Please see
+[Interventions and nets](../03-concepts/interventions.qmd) for the epidemiology behind the four
+formulations.

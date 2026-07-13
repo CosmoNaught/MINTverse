@@ -127,10 +127,11 @@ artefact. There is no R binding to it, and writing one would mean reimplementing
 pass.
 
 `run_scenarios` returns a pandas DataFrame. That writes to CSV or Parquet in a line, and R
-reads either format directly. Working across both languages is routine; see
-[Coming from R](../02-getting-started/coming-from-r.qmd).
+reads either format directly, so working across both languages is routine.
 
-## Next
+## See also
 
-- [Installing Python](installing-python.qmd) — an interpreter new enough to run MINTverse.
-- [Coming from R](../02-getting-started/coming-from-r.qmd) — the R-to-Python translation table for this stack.
+An interpreter new enough to run MINTverse is the one thing you need before any of this code
+will execute, and [Installing Python](installing-python.qmd) covers the versions that work.
+Please see [Coming from R](../02-getting-started/coming-from-r.qmd) for the R-to-Python
+translation table for this stack.

@@ -2,12 +2,13 @@
 title: "Exporting results"
 ---
 
-A scenario grid usually ends up in a report, a costing spreadsheet, or a colleague's R
-session. The frame `run_scenarios` returns does not travel as it stands. Two of its columns
-hold NumPy arrays rather than numbers. The scalars and the trajectories need separate files.
+The frame `run_scenarios` returns does not travel as it stands, because two of its columns hold
+NumPy arrays rather than numbers, and an array written into a CSV cell comes back as text. The
+scalars and the trajectories need separate files. We write the scalar summary to one CSV, stack
+the trajectories into a long table, and read both back in R.
 
-The grid is the same five arms built in [A scenario grid](scenario-grid.qmd), rebuilt from
-the same district dictionary.
+The grid is the same five arms built in [A scenario grid](scenario-grid.qmd), rebuilt from the
+same district dictionary.
 
 ```{python}
 import pathlib
@@ -40,8 +41,8 @@ res = run_scenarios(grid)
 
 ## An output directory
 
-`pathlib` is Python's path library. A `Path` is an object rather than a string, one that
-composes with `/` and can make its own directory.
+`pathlib` is Python's path library. A `Path` is an object rather than a string, one that composes
+with the `/` operator and can make its own directory on disk.
 
 ```{python}
 outputs = pathlib.Path("outputs")
@@ -50,14 +51,15 @@ outputs.mkdir(exist_ok=True)
 outputs.resolve()
 ```
 
-`exist_ok=True` makes the call idempotent, so the cell can be re-run without raising on the
-second pass. Paths are resolved relative to the working directory of the session, not to the
-file the code sits in. Under Quarto the working directory is the project root, so `outputs/`
-lands at the top of the project.
+`exist_ok=True` makes the call idempotent, so the cell can be re-run without raising on the second
+pass. Paths resolve against the working directory of the session rather than the file the code
+sits in, and under Quarto that directory is the project root, so `outputs/` lands at the top of
+the project. `resolve()` prints the absolute path, which is worth reading before a long run starts
+writing into it.
 
 ## The scalar summary
 
-Twenty-one of the twenty-three columns are scalars. Those are the ones that belong in a
+Twenty-one of the twenty-three columns are scalars, and those are the ones that belong in a
 spreadsheet. Drop the other two first.
 
 ```{python}
@@ -69,14 +71,14 @@ pd.read_csv(outputs / "summary.csv")[
 ]
 ```
 
-`index=False` suppresses pandas' row numbers, which are an artefact of the frame and not
-data. Reading the file straight back is worth the two seconds. It is the only way to find
-out that a column expected to be numeric has come back as text.
+`index=False` suppresses pandas' row numbers, which are an artefact of the frame rather than data
+and would otherwise arrive in R as a nameless leading column. Read the file straight back. It is
+the only way to find that a column expected to be numeric has come back as text.
 
 ## Array columns in a CSV
 
-`to_csv` does not refuse an array column. It writes the array's text representation into the
-cell, which is the string that printing the array would produce, brackets and line breaks
+`to_csv` takes an array column without complaint and writes the array's text representation into
+the cell, which is the string that printing the array would produce, brackets and line breaks
 included.
 
 ```{python}
@@ -88,15 +90,15 @@ cell = broken.loc[0, "prevalence"]
 type(cell), len(cell), cell[:60]
 ```
 
-What comes back is a single string some 1,700 characters long, not 157 numbers. The file is
-valid CSV and opens in any spreadsheet, so no error is raised. The column is text from then
-on. Any analysis downstream either fails on it or silently skips it. In R, `read_csv` will
-type it as `chr` and move on.
+What comes back is a single string some 1,700 characters long rather than the 157 numbers that
+went in. Note that no error is raised. The file is valid CSV, the column is text from then on, and
+anything downstream either fails on it or silently skips it. In R, `read_csv` types it as `chr`
+and moves on.
 
-The array is not truncated here. NumPy only elides long arrays above a thousand elements,
-and 157 is below the threshold, so the numbers are all present, embedded in a string with
-newlines in it. Recovering them requires parsing that string. Drop the array columns before
-writing instead.
+The array is not truncated, because NumPy elides only arrays above a thousand elements and 157 is
+below that threshold, so every number the emulator produced is present, embedded in a single
+string with newlines running through it. Recovering them means parsing that string. Drop the array
+columns before writing instead.
 
 ```{python}
 (outputs / "summary-broken.csv").unlink()
@@ -104,9 +106,9 @@ writing instead.
 
 ## Tidy format
 
-The trajectories want their own file in long form, one row per scenario per timestep. That
-is the shape `ggplot2` and `dplyr` expect. Recover the time grid from the emulator, then
-stack the arrays.
+The trajectories want their own file in long form, one row per scenario per timestep, which is the
+shape `ggplot2` and `dplyr` expect. Recover the time grid from the emulator, then stack the
+arrays.
 
 ```{python}
 _, artifacts = preload_models()
@@ -129,17 +131,17 @@ trajectories = pd.DataFrame(
 trajectories.shape
 ```
 
-`np.repeat` gives each scenario name 157 consecutive rows; `np.tile` repeats the time grid
-once per scenario; `np.concatenate` on the list of arrays flattens them in the same order.
-Five scenarios of 157 windows is 785 rows.
+`np.repeat` gives each scenario name 157 consecutive rows, `np.tile` repeats the time grid once
+per scenario, and `np.concatenate` on the list of arrays flattens them in the same order. Five
+scenarios of 157 windows is 785 rows.
 
 ```{python}
 trajectories.head()
 ```
 
-Keeping both `day` and `years` costs one column and saves an argument later. `day` is the
-model's own clock and is what you would join on. `years` is centred on the campaign and is
-what you would plot against.
+Keeping both `day` and `years` costs one column and saves an argument later. `day` is the model's
+own clock and is what you would join on, while `years` is centred on the campaign and is what you
+plot against.
 
 ```{python}
 trajectories.to_csv(outputs / "trajectories.csv", index=False)
@@ -166,24 +168,19 @@ summary |>
 ggplot(traj, aes(x = years, y = prevalence, colour = name)) +
   geom_line(linewidth = 0.8) +
   geom_vline(xintercept = 0, linetype = "dashed") +
-  labs(
-    x = "Years since campaign",
-    y = "Prevalence (under 5)",
-    colour = NULL
-  ) +
+  labs(x = "Years since campaign", y = "Prevalence (under 5)", colour = NULL) +
   theme_minimal()
 ```
 
-`read_csv` types the columns from the data, so `name` comes through as a character vector
-and everything else as a double. The `years` column puts the campaign at zero, which makes
+`read_csv` types the columns from the data, so `name` is a character vector and everything else a
+double. The `years` column puts the campaign at zero, which makes
 `geom_vline(xintercept = 0)` the R equivalent of the dashed campaign rule on the matplotlib
-figures.
+figures. For a longer-lived pipeline, prefer Parquet, with `trajectories.to_parquet()` on the
+Python side and `arrow::read_parquet()` on the R side, which preserves the dtypes exactly and
+produces smaller files into the bargain. A number cannot come back as text.
 
-For a longer-lived pipeline, prefer Parquet over CSV, with `trajectories.to_parquet()` on
-the Python side and `arrow::read_parquet()` on the R side. It preserves dtypes exactly, the
-files are smaller, and a number cannot come back as text.
+## See also
 
-## Next
-
-- [Comparing campaigns](comparing.qmd) — the analysis these files are the output of.
-- [Coming from R](../02-getting-started/coming-from-r.qmd) — pandas and dplyr side by side.
+The analysis these two files are the output of is in [Trajectories and cases](comparing.qmd),
+which plots the five trajectories and integrates the clinical cases. Please see
+[Coming from R](../02-getting-started/coming-from-r.qmd) for pandas and dplyr side by side.

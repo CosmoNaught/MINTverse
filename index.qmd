@@ -1,6 +1,6 @@
 ---
 pagetitle: "MINTverse: malaria intervention modelling"
-description: "Two Python packages for malaria intervention modelling. estiMINT estimates the EIR from a prevalence survey; stateMINT emulates the prevalence and case trajectories under a campaign."
+description: "Two Python packages for malaria intervention modelling. estiMINT estimates the EIR from a measured prevalence, and stateMINT emulates the prevalence and case trajectories that follow a campaign."
 page-layout: full
 toc: false
 anchor-sections: false
@@ -13,9 +13,11 @@ anchor-sections: false
     <p class="mint-eyebrow">Malaria intervention modelling</p>
     <h1 class="mint-wordmark">MINTverse</h1>
     <p class="mint-subtitle">
-      MINTverse is two Python packages. estiMINT estimates the EIR from a prevalence
-      survey. stateMINT emulates the prevalence and case trajectories under a campaign
-      in milliseconds, where the individual-based simulation behind it takes minutes.
+      MINTverse is two Python packages, estiMINT and stateMINT, the first estimating the EIR
+      from a measured prevalence and the setting it was measured in, the second emulating the
+      prevalence and case trajectories that follow a campaign. The emulator returns a
+      trajectory in milliseconds, where the individual-based simulation it replaces takes
+      minutes.
     </p>
     <div class="mint-actions">
       <a class="mint-btn mint-btn-primary" href="chapters/02-getting-started/index.html">Get started</a>
@@ -27,15 +29,15 @@ anchor-sections: false
   <div class="mint-features">
     <div class="mint-card">
       <h3>estiMINT</h3>
-      <p>Estimates the transmission intensity (EIR) and the biting rate (HBR) from a measured prevalence and the setting it was measured in.</p>
+      <p>Estimates the entomological inoculation rate (EIR) and the human biting rate (HBR) from a measured prevalence and the setting it was measured in. Both are single equilibrium values, not trajectories.</p>
     </div>
     <div class="mint-card">
       <h3>stateMINT</h3>
-      <p>Emulates the individual-based model. Predicts how under-5 prevalence and clinical cases move over the three years after a campaign, in milliseconds.</p>
+      <p>Emulates the individual-based model, returning under-5 prevalence and clinical cases over the three years before a campaign and the three years after, in milliseconds per scenario.</p>
     </div>
     <div class="mint-card">
       <h3>New to Python?</h3>
-      <p>Readers coming from R, and meeting Python for the first time, should start with <a href="chapters/01-python/index.html">Python for Malaria Modellers</a>. It covers interpreters, environments, and notebooks, from scratch.</p>
+      <p>Readers coming from R, and meeting Python for the first time, should start with <a href="chapters/01-python/index.html">Python for Malaria Modellers</a>, which covers the interpreter, the environment, and the notebook from scratch.</p>
     </div>
   </div>
 
@@ -49,7 +51,7 @@ anchor-sections: false
     <div class="mint-toc">
       <ul class="mint-toc-front">
         <li><a href="chapters/00-front/overview.html">Overview</a></li>
-        <li><a href="chapters/00-front/reader-guide.html">How to Read These Docs</a></li>
+        <li><a href="chapters/00-front/reader-guide.html">Orientation</a></li>
       </ul>
       <ul class="mint-toc-chapters">
         <li class="mint-toc-ch"><a href="chapters/01-python/index.html">Python for Malaria Modellers</a></li>
@@ -58,7 +60,7 @@ anchor-sections: false
         <li class="mint-toc-ch"><a href="chapters/04-estimint/index.html">estiMINT: EIR and HBR</a></li>
         <li class="mint-toc-ch"><a href="chapters/05-statemint/index.html">stateMINT: the Emulator</a></li>
         <li class="mint-toc-ch"><a href="chapters/06-scenarios/index.html">Running Scenarios</a></li>
-        <li class="mint-toc-ch"><a href="chapters/07-under-the-hood/index.html">Under the Hood</a></li>
+        <li class="mint-toc-ch"><a href="chapters/07-under-the-hood/index.html">Internals</a></li>
       </ul>
       <ul class="mint-toc-back">
         <li><a href="chapters/troubleshooting.html">Troubleshooting</a></li>

@@ -53,7 +53,7 @@ Environments…*, and select the `.venv` inside your project, the one from
 [Environments and packages](environments.qmd), with a path like `.venv/bin/python` or
 `.venv\Scripts\python.exe`.
 
-*(RStudio user: the kernel is the R session behind the console, except that RStudio only ever has one R to attach, so you have never had to pick. Here you do.)*
+*(For the RStudio user, the kernel is the R session behind the console, except that RStudio only ever has one R to attach, so you have never had to pick. Here you do.)*
 
 ::: {.callout-important}
 ## Kernel selection and `ModuleNotFoundError`
@@ -82,7 +82,7 @@ state may not correspond to any reading of it.
 The state is hidden in the sense that it lives in the kernel rather than in the document.
 Reading the notebook does not tell you what the kernel currently holds.
 
-*(RStudio user: this is the same hazard as a long-lived console session with `.RData` quietly carrying objects between runs, which is why "Restart R and Run All Chunks" exists. The Python equivalent is *Restart Kernel and Run All Cells*, and it is worth the same discipline.)*
+*(For the RStudio user, this is the same hazard as a long-lived console session with `.RData` quietly carrying objects between runs, which is why "Restart R and Run All Chunks" exists. The Python equivalent is *Restart Kernel and Run All Cells*, and it is worth the same discipline.)*
 
 Each of these is routine, and each one invalidates a notebook without raising an error:
 
@@ -121,7 +121,8 @@ an EIR. It then plots the prevalence and case trajectories of a set of candidate
 against each other. It is the same material as chapters 4 to 6, in a form you can run and
 edit in place. Open it with the project's `.venv` selected as the kernel.
 
-## Next
+## See also
 
-- [Installation](../02-getting-started/installation.qmd) — install the packages into that environment.
-- [Quickstart](../02-getting-started/quickstart.qmd) — the first scenario, end to end.
+Installing the packages into the environment the kernel points at is the next step, and
+[Installation](../02-getting-started/installation.qmd) walks through it. Please see
+[Quickstart](../02-getting-started/quickstart.qmd) for the first scenario, end to end.

@@ -3,20 +3,20 @@ title: "Overview"
 ---
 
 Evaluating a malaria intervention takes two steps. The first is to estimate how intense
-transmission is in the setting. The second is to predict how prevalence and clinical
-cases respond to a change in nets, spraying, or larviciding. MINTverse does both, with
+transmission is in the setting, and the second is to predict how prevalence and clinical
+cases respond to a change in nets, spraying, or larviciding. MINTverse does both with
 trained models that stand in for a full individual-based simulation. There are two
 packages.
 
 | Package | What it does |
 |---------|--------------|
 | `estimint` | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
-| `stateMINT` | Emulates the individual-based model: given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
+| `stateMINT` | Emulates the individual-based model. Given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
 
-Use `estimint` on its own if you only want transmission intensity, and `stateMINT` on
-its own if you already have an EIR and want a trajectory. One call, `run_scenarios`,
-chains them. It derives net effectiveness from the net mix and the resistance level,
-calls the `estimint` models for the EIR, and hands the result to the emulator.
+Use `estimint` on its own if you only want transmission intensity, and `stateMINT` on its
+own if you already have an EIR and want a trajectory. One call, `run_scenarios`, chains
+them. It derives net effectiveness from the net mix and the resistance level, calls the
+`estimint` models for the EIR, and hands the result to the emulator.
 
 `pip install estimint mintstate` installs both packages. The distribution you install is
 called `mintstate`, but the module you import is `stateMINT`.
@@ -69,18 +69,23 @@ answer.
 
 ## What you need to run it
 
-The emulator is parameterised by twelve numbers. You do not supply them directly,
-because `run_scenarios` derives several of them from the ones you do.
+The emulator is parameterised by twelve numbers. You do not supply them directly, because
+`run_scenarios` derives several of them from the ones you do.
 
 **One measure of transmission.** Exactly one of the following, whichever you have:
 
 | You have | Pass it as | Typical source |
 |---|---|---|
-| Under-5 prevalence at the decision point | `EirTarget(0.45, "prevalence")` | A cross-sectional survey (DHS, MIS) |
+| Under-5 prevalence before the campaign | `EirTarget(0.45, "prevalence")` | A cross-sectional survey (DHS, MIS) |
 | A human biting rate | `EirTarget(250000, "hbr")` | Entomological trapping |
 | An EIR already | `EirTarget(20, "eir")` | A previous calibration |
 
-`estimint` converts whichever of the three you supply into the EIR the emulator takes.
+`estimint` produces single values, not trajectories. It converts whichever of the three
+measures you supply into the EIR the emulator runs from, and the EIR and HBR it reports are
+equilibrium quantities at the moment the campaign starts. Only prevalence and cases have
+trajectories, and those come from `stateMINT`. Please see
+[EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) for how the four quantities
+move through the pipeline.
 
 **The setting.** Four numbers describing the district and its mosquitoes:
 
@@ -91,52 +96,36 @@ because `run_scenarios` derives several of them from the ones you do.
 | `seasonal` | 0 for perennial transmission, 1 for strongly seasonal | Known for the setting |
 | `res_use` | Pyrethroid resistance, 0 to 1 | Bioassay data on the local vector population |
 
-**The interventions in place now.** The current net mix, as usage shares by net type
-(`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`).
-Leave the net keys out entirely if there are no nets. You do **not** compute the net
-killing effect yourself. `calculate_dn0` turns the mix and the resistance level into the
-`dn0` covariate the models consume.
+**The interventions in place now.** The current net mix, as usage shares by net type (`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`).
+Leave the net keys out entirely if there are no nets. You do **not** compute the net killing
+effect yourself, because `calculate_dn0` turns the mix and the resistance level into the `dn0`
+covariate the models consume.
 
-**The campaign you want to evaluate.** The net type and coverage from the campaign
-onwards (`net_type_future`, `itn_future`), and any spraying, larviciding or routine
-distribution that comes with it (`irs_future`, `lsm`, `routine`). These default to zero,
-which means the intervention is **withdrawn** at the campaign.
+**The campaign you want to evaluate.** The net type and coverage from the campaign onwards (`net_type_future`, `itn_future`), and any spraying, larviciding or routine distribution that comes with it (`irs_future`, `lsm`, `routine`).
+These default to zero, which means the intervention is **withdrawn** at the campaign.
 
-Everything else is optional. `mosquito_delta`, which describes a change in mosquito
-density, has no effect on the result at its default of zero.
+Everything else is optional. `mosquito_delta`, which describes a change in mosquito density,
+has no effect on the result at its default of zero.
 
 You do not need a GPU, a `malariasimulation` installation, R, any training data, or any
-weights on disk. Installation pulls the estiMINT models with the wheel. The emulator
-weights download once from Hugging Face on first use.
+weights on disk. Installation pulls the estiMINT models with the wheel. The emulator weights
+download once from Hugging Face on first use.
 
 ::: {.callout-important}
 ## Future coverage must be set explicitly
 
-`itn_future`, `net_type_future` and `irs_future` describe what happens **from** the
-campaign, not what is already there. Left unset, they tell the model to treat the
-existing nets and spraying as **withdrawn** at the campaign. To hold an intervention
-steady you must restate it. See
-[Covariates and the time grid](../05-statemint/covariates.qmd).
+`itn_future`, `net_type_future` and `irs_future` describe what happens **from** the campaign,
+not what is already there. Left unset, they tell the model to treat the existing nets and
+spraying as **withdrawn** at the campaign. To hold an intervention steady you must restate it
+in the future keys. Please see [Covariates and the time grid](../05-statemint/covariates.qmd).
 :::
-
-## EIR and HBR
-
-`estimint` produces single values rather than trajectories. The EIR and HBR it estimates
-are equilibrium quantities at the point an intervention is deployed, not a path through
-time. Only prevalence and cases have trajectories, and those come from `stateMINT`. See
-[EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd).
-
-## Intended audience
-
-MINTverse is built for researchers studying transmission and interventions. We assume
-more familiarity with malaria epidemiology and with R than with Python or machine
-learning. Where a Python idiom differs from its R counterpart in a way that matters, we
-spell the difference out.
 
 ## Where to start
 
-If Python is new, [Python for Malaria Modellers](../01-python/index.qmd) covers the
-interpreter, the environment, and the notebook from scratch. Otherwise install the
-packages and run a first estimate in
-[Getting Started](../02-getting-started/index.qmd). For the ideas behind the models,
-read [Core Concepts](../03-concepts/index.qmd).
+MINTverse is written for researchers studying transmission and interventions, and we assume
+more familiarity with malaria epidemiology and with R than with Python or machine learning, so
+where a Python idiom differs from its R counterpart in a way that matters we spell the
+difference out. If Python is new, [Python for Malaria Modellers](../01-python/index.qmd)
+covers the interpreter, the environment, and the notebook from scratch. Otherwise install the
+packages and run a first estimate in [Getting Started](../02-getting-started/index.qmd). For
+the ideas behind the models, read [Core Concepts](../03-concepts/index.qmd).

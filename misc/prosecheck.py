@@ -235,8 +235,15 @@ def main(argv: list[str]) -> int:
         d = got[k] - target
         flag = ""
         if k == "stdev":
+            # Only uniformity is a fault. Prose more varied than the baseline is fine.
             if d < -TOLERANCE[k]:
                 flag, soft = "  <-- too uniform", soft + 1
+        elif k == "pct_paras_opening_short":
+            # Only an excess is a fault. A paragraph that opens on a short sentence and then
+            # explains it is the teaser pattern these docs exist to avoid, so sitting below
+            # the malariasimulation baseline is the intended direction.
+            if d > TOLERANCE[k]:
+                flag, soft = "  <-- TOO HIGH", soft + 1
         elif abs(d) > TOLERANCE[k]:
             flag = "  <-- TOO HIGH" if d > 0 else "  <-- TOO LOW"
             soft += 1

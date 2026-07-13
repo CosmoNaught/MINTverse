@@ -1,5 +1,5 @@
 ---
-title: "One call, end to end"
+title: "Running scenarios"
 ---
 
 ```{python}
@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-A `Scenario` is a description of a place and a plan. The place is fixed by the survey and
-the entomology; the plan is whatever changes at the campaign. `run_scenarios` takes a list
-of those descriptions and returns a table. The two objects are plain dataclasses,
-importable from either `estimint` or `estimint.scenarios`.
+A `Scenario` describes one setting and one campaign, and `run_scenarios` takes a list of them
+and returns a table with one row each. Both objects are plain dataclasses, importable from
+either `estimint` or `estimint.scenarios`. We describe the fields a scenario takes, run five of
+them that between them exercise every input the pipeline accepts, and read the results back.
 
 ```python
 from estimint import run_scenarios
@@ -20,8 +20,8 @@ from estimint.scenarios import Scenario, EirTarget
 
 ## The seven required fields
 
-These have no defaults and must be given for every scenario. Together they describe the
-setting as it stands, before anything is done to it.
+These have no defaults and must be given for every scenario. Together they describe the setting
+as it stands, before anything is done to it.
 
 | Field | Meaning |
 |---|---|
@@ -34,33 +34,33 @@ setting as it stands, before anything is done to it.
 | `eir_target` | An `EirTarget`. How transmission intensity is specified. |
 
 Three of these are renamed on the way in. `phi` becomes `phi_bednets` and `irs` becomes
-`irs_use`. `res_use` is not a covariate at all, being consumed by the `dn0` curves and
-never reaching the emulator. What the emulator sees is the
+`irs_use`. `res_use` is not a covariate at all, and is consumed by the `dn0` curves without ever
+reaching the emulator. What the emulator sees is the
 [twelve static covariates](../05-statemint/covariates.qmd).
 
 ## The three input modes
 
-`EirTarget(input_value, input_mode)` says what quantity you are handing over. The emulator
-only ever runs from an EIR, so the mode decides how much work estiMINT does first.
+`EirTarget(input_value, input_mode)` says what quantity you are handing over. The emulator only
+ever runs from an EIR, so the mode decides how much work `estimint` has to do first.
 
 | Mode | You supply | What happens |
 |---|---|---|
-| `"prevalence"` | Under-5 parasite prevalence in [0.005, 0.80] | estiMINT inverts it to an EIR with the XGBoost prevalence model. |
+| `"prevalence"` | Under-5 parasite prevalence in [0.005, 0.80] | `estimint` inverts it to an EIR with the XGBoost prevalence model. |
 | `"eir"` | An EIR, infectious bites per person per year | Used directly. No inversion. |
 | `"hbr"` | A human biting rate | Converted to an EIR through the HBR model. |
 
-Use `"prevalence"` when the evidence is a cross-sectional survey, as it is for the district
-worked through here. Use `"eir"` when the EIR is already in hand, or is the quantity you are
-sweeping over. Use `"hbr"` when the evidence is entomological.
+Use `"prevalence"` when the evidence is a cross-sectional survey. Use `"eir"` when the EIR is
+already in hand, or is the quantity being swept over, and `"hbr"` when the evidence is
+entomological.
 
-`mosquito_delta` only applies to `"prevalence"`. Supplied alongside an `"eir"` or `"hbr"`
-input it is silently ignored, because there is no prevalence-to-EIR step for it to modify.
-The mechanism is set out in
+Note that `mosquito_delta` only applies to `"prevalence"`. Supplied alongside an `"eir"` or an
+`"hbr"` input it is silently ignored, because there is no prevalence-to-EIR step for it to
+modify. The mechanism is set out in
 [Mosquito density and EIR](../04-estimint/mosquito-density.qmd).
 
 ## The ten defaulted fields
 
-Everything else defaults. Every default is zero or `None`.
+Everything else defaults, and every default is zero or `None`.
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -75,138 +75,165 @@ Everything else defaults. Every default is zero or `None`.
 | `routine` | `0.0` | Routine (continuous) net distribution from the campaign. |
 | `lsm` | `0.0` | Larval source management coverage from the campaign. |
 
-The first four are the current net mix. Their coverages are summed to give `itn_use` and
-their `dn0` values averaged to give `dn0_use`. The rest describe the campaign. `routine` and
-`lsm` carry no `_future` suffix but belong to the campaign all the same. Like `dn0_future`,
-`itn_future` and `irs_future`, they are held at zero for every timestep before day 3285, and
-take their supplied value only from the campaign onwards.
+The first four are the current net mix, whose coverages are summed to give `itn_use` and whose
+`dn0` values are averaged to give `dn0_use`. The rest describe the campaign. `routine` and `lsm`
+carry no `_future` suffix but belong to the campaign all the same. Like `dn0_future`,
+`itn_future` and `irs_future`, they are held at zero for every timestep before day 3285, and take
+their supplied value only from the campaign onwards.
 
 ::: {.callout-important}
 ## Future coverage must be set explicitly
 
-If `itn_future` is 0 or `net_type_future` is `None`, then `dn0_future` and `itn_future` are
-both set to 0, and the nets are **withdrawn** at the campaign. `irs_future` behaves the same
-way and does not inherit from `irs`.
+If `itn_future` is 0 or `net_type_future` is `None`, then `dn0_future` and `itn_future` are both
+set to 0 and the nets are **withdrawn** at the campaign. `irs_future` behaves the same way and
+does not inherit from `irs`.
 
-To hold an intervention steady you must restate it. A district with pyrethroid-only nets
-at 0.70 that intends to keep them
-needs `itn_future=0.70, net_type_future="pyrethroid_only"` written out in full. Omit it, and
-the district has been modelled as abandoning nets. The rebound in the trajectory is then
-real output from a scenario nobody intended.
+To hold an intervention steady you have to restate it. A setting with pyrethroid-only nets at
+0.70 coverage that keeps them needs `itn_future=0.70, net_type_future="pyrethroid_only"` written
+out in full. Omit it and the nets have been modelled as abandoned, and the rebound in the
+trajectory is then real output from a scenario nobody intended.
 :::
 
-## One call
+## Five scenarios
 
-The district has measured under-5 prevalence 0.45, pyrethroid resistance 0.30,
-pyrethroid-only nets at 0.70 coverage, perennial transmission and no IRS. The plan is to
-switch those nets to PBO at the same coverage.
+The five scenarios below vary every axis the pipeline exposes. They use all three input modes,
+all four net products and none, both seasonality settings, IRS and larval source management, and
+a mosquito-density adjustment in both directions. They are not five options competing with one
+another, and there is no shared baseline. Each is a different way of driving the API.
 
 ```{python}
+import numpy as np
+import pandas as pd
 from estimint import run_scenarios
 from estimint.scenarios import Scenario, EirTarget
 
-pbo = Scenario(
-    name="PBO",
-    res_use=0.30,
-    Q0=0.85,
-    phi=0.80,
-    seasonal=0.0,
-    irs=0.0,
-    eir_target=EirTarget(0.45, "prevalence"),
-    py_only=0.70,                        # the nets in place now
-    itn_future=0.70,                     # the campaign
-    net_type_future="pyrethroid_pbo",
-)
+grid = [
+    # A prevalence survey, pyrethroid-only nets held at their current coverage.
+    Scenario(name="Pyrethroid-only, prevalence", res_use=0.30, Q0=0.85, phi=0.80,
+             seasonal=0.0, irs=0.0, eir_target=EirTarget(0.45, "prevalence"),
+             py_only=0.70, itn_future=0.70, net_type_future="pyrethroid_only"),
 
-res = run_scenarios([pbo])
+    # A seasonal setting under PBO nets and IRS, with mosquito density rising 60%.
+    Scenario(name="PBO, +60% mosquitoes", res_use=0.55, Q0=0.90, phi=0.85,
+             seasonal=1.0, irs=0.40, eir_target=EirTarget(0.30, "prevalence"),
+             py_pbo=0.85, mosquito_delta=0.60,
+             itn_future=0.85, net_type_future="pyrethroid_pbo", irs_future=0.40),
+
+    # Pyrrole nets plus larviciding, with mosquito density halved.
+    Scenario(name="Pyrrole + LSM, -50% mosquitoes", res_use=0.70, Q0=0.75, phi=0.70,
+             seasonal=0.0, irs=0.0, eir_target=EirTarget(0.30, "prevalence"),
+             py_pyrrole=0.60, mosquito_delta=-0.50,
+             itn_future=0.60, net_type_future="pyrethroid_pyrrole", lsm=0.30),
+
+    # Entomological evidence instead of a survey. The biting rate is inverted, not a prevalence.
+    Scenario(name="PPF, biting rate", res_use=0.45, Q0=0.80, phi=0.82,
+             seasonal=0.0, irs=0.0, eir_target=EirTarget(250_000.0, "hbr"),
+             py_ppf=0.50, itn_future=0.50, net_type_future="pyrethroid_ppf"),
+
+    # The EIR is already known, so estiMINT does nothing. IRS only, no nets at all.
+    Scenario(name="No nets, EIR given", res_use=0.0, Q0=0.88, phi=0.78,
+             seasonal=1.0, irs=0.60, eir_target=EirTarget(20.0, "eir"),
+             irs_future=0.60),
+]
+
+res = run_scenarios(grid)
 res.shape
 ```
 
-The frame that comes back has one row and twenty-three columns.
+One call runs all five. `run_scenarios` derives `dn0` from each net mix, inverts each
+`eir_target` according to its mode, and applies any mosquito-density adjustment. It then
+assembles the twelve covariates and calls the emulator once with the whole batch. Five rows and
+twenty-three columns come back.
 
 ::: {.callout-warning}
 ## Net type names
 
-`net_type_future` accepts `"pyrethroid_pbo"` or the short alias `"py_pbo"`. It does not
-accept `"pyrethroid-pbo"`. A hyphen raises `ValueError: unknown net type`.
+`net_type_future` accepts `"pyrethroid_pbo"` or the short alias `"py_pbo"`. It does not accept
+`"pyrethroid-pbo"`. A hyphen raises `ValueError: unknown net type`.
 :::
 
 ## The returned columns
 
-The returned frame is one row per scenario. Its columns fall into four groups.
-
-The first group is **what you asked for, resolved**. It gives the current net mix reduced to
-a single product name, together with the product used in the campaign.
+The columns fall into four groups. The first is what you asked for, resolved, which reduces the
+current net mix to a single product name and reports the mode each scenario ran in.
 
 ```{python}
 res[["name", "input_mode", "net", "net_future"]]
 ```
 
-With no campaign nets, `net_future` comes back as the string `"none"` rather than a missing
-value.
+All three input modes appear in `input_mode`. With no campaign nets, `net_future` comes back as
+the string `"none"` rather than as a missing value, which is what the final row shows.
 
-The second group is **the covariates the emulator actually saw**. These are derived rather
-than echoed. Read them back to check that the scenario that ran is the one you built.
+The second group is the covariates the emulator actually saw. These are derived rather than
+echoed, so reading them back is how you check that the scenario which ran is the one you built.
 
 ```{python}
 res[[
     "dn0_use", "itn_use", "irs_use",
     "dn0_future", "itn_future", "irs_future",
     "routine", "lsm", "seasonal",
-]]
+]].round(4)
 ```
 
 `dn0_use` is the usage-weighted `dn0` of the current mix, and `itn_use` the sum of its
-coverages. `dn0_future` is the `dn0` of the campaign product at the same resistance. `lsm`
-is not always the `lsm` you passed. `run_scenarios` folds PPF net coverage into effective
-larval source management before the emulator runs, under the rule set out in
-[Pipeline architecture](../07-under-the-hood/architecture.qmd).
+coverages. `dn0_future` is the `dn0` of the campaign product at the same resistance.
 
-The third group is **transmission intensity**. `eir_baseline` is what the inversion produced
-from the measured prevalence. `eir_final` is that EIR after `mosquito_delta` has been
-applied, and equals `eir_baseline` when the delta is zero.
+Note that `lsm` is not always the `lsm` you passed. `run_scenarios` folds PPF net coverage into
+effective larval source management before the emulator runs, under the rule set out in
+[Pipeline architecture](../07-under-the-hood/architecture.qmd). The fourth row passed no `lsm`
+at all and comes back with one.
 
-```{python}
-res[["eir_baseline", "mosquito_delta", "eir_final", "hbr_baseline", "hbr_new"]]
-```
-
-`hbr_baseline` and `hbr_new` are `NaN` here, and will be for most scenarios. They are only
-populated when a prevalence input is combined with a non-zero `mosquito_delta`. The HBR is
-an intermediate in that calculation and is not otherwise computed.
-
-The fourth group is **outcomes**. `prev_y9` is prevalence at the campaign and should be
-close to the 0.45 that was supplied, the small gap being the round trip through the
-inversion and the emulator. `prev_endline` and `cases_endline` are the last window of the
-horizon, three years later.
+The third group is transmission intensity. `eir_baseline` is what the inversion produced,
+`eir_final` is that EIR after `mosquito_delta` has been applied, and the two are equal whenever
+the delta is zero.
 
 ```{python}
-res[["prev_y9", "prev_endline", "cases_endline"]]
+res[["input_mode", "eir_baseline", "mosquito_delta", "eir_final",
+     "hbr_baseline", "hbr_new"]].round(1)
 ```
+
+The last row shows the `"eir"` mode passing 20 straight through untouched. In the second row a
+60% rise in mosquito density roughly doubles the EIR. In the third, halving the density cuts the
+EIR by more than half. Neither response is proportional to the change that produced it.
+
+`hbr_baseline` and `hbr_new` are populated only for those two rows. The HBR is an intermediate in
+the mosquito-density calculation and is not otherwise computed, so everywhere else it is `NaN`.
+
+The fourth group is outcomes. `prev_y9` is prevalence at the campaign. For a scenario that
+supplied a prevalence it should come back close to what was supplied, and the small gap is the
+round trip through the inversion and the emulator.
+
+```{python}
+res[["name", "prev_y9", "prev_endline", "cases_endline"]].round(4)
+```
+
+The first row supplied 0.45 and recovers 0.456. The second and third both supplied 0.30, and
+recover 0.261 and 0.198. Note that the third is well off, and deliberately so. A mosquito-density
+adjustment of −50% moves the EIR away from the one that sustained the measured prevalence, which
+is the whole point of supplying it.
+
+`prev_endline` and `cases_endline` are the last window of the horizon, three years on.
 
 ## The trajectories
 
 The last two columns, `prevalence` and `cases`, are not scalars. Each cell holds the full
-trajectory as a 157-element NumPy array, stored inside the DataFrame rather than unrolled
-into a tidy long table.
+trajectory as a 157-element NumPy array, stored inside the DataFrame rather than unrolled into a
+tidy long table.
 
 ```{python}
-import numpy as np
-
 prev = np.asarray(res.loc[0, "prevalence"])
-cases = np.asarray(res.loc[0, "cases"])
-
 type(prev), prev.shape, prev.dtype
 ```
 
 This is convenient for a five-row grid and awkward for anything else. The frame cannot be
-written to CSV as it stands. Any comparison across scenarios has to reach into the cells
+written to CSV as it stands, and any comparison across scenarios has to reach into the cells
 first. [Exporting results](exporting.qmd) deals with both.
 
-The 157 windows are a property of the emulator, so read the grid off the artefact rather
-than hard-coding it. `preload_models` returns the three estiMINT XGBoost models and the two
-stateMINT artefacts. These are the same objects `run_scenarios` uses internally. Calling it
-once up front also warms the caches and pulls the weights from HuggingFace before the first
-run rather than during it.
+The 157 windows are a property of the emulator, so read the grid off the artefact rather than
+hard-coding it. `preload_models` returns the three `estimint` XGBoost models and the two
+`stateMINT` artefacts, which are the same objects `run_scenarios` uses internally. Calling it
+once up front also warms the caches and pulls the weights from Hugging Face before the first run
+rather than during it.
 
 ```{python}
 from estimint import preload_models
@@ -226,36 +253,36 @@ idx_y9 = int(np.argmin(np.abs(abs_t - campaign)))
 n_steps, window, start, campaign, idx_y9
 ```
 
-`idx_y9` is the index of the window in which the campaign falls. Everything before it is
-baseline. Everything from it onwards is response. In `years` the campaign sits at zero.
+`idx_y9` is the index of the window the campaign falls in. Everything before it is baseline and
+everything from it onwards is response, and in `years` the campaign sits at zero.
 
 ```{python}
 float(years[0]), float(years[idx_y9]), float(years[-1])
 ```
 
-The horizon covers three years of baseline and three years of response. A trajectory can
-then be taken out of a cell and plotted against that axis in two lines.
+The horizon covers three years of baseline and three years of response. A trajectory can then be
+taken out of a cell and plotted against that axis in two lines.
 
 ```{python}
-#| fig-cap: "Prevalence under the PBO campaign. The dashed line marks the campaign at year 0; everything to its left is the run-up under the nets already in place."
-#| fig-alt: "Line chart of under-five prevalence from three years before the campaign to three years after. Before the campaign prevalence dips to about 0.29 and climbs back to about 0.46. After the campaign it falls to about 0.26 within a year, then rises again to about 0.47 by the end of the horizon."
-fig, ax = plt.subplots()
-ax.plot(years, prev, color="#00d4aa")
+#| fig-cap: "Prevalence under all five scenarios. The dashed line marks the campaign at year 0, and everything to its left is the run-up under whatever was already in place."
+#| fig-alt: "Line chart of under-five prevalence for five scenarios from three years before the campaign to three years after. The scenarios start at different levels because each describes a different setting, and each responds differently to its own campaign. The EIR-input scenario sits near zero throughout."
+fig, ax = plt.subplots(figsize=(7.6, 3.8))
+for _, row in res.iterrows():
+    ax.plot(years, np.asarray(row["prevalence"]), lw=1.8, label=row["name"])
 ax.axvline(0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
 ax.set_xlabel("Years since campaign")
 ax.set_ylabel("Prevalence (under 5)")
 ax.set_ylim(0, None)
+ax.legend(fontsize=7.5)
 plt.show()
 ```
 
-The three years to the left of the line are the model's run-up to the campaign under the
-nets already in place. The prevalence you supply is prevalence *at the campaign*, not at the
-start of the horizon. The value to check against your input is `prev_y9`, not the level
-anywhere in the run-up.
+The five lines start at different levels. Unlike a grid, these scenarios describe five different
+settings rather than five campaigns in one, so there is no shared baseline to converge on.
 
-After the campaign, prevalence reaches its minimum about a year in and rises again over the
-rest of the horizon. Whether it rebounds less far than the alternatives cannot be answered
-from one scenario.
+The three years to the left of the dashed line are each model's run-up to its campaign, under
+whatever was already in place. The prevalence you supply is therefore prevalence at the campaign,
+not at the start of the horizon. The value to check it against is `prev_y9`.
 
 ## The weights repository
 
@@ -263,17 +290,19 @@ Both `run_scenarios` and `preload_models` take an `hf_repo` argument, defaulting
 `"dide-ic/stateMINT"`.
 
 ```python
-res = run_scenarios([pbo], hf_repo="dide-ic/stateMINT")
+res = run_scenarios(grid, hf_repo="dide-ic/stateMINT")
 ```
 
-Change it to run against a fork or a local snapshot of the weights. `run_scenarios` tracks
-whatever `main` currently points at in that repository and exposes no revision pin. If an
-analysis has to be reproducible years from now, record the weight version alongside the
+Change it to run against a fork or a local snapshot of the weights. Note that `run_scenarios`
+tracks whatever `main` currently points at in that repository, and exposes no revision pin. If an
+analysis has to be reproducible years from now, either record the weight version alongside the
 results, or drive the emulator directly with a pinned `revision` as in
 [Calling the emulator](../05-statemint/the-emulator.qmd).
 
-## Next
+## See also
 
-- [A scenario grid](scenario-grid.qmd) — five campaigns, one baseline, one call.
-- [Covariates and the time grid](../05-statemint/covariates.qmd) — what the emulator sees.
-- [Nets and dn0](../04-estimint/nets-and-dn0.qmd) — where `dn0_use` and `dn0_future` come from.
+[A scenario grid](scenario-grid.qmd) builds five campaigns against one shared baseline rather
+than five separate settings, and [Trajectories and cases](comparing.qmd) plots and integrates
+what comes back. What the emulator sees once a scenario has been resolved is set out in
+[Covariates and the time grid](../05-statemint/covariates.qmd). Please see
+[Nets and dn0](../04-estimint/nets-and-dn0.qmd) for where `dn0_use` and `dn0_future` come from.

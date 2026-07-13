@@ -140,9 +140,10 @@ print(net_types())
 If that prints the four net types, the interpreter, the environment and the editor all agree.
 You are ready for [Installation](../02-getting-started/installation.qmd).
 
-*(RStudio user: steps 1 to 3 are "open the .Rproj, and start typing in the console". The interpreter selection is the part with no counterpart, because RStudio only ever has one R to choose from.)*
+*(RStudio user, steps 1 to 3 are "open the .Rproj, and start typing in the console". The interpreter selection is the part with no counterpart, because RStudio only ever has one R to choose from.)*
 
-## Next
+## See also
 
-- [Environments and packages](environments.qmd) — create the `.venv` that the interpreter selector should be pointing at.
-- [Notebooks](notebooks.qmd) — the same interpreter question, in its notebook form.
+The `.venv` that the interpreter selector should be pointing at is created in
+[Environments and packages](environments.qmd). The same interpreter question returns in its
+notebook form, so please see [Notebooks](notebooks.qmd) for how a kernel is chosen there.

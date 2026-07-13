@@ -12,7 +12,7 @@ install command and then fail on syntax it does not recognise. Settle the versio
 python3 --version
 ```
 
-*(RStudio user: this is `R.version.string`. The difference is that you may have several Pythons on the machine and this only tells you about the first one on your `PATH`.)*
+*(RStudio user, this is `R.version.string`. The difference is that you may have several Pythons on the machine and this only tells you about the first one on your `PATH`.)*
 
 **Install `uv` first, and let it install Python**. `uv` is a self-contained binary that does
 not need an existing Python to run. It works on a machine with no usable interpreter at all.
@@ -55,7 +55,7 @@ uv python install 3.12
 `uv` downloads a standalone build of CPython 3.12 and keeps it in its own directory, separate
 from any Python the operating system already has. Nothing system-wide is touched.
 
-*(RStudio user: there is no R equivalent, because you only ever have one R. The nearest thing is `rig` or the version dropdown in RStudio Server.)*
+*(RStudio user, there is no R equivalent, because you only ever have one R. The nearest thing is `rig` or the version dropdown in RStudio Server.)*
 
 To see every interpreter `uv` can find, managed or otherwise:
 
@@ -89,7 +89,7 @@ which writes a `.python-version` file that `uv` honours inside that directory.
 
 If installing new tooling is not an option, each platform has a conventional route. These
 give you an interpreter but none of the environment management. You will be using `venv` and
-`pip` by hand; see [Environments and packages](environments.qmd).
+`pip` by hand. Please see [Environments and packages](environments.qmd).
 
 On **Linux**, the `venv` module is packaged separately on Debian and Ubuntu, and you need it:
 
@@ -141,17 +141,17 @@ sits under `C:\Users\<you>\AppData\Local\Microsoft\WindowsApps`, that is the Mic
 stub rather than a real interpreter. The python.org install has not reached the front.
 
 ::: {.callout-warning}
-## Do not install packages into the system Python
+## Never install packages into the system Python
 
 On Linux and macOS, `/usr/bin/python3` belongs to the operating system, and parts of the
 system are written in it. `sudo pip install` can replace a library one of them depends on.
 Recent Linux distributions block this outright with an `externally-managed-environment`
 error. Do not reach for `--break-system-packages`. Create a project environment instead.
 
-*(RStudio user: R lets you get away with a single shared library because CRAN polices compatibility. Nothing polices PyPI, so Python does not let you.)*
+*(RStudio user, R lets you get away with a single shared library because CRAN polices compatibility. Nothing polices PyPI, so Python does not let you.)*
 :::
 
-## Next
+## See also
 
-- [Working in VS Code](vscode.qmd) — the editor to run it in.
-- [Environments and packages](environments.qmd) — where the packages actually go.
+The editor to run all of this in is [Working in VS Code](vscode.qmd). Please see
+[Environments and packages](environments.qmd) for where the packages actually go.

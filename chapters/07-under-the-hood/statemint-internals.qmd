@@ -8,21 +8,20 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-The emulator has to reproduce a trajectory rather than a number, predicting 157 fortnightly
-windows in which what happens at one step depends on everything that came before it.
+The emulator reproduces a trajectory rather than a number, predicting 157 fortnightly windows
+in which each step depends on everything that came before it.
 
-## The backbone
+## Architecture
 
 stateMINT is built on Mamba2, a state-space sequence model whose mechanism is a linear
-recurrence. The model carries a hidden state, here of width `d_state` = 128, from one
-timestep to the next, updating it with the current input and reading the output from it. It
-is causal. The prediction at step $t$ depends only on the inputs up to $t$, which is the
-right inductive bias for an epidemic evolving under an intervention. Nothing at year 5 may
-depend on what the model is about to see at year 10.
+recurrence. The model carries a hidden state of width `d_state` = 128 from one timestep to
+the next, updating it with the current input and reading the output from it. It is causal.
+The prediction at step $t$ depends only on the inputs up to $t$, the right inductive bias for
+an epidemic evolving under an intervention. Nothing at year 5 depends on year 10.
 
-The rest of the stack is short, and a linear projection lifts the 16 input features to
-`d_model` = 256 before two Mamba2 blocks run over the sequence. Dropout is applied, and a
-linear head reads one output per timestep.
+The rest of the stack is short. A linear projection lifts the 16 input features to
+`d_model` = 256, two Mamba2 blocks run over the sequence, dropout is applied, and a linear
+head reads one output per timestep.
 
 ```{python}
 from stateMINT.model import Mamba2Regressor
@@ -39,7 +38,7 @@ prevalence.model_config
 
 `output_dim` is 1 because each timestep predicts a single scalar, either a prevalence or a
 case count. The two predictors are separately trained checkpoints of the same architecture.
-They share no weights, no dropout rate and no scaler.
+They share no weights, no scaler, not even a dropout rate.
 
 ```{python}
 print("cases dropout     :", cases.model_config["dropout"])
@@ -73,10 +72,9 @@ print("shape:", X.shape, X.dtype)
 print("static covariates:", config["static_covars"])
 ```
 
-The static block is the same twelve numbers repeated 157 times, apart from the five
-after-intervention covariates, which are zeroed before day 3285 (see
-[Pipeline architecture](architecture.qmd)). The only columns that genuinely vary with time are the four at
-either end.
+Only the four end columns vary with time. The static block is the same twelve numbers
+repeated 157 times, apart from the five after-intervention covariates, which are zeroed
+before day 3285 (please see [Pipeline architecture](architecture.qmd)).
 
 ```{python}
 #| fig-cap: "The four time-varying features of the input tensor. The dashed rule marks the campaign at day 3285."
@@ -106,18 +104,22 @@ for ax in axes:
 plt.show()
 ```
 
-The cyclical pair is what allows `seasonal` to have an effect, because it gives the
-recurrence a phase for the seasonal amplitude to attach to. The intervention pair tells the
-model both *that* the campaign has happened and *how long ago*, so waning can be learned as
-a function of time since deployment rather than of absolute date.
+Notice that the blue and orange curves in the left panel wind through six cycles without a
+break. This is because the calendar enters as a sine and a cosine rather than as a day
+number. The pair gives `seasonal` its effect. It hands the recurrence a phase for the
+seasonal amplitude to attach to.
+
+In the right panel the blue flag steps to 1 at the campaign, while the orange ramp climbs
+linearly from there. The model is told both that the campaign has happened and how long ago,
+so waning is learned against time since deployment rather than against absolute date.
 
 ## Standardisation
 
-The twelve static covariates are on very different scales, with EIR running into the
-hundreds and coverages sitting in [0, 1]. They are standardised before the input projection.
-The scaler is not a fitted object shipped as a pickle. It is two lists of plain JSON in
-`preprocessing_config`, `scaler_mean` and `scaler_scale`, from which a `StandardScaler` is
-rebuilt at load. Each covariate is transformed as $(x - \mu) / s$.
+The twelve static covariates are standardised before the input projection, because they sit
+on very different scales, with EIR running into the hundreds while the coverages stay inside
+[0, 1]. The scaler is not a pickle. It is two lists of plain JSON in `preprocessing_config`,
+`scaler_mean` and `scaler_scale`, from which a `StandardScaler` is rebuilt at load. Each
+covariate is transformed as $(x - \mu) / s$.
 
 ```{python}
 import pandas as pd
@@ -129,19 +131,22 @@ pd.DataFrame({
 })
 ```
 
-These are the means and standard deviations of the training library, so they also describe
-the space the emulator has seen. An EIR of 400 is nearly 3.3 standard deviations from the
-training mean. The model will return a value there, but it is not a value to rely on.
+The scaler also maps the training library. Its means and standard deviations are those of the
+simulations the emulator was fitted to, so an EIR of 400 sits 3.3 standard deviations out
+from the training mean. The model will return a value there, but it is not a value to rely
+on.
 
-The masked zeros are masked in raw units and standardised afterwards, so a pre-campaign
-`itn_future` appears in the tensor as $(0 - \mu) / s$, not as 0.
+Masking happens in raw units and standardisation afterwards, so a pre-campaign `itn_future`
+appears in the tensor as $(0 - \mu) / s$, not as 0.
 
 ## Target transforms
 
-Neither target is learned on its natural scale, since prevalence is a proportion and is
-learned in **logit** space. Cases are counts with a long right tail, and are learned in
-**log1p** space. `predict` inverts the transform for you (a sigmoid for prevalence, `expm1`
-for cases) unless you ask for the model's own space with `transformed=True`.
+Neither target is learned on its natural scale. Prevalence is a proportion and is
+learned in **logit** space. Cases are counts with a long right tail and are learned in
+**log1p** space.
+
+`predict` inverts the transform for you, a sigmoid for prevalence and `expm1` for cases,
+unless you ask for the model's own space with `transformed=True`.
 
 ```{python}
 z = prevalence.predict([covariates], transformed=True)
@@ -161,18 +166,17 @@ print("smallest log1p  :", float(z_cases.min()))
 print("smallest cases  :", float(y_cases.min()))
 ```
 
-The two transforms differ at the floor, because a sigmoid cannot leave [0, 1] whereas
-`expm1` is not bounded below. Prevalence is bounded by construction. When the head's log1p
-output falls below zero, as it can in a low-burden setting after an effective campaign,
-`expm1` of it is negative, and `predict` returns a case count slightly below zero. This is
-why `run_scenarios` applies `np.maximum(..., 0.0)` to the case series, and why its `cases`
-column is floored where a bare `predict` is not.
+The two transforms differ at the floor. A sigmoid cannot leave [0, 1]. Prevalence is bounded
+by construction. `expm1` is not bounded below, and when the head's log1p output falls under
+zero, as it can after an effective campaign in a low-burden setting, `predict` returns a case
+count slightly below zero. This is why `run_scenarios` floors the case series with
+`np.maximum(..., 0.0)` where a bare `predict` does not.
 
-## The artefact
+## The weights repository
 
 Weights live on Hugging Face at `dide-ic/stateMINT`, one folder per predictor.
 
-```
+```{.text .diagram}
 dide-ic/stateMINT
 ├── prevalence/
 │   ├── checkpoint/                # Orbax
@@ -185,13 +189,15 @@ dide-ic/stateMINT
 ```
 
 `from_pretrained` downloads only the subfolder for the predictor you asked for, restores the
-Orbax checkpoint into a `Mamba2Regressor` built from `model_config.json`, rebuilds the
-scaler from `preprocessing_config.json`, and hands back a `ModelArtifact` holding all four.
-The two config files are the contract between training and inference. `prepare_inputs`
-reconstructs the timestep grid, the masking and the scaling from them, so inference
-preprocessing cannot drift from what the model was trained on.
+Orbax checkpoint into a `Mamba2Regressor` built from `model_config.json`, rebuilds the scaler
+from `preprocessing_config.json`, and hands back a `ModelArtifact` holding all four. The two
+config files are the contract between training and inference. `prepare_inputs` rebuilds the
+timestep grid, the masking and the scaling from them, so preprocessing cannot drift from
+training.
 
-## Next
+## See also
 
-- [Covariates and the time grid](../05-statemint/covariates.qmd) — the covariates as a user supplies them.
-- [Performance and caching](../05-statemint/performance.qmd) — what the download and the first `predict` cost.
+The covariates as a user supplies them, and the time grid they are broadcast onto, are set
+out in [Covariates and the time grid](../05-statemint/covariates.qmd). Please see
+[Performance and caching](../05-statemint/performance.qmd) for what the download and the
+first `predict` call cost.

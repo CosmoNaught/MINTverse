@@ -2,8 +2,8 @@
 title: "Calling the emulator"
 ---
 
-Two calls stand between covariates and a trajectory. One fetches a checkpoint from Hugging
-Face, the other runs it over a list of scenarios.
+Getting a trajectory out of stateMINT takes two calls, one that fetches a checkpoint from
+Hugging Face and one that runs it over a list of scenarios.
 
 ## Loading a checkpoint
 
@@ -21,16 +21,14 @@ print(prevalence.model_config["predictor"])
 ::: {.callout-note}
 ## The return type
 
-The classmethod hangs off `Mamba2Regressor`, but what it hands back is a `ModelArtifact`. It
-is a container holding the network (`.model`), its architecture (`.model_config`), the input
-recipe (`.preprocessing_config`) and the fitted covariate scaler (`.scaler`). You call
-`.predict` on the artifact, not the network. The network on its own would not know how
-to scale your covariates.
+The classmethod hangs off `Mamba2Regressor`, but what it hands back is a `ModelArtifact`, a
+container holding the network (`.model`), its architecture (`.model_config`), the input recipe
+(`.preprocessing_config`) and the fitted covariate scaler (`.scaler`). You call `.predict` on the
+artifact, not the network. The network on its own would not know how to scale your covariates.
 :::
 
-`predictor` selects which of the two checkpoints in the repository to fetch. The two are
-separately trained networks with separately fitted scalers. The scalers are not
-interchangeable.
+`predictor` selects which of the two checkpoints to fetch. The two are separately trained
+networks carrying separately fitted scalers, and the scalers are not interchangeable.
 
 ```{python}
 import numpy as np
@@ -42,14 +40,15 @@ cases = Mamba2Regressor.from_pretrained(
 print("same scaler means:", np.allclose(prevalence.scaler.mean_, cases.scaler.mean_))
 ```
 
-Load the artifact that matches the quantity you want. Running covariates through the
-prevalence artifact and reading the result as case counts raises no error at all, and the
-scaling applied to them is wrong.
+Load the artifact that matches the quantity you want. Note that running covariates through the
+prevalence artifact and reading the result as case counts raises no error at all, because the two
+artifacts take the same twelve inputs and return the same shape, and the scaling applied to them
+is the scaling fitted for a different target.
 
 ## Predicting
 
-`.predict` takes a **list of dicts**, one dict per scenario. It returns a `(B, 157)` array,
-one row per scenario and one column per fortnightly window.
+`.predict` takes a list of dicts, one per scenario, and returns a `(B, 157)` array, one row per
+scenario and one column per fortnightly window.
 
 ```{python}
 district = {
@@ -72,12 +71,10 @@ print(y.shape)
 print(f"prevalence at the campaign: {y[0, 78]:.3f}")
 ```
 
-Column 78 is the window the campaign lands in.
-[Covariates and the time grid](covariates.qmd) derives that index from the checkpoint rather
-than assuming it. The value there is close to the prevalence given to estiMINT (0.45).
-
-A single scenario is still a list of one. It still comes back with a leading batch
-dimension. Three scenarios come back stacked.
+Column 78 is the window the campaign lands in, and the value there sits close to the 0.45 given
+to estiMINT. [Covariates and the time grid](covariates.qmd) derives that index from the checkpoint
+rather than assuming it. A single scenario is still a list of one. Three scenarios come back
+stacked, in the order you supplied them.
 
 ```{python}
 campaigns = [
@@ -91,14 +88,12 @@ print(Y.shape)
 print(np.round(Y[:, -1], 3))   # prevalence three years on
 ```
 
-The rows come back in the order you supplied them. The mapping from scenario to row is yours
-to keep track of.
-
 ## Transformed space
 
-The networks are trained on transformed targets, a logit for prevalence and a `log1p` for
-cases. By default `.predict` inverts the transform and gives you the quantity itself.
-`transformed=True` suppresses the inversion.
+The networks are trained on transformed targets, a logit for prevalence and a `log1p` for cases,
+and `.predict` inverts the transform by default, so what comes back is the quantity itself.
+`transformed=True` suppresses the inversion. You want that only when scoring the network against
+a held-out set in its training space.
 
 ```{python}
 raw = prevalence.predict([district], transformed=True)
@@ -109,14 +104,11 @@ print("prevalence   :", np.round(inv[0, :3], 3))
 print("sigmoid(raw) :", np.round(1 / (1 + np.exp(-raw[0, :3])), 3))
 ```
 
-The default is what you want unless you are scoring the model against a held-out set in the
-space it was trained in.
-
 ## Negative case counts
 
-The inverse of `log1p` is `expm1`, so a prediction slightly below zero in log space becomes
-a case count slightly below zero. The magnitude is a fraction of a case. Under a strong
-campaign, where true incidence is close to the floor, it happens often.
+The inverse of `log1p` is `expm1`, so a prediction slightly below zero in log space becomes a case
+count slightly below zero. The magnitude is a fraction of a case. Under a strong campaign, where
+true incidence is close to the floor, it happens often.
 
 ```{python}
 aggressive = dict(
@@ -131,41 +123,43 @@ c = np.maximum(c, 0.0)
 print(f"after flooring : {c.min():.4f}")
 ```
 
-Floor the case trajectory with `np.maximum` before you plot it or sum it.
-[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies exactly this floor, so results
-that come out of the pipeline are already clean. Results that come straight out of a
-checkpoint are not.
+Floor the case trajectory with `np.maximum` before you plot it or sum it, since
+[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies exactly this floor and results that
+come out of the pipeline are already clean, while results that come straight out of a checkpoint
+are not.
 
-Prevalence needs no such treatment. A logit inverts through a sigmoid, and a sigmoid cannot
-leave `[0, 1]`.
+Prevalence needs no such treatment. A logit inverts through a sigmoid, and a sigmoid cannot leave
+`[0, 1]`.
 
 ## The raw feature matrix
 
-`.prepare_inputs` runs the first half of `.predict` and stops. It expands your twelve
-covariates onto the time grid, masks the campaign fields before day 3285, scales everything
-and appends the time features. What comes back is the tensor the network actually consumes.
+`.prepare_inputs` runs the first half of `.predict` and stops. It expands the twelve covariates
+onto the time grid, masks the campaign fields before day 3285, scales everything and appends the
+time features.
 
 ```{python}
 X = prevalence.prepare_inputs(campaigns)
 print(X.shape, X.dtype)
 ```
 
-There are sixteen channels, the twelve scaled covariates plus four time features that locate
-each window in the year and relative to the campaign. Use it to confirm that the campaign
-masking is doing what you think. A normal analysis has no need of it. The layout is set out
-in [stateMINT internals](../07-under-the-hood/statemint-internals.qmd).
+The sixteen channels are the twelve scaled covariates plus four time features locating each window
+in the year and relative to the campaign. A normal analysis has no need of them, and their one use
+is confirming that the masking does what you think. The order of the channels is set out in
+[stateMINT internals](../07-under-the-hood/statemint-internals.qmd).
 
 ## Pinning the revision
 
-`revision` is optional and defaults to `main`, which moves. A re-run of an unpinned analysis
-several months from now may not be running the same weights it ran today. The published tags
-run from `v1.0.0` to `v1.2.2`. Pass one of them explicitly.
+`revision` is optional and defaults to `main`, which moves, so a re-run of an unpinned analysis
+months from now may not be running the weights it ran today. The published tags run from `v1.0.0`
+to `v1.2.2`. Pass one explicitly.
 
 ```python
 Mamba2Regressor.from_pretrained("dide-ic/stateMINT", predictor="cases", revision="v1.2.2")
 ```
 
-## Next
+## See also
 
-- [Plotting trajectories](plotting.qmd) — put the 157 columns on a real time axis.
-- [Performance and caching](performance.qmd) — why fifty scenarios in one call beat fifty calls.
+The 157 columns go onto a real time axis in [Plotting trajectories](plotting.qmd). Fifty scenarios
+in one call are far cheaper than fifty calls of one, because the download and the compilation are
+paid once per session. Please see [Performance and caching](performance.qmd) for the timings and
+the cache settings.

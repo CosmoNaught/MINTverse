@@ -2,8 +2,9 @@
 title: "EIR and HBR"
 ---
 
-Some districts have no parasite survey. The pipeline is then entered at HBR, prevalence is not
-used at all, and `estimint` bundles a model in each direction.
+Districts with no parasite survey enter the pipeline at the human biting rate instead, and
+`estimint` bundles a model in each direction. One converts an EIR into an HBR, and the other
+converts an HBR into an EIR. Prevalence is not used at all.
 
 ```{python}
 import pandas as pd
@@ -15,11 +16,11 @@ hbr_to_eir = load_xgb_model("hbr")          # hbr_y9   -> EIR
 eir_to_hbr["features"], hbr_to_eir["features"]
 ```
 
-Both take the same six setting covariates as the prevalence model. They differ only in the
-driving column, `eir` for `eir_to_hbr` and `hbr_y9` for `hbr`. The model named `"hbr"` takes an
-HBR as its *input*, and it returns an EIR.
+Both take the same six setting covariates as the prevalence model, and differ only in the driving
+column, `eir` for `eir_to_hbr` and `hbr_y9` for `hbr`. Note that the model named `"hbr"` takes an
+HBR as its *input*. It returns an EIR.
 
-## From EIR to HBR
+## EIR to HBR
 
 The setting carries over from [Estimating EIR from prevalence](estimating-eir.qmd). There, a
 prevalence of 0.30 implied an EIR of about 13.4.
@@ -37,15 +38,15 @@ hbr = run_xgb_model(pd.DataFrame([{**setting, "eir": eir}]), eir_to_hbr)[0]
 f"eir = {eir:.2f}, hbr = {hbr:,.0f}"
 ```
 
-Across the training data, HBR spans roughly `5e3` to `7e7`. That is four orders of magnitude
-against an EIR range of tens to hundreds, so the `hbr` model treats its input on a **log
-scale** internally, sweeping `hbr_y9` log-spaced rather than linearly. A linear treatment
-would spend almost all its resolution on the top decade and none where most districts sit.
+Across the training data HBR spans roughly `5e3` to `7e7`, against an EIR range of tens to
+hundreds. That is four orders of magnitude. The `hbr` model therefore treats its input on a **log
+scale**, sweeping `hbr_y9` log-spaced rather than linearly, because a linear sweep would spend
+its resolution on the top decade and none where most districts sit.
 
-## From HBR back to EIR
+## HBR to EIR
 
-If a trap gives a biting rate directly, this is the only model needed. The biting rate enters
-as `hbr_y9` and an EIR comes back. That EIR goes straight to the emulator.
+A trap-measured biting rate needs only this model. The rate enters as `hbr_y9` and an EIR comes
+back. That EIR goes straight to the emulator.
 
 ```{python}
 back = run_xgb_model(pd.DataFrame([{**setting, "hbr_y9": hbr}]), hbr_to_eir)[0]
@@ -55,8 +56,7 @@ f"eir = {back:.2f}"
 
 ## Round-trip error
 
-The round trip starts at a prevalence of 0.30, converts that to an EIR, converts the EIR
-to an HBR, and converts the HBR back to an EIR.
+The round trip goes from a prevalence of 0.30 to an EIR, on to an HBR, and back to an EIR.
 
 ```{python}
 trip = pd.DataFrame([{
@@ -70,33 +70,31 @@ trip = pd.DataFrame([{
 trip.round(3)
 ```
 
-The EIR that comes back is about 6% higher than the one that went out. The two models were
-fitted separately, each with its own smoothing, and nothing constrains one to be the exact
-inverse of the other. Composing them combines the error of both.
+The EIR that comes back is 6% too high. This is because the two models were fitted separately,
+each with its own smoothing, and nothing constrains one to be the exact inverse of the other.
+Composing them combines the error of both.
 
-A single conversion at 6% is still useful. A chain of them is not, which gives two rules.
-
-Do not round-trip. Where a prevalence is available the EIR from the prevalence model is the
-estimate, and converting onward to HBR and back does not refine it but degrades it.
-
-Do not compare a prevalence-derived EIR with an HBR-derived EIR as though they were on the
-same footing. They carry different biases, and a difference of a few percent between them
-says more about the models than about the districts.
+A single conversion at 6% is usable and a chain of them is not, so where a prevalence is available
+the EIR from the prevalence model is the estimate and converting onward to an HBR and back only
+degrades it. Note that a prevalence-derived EIR and an HBR-derived EIR do not sit on the same
+footing, since they carry different biases, and a difference of a few percent between them says
+more about the models than about the districts.
 
 ::: {.callout-note}
 ## The ratio in the density method
 
-This gap is why [`estimate_eir_with_mosquito_delta`](mosquito-density.qmd) never uses a
-round-tripped EIR as an answer. It predicts the EIR at *both* the baseline HBR and the changed
-HBR, and keeps only the **ratio** of the two. The bias is common to the numerator and to the
-denominator, and it cancels. The ratio is then applied to a baseline EIR taken straight from
-the prevalence model, which never went near the HBR models.
+This gap is why [`estimate_eir_with_mosquito_delta`](mosquito-density.qmd) never uses a round-tripped
+EIR as an answer. It predicts the EIR at *both* the baseline HBR and the changed HBR and keeps only
+the **ratio** of the two, and because the bias is common to numerator and denominator it cancels. The
+ratio is then applied to a baseline EIR from the prevalence model, which never went near the HBR
+models.
 :::
 
-`hbr_y9` is clamped, silently, to `[5e3, 7e7]`. `prev_y9` is clamped the same way, to
+Note that `hbr_y9` is clamped silently to `[5e3, 7e7]`, and `prev_y9` the same way to
 `[0.005, 0.80]`. A biting rate below five thousand returns the EIR for five thousand.
 
-## Next
+## See also
 
-- [Mosquito density and EIR](mosquito-density.qmd) — the ratio method, applied.
-- [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) — why these are equilibrium values and not trajectories.
+The ratio method built on this bias is worked through in [Mosquito density and
+EIR](mosquito-density.qmd). Please see [EIR, HBR, prevalence, and
+cases](../03-concepts/equilibrium.qmd) for why all four are equilibrium values, not trajectories.

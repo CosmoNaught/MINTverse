@@ -16,3 +16,7 @@ __pycache__/
 
 # Quarto intermediate notebooks
 *.quarto_ipynb
+
+# Single-file renders (./render.sh <file>) write output next to the source
+chapters/**/*.html
+chapters/**/*_files/
