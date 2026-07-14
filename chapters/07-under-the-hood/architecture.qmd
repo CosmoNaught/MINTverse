@@ -7,19 +7,19 @@ emulator, then assembles the result. It has no model of its own.
 
 ## The order of operations
 
-1. **Bednet effects.** The current net mix (`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`) and the
-   campaign (`net_type_future` at `itn_future` coverage) each go through
+1. The current net mix (`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`) and the campaign
+   (`net_type_future` at `itn_future` coverage) each go through
    [`calculate_dn0`](../04-estimint/nets-and-dn0.qmd) at the scenario's resistance level, giving
    `dn0_use` and `itn_use` for the current nets and `dn0_future` and `itn_future` for the campaign.
    With `itn_future` at zero, or `net_type_future` unset, the future effect is `DN0Result(0.0, 0.0)`.
-2. **Effective LSM.** Pyriproxyfen suppresses emergence, so the PPF share of the current mix folds
-   into the LSM coverage the emulator sees.
+2. Pyriproxyfen suppresses emergence, so the PPF share of the current mix folds into the LSM
+   coverage the emulator sees.
 
    $$\texttt{lsm\_eff} = \min(\texttt{py\_ppf} \times 0.248 + \texttt{lsm},\; 1.0)$$
 
-3. **EIR.** Each scenario is dispatched down one of the three paths below.
-4. **Covariate assembly.** The twelve covariates are built, with the EIR in the `eir` slot.
-5. **Emulation.** One batched `predict` per predictor, prevalence and cases, over the whole list.
+3. Each scenario is dispatched down one of the three EIR paths below.
+4. The twelve covariates are assembled, with the EIR in the `eir` slot.
+5. One batched `predict` runs per predictor, prevalence and cases, over the whole list.
 
 ## The three EIR paths
 

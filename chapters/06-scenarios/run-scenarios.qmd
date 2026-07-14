@@ -49,7 +49,7 @@ Use `"prevalence"` for a cross-sectional survey, `"eir"` when the EIR is in hand
 swept over, and `"hbr"` for entomological evidence.
 
 Note that `mosquito_delta` only applies to `"prevalence"`, and supplied alongside an `"eir"` or an
-`"hbr"` input it is silently ignored. The mechanism is set out in
+`"hbr"` input it is ignored. The mechanism is set out in
 [Mosquito density and EIR](../04-estimint/mosquito-density.qmd).
 
 ## The ten defaulted fields

@@ -76,6 +76,22 @@ The packages compute trajectories. They do not tell anyone which net to purchase
 budget", "the policy question is", "worth the extra cost per net". Report what the curves do and
 stop. Prevalence trajectories first, then clinical cases, then cases averted.
 
+## No bolded labels standing in for a sentence
+
+Do not open a paragraph or a list item with a bolded fragment and put the content after it.
+
+> Bad: `**The campaign you want to evaluate.** The net type and coverage from the campaign onwards.`
+>
+> Good: `The campaign is the net type and coverage from the campaign onwards.`
+
+## Nothing happens "silently" or "quietly"
+
+The model does not creep about. Say what it does and what it does not raise.
+
+> Bad: "`estimint` clamps out-of-range covariates silently."
+>
+> Good: "`estimint` clamps out-of-range covariates and raises nothing."
+
 ## Vocabulary to avoid
 
 The excess vocabulary of LLM-assisted writing, from Kobak et al., *Delving into LLM-assisted

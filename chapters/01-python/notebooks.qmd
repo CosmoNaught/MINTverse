@@ -89,7 +89,7 @@ Reading the notebook does not tell you what the kernel currently holds.
 ::: {.callout-note .rstudio}
 ## RStudio users
 
-This is the same hazard as a long-lived console session with `.RData` quietly carrying objects between runs, which is why "Restart R and Run All Chunks" exists. The Python equivalent is *Restart Kernel and Run All Cells*, and it deserves the same discipline.
+This is the same hazard as a long-lived console session with `.RData` carrying objects between runs, which is why "Restart R and Run All Chunks" exists. The Python equivalent is *Restart Kernel and Run All Cells*, and it deserves the same discipline.
 :::
 
 Each of these is routine, and each one invalidates a notebook without raising an error:

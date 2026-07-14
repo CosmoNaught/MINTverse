@@ -106,7 +106,7 @@ either. To model an existing programme continuing, restate it, setting
 `itn_future` to the coverage the campaign sustains and `dn0_future` to the lethality of the
 net. The same trap sits at [`run_scenarios`](../06-scenarios/run-scenarios.qmd), where
 `net_type_future`, `itn_future` and `irs_future` all default to nothing, so a `Scenario` that
-omits them withdraws the intervention. The failure is silent. What comes back is a plausible
+omits them withdraws the intervention. Nothing is raised. What comes back is a plausible
 trajectory of the wrong scenario.
 :::
 

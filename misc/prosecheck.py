@@ -45,6 +45,7 @@ AI_WORDS = [
     "harnessing", "unveil", "unveils", "unveiling", "illuminate", "illuminates", "foster",
     "fosters", "fostering", "moreover", "furthermore", "additionally", "ultimately",
     "importantly", "notably", "utilise", "utilises", "utilised", "utilize", "utilizes",
+    "silently", "quietly", "silent", "quietly",
     "cutting-edge", "state-of-the-art", "game-changer", "effortless", "revolutionise",
     "revolutionize", "empower", "empowers", "embark", "vibrant", "invaluable", "impactful",
     # American spellings. The house style is British.
@@ -71,6 +72,9 @@ TEASER_HEADING_RE = re.compile(
 
 # The one construct allowed an em-dash. A label, not a sentence.
 LINK_GLOSS = re.compile(r"^\s*[-*] \[[^\]]+\]\([^)]+\) — [^—]+$")
+
+# A bolded fragment standing in for a topic sentence, with the real content after it.
+BOLD_LEAD = re.compile(r"^\s*(?:[-*]|\d+\.)?\s*\*\*[^*]+\.\*\*\s")
 
 # Numeric ranges (0–1, 0.7–0.95) are the only place an en-dash is allowed.
 EN_DASH_IN_PROSE = re.compile(r"(?<!\d)–|–(?!\d)")
@@ -160,6 +164,10 @@ def violations(path: Path) -> list[tuple[int, str, str]]:
             hits.append((lineno, f"ai-word: {m.group(0).lower()}", line))
         for m in AI_PHRASE_RE.finditer(stripped):
             hits.append((lineno, f"ai-phrase: {m.group(0).lower()}", line))
+
+    for lineno, line in enumerate(text.split("\n"), 1):
+        if BOLD_LEAD.match(line):
+            hits.append((lineno, "bolded lead", line.strip()))
 
     # Headings must name their subject, not gesture at it.
     for lineno, line in enumerate(strip_front_matter(text).split("\n"), 1):

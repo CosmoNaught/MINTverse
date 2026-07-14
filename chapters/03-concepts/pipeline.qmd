@@ -100,7 +100,7 @@ good as the prevalences it was fitted against.
 $[0.005,\ 0.80]$ and `hbr_y9` to $[5 \times 10^{3},\ 7 \times 10^{7}]$.
 
 ::: {.callout-warning}
-## Silent clamping
+## Clamping
 
 Nothing is raised, logged, or flagged. A prevalence of 0.92 is clamped to 0.80 before the
 model sees it, and a prevalence of 0.001 is clamped to 0.005. The value that comes back

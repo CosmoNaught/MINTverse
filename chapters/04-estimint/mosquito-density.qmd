@@ -124,7 +124,7 @@ transmission.
 
 `mosquito_delta` is honoured when the driving input is a **prevalence**. In the scenario API of
 [Running scenarios](../06-scenarios/run-scenarios.qmd), where the input mode is chosen through
-`EirTarget(value, input_mode)`, a non-zero `mosquito_delta` is **silently ignored** for
+`EirTarget(value, input_mode)`, a non-zero `mosquito_delta` is **ignored** for
 `input_mode="eir"` and `input_mode="hbr"`. No warning is raised, no error is thrown, and the EIR
 comes back unchanged. The ratio needs a baseline EIR that is independent of the HBR models, and
 only a prevalence input supplies one. To apply a density change to an EIR or an HBR you already

@@ -54,7 +54,7 @@ sapply(resistance, function(r) r * 2)
 ```
 
 There is no recycling rule anywhere in Python. Two NumPy arrays of unequal length raise an
-error instead of silently repeating the shorter one.
+error instead of repeating the shorter one.
 
 ## Block structure
 

@@ -77,7 +77,7 @@ population.
 ## A note on `itn_use`
 
 `DN0Result.itn_use` is the finished coverage figure, not a weight awaiting a coverage term.
-Multiplying it by a usage fraction a second time understates the coverage. The error is silent.
+Multiplying it by a usage fraction a second time understates the coverage. No error is raised.
 
 ```{python}
 net = calculate_dn0(0.30, py_only=0.70)

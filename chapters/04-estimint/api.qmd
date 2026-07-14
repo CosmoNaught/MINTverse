@@ -60,7 +60,7 @@ Run a loaded model over one or more settings, one prediction per row.
 Returns a `numpy.ndarray` of `float64`, not a Series and not a DataFrame, and a missing column
 raises `ValueError` naming the column it wanted. Extra columns are ignored.
 
-Note that inputs are **silently clamped** to the range each model was fitted over. `prev_y9` goes
+Note that inputs are **clamped** to the range each model was fitted over, with no error raised. `prev_y9` goes
 to `[0.005, 0.80]` and `hbr_y9` to `[5e3, 7e7]`.
 
 ```python
@@ -137,7 +137,7 @@ A named tuple with two fields.
 | `itn_use` | Total ITN coverage. The **sum** of the shares passed in. Feed to `itn_use` as it stands. |
 
 Note that `itn_use` is already the coverage, so multiplying it by a usage fraction a second time
-silently understates it. The inferred EIR then comes back too low.
+understates it. The inferred EIR then comes back too low.
 
 ## Density
 
@@ -175,7 +175,7 @@ alongside `estimint`.
 EirTarget(input_value: float, input_mode: Literal["prevalence", "eir", "hbr"] = "prevalence")
 ```
 
-Note that `mosquito_delta` is honoured only when `input_mode` is `"prevalence"`, and is silently
+Note that `mosquito_delta` is honoured only when `input_mode` is `"prevalence"`, and is
 ignored otherwise.
 
 ```python

@@ -189,7 +189,7 @@ When you are done, `deactivate` returns the shell to normal.
 
 If you have not activated, `pip` is the system `pip`, and it will try to write into the
 system `site-packages`. On Linux that now fails with `externally-managed-environment`. On
-macOS and Windows it may quietly succeed, and the packages land in an interpreter you did not
+macOS and Windows it may succeed, and the packages land in an interpreter you did not
 mean to modify. Check the prompt prefix before you install.
 :::
 

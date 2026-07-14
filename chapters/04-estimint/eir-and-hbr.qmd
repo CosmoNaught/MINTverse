@@ -81,7 +81,7 @@ the **ratio** of the two, in which the common bias cancels. The ratio is then ap
 EIR from the prevalence model, which never went near the HBR models.
 :::
 
-Note that `hbr_y9` is clamped silently to `[5e3, 7e7]` and `prev_y9` the same way to
+Note that `hbr_y9` is clamped to `[5e3, 7e7]` and `prev_y9` the same way to
 `[0.005, 0.80]`, so a biting rate below five thousand returns the EIR for five thousand.
 
 ## See also

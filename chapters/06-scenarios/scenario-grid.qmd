@@ -6,11 +6,11 @@ A scenario grid holds several campaigns run against one shared setting. The five
 start from the same district, at under-5 prevalence 0.45, pyrethroid resistance 0.30, and
 pyrethroid-only nets at 0.70 coverage.
 
-- **Withdraw the nets.** No campaign at all. This is the counterfactual the other four are measured against, and it is what results if a campaign is not restated.
-- **Replace like for like** with pyrethroid-only nets at the same 0.70 coverage.
-- **Switch to PBO**, again at 0.70.
-- **Switch to pyrrole**, again at 0.70.
-- **PBO plus IRS at 0.60 plus LSM at 0.30.**
+- Withdraw the nets. No campaign at all, which is the counterfactual the other four are measured against, and what results if a campaign is not restated.
+- Replace like for like, with pyrethroid-only nets at the same 0.70 coverage.
+- Switch to PBO, again at 0.70.
+- Switch to pyrrole, again at 0.70.
+- PBO, plus IRS at 0.60 and LSM at 0.30.
 
 Every scenario carries the same `EirTarget`, so the baseline EIR is inverted from the same prevalence
 under the same current net mix. Any difference is caused by the campaign alone.

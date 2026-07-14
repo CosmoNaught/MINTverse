@@ -6,7 +6,7 @@ MINTverse runs in two stages. `estimint` inverts a measured prevalence or biting
 EIR that would sustain it, and `stateMINT` runs the campaign forward from that EIR over six
 years, three before it and three after.
 
-Both stages have a training domain and both enforce it silently. Nothing is fitted at call
+Both stages have a training domain, and neither raises when you leave it. Nothing is fitted at call
 time.
 
 ::: {.chapter-outline}

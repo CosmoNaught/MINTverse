@@ -158,7 +158,7 @@ print(pbo.net_type_future, pbo.itn_future, pbo.lsm)
 
 An R controller took parallel vectors of names, resistance levels and net types, with
 position *i* of each belonging to scenario *i*. Drop an element from one vector and every
-scenario after it shifts silently.
+scenario after it shifts too.
 
 Python makes each scenario one `Scenario` object, and `run_scenarios` takes a list of them.
 

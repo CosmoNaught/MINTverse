@@ -112,7 +112,7 @@ print(f"largest relative gap: {np.max(np.abs(smoothed - staircase) / staircase):
 
 The sweep has fixed endpoints, with `prev_y9` running from 0.005 to 0.80 on a linear grid and
 `hbr_y9` from 5 × 10³ to 7 × 10⁷ on a log grid. The query is interpolated onto that curve, so an
-input past either endpoint silently returns the endpoint value.
+input past either endpoint returns the endpoint value, and no error is raised.
 
 ```{python}
 probe = pd.DataFrame([{**setting, "prev_y9": p} for p in [0.001, 0.005, 0.30, 0.80, 0.95]])

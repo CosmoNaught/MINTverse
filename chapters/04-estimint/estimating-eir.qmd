@@ -143,7 +143,7 @@ what an unqualified call resolves to.
 ::: {.callout-note}
 ## The valid range
 
-`prev_y9` is clamped to `[0.005, 0.80]`, and values outside that band are quietly pulled to the
+`prev_y9` is clamped to `[0.005, 0.80]`, and values outside that band are pulled to the
 nearest edge. No warning is raised.
 
 ```{python}

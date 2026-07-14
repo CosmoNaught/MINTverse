@@ -25,7 +25,8 @@ scenario takes minutes and exploring an intervention space, or fitting to a surv
 running it thousands of times.
 
 `stateMINT` is trained on a large library of those simulation runs, and reproduces their
-output in a few milliseconds per scenario. It runs on a CPU.
+output in about 6 ms per scenario on a CPU or about 1 ms on a GPU, parallelised across cores
+or within the GPU.
 
 {{< include ../_truth-setup.qmd >}}
 
@@ -50,47 +51,47 @@ to a mean absolute error of 0.0044 in prevalence, at an R² of 0.999 and with no
 bias. Please see [Accuracy and speed](../03-concepts/validation.qmd) for the
 trajectory-by-trajectory comparison.
 
-Outside its training range the emulator is not reliable, and `estimint` clamps out-of-range
-covariates silently. A setting far beyond it still returns an answer.
+Outside its training range the emulator is not reliable. `estimint` clamps out-of-range
+covariates and raises nothing, so a setting far beyond it still returns an answer.
 
 ## What you need to run it
 
 `run_scenarios` derives several of the emulator's twelve covariates from the ones below.
 
-**One measure of transmission.** Exactly one of the following:
+Transmission enters through an `EirTarget`, which takes one of three measures.
 
-| You have | Pass it as | Typical source |
+| Measure | `EirTarget` | Source |
 |---|---|---|
-| Under-5 prevalence before the campaign | `EirTarget(0.45, "prevalence")` | A cross-sectional survey (DHS, MIS) |
-| A human biting rate | `EirTarget(250000, "hbr")` | Entomological trapping |
-| An EIR already | `EirTarget(20, "eir")` | A previous calibration |
+| Under-5 prevalence before the campaign | `EirTarget(0.45, "prevalence")` | Cross-sectional survey (DHS, MIS) |
+| Human biting rate | `EirTarget(250000, "hbr")` | Entomological trapping |
+| EIR | `EirTarget(20, "eir")` | A previous calibration |
 
-The EIR and HBR `estimint` reports are equilibrium values at the moment the campaign starts,
-not trajectories. Please see [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd)
-for how the four quantities move through the pipeline.
+The EIR and HBR `estimint` reports are equilibrium values at the campaign, not trajectories.
+Please see [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) for how the four
+quantities move through the pipeline.
 
-**The setting.** Four numbers describing the district and its mosquitoes:
+Four numbers describe the setting and its mosquitoes.
 
-| Input | What it is | Where it comes from |
+| Input | What it is | Source |
 |---|---|---|
-| `Q0` | Human blood index | A property of the local vector species |
+| `Q0` | Human blood index | The local vector species |
 | `phi` | Proportion of bites taken while people are in bed | Vector species and human behaviour |
 | `seasonal` | 0 for perennial transmission, 1 for strongly seasonal | Known for the setting |
 | `res_use` | Pyrethroid resistance, 0 to 1 | Bioassay data on the local vector population |
 
-**The interventions in place now.** The current net mix, as usage shares by net type (`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`).
-Leave the net keys out if there are no nets, and you do **not** compute the net killing
-effect yourself, because `calculate_dn0` turns the mix and the resistance level into the
-`dn0` covariate.
+The interventions already in place are the current net mix, given as usage shares by net type
+(`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`). Leave the
+net keys out if there are no nets. `calculate_dn0` turns the mix and the resistance level into
+the `dn0` covariate, so the net killing effect is not supplied.
 
-**The campaign you want to evaluate.** The net type and coverage from the campaign onwards (`net_type_future`, `itn_future`), and any spraying, larviciding or routine distribution that comes with it (`irs_future`, `lsm`, `routine`).
+The campaign is the net type and coverage from the campaign onwards (`net_type_future`,
+`itn_future`), together with any spraying, larviciding or routine distribution that comes with
+it (`irs_future`, `lsm`, `routine`). Everything else is optional, including `mosquito_delta`,
+a change in mosquito density, which has no effect at its default of zero.
 
-Everything else is optional, including `mosquito_delta`, a change in mosquito density, which
-has no effect at its default of zero.
-
-You do not need a GPU, a `malariasimulation` installation, R, or any training data, as
-installation pulls the estiMINT models with the wheel. The emulator weights download once from
-Hugging Face on first use.
+Running it needs no GPU, no `malariasimulation` installation, no R, and no training data.
+Installation pulls the estiMINT models with the wheel, and the emulator weights download once
+from Hugging Face on first use.
 
 ::: {.callout-important}
 ## Future coverage must be set explicitly

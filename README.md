@@ -24,7 +24,7 @@ transmission model of the same lineage as
 [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). The simulation
 takes minutes per scenario, and the emulator reproduces its output in milliseconds.
 
-`estimint` clamps out-of-range covariates silently, so a setting outside the training
+`estimint` clamps out-of-range covariates and raises nothing, so a setting outside the training
 range still returns an answer. The documentation gives the ranges.
 
 ## Install
@@ -35,8 +35,8 @@ pip install estimint mintstate
 
 Both packages require Python 3.12 or newer, and the command above installs both. You
 install `mintstate` but import `stateMINT`. A GPU is optional
-(`pip install "mintstate[gpu]"`, CUDA 12). On a CPU, a batch of ten scenarios takes
-about a second.
+(`pip install "mintstate[gpu]"`, CUDA 12). On a CPU a scenario costs about 6 ms in a
+batch, and about 1 ms on a GPU.
 
 ## Example
 

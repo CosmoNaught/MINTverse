@@ -157,7 +157,7 @@ Install `"mintstate[gpu]"` only if you have CUDA 12 and a batch large enough to 
 
 ### A flat or pinned trajectory
 
-`estimint` clamps its inputs silently. The models were fitted on a bounded range, so `prev_y9`
+`estimint` clamps its inputs and raises nothing. The models were fitted on a bounded range, so `prev_y9`
 is held to $[0.005, 0.80]$ and `hbr_y9` to $[5 \times 10^{3}, 7 \times 10^{7}]$. A prevalence of
 0.92 arrives at the model as 0.80 and a prevalence of 0.001 arrives as 0.005, with no warning.
 
