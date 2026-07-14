@@ -41,7 +41,7 @@ emulator only ever runs from an EIR, the mode decides what has to happen first.
 
 | Mode | You supply | What happens |
 |---|---|---|
-| `"prevalence"` | Under-5 parasite prevalence in [0.005, 0.80] | `estimint` inverts it to an EIR with the XGBoost prevalence model. |
+| `"prevalence"` | Under-5 parasite prevalence in [0.005, 0.80] | estiMINT inverts it to an EIR with the XGBoost prevalence model. |
 | `"eir"` | An EIR, infectious bites per person per year | Used directly. No inversion. |
 | `"hbr"` | A human biting rate | Converted to an EIR through the HBR model. |
 
@@ -212,8 +212,8 @@ The frame cannot be written to CSV, and any comparison across scenarios has to r
 cells first. [Exporting results](exporting.qmd) deals with both.
 
 The 157 windows are a property of the emulator, so read the grid off the artefact rather than
-hard-coding it. `preload_models` returns the three `estimint` XGBoost models and the two
-`stateMINT` artefacts. Calling it once up front warms the caches and pulls the weights from
+hard-coding it. `preload_models` returns the three estiMINT XGBoost models and the two
+stateMINT artefacts. Calling it once up front warms the caches and pulls the weights from
 Hugging Face before the first run.
 
 ```{python}

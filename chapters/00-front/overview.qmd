@@ -2,14 +2,14 @@
 title: "Overview"
 ---
 
-MINTverse estimates how intense transmission is in a setting, and predicts how prevalence
+MINTverse is a collection of machine learning libraries comprised of estiMINT and stateMINT which work together to estimate how intense transmission is in a setting, and predicts how prevalence
 and clinical cases respond to a change in nets, spraying, or larviciding. It does both with
 trained models that stand in for a full individual-based simulation.
 
 | Package | What it does |
 |---------|--------------|
-| `estimint` | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
-| `stateMINT` | Emulates the individual-based model. Given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
+| estiMINT | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
+| stateMINT | Emulates the individual-based model. Given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
 
 One call, `run_scenarios`, chains them.
 
@@ -18,13 +18,13 @@ One call, `run_scenarios`, chains them.
 
 ## Why an emulator
 
-The trajectories `stateMINT` returns are those of an individual-based malaria transmission
+The trajectories stateMINT returns are those of an individual-based malaria transmission
 model, the same lineage as the departmental
 [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/) package, where a single
 scenario takes minutes and exploring an intervention space, or fitting to a survey, means
 running it thousands of times.
 
-`stateMINT` is trained on a large library of those simulation runs, and reproduces their
+stateMINT is trained on a large library of those simulation runs, and reproduces their
 output in about 6 ms per scenario on a CPU or about 1 ms on a GPU, parallelised across cores
 or within the GPU.
 
@@ -51,7 +51,7 @@ to a mean absolute error of 0.0044 in prevalence, at an R² of 0.999 and with no
 bias. Please see [Accuracy and speed](../03-concepts/validation.qmd) for the
 trajectory-by-trajectory comparison.
 
-Outside its training range the emulator is not reliable. `estimint` clamps out-of-range
+Outside its training range the emulator is not reliable. estiMINT clamps out-of-range
 covariates and raises nothing, so a setting far beyond it still returns an answer.
 
 ## What you need to run it
@@ -66,7 +66,7 @@ Transmission enters through an `EirTarget`, which takes one of three measures.
 | Human biting rate | `EirTarget(250000, "hbr")` | Entomological trapping |
 | EIR | `EirTarget(20, "eir")` | A previous calibration |
 
-The EIR and HBR `estimint` reports are equilibrium values at the campaign, not trajectories.
+The EIR and HBR estiMINT reports are equilibrium values at the campaign, not trajectories.
 Please see [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) for how the four
 quantities move through the pipeline.
 

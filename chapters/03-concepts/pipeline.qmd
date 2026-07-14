@@ -38,11 +38,11 @@ into the EIR that would sustain it. The second stage runs the campaign forward f
                        14-day steps, campaign at day 3285
 ```
 
-Stage one is `estimint`, three gradient-boosted trees and a curve fit, cheap and
+Stage one is estiMINT, three gradient-boosted trees and a curve fit, cheap and
 deterministic, returning the equilibrium at the decision point. It has no notion of
 time.
 
-Stage two is `stateMINT`, a sequence model taking the twelve covariates, one row
+Stage two is stateMINT, a sequence model taking the twelve covariates, one row
 describing a setting and a campaign. It emits 157-step trajectories for prevalence and
 cases.
 
@@ -65,7 +65,7 @@ a field.
 
 ## What the emulator is emulating
 
-`stateMINT` was trained on output from
+stateMINT was trained on output from
 [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), the individual-based
 transmission model, and it reproduces that simulator to within its training error. It does so in
 milliseconds rather than minutes.
@@ -87,16 +87,16 @@ plt.show()
 The red line follows the white one through the pre-campaign equilibrium and the drop when the
 campaign lands. It settles around a percentage point below the simulator in the final
 years. That residual is the emulator's, and it is the size of error to expect. Every
-structural assumption `malariasimulation` makes is inherited whole, so a `stateMINT`
+structural assumption `malariasimulation` makes is inherited whole, so a stateMINT
 trajectory answers what the simulator would have said rather than what a district will do.
 [Accuracy and speed](validation.qmd) quantifies both halves of that error.
 
 ## Domain limits
 
-The emulator is only as good as the covariate space it saw in training. `estimint` is only as
+The emulator is only as good as the covariate space it saw in training. estiMINT is only as
 good as the prevalences it was fitted against.
 
-`estimint` clamps its inputs to the calibrated domain, so that `prev_y9` is clamped to
+estiMINT clamps its inputs to the calibrated domain, so that `prev_y9` is clamped to
 $[0.005,\ 0.80]$ and `hbr_y9` to $[5 \times 10^{3},\ 7 \times 10^{7}]$.
 
 ::: {.callout-warning}

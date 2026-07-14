@@ -2,8 +2,8 @@
 title: "The models"
 ---
 
-MINTverse ships four trained models, three gradient-boosted trees in `estimint` that convert
-between transmission quantities and one sequence model in `stateMINT` that produces
+MINTverse ships four trained models, three gradient-boosted trees in estiMINT that convert
+between transmission quantities and one sequence model in stateMINT that produces
 trajectories. Nothing is fitted, tuned or configured at call time.
 
 ## The three estiMINT conversions
@@ -51,7 +51,7 @@ file read.
 
 ## The stateMINT emulator
 
-`stateMINT` is a Mamba2 state-space model, implemented in JAX and Flax and trained to reproduce
+stateMINT is a Mamba2 state-space model, implemented in JAX and Flax and trained to reproduce
 [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). It takes a setting and a
 campaign, and returns 157 steps of prevalence or 157 steps of cases.
 
@@ -100,7 +100,7 @@ want when computing residuals against training targets.
 ::: {.callout-note}
 ## A note on the word "state"
 
-The *state* in `stateMINT` is the state of a **state-space model**, a hidden vector carried
+The *state* in stateMINT is the state of a **state-space model**, a hidden vector carried
 through a linear recurrence that lets the network summarise everything it has seen up to step
 $t$ in fixed memory. `d_state` 128 is the width of that vector.
 

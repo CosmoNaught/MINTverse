@@ -166,8 +166,8 @@ result = estimate_eir_with_mosquito_delta(inputs, models=models)
 
 ## Scenarios
 
-The runner in [Running Scenarios](../06-scenarios/index.qmd) needs `stateMINT` installed
-alongside `estimint`.
+The runner in [Running Scenarios](../06-scenarios/index.qmd) needs stateMINT installed
+alongside estiMINT.
 
 ### EirTarget
 

@@ -2,7 +2,7 @@
 title: "estiMINT: EIR and HBR"
 ---
 
-`estimint` supplies the EIR the emulator runs from. It inverts a prevalence or an HBR into the
+estiMINT supplies the EIR the emulator runs from. It inverts a prevalence or an HBR into the
 EIR that would sustain it, and converts between EIR and HBR in both directions.
 
 Everything it returns is an equilibrium value at the campaign. The trajectories come from
@@ -18,7 +18,7 @@ Everything it returns is an equilibrium value at the campaign. The trajectories 
 
 ## The three models
 
-`estimint` ships three gradient-boosted models inside the wheel, each mapping one driving input
+estiMINT ships three gradient-boosted models inside the wheel, each mapping one driving input
 to one output while holding the same six covariates fixed. Nothing is downloaded. Pick the model
 whose driving input you measured.
 

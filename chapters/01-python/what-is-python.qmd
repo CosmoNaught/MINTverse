@@ -118,9 +118,9 @@ without either one masking the other.
 ## Why the models are in Python
 
 The libraries that train and serve machine-learning models are Python-first, and in most
-cases Python-only. XGBoost, which underlies `estimint`, has an R interface. JAX and Flax, the
-array and neural-network libraries `stateMINT` is written in, do not. Neither does Hugging
-Face, whose model hub is where the `stateMINT` weights are stored and versioned.
+cases Python-only. XGBoost, which underlies estiMINT, has an R interface. JAX and Flax, the
+array and neural-network libraries stateMINT is written in, do not. Neither does Hugging
+Face, whose model hub is where the stateMINT weights are stored and versioned.
 
 The emulator is a state-space network trained in JAX and distributed as a Hugging Face
 artefact. There is no R binding to it, and writing one would mean reimplementing the forward

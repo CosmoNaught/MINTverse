@@ -3,7 +3,7 @@ title: "EIR and HBR"
 ---
 
 Districts with no parasite survey enter the pipeline at the human biting rate instead, and
-`estimint` bundles a model in each direction so that prevalence is not used at all.
+estiMINT bundles a model in each direction so that prevalence is not used at all.
 
 ```{python}
 import pandas as pd

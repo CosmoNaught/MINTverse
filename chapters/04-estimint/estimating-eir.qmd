@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-A parasite survey gives a prevalence, the transmission model needs an EIR, and `estimint` inverts
+A parasite survey gives a prevalence, the transmission model needs an EIR, and estiMINT inverts
 the one into the other with six covariates describing the setting going in alongside it.
 Prevalence alone is not enough.
 

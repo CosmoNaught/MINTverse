@@ -2,12 +2,12 @@
 title: "stateMINT: the emulator"
 ---
 
-`stateMINT` takes an EIR, the setting it belongs to, and the campaign under evaluation, and
+stateMINT takes an EIR, the setting it belongs to, and the campaign under evaluation, and
 returns prevalence and clinical-case trajectories over six years, three before the campaign and
 three after. The EIR comes from [estiMINT](../04-estimint/index.qmd).
 
 It emulates [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), which takes
-minutes per scenario. Trained on a library of those runs, `stateMINT` reproduces their output in
+minutes per scenario. Trained on a library of those runs, stateMINT reproduces their output in
 milliseconds, so a fifty-scenario batch runs in under a second on a laptop CPU. Like any
 emulator it is trustworthy only inside the range it was trained on.
 

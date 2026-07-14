@@ -2,7 +2,7 @@
 title: "Accuracy and speed"
 ---
 
-`stateMINT` stands in for `malariasimulation`, so what decides whether it can be used is how
+stateMINT stands in for `malariasimulation`, so what decides whether it can be used is how
 closely it reproduces the simulator on parameter sets it was never trained on.
 
 {{< include ../_truth-setup.qmd >}}
@@ -76,8 +76,8 @@ the whole chain, not of the emulator alone.
 
 The white line below is `malariasimulation`, averaged over the stochastic runs drawn in grey
 behind it, and the red line is the full pipeline, which starts from the measured year-9
-prevalence and inverts it to an EIR with `estimint` before running `stateMINT` forward. The green
-dashed line is `stateMINT` given the simulator's own EIR. The gap between green and white is the
+prevalence and inverts it to an EIR with estiMINT before running stateMINT forward. The green
+dashed line is stateMINT given the simulator's own EIR. The gap between green and white is the
 cost of the emulation, and the gap between red and green is the cost of the inversion.
 
 ```{python}
@@ -103,7 +103,7 @@ plt.show()
 ```
 
 In the left panel all three lines coincide, while in the middle panel the red line runs above the
-white one and the green line stays on it, because `estimint` estimated an EIR of 12.5 against a
+white one and the green line stays on it, because estiMINT estimated an EIR of 12.5 against a
 true 11.8 and the emulator was then run forward from a transmission intensity that was too high.
 In the right panel red and green coincide, but both sit slightly below the simulator once the
 campaign lands. That residual belongs to the emulator, not the inversion.

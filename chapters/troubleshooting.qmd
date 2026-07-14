@@ -29,7 +29,7 @@ packages are fine.
 ModuleNotFoundError: No module named 'stateMINT'
 ```
 
-There are two causes. The first is that `estimint` was installed without the emulator, since
+There are two causes. The first is that estiMINT was installed without the emulator, since
 plain `pip install estimint` gives you the EIR and HBR models and nothing else.
 
 ```bash
@@ -113,7 +113,7 @@ nothing else.
 
 ## A slow first run
 
-The XGBoost models ship inside the `estimint` wheel and load instantly. The emulator weights
+The XGBoost models ship inside the estiMINT wheel and load instantly. The emulator weights
 live on the Hugging Face Hub at `dide-ic/stateMINT` and are fetched on first use, roughly 38 MB
 per predictor. They then sit under `~/.cache/huggingface` and are never fetched again.
 
@@ -157,7 +157,7 @@ Install `"mintstate[gpu]"` only if you have CUDA 12 and a batch large enough to 
 
 ### A flat or pinned trajectory
 
-`estimint` clamps its inputs and raises nothing. The models were fitted on a bounded range, so `prev_y9`
+estiMINT clamps its inputs and raises nothing. The models were fitted on a bounded range, so `prev_y9`
 is held to $[0.005, 0.80]$ and `hbr_y9` to $[5 \times 10^{3}, 7 \times 10^{7}]$. A prevalence of
 0.92 arrives at the model as 0.80 and a prevalence of 0.001 arrives as 0.005, with no warning.
 

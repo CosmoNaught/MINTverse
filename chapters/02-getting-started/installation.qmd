@@ -2,8 +2,8 @@
 title: "Installation"
 ---
 
-MINTverse is two packages, with `estimint` mapping a measured prevalence to transmission
-intensity and `stateMINT` emulating the prevalence and case trajectories that follow an
+MINTverse is two packages, with estiMINT mapping a measured prevalence to transmission
+intensity and stateMINT emulating the prevalence and case trajectories that follow an
 intervention. Install both:
 
 ```bash
@@ -29,13 +29,13 @@ import stateMINT          # correct
 import mintstate          # ModuleNotFoundError
 ```
 
-`estimint` has no such split, and its distribution and module are both `estimint`.
+estiMINT has no such split, and its distribution and module are both `estimint`.
 :::
 
 ## Extras
 
 An extra is an optional set of dependencies, named in square brackets after the package.
-`estimint` on its own gives you the EIR and HBR models but no emulator.
+estiMINT on its own gives you the EIR and HBR models but no emulator.
 
 | Extra | Command | What it adds |
 |---|---|---|
@@ -43,7 +43,7 @@ An extra is an optional set of dependencies, named in square brackets after the 
 | `viz` | `pip install "estimint[viz]"` | matplotlib, for the bundled plotting helpers. |
 | `download` | `pip install "estimint[download]"` | The fetchers used to pull training data. |
 | `train` | `pip install "estimint[train]"` | duckdb, scikit-learn and pyarrow, for refitting the XGBoost models. |
-| `all` | `pip install "estimint[all]"` | The four `estimint` extras above. |
+| `all` | `pip install "estimint[all]"` | The four estiMINT extras above. |
 | `gpu` | `pip install "mintstate[gpu]"` | `jax[cuda12]`, so the emulator runs on an NVIDIA GPU with CUDA 12. |
 
 The CPU build of JAX is fast enough for inference, where a ten-scenario batch takes about
@@ -52,10 +52,10 @@ thousands.
 
 ## Model weights
 
-`estimint` ships its three XGBoost models (prevalence, HBR and EIR-to-HBR) inside the
+estiMINT ships its three XGBoost models (prevalence, HBR and EIR-to-HBR) inside the
 wheel. `load_xgb_model("prevalence")` never needs a network.
 
-`stateMINT` does need one on first use, because its checkpoints live in the Hugging Face
+stateMINT does need one on first use, because its checkpoints live in the Hugging Face
 repository [`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), with a
 separately trained checkpoint of about 38 MB for each predictor under `prevalence/` and
 `cases/`, and the first call that needs one fetches it and caches it under
@@ -96,7 +96,7 @@ artifact = Mamba2Regressor.from_pretrained(
 
 `importlib.metadata` reports the version of an installed distribution rather than of an
 imported module, so the emulator's version is recorded under `mintstate` and not under
-`stateMINT`. `net_types()` asks `estimint` which net formulations it knows about.
+stateMINT. `net_types()` asks estiMINT which net formulations it knows about.
 
 ```{python}
 import importlib.metadata as md
