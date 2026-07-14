@@ -143,10 +143,7 @@ format:
     theme: [darkly, styles/theme.scss]
     highlight-style: atom-one
     html-math-method: mathjax
-    include-in-header: _mathjax-config.html
-    include-after-body:
-      - _navbar-breadcrumb.html
-      - _prevnext-fix.html
+    include-after-body: _navbar-breadcrumb.html
     link-external-newwindow: true
     link-external-icon: false
     toc: true
