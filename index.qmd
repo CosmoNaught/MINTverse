@@ -18,7 +18,7 @@ anchor-sections: false
     </p>
     <div class="mint-actions">
       <a class="mint-btn mint-btn-primary" href="chapters/02-getting-started/index.html">Get started</a>
-      <a class="mint-btn mint-btn-mint" href="https://mint.dide.ic.ac.uk/" target="_blank" rel="noopener">MINTweb</a>
+      <a class="mint-btn mint-btn-ghost" href="https://mint.dide.ic.ac.uk/" target="_blank" rel="noopener">MINTweb</a>
       <a class="mint-btn mint-btn-ghost" href="chapters/01-python/index.html">New to Python?</a>
       <a class="mint-btn mint-btn-ghost" href="https://github.com/CosmoNaught/MINTverse" target="_blank" rel="noopener">GitHub</a>
     </div>
