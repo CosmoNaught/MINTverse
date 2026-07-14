@@ -1,5 +1,5 @@
 ---
-title: "What Python is"
+title: "What is Python?"
 ---
 
 R was designed by statisticians for statistics. A vector is the basic unit, arithmetic is

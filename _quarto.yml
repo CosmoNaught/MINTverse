@@ -46,7 +46,7 @@ website:
         href: chapters/01-python/index.qmd
         contents:
           - href: chapters/01-python/what-is-python.qmd
-            text: "What Python is"
+            text: "What is Python?"
           - href: chapters/01-python/toolchain.qmd
             text: "Python tools"
           - href: chapters/01-python/installing-python.qmd

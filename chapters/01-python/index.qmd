@@ -14,7 +14,7 @@ shared library. Python cannot, because Python projects routinely need conflictin
 of the same package. The setup below is arranged to prevent that.
 
 ::: {.chapter-outline}
-- [What Python is](what-is-python.qmd) — indexing, methods, imports, and where R differs.
+- [What is Python?](what-is-python.qmd) — indexing, methods, imports, and where R differs.
 - [Python tools](toolchain.qmd) — `pip`, virtual environments, and `uv`.
 - [Installing Python](installing-python.qmd) — `uv`, or the platform route.
 - [Working in VS Code](vscode.qmd) — the editor, the interpreter, and the interactive window.
