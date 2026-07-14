@@ -11,7 +11,7 @@ trained models that stand in for a full individual-based simulation.
 | estiMINT | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
 | stateMINT | Emulates the individual-based model. Given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
 
-One call, `run_scenarios`, chains them.
+You can simply call the built-in function `run_scenarios` to chain the functionality of these packages.
 
 `pip install estimint mintstate` installs both packages, though the distribution is called
 `mintstate` while the module you import is `stateMINT`.
@@ -101,6 +101,23 @@ not what is already there. Left unset, they tell the model to treat the existing
 spraying as **withdrawn** at the campaign. To hold an intervention steady you must restate it
 in the future keys. Please see [Covariates and the time grid](../05-statemint/covariates.qmd).
 :::
+
+## MINTweb
+
+[MINTweb](https://mint.dide.ic.ac.uk/) is the same modelling behind a web front end, aimed at
+National Malaria Control Programmes rather than at researchers. It exists so that a programme
+can work out the most cost-effective way to deploy the mosquito net and IRS products the WHO
+currently recommends, without writing any Python.
+
+Work there is organised into projects, each a collection of regions, where a region is whatever
+unit the programme plans in, an administrative division, a province or a village. Each region
+carries its own population and its own choice of nets and spraying, and MINTweb returns the
+impact and the cost effectiveness of each package. Note that IRS is deployed focally, so a
+region that is only partly sprayed is better split into a sprayed region and an unsprayed one.
+
+MINTweb is the right tool for scenario planning on the day. These packages are the right tool
+when you want the trajectories themselves, a sweep larger than a form can carry, or a step in
+the pipeline the front end does not expose.
 
 ## Where to start
 

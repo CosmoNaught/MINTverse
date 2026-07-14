@@ -27,6 +27,10 @@ website:
     pinned: true
     search: false
     right:
+      - text: "MINTweb"
+        href: "https://mint.dide.ic.ac.uk/"
+        target: _blank
+        aria-label: "MINTweb, the Malaria Intervention Tool"
       - icon: github
         href: "https://github.com/CosmoNaught/MINTverse"
         aria-label: GitHub

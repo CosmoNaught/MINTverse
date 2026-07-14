@@ -84,6 +84,24 @@ body {
 .navbar .quarto-navigation-tool:hover,
 .navbar .quarto-navigation-tool:focus { color: $mint !important; }
 
+// MINTweb, the web front end. A mint pill so it reads as part of the family.
+.navbar .nav-link[href^="https://mint.dide.ic.ac.uk"] {
+  padding: 0.28rem 0.85rem;
+  margin-right: 0.35rem;
+  border: 1px solid rgba(0, 212, 170, 0.55);
+  border-radius: 999px;
+  background: rgba(0, 212, 170, 0.10);
+  color: $mint !important;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+.navbar .nav-link[href^="https://mint.dide.ic.ac.uk"]:hover,
+.navbar .nav-link[href^="https://mint.dide.ic.ac.uk"]:focus {
+  color: $mint-bright !important;
+  border-color: $mint;
+  background: rgba(0, 212, 170, 0.18);
+}
+
 // the header bar stays put on scroll (neutralise Quarto's headroom.js slide)
 #quarto-header.headroom { transition: none !important; }
 #quarto-header.headroom--unpinned,
@@ -510,6 +528,19 @@ pre.text.diagram > code { padding: 0; }
 }
 .mint-btn-primary:hover,
 .mint-btn-primary:focus { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(0, 212, 170, 0.45); color: #000 !important; }
+.mint-btn-mint {
+  background: rgba(0, 212, 170, 0.10);
+  color: $mint !important;
+  border-color: rgba(0, 212, 170, 0.55);
+}
+.mint-btn-mint:hover,
+.mint-btn-mint:focus {
+  transform: translateY(-2px);
+  color: $mint-bright !important;
+  border-color: $mint;
+  background: rgba(0, 212, 170, 0.18);
+  box-shadow: 0 8px 28px rgba(0, 212, 170, 0.25);
+}
 .mint-btn-ghost {
   background: rgba(0, 113, 227, 0.06);
   color: $gray-300 !important;
