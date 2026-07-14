@@ -2,12 +2,9 @@
 
     python misc/prosecheck.py                       # the whole site
     python misc/prosecheck.py chapters/03-concepts  # one chapter
-    python misc/prosecheck.py --rhythm              # rhythm metrics only, no gate
+    python misc/prosecheck.py --rhythm              # rhythm only, no gate
 
-Two kinds of check. Violations are hard failures and exit non-zero: em-dashes, semicolons and
-colons in prose, rhetorical questions, headings that tease, and the vocabulary that marks text
-as machine-written. Rhythm is advisory and reports how far the prose sits from the
-malariasimulation vignettes, which are the model for the voice.
+Violations exit non-zero. Rhythm is advisory.
 """
 
 import re
@@ -35,10 +32,7 @@ SELF_REFERENCE = re.compile(
     re.I,
 )
 
-# Excess vocabulary from Kobak et al., "Delving into LLM-assisted writing in biomedical
-# publications through excess vocabulary" (Science Advances, 2025; arXiv:2406.07016), and
-# Liang et al. (ICML 2024; arXiv:2403.07183). Plus the marketing register and the American
-# spellings, neither of which belong in these docs.
+# Excess vocabulary from Kobak et al. (Sci Adv 2025) and Liang et al. (ICML 2024).
 AI_WORDS = [
     "delve", "delving", "underscore", "underscores", "underscoring", "showcase", "showcases",
     "showcasing", "intricate", "intricacies", "meticulous", "meticulously", "commendable",
@@ -68,22 +62,19 @@ AI_PHRASES = [
 ]
 AI_PHRASE_RE = re.compile("|".join(re.escape(p) for p in AI_PHRASES), re.I)
 
-# "Sentences that go nowhere" as headings: a heading that gestures at a point instead of
-# naming its subject. Also anything long enough to be a sentence rather than a label.
+# Headings that gesture at a subject instead of naming it.
 TEASER_HEADING_RE = re.compile(
     r"\b(and why|and what|and how|rather than|the reason|is decided|what it means|"
     r"why it|not just|against the|the meaning of)\b",
     re.I,
 )
 
-# An index item pairing a link with a gloss. The one construct allowed an em-dash, because it
-# is a label rather than a sentence. Exactly one dash, and it must follow the link.
+# The one construct allowed an em-dash. A label, not a sentence.
 LINK_GLOSS = re.compile(r"^\s*[-*] \[[^\]]+\]\([^)]+\) — [^—]+$")
 
 # Numeric ranges (0–1, 0.7–0.95) are the only place an en-dash is allowed.
 EN_DASH_IN_PROSE = re.compile(r"(?<!\d)–|–(?!\d)")
-# A colon after a word, closing bracket, backtick or quote, followed by more prose on the
-# same line. A colon at end of line is a lead-in to a code block or list and is fine.
+# Mid-sentence only. A colon at end of line leads into a code block or list.
 PROSE_COLON = re.compile(r"[A-Za-z0-9\)\`\"']:\s+\S")
 
 
@@ -143,9 +134,7 @@ def violations(path: Path) -> list[tuple[int, str, str]]:
     text = path.read_text()
     hits = []
 
-    # Em-dashes are banned in prose. They are allowed in exactly one place, the index items
-    # that pair a link with a gloss ("- [Title](x.qmd) — what the page covers"), which are a
-    # label and not a sentence.
+    # Banned in prose, allowed in an index gloss.
     in_code = False
     for lineno, line in enumerate(text.split("\n"), 1):
         if line.lstrip().startswith("```"):
@@ -245,9 +234,7 @@ def main(argv: list[str]) -> int:
             if d < -TOLERANCE[k]:
                 flag, soft = "  <-- too uniform", soft + 1
         elif k == "pct_paras_opening_short":
-            # Only an excess is a fault. A paragraph that opens on a short sentence and then
-            # explains it is the teaser pattern these docs exist to avoid, so sitting below
-            # the malariasimulation baseline is the intended direction.
+            # Only an excess is a fault. Below the baseline is the intended direction.
             if d > TOLERANCE[k]:
                 flag, soft = "  <-- TOO HIGH", soft + 1
         elif abs(d) > TOLERANCE[k]:

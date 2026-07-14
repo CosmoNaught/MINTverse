@@ -1,8 +1,6 @@
 ```{python}
 #| include: false
-# Shared setup for the figures that compare the pipeline against malariasimulation. The data is
-# exported by misc/export_truth.py, which reads the simulation database directly. It is not
-# regenerated at render time.
+# Data exported by misc/export_truth.py. Not regenerated at render time.
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -25,8 +23,7 @@ def truth_panel(ax, case_id, predictor="prevalence", emulator=True, runs=True):
         for _, g in d[d.series == "run"].groupby("run_id"):
             ax.plot(g.years_from_campaign, g.value, color=RUNS, alpha=0.3, lw=0.7, zorder=1)
 
-    # The simulator is drawn widest and underneath, so it reads as a band that the
-    # predictions sit inside. Where a prediction leaves the band, the two disagree.
+    # The simulator is drawn widest and underneath, so it reads as a band.
     layers = [("malariasim", TRUTH, 3.4, "-", 2), ("pipeline", PIPELINE, 1.8, "-", 4)]
     if emulator:
         layers.append(("emulator", EMULATOR, 1.5, (0, (4, 2.6)), 5))

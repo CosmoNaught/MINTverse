@@ -41,8 +41,7 @@ def main() -> int:
         html = page.read_text()
         for m in re.finditer(r'<div class="cell-output cell-output-(\w+)"', html):
             kinds[m.group(1) if m.group(1) in kinds else "other"] += 1
-        # Every output div must sit inside a .cell. One outside means Quarto emitted it
-        # somewhere the panel CSS does not reach.
+        # An output div outside a .cell is one the panel CSS does not reach.
         for m in re.finditer(r'<div class="cell-output', html):
             before = html[: m.start()]
             if before.count('<div class="cell"') <= before.count("</div></div>") - 40:

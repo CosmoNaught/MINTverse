@@ -2,21 +2,13 @@
 
     python misc/export_truth.py
 
-Run this by hand, once, on a machine with the simulation database. It is not part of the
-render. Quarto reads the CSVs it writes, so the docs never depend on DuckDB, and `duckdb` is
-deliberately absent from pyproject.toml for that reason. Install it into the render venv only
-when you need to re-export:
+Run by hand, not at render. `duckdb` is deliberately not a render dependency:
 
     uv pip install duckdb --python .venv/bin/python
 
-For each of three held-out parameter sets it writes four series. The simulator's own
-stochastic runs and their average are the ground truth. The pipeline series is what a user
-gets, a measured year-9 prevalence inverted to an EIR by estiMINT and then run forward by
-stateMINT. The emulator series is stateMINT given the simulator's own EIR, which separates
-the cost of the inversion from the cost of the emulation.
-
-Ported from statemint_estimint_test/edge_case_validation.py, narrowed to three cases and
-with the mosquito-density sweep removed.
+Writes four series per case. The simulator's runs and their average are the truth. The
+pipeline series inverts a year-9 prevalence to an EIR and runs it forward. The emulator
+series uses the simulator's own EIR, separating inversion error from emulation error.
 """
 
 import sys
@@ -37,9 +29,7 @@ DB = "/home/cosmo/Documents/Repos/MINT_DATA/malaria_simulations_4096.duckdb"
 EDGE_CASES = f"{C.OUTPUTS}/edge_cases_tagged.csv"
 OUT = Path("data/truth")
 
-# Three parameter sets held out of training on both the prevalence and the cases split, so
-# every trajectory below is a setting the emulator never saw. They span a seasonal setting
-# under nets, a perennial setting under spraying, and a perennial setting under both.
+# Held out of training on both splits.
 CASES = [16, 20, 27]
 
 

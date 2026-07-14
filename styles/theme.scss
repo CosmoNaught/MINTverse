@@ -89,8 +89,7 @@ body {
 #quarto-header.headroom--unpinned,
 #quarto-header.headroom--pinned { transform: none !important; }
 
-// ---- page breadcrumb pulled into the header, after the brand (by
-//      _navbar-breadcrumb.html). The banner then reads "MINTverse > section > sub". ----
+// ---- page breadcrumb, pulled into the header by _after-body.html ----
 .navbar .navbar-brand-container {
   display: flex;
   align-items: center;
@@ -164,9 +163,7 @@ div.callout.callout-style-default > .callout-header { background: rgba(255,255,2
 .callout.callout-important { border-left-color: $violet; }
 .callout.callout-warning, .callout.callout-caution { border-left-color: #d9a441; }
 
-// ---- RStudio asides: one box wherever a Python idea has an R counterpart. It carries its
-//      own colour and an exclamation badge in place of Quarto's icon, so an R reader can
-//      find them by eye and everyone else can skip them.
+// ---- RStudio asides: violet spine, exclamation badge, no Quarto icon ----
 .callout.callout-note.rstudio { border-left-color: $violet; }
 .callout-note.rstudio .callout-icon-container { display: none; }
 .callout-note.rstudio .callout-title-container { display: flex; align-items: center; }
@@ -212,9 +209,7 @@ thead th { color: $text-primary; border-bottom-color: $mint !important; }
 .chapter-outline > ul > li > a { font-size: 1.15rem; font-weight: 600; }
 .chapter-outline ul ul a { font-size: 0.95rem; font-weight: 400; }
 
-// ---- platform tabsets (Linux / macOS / Windows). Grouped on `os`, so choosing a platform
-//      on one page selects it on every other. The content pane is transparent, letting the
-//      code panel inside read exactly as it does outside a tabset.
+// ---- platform tabsets (Linux / macOS / Windows), grouped on `os` ----
 .panel-tabset > .nav-tabs {
   gap: 0.25rem;
   border-bottom: 1px solid $border-soft;
@@ -254,9 +249,6 @@ pre.sourceCode, pre { background: transparent !important; }
 :not(pre) > code { background: $code-bg; color: $code-color; border-radius: 4px; padding: 0.1em 0.35em; }
 
 // ---- executed code cells: set OUTPUT apart from SOURCE (Jupyter style) ----
-//      Quarto tags stdout as .cell-output-stdout and everything else (DataFrames,
-//      bare reprs, matplotlib figures) as .cell-output-display. Both carry
-//      .cell-output, so the panel is applied once, here, and every result is boxed.
 .cell { margin: 1.15rem 0; }
 .cell > div.sourceCode { margin-bottom: 0; }
 .cell-output {
@@ -268,12 +260,10 @@ pre.sourceCode, pre { background: transparent !important; }
   overflow-x: auto;
 }
 
-// An `echo: false` cell has no source block above it, so the panel rounds on all four
-// corners rather than only the bottom two.
+// `echo: false` cells have no source block above, so round all four corners.
 .cell > .cell-output:first-child { border-radius: 8px 8px 0 0; }
 
-// A cell that prints and then displays emits two sibling outputs. Collapse them into one
-// panel with a single label, and round only the last.
+// A cell that prints and then displays emits two sibling outputs. Collapse into one panel.
 .cell > .cell-output + .cell-output { border-top: none; }
 .cell > .cell-output:not(:last-child) {
   border-bottom-left-radius: 0;
@@ -297,7 +287,7 @@ pre.sourceCode, pre { background: transparent !important; }
 }
 .cell > .cell-output + .cell-output::before { content: none; padding: 0; }
 
-// Text output (stdout, and the repr of a bare expression) pads itself.
+// text output pads itself
 .cell-output > pre,
 .cell-output pre {
   margin: 0;
@@ -311,12 +301,11 @@ pre.sourceCode, pre { background: transparent !important; }
   white-space: pre;
 }
 
-// Everything that is not a <pre> is padded here instead: a DataFrame's wrapper div, a
-// Styler's bare table, a figure's .quarto-figure div.
+// non-<pre> output (DataFrame div, Styler table, figure) pads here instead
 .cell-output-display > div,
 .cell-output-display > table { padding: 0 0.9rem 0.75rem; margin: 0; }
 
-// Tables sit on the panel, so they carry no border and no background of their own.
+// tables sit on the panel, so no border or background of their own
 .cell-output-display table.dataframe,
 .cell-output-display table.table {
   margin: 0.15rem 0 0;
@@ -334,8 +323,7 @@ pre.sourceCode, pre { background: transparent !important; }
   white-space: nowrap;
 }
 
-// mint.mplstyle renders figures with a transparent face, so the panel is the figure
-// background and the caption sits inside the box with the image it describes.
+// mint.mplstyle figures are transparent, so the panel is the figure background
 .cell-output-display .quarto-figure,
 .cell-output-display figure.figure,
 .cell-output-display figure.figure > p { margin: 0; }
@@ -348,9 +336,7 @@ pre.sourceCode, pre { background: transparent !important; }
   text-align: left;
 }
 
-// ---- static output blocks (```text fences): the examples are not executed, so their
-//      output is plain markdown. Give it the same panel, spine and label as a live
-//      result, so a transcript reads exactly like the output of the call above it.
+// ---- static output blocks (```text fences): same panel and label as a live result ----
 pre.text {
   background: $panel !important;
   border: 1px solid $border-soft;
@@ -383,9 +369,7 @@ pre.text > code {
   white-space: pre;
 }
 
-// ---- diagrams (```{.text .diagram} fences): the pipeline schematic and the directory
-//      trees. Neither source nor output, so they keep the panel but take a violet spine
-//      and carry no "Output" label.
+// ---- diagrams (```{.text .diagram}): panel, violet spine, no "Output" label ----
 pre.text.diagram {
   background: $panel-2 !important;
   border-left-color: $violet;
