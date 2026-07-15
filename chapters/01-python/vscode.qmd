@@ -161,3 +161,8 @@ Steps 1 to 3 are "open the .Rproj, and start typing in the console". The interpr
 The `.venv` that the interpreter selector should be pointing at is created in
 [Environments and packages](environments.qmd). The same interpreter question returns in its
 notebook form, so please see [Notebooks](notebooks.qmd) for how a kernel is chosen there.
+
+The official Visual Studio Code walkthrough of Python covers the same ground from the editor's
+side.
+
+{{< video https://www.youtube.com/watch?v=D2cwvpJSBX4 title="Getting Started with Python in VS Code" >}}
