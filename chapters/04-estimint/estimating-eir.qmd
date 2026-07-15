@@ -14,7 +14,7 @@ Prevalence alone is not enough.
 
 ## The prevalence model
 
-The model ships inside the wheel, so `load_xgb_model` takes its name rather than a path. The call
+The model ships inside the installed package, so `load_xgb_model` takes its name rather than a path. The call
 is offline.
 
 ```{python}

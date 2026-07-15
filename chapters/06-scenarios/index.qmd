@@ -3,7 +3,7 @@ title: "Running Scenarios"
 ---
 
 `run_scenarios` drives the whole pipeline from a list of settings and campaigns and returns one
-row for each. It is exported from `estimint` but drives both packages, and nothing is imported
+row for each. It is exported from `estimint` but runs both packages, and nothing is imported
 from `stateMINT` directly. The pages that follow build a `Scenario`, run a grid of campaigns
 against a shared baseline, and compare and export the trajectories and cases that come back.
 

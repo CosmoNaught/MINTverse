@@ -116,14 +116,14 @@ curve.
 ```{python}
 levels = [0.0, 0.25, 0.50, 0.75, 1.0]
 
-table = pd.DataFrame(
-    {
-        f"{r:.2f}": [calculate_dn0(r, **{nt: 1.0}).dn0 for nt in net_types()]
-        for r in levels
-    },
-    index=net_types(),
-).round(4)
-table.index.name = "net type"
+rows = []
+for nt in net_types():
+    row = {"net type": nt}
+    for r in levels:
+        row[f"{r:.2f}"] = calculate_dn0(r, **{nt: 1.0}).dn0
+    rows.append(row)
+
+table = pd.DataFrame(rows).set_index("net type").round(4)
 table
 ```
 

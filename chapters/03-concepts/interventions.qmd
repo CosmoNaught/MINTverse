@@ -70,10 +70,9 @@ Usage is set to 1.0 for one net type at a time.
 nets = ["py_only", "py_pbo", "py_pyrrole", "py_ppf"]
 resistance = np.linspace(0.0, 1.0, 41)
 
-dn0 = pd.DataFrame(
-    {net: [calculate_dn0(r, **{net: 1.0}).dn0 for r in resistance] for net in nets},
-    index=pd.Index(resistance, name="resistance"),
-)
+dn0 = pd.DataFrame(index=pd.Index(resistance, name="resistance"))
+for net in nets:
+    dn0[net] = [calculate_dn0(r, **{net: 1.0}).dn0 for r in resistance]
 
 dn0.loc[[0.0, 0.25, 0.5, 0.75, 1.0]].round(4)
 ```

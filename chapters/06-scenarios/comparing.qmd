@@ -62,7 +62,7 @@ idx_y9
 #| fig-alt: "Line chart of under-five prevalence for five scenarios sharing an x-axis in years since the campaign. All five overlap before the campaign at around 0.45. Afterwards the withdrawal scenario climbs to about 0.50, the three net scenarios dip and rebound to between 0.46 and 0.48, and the combination scenario falls below 0.05 and stays there."
 fig, ax = plt.subplots(figsize=(7.6, 4.0))
 for _, row in res.iterrows():
-    ax.plot(years, np.asarray(row["prevalence"]), lw=1.8, label=row["name"])
+    ax.plot(years, row["prevalence"], lw=1.8, label=row["name"])
 ax.axvline(0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
 ax.set_ylim(0, None)
 ax.set_ylabel("Prevalence (under 5)")
@@ -90,7 +90,7 @@ The same five scenarios carry a second trajectory, clinical incidence, on the em
 #| fig-alt: "Line chart of clinical incidence for the same five scenarios. The ordering follows the prevalence panel, but the series oscillates sharply from window to window, and by the right-hand edge the three net scenarios have converged into a band that overlaps withdrawal."
 fig, ax = plt.subplots(figsize=(7.6, 4.0))
 for _, row in res.iterrows():
-    ax.plot(years, np.asarray(row["cases"]), lw=1.8, label=row["name"])
+    ax.plot(years, row["cases"], lw=1.8, label=row["name"])
 ax.axvline(0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
 ax.set_ylim(0, None)
 ax.set_ylabel("Clinical incidence")
@@ -129,13 +129,11 @@ Integrate `cases` from `idx_y9`, with the timestep expressed in years.
 ```{python}
 step_years = window / 365
 
-burden = pd.Series(
-    {
-        row["name"]: float(np.trapezoid(np.asarray(row["cases"])[idx_y9:], dx=step_years))
-        for _, row in res.iterrows()
-    },
-    name="burden",
-)
+totals = {}
+for _, row in res.iterrows():
+    totals[row["name"]] = float(np.trapezoid(row["cases"][idx_y9:], dx=step_years))
+
+burden = pd.Series(totals, name="burden")
 
 burden.round(3)
 ```

@@ -130,7 +130,10 @@ climbs for two more as they wear out and are not replaced.
 
 ```{python}
 pre = prev[:, :idx_y9 + 1]
-annual = {a: float(prev[0][(years >= a) & (years < a + 1)].mean()) for a in range(-3, 3)}
+annual = {}
+for a in range(-3, 3):
+    in_year = (years >= a) & (years < a + 1)
+    annual[a] = float(prev[0][in_year].mean())
 
 print("prevalence given to estiMINT :", 0.45)
 print(f"emulator at the campaign     : {prev[0, idx_y9]:.3f}")
@@ -150,7 +153,7 @@ The agreement holds at `idx_y9` and not on average, because the annual means run
 0.46, and a trajectory that misses the measured prevalence at `idx_y9` means something is wrong
 upstream, most often in `dn0_use` or `itn_use`.
 
-Three years on the curves are ordered as the `dn0` table predicts, with amber pyrrole lowest,
+Three years on, the curves are ordered as the `dn0` table predicts, with amber pyrrole lowest,
 green PBO above it, and blue pyrethroid-only highest in both panels, and they differ only in
 `dn0_future`, so at 30% resistance the pyrrole net kills the largest share of the mosquitoes that
 touch it.
@@ -160,22 +163,25 @@ touch it.
 A `groupby` or a CSV for a collaborator wants the data long, one row per scenario per timestep.
 
 ```{python}
-tidy = pd.DataFrame({
-    "net": np.repeat(list(products), len(years)),
-    "years": np.tile(years, len(products)),
-    "abs_day": np.tile(abs_t, len(products)),
-    "prevalence": prev.ravel().astype(float),
-    "cases": case.ravel().astype(float),
-})
+frames = []
+for i, net in enumerate(products):
+    frames.append(pd.DataFrame({
+        "net": net,
+        "years": years,
+        "abs_day": abs_t,
+        "prevalence": prev[i].astype(float),
+        "cases": case[i].astype(float),
+    }))
+
+tidy = pd.concat(frames, ignore_index=True)
 
 print(tidy.shape)
 tidy.head()
 ```
 
-`prev.ravel()` flattens row by row, the order `np.repeat` lays the labels out in, so the result
-is three blocks of 157 rows, and the `astype(float)` widens the emulator's `float32` output to
-double, which stops rounding from producing things like `274.299988`.
-`tidy.to_csv("trajectories.csv", index=False)` writes a file anyone can open in R.
+Each net contributes a block of 157 rows, and `pd.concat` stacks the three. The `astype(float)`
+widens the emulator's `float32` output to double, which stops rounding from producing things like
+`274.299988`. `tidy.to_csv("trajectories.csv", index=False)` writes a file anyone can open in R.
 
 ```{python}
 post = tidy[tidy["years"] >= 0]

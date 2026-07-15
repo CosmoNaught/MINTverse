@@ -153,6 +153,16 @@ distribution and close on the next and whose annual means are nowhere near `prev
 not a flat equilibrium. The shape they do have is plotted in
 [Plotting trajectories](plotting.qmd).
 
+::: {.callout-warning}
+## The time grid is fixed, and provisional
+
+The current model reproduces a fixed slice of a twelve-year simulation. The first six years are
+burn-in, discarded so immunity can settle, and only the last six are emulated: the 157 fortnightly
+(14-day) averages returned here, with the campaign at day 3285. These dimensions — the twelve-year
+run, the six-year burn-in, the 157-step fortnightly grid, the campaign day — belong to this
+training set, and may change when the model is retrained.
+:::
+
 ## See also
 
 These twelve covariates become a trajectory in [Calling the emulator](the-emulator.qmd).

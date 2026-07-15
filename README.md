@@ -12,7 +12,7 @@
 
 ## What MINTverse is
 
-MINTverse is two Python packages. One call, `run_scenarios`, chains them.
+MINTverse is two Python packages, estiMINT and stateMINT. A single call, `run_scenarios`, runs them end to end.
 
 | Package | Import | What it does |
 |---|---|---|

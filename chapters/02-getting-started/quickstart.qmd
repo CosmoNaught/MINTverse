@@ -51,7 +51,7 @@ results = run_scenarios([pbo])
 results.drop(columns=["prevalence", "cases"]).T
 ```
 
-`dn0_use` is the lethality of the nets in the ground today, and `dn0_future` that of the PBO
+`dn0_use` is the lethality of the nets on the ground today, and `dn0_future` that of the PBO
 nets replacing them. `eir_baseline` is the transmission intensity implied by that prevalence,
 in infectious bites per person per year. `prev_y9` is prevalence at the campaign,
 `prev_endline` three years after it, and `cases_endline` the clinical case rate there.

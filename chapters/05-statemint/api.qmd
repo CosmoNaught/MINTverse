@@ -2,7 +2,7 @@
 title: "stateMINT API"
 ---
 
-The inference surface of stateMINT is one classmethod and one dataclass, and you install `mintstate` but import
+Everything you call in stateMINT is one classmethod and one dataclass, and you install `mintstate` but import
 `stateMINT`, capital MINT. The mismatch between the two names is the most common source of confusion in the package.
 
 ## `Mamba2Regressor.from_pretrained`
@@ -125,4 +125,4 @@ print(f"steps affected by lsm: {int(changed.sum())} of {X.shape[1]}, from step {
 ## See also
 
 [Calling the emulator](the-emulator.qmd) gives the reasoning behind these arguments, and what goes wrong when the
-wrong checkpoint is read. [Running scenarios](../06-scenarios/run-scenarios.qmd) wraps this surface into a single call.
+wrong checkpoint is read. [Running scenarios](../06-scenarios/run-scenarios.qmd) wraps all of this into a single call.

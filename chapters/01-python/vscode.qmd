@@ -9,7 +9,7 @@ RStudio is one. Python has no single equivalent with RStudio's market share.
 [Visual Studio Code](https://code.visualstudio.com/) is the closest match. It is free, it
 runs on all three operating systems, and it has extensions for Python and for Quarto.
 
-## The map from RStudio
+## From RStudio to VSCode
 
 VS Code has the same four regions, under different names and in a different arrangement.
 

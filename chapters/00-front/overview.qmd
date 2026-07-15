@@ -2,7 +2,7 @@
 title: "Overview"
 ---
 
-MINTverse is a collection of machine learning libraries comprised of estiMINT and stateMINT which work together to estimate how intense transmission is in a setting, and predicts how prevalence
+MINTverse is two machine learning packages, estiMINT and stateMINT. They estimate how intense transmission is in a setting, and predict how prevalence
 and clinical cases respond to a change in nets, spraying, or larviciding. It does both with
 trained models that stand in for a full individual-based simulation.
 
@@ -11,7 +11,7 @@ trained models that stand in for a full individual-based simulation.
 | `estiMINT` | Maps a measured prevalence to the entomological inoculation rate (EIR), relates EIR to the human biting rate (HBR), and estimates how EIR shifts when mosquito density changes. |
 | `stateMINT` | Emulates the individual-based model. Given a setting and an intervention package, it returns the prevalence and case trajectories over the campaign. |
 
-You can simply call the built-in function `run_scenarios` to chain the functionality of these packages.
+`run_scenarios` runs both packages in sequence.
 
 `pip install "estimint[scenarios]"` installs both packages. The distribution you install is
 called `mintstate` and the module you import is `stateMINT`.
@@ -59,14 +59,13 @@ covariates and raises nothing, so a setting far beyond it still returns an answe
 A `Scenario` is built from the inputs below, and `run_scenarios` derives the emulator's twelve
 covariates from them. Seven fields are required and the rest default to zero or `None`.
 
-Transmission enters through one measure wrapped in an `EirTarget`. The mode decides how much
-estiMINT does before the emulator, and the value it returns is an equilibrium at the campaign
-rather than a trajectory.
+Transmission enters through one measure wrapped in an `EirTarget`, almost always a measured
+prevalence. The mode decides how much estiMINT does before the emulator, and the value it returns is
+an equilibrium at the campaign rather than a trajectory.
 
 | Field | Meaning | Source |
 |---|---|---|
 | `eir_target` | `EirTarget(0.45, "prevalence")` | Cross-sectional survey (DHS, MIS) |
-| | `EirTarget(250000, "hbr")` | Entomological trapping |
 | | `EirTarget(20, "eir")` | A previous calibration |
 
 The setting is six required fields describing the district and its mosquitoes.

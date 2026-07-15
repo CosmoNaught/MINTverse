@@ -105,7 +105,7 @@ Run it before you share a notebook, and before you rely on a number that came ou
 
 ## Installing packages from inside a notebook
 
-A cell containing `!pip install estimint` shells out to whatever `pip` is first on the `PATH`
+A cell containing `!pip install estimint` runs, as a shell command, whatever `pip` is first on the `PATH`
 of the process that launched the notebook. That is frequently not the environment the kernel
 runs in. The package is installed into a different interpreter, the install reports success,
 and the following cell still cannot import it.

@@ -61,7 +61,7 @@ stateMINT does need one on first use, because its checkpoints live in the Huggin
 repository [`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), with a
 separately trained checkpoint of about 38 MB for each predictor under `prevalence/` and
 `cases/`, and the first call that needs one fetches it and caches it under
-`~/.cache/huggingface`. Every later call reads the cache. `preload_models()` warms
+`~/.cache/huggingface`. Every later call reads the cache. `preload_models()` fills
 both caches, loading the XGBoost models and pulling the stateMINT weights.
 
 ```python
@@ -72,7 +72,7 @@ preload_models()
 
 ## Working offline
 
-On a cluster node or an air-gapped machine, warm the cache somewhere with a network
+On a cluster node or an air-gapped machine, fill the cache somewhere with a network
 first, then set `HF_HUB_OFFLINE=1` so that Hugging Face never attempts a request and
 resolves everything from `~/.cache/huggingface`:
 

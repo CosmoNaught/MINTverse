@@ -34,19 +34,20 @@ These have no defaults and must always be given.
 `res_use` is not a covariate, and is consumed by the `dn0` curves without reaching the emulator.
 What it sees is the [twelve static covariates](../05-statemint/covariates.qmd).
 
-## The three input modes
+## The input modes
 
 `EirTarget(input_value, input_mode)` says what quantity you are handing over, and because the
-emulator only ever runs from an EIR, the mode decides what has to happen first.
+emulator only ever runs from an EIR, the mode decides what has to happen first. Almost always the
+value is a measured prevalence.
 
 | Mode | You supply | What happens |
 |---|---|---|
 | `"prevalence"` | Under-5 parasite prevalence in [0.005, 0.80] | estiMINT inverts it to an EIR with the XGBoost prevalence model. |
 | `"eir"` | An EIR, infectious bites per person per year | Used directly. No inversion. |
-| `"hbr"` | A human biting rate | Converted to an EIR through the HBR model. |
 
-Use `"prevalence"` for a cross-sectional survey, `"eir"` when the EIR is in hand or is being
-swept over, and `"hbr"` for entomological evidence.
+Use `"prevalence"` for a cross-sectional survey and `"eir"` when the EIR is in hand or is being
+swept over. A third mode, `"hbr"`, takes a human biting rate, but the HBR is a quantity the pipeline
+works out rather than one a programme measures, so it is rarely supplied directly.
 
 Note that `mosquito_delta` only applies to `"prevalence"`, and supplied alongside an `"eir"` or an
 `"hbr"` input it is ignored. The mechanism is set out in
@@ -115,9 +116,9 @@ scenarios = [
              py_pyrrole=0.60, mosquito_delta=-0.50,
              itn_future=0.60, net_type_future="pyrethroid_pyrrole", lsm=0.30),
 
-    # Entomological evidence instead of a survey. The biting rate is inverted, not a prevalence.
-    Scenario(name="PPF, biting rate", res_use=0.45, Q0=0.80, phi=0.82,
-             seasonal=0.0, irs=0.0, eir_target=EirTarget(250_000.0, "hbr"),
+    # A prevalence survey with PPF nets, whose coverage folds into effective larviciding.
+    Scenario(name="PPF, prevalence", res_use=0.45, Q0=0.80, phi=0.82,
+             seasonal=0.0, irs=0.0, eir_target=EirTarget(0.35, "prevalence"),
              py_ppf=0.50, itn_future=0.50, net_type_future="pyrethroid_ppf"),
 
     # The EIR is already known, so estiMINT does nothing. IRS only, no nets at all.
@@ -204,7 +205,7 @@ The last two columns, `prevalence` and `cases`, are not scalars. Each cell holds
 trajectory as a 157-element NumPy array.
 
 ```{python}
-prev = np.asarray(res.loc[0, "prevalence"])
+prev = res.loc[0, "prevalence"]
 type(prev), prev.shape, prev.dtype
 ```
 
@@ -246,7 +247,7 @@ float(years[0]), float(years[idx_y9]), float(years[-1])
 #| fig-alt: "Line chart of under-five prevalence for five scenarios from three years before the campaign to three years after. The scenarios start at different levels because each describes a different setting, and each responds differently to its own campaign. The EIR-input scenario sits near zero throughout."
 fig, ax = plt.subplots(figsize=(7.6, 3.8))
 for _, row in res.iterrows():
-    ax.plot(years, np.asarray(row["prevalence"]), lw=1.8, label=row["name"])
+    ax.plot(years, row["prevalence"], lw=1.8, label=row["name"])
 ax.axvline(0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
 ax.set_xlabel("Years since campaign")
 ax.set_ylabel("Prevalence (under 5)")

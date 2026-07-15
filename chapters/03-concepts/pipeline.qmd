@@ -113,7 +113,7 @@ of a clamped input rather than a finding.
 
 Below 0.005 the prevalence-to-EIR relationship becomes near-vertical, and a vanishing
 change in prevalence maps to a large change in EIR, while above 0.80 the training library
-thins out, because settings that hyperendemic are rare in the parameter grid the
+thins out, because settings that are hyperendemic are rare in the parameter grid the
 simulations were drawn from. A scenario at the edge of the domain needs a sensitivity
 check. Perturb the inputs and check the conclusion holds.
 

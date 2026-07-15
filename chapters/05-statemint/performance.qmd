@@ -22,9 +22,9 @@ print("estiMINT :", list(eir_models))
 print("stateMINT:", list(emulator_models))
 ```
 
-On a cold machine most of that time is the download of the weights, whose size is given in
-[Installation](../02-getting-started/installation.qmd). On a warm one it is deserialisation from
-disk. `preload_models` tracks `main` rather than a pinned tag, so load
+Before the weights are cached, most of that time is the download, whose size is given in
+[Installation](../02-getting-started/installation.qmd). Once they are cached, it is deserialisation
+from disk. `preload_models` tracks `main` rather than a pinned tag, so load
 the checkpoints yourself with [`from_pretrained(..., revision=...)`](the-emulator.qmd) when the
 exact weights matter. Call `preload_models` once at the top of a script.
 
@@ -131,5 +131,5 @@ sign the GPU is not in use.
 ## See also
 
 [A list of scenarios](../06-scenarios/scenario-grid.qmd) runs several campaigns against one baseline and
-settings into one call. [stateMINT API](api.qmd) documents the inference surface argument by
+settings in one call. [stateMINT API](api.qmd) documents the inference surface argument by
 argument.

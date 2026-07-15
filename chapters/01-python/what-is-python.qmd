@@ -117,7 +117,7 @@ without either one masking the other.
 
 ## Why the models are in Python
 
-The libraries that train and serve machine-learning models are Python-first, and in most
+The libraries that train and run machine-learning models are Python-first, and in most
 cases Python-only. XGBoost, which underlies estiMINT, has an R interface. JAX and Flax, the
 array and neural-network libraries stateMINT is written in, do not. Neither does Hugging
 Face, whose model hub is where the stateMINT weights are stored and versioned.

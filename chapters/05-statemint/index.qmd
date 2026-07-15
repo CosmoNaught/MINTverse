@@ -11,6 +11,6 @@ of [the pipeline](../03-concepts/pipeline.qmd).
 - [Covariates and the time grid](covariates.qmd) — the twelve covariates, and the 157 windows.
 - [Calling the emulator](the-emulator.qmd) — `from_pretrained` and `.predict`.
 - [Plotting trajectories](plotting.qmd) — the time axis, and a tidy frame.
-- [Performance and caching](performance.qmd) — cold start, batching, and the GPU.
+- [Performance and caching](performance.qmd) — load times, batching, and the GPU.
 - [stateMINT API](api.qmd) — `Mamba2Regressor` and `ModelArtifact`.
 :::

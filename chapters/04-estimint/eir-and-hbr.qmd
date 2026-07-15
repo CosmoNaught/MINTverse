@@ -2,8 +2,9 @@
 title: "EIR and HBR"
 ---
 
-Districts with no parasite survey enter the pipeline at the human biting rate instead, and
-estiMINT bundles a model in each direction so that prevalence is not used at all.
+estiMINT bundles a model in each direction between EIR and the human biting rate. Neither quantity is
+one a programme usually supplies, and the pair exists mainly for the mosquito-density method, which
+routes a change in mosquito numbers through the biting rate.
 
 ```{python}
 import pandas as pd
@@ -16,7 +17,7 @@ eir_to_hbr["features"], hbr_to_eir["features"]
 ```
 
 Both take the same six setting covariates as the prevalence model and differ only in the driving
-column, and note that the model named `"hbr"` takes an HBR as its *input*. It returns an EIR.
+column. Note that the model named `"hbr"` takes an HBR as its *input*. It returns an EIR.
 
 ## EIR to HBR
 
@@ -41,8 +42,8 @@ than linearly.
 
 ## HBR to EIR
 
-A trap-measured biting rate needs only this model, entering as `hbr_y9`. The EIR that comes back
-goes straight to the emulator.
+The `hbr` model maps a biting rate to an EIR, entering as `hbr_y9`. This is the direction the density
+method uses to turn a changed biting rate back into an EIR.
 
 ```{python}
 back = run_xgb_model(pd.DataFrame([{**setting, "hbr_y9": hbr}]), hbr_to_eir)[0]

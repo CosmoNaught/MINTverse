@@ -160,7 +160,11 @@ halving, and what comes back is a DataFrame on the index of `inputs`, with the c
 `eir_baseline`, `eir_new`, `eir_multiplier`, `hbr_baseline` and `hbr_new`.
 
 ```python
-models = {n: load_xgb_model(n) for n in ("prevalence", "hbr", "eir_to_hbr")}
+models = {
+    "prevalence": load_xgb_model("prevalence"),
+    "hbr": load_xgb_model("hbr"),
+    "eir_to_hbr": load_xgb_model("eir_to_hbr"),
+}
 result = estimate_eir_with_mosquito_delta(inputs, models=models)
 ```
 
@@ -222,7 +226,7 @@ results = run_scenarios([scenario_a, scenario_b])
 preload_models(*, hf_repo: str = "dide-ic/stateMINT") -> tuple[dict, dict]
 ```
 
-Warm the XGBoost models and fetch the stateMINT weights before the first `run_scenarios` call.
+Load the XGBoost models into memory and fetch the stateMINT weights before the first `run_scenarios` call.
 
 ## See also
 

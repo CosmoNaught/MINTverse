@@ -207,5 +207,5 @@ runs, by `lsm_eff = min(py_ppf * 0.248 + lsm, 1.0)`. The reported `lsm` is `lsm_
 ## See also
 
 - [Environments and packages](01-python/environments.qmd), on which interpreter finds a package.
-- [Performance and caching](05-statemint/performance.qmd), on the cold cache and offline use.
+- [Performance and caching](05-statemint/performance.qmd), on the first run before the weights are cached, and offline use.
 - [Running scenarios](06-scenarios/run-scenarios.qmd), on the campaign fields in context.

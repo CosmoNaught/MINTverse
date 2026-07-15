@@ -11,7 +11,7 @@ project:
 
 website:
   title: "MINTverse"
-  favicon: misc/icon-mint.svg
+  favicon: favicon.ico
   search:
     location: sidebar
     type: textbox
@@ -21,16 +21,10 @@ website:
     center: |
       &copy;&nbsp;2026 Cosmo Santoni and Anmol Thapar &middot; part of the [MINTverse](https://github.com/CosmoNaught).
   navbar:
-    background: "#0b0e13"
-    foreground: "#f5f5f7"
     title: "MINTverse"
     pinned: true
     search: false
     right:
-      - text: "MINTweb"
-        href: "https://mint.dide.ic.ac.uk/"
-        target: _blank
-        aria-label: "MINTweb, the Malaria Intervention Tool"
       - icon: github
         href: "https://github.com/CosmoNaught/MINTverse"
         aria-label: GitHub
@@ -135,7 +129,9 @@ execute:
 
 format:
   html:
-    theme: [darkly, styles/theme.scss]
+    theme:
+      dark: [darkly, styles/theme-dark.scss]
+      light: [flatly, styles/theme-light.scss]
     highlight-style: atom-one
     html-math-method: mathjax
     include-after-body: _after-body.html
@@ -149,4 +145,4 @@ format:
     code-overflow: scroll
     fig-align: left
     grid:
-      sidebar-width: 340px
+      sidebar-width: 300px

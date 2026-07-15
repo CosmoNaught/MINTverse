@@ -1,0 +1,55 @@
+/*-- scss:defaults --*/
+
+// MINTverse light theme, base `flatly`. Palette only; shared overrides in
+// _mint-defaults.scss, shared rules in _mint-core.scss.
+// Keep colours in sync with theme-dark.scss and index.qmd.
+
+$mint:        #00d4aa;
+$mint-bright: #00ffcc;
+$blue:        #0071e3;
+$blue-glow:   #0051a2;
+$violet:      #8b5cf6;
+
+$page-bg:      #f5f7fa;
+$chrome-bg:    #ffffff;  // navbar / sidebar / footer
+$chrome-fg:    #14171c;
+$surface:      #ffffff;  // callouts
+$surface-2:    #f4f6f8;  // code panels
+$border:       rgba(0, 0, 0, 0.10);
+$body-text:    #2a2f36;
+$heading-text: #14171c;
+$muted-text:   #5f6672;
+$overlay-subtle: rgba(0, 0, 0, 0.03);
+$card-tint-1:  rgba(0, 0, 0, 0.03);
+$card-tint-2:  rgba(0, 0, 0, 0.015);
+
+// $mint is ~1.9:1 on white, so interactive text uses darker mints; spines and gradients keep $mint
+$accent:       #007a5e;
+$accent-hover: #005f49;
+$inline-code-fg: #007a5e;
+$inline-code-bg: rgba(0, 138, 104, 0.10);
+
+// $term-*: output/diagram surfaces, identical to theme-dark.scss (must stay dark)
+$term-bg:     #0f141b;
+$term-bg-2:   #11161d;
+$term-fg:     #d2d2d7;
+$term-muted:  #86868b;
+$term-border: rgba(255, 255, 255, 0.08);
+$term-stripe: rgba(255, 255, 255, 0.025);
+
+@import "mint-defaults";
+
+/*-- scss:rules --*/
+
+@import "mint-core";
+
+// same gradient mesh as dark mode, much fainter
+body {
+  background-image:
+    radial-gradient(ellipse 900px 600px at 12% -5%, rgba(0, 212, 170, 0.07), transparent 45%),
+    radial-gradient(ellipse 700px 700px at 100% 0%, rgba(0, 113, 227, 0.05), transparent 45%),
+    radial-gradient(ellipse 800px 600px at 60% 100%, rgba(139, 92, 246, 0.04), transparent 50%);
+  background-attachment: fixed;
+}
+
+.navbar { background-color: $chrome-bg; color: $chrome-fg; }

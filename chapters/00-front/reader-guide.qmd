@@ -6,15 +6,15 @@ title: "Orientation"
 
 `estiMINT` estimates transmission intensity from a measured prevalence and the setting it was measured in, returning a single [equilibrium value](../03-concepts/equilibrium.qmd), the EIR and the human biting rate it implies. `stateMINT` emulates the individual-based model and returns the prevalence or clinical-case trajectory that follows a campaign.
 
-`run_scenarios`, exported from estiMINT, [runs both models](../06-scenarios/index.qmd). It chains them in the order the [two-stage pipeline](../03-concepts/pipeline.qmd) forces, so use it unless you need one of the models on its own.
+`run_scenarios`, exported from estiMINT, [runs both models](../06-scenarios/index.qmd). It runs estiMINT first and feeds the EIR it returns into stateMINT, the order the [two-stage pipeline](../03-concepts/pipeline.qmd) forces, so use it unless you need one of the models on its own.
 
 ## Reading paths
 
-Readers new to Python should start at [Python for Malaria Modellers](../01-python/index.qmd), which begins with installing an interpreter, and readers already comfortable with Python should start at [Getting Started](../02-getting-started/index.qmd), which covers installation, a first scenario, and the R idioms that do not carry over. [Core Concepts](../03-concepts/index.qmd) explains the models and the pipeline, which nobody needs in order to use MINTverse.
+Readers new to Python should start at [Python for Malaria Modellers](../01-python/index.qmd), which begins with installing an interpreter, and readers already comfortable with Python should start at [Getting Started](../02-getting-started/index.qmd), which covers installation, a first scenario, and the R idioms that do not carry over. [Core Concepts](../03-concepts/index.qmd) explains the models and the pipeline, which nobody needs to use MINTverse.
 
 ## Conventions
 
-Python blocks are executed and the output below each one is what the code produced, while shell blocks and the occasional R block shown for comparison are transcripts. Note that the package's install name and import name differ, which [Installation](../02-getting-started/installation.qmd) explains.
+Python blocks are executed and the output below each one is what the code produced, while shell blocks and the occasional R block shown for comparison are transcripts. The package's install name and import name differ, which [Installation](../02-getting-started/installation.qmd) explains.
 
 ## Entry points
 

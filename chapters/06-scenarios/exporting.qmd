@@ -109,21 +109,23 @@ n_steps = cfg["n_steps"]
 abs_t = cfg["model_start_day"] + cfg["window_size"] * np.arange(n_steps)
 years = (abs_t - cfg["intervention_day"]) / 365
 
-trajectories = pd.DataFrame(
-    {
-        "name": np.repeat(res["name"].to_numpy(), n_steps),
-        "day": np.tile(abs_t, len(res)),
-        "years": np.tile(years, len(res)),
-        "prevalence": np.concatenate(res["prevalence"].to_list()),
-        "cases": np.concatenate(res["cases"].to_list()),
-    }
-)
+frames = []
+for _, row in res.iterrows():
+    frames.append(pd.DataFrame({
+        "name": row["name"],
+        "day": abs_t,
+        "years": years,
+        "prevalence": row["prevalence"],
+        "cases": row["cases"],
+    }))
+
+trajectories = pd.concat(frames, ignore_index=True)
 
 trajectories.shape
 ```
 
-`np.concatenate` flattens the arrays in the order `np.repeat` and `np.tile` lay out the names and
-the time grid. Five scenarios of 157 windows is 785 rows.
+Each scenario contributes a small frame, and `pd.concat` stacks them. Five scenarios of 157 windows
+is 785 rows.
 
 ```{python}
 trajectories.head()
