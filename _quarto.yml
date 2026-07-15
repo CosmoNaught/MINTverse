@@ -64,6 +64,8 @@ website:
             text: "Quickstart"
           - href: chapters/02-getting-started/coming-from-r.qmd
             text: "Coming from R"
+          - href: chapters/02-getting-started/notebook.qmd
+            text: "Colab notebook"
       - section: "Core Concepts"
         href: chapters/03-concepts/index.qmd
         contents:

@@ -28,8 +28,8 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-// the wordmark is a label, not a link
-.navbar .navbar-brand { pointer-events: none; cursor: default; }
+// the wordmark links home
+.navbar .navbar-brand { cursor: pointer; }
 // navbar tools (GitHub icon, colour-scheme toggle): chrome at rest, accent on hover
 .navbar .nav-link,
 .navbar .quarto-navigation-tool,

@@ -2,7 +2,6 @@
 /_book/
 # exporting.qmd writes these at render time. They are build output, not source.
 /outputs/
-/misc/
 /.quarto/
 .quarto-preview.log
 .quarto-preview.err

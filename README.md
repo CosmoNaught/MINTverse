@@ -77,6 +77,14 @@ The `_future` fields describe the campaign, not the status quo. If `net_type_fut
 and `itn_future` are omitted, the nets are *withdrawn* at the campaign, which is what
 the first scenario above does deliberately.
 
+## Run it in Colab
+
+A companion notebook runs the whole pipeline in the browser, with no local install. It builds
+four net campaigns in one region, plots the prevalence and case trajectories, totals the cases
+each upgrade averts, sweeps mosquito density, and exports the results to CSV.
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CosmoNaught/MINTverse/blob/main/MINTverse-tutorial.ipynb)
+
 ## Documentation
 
 <https://cosmonaught.github.io/MINTverse>
