@@ -1,0 +1,2 @@
+n_runs,n_points,mae_mean,mae_median,mae_p90,mae_max,rmse_mean,bias_mean,r2,ms_per_run_batched_cpu
+1954,306778,0.004399808,0.0031663822,0.008138237,0.05684182,0.0056141596,-0.00036623306,0.99877375,6.118805461105652

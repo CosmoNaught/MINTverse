@@ -1,0 +1,23 @@
+---
+title: "Python for Malaria Modellers"
+---
+
+MINTverse is written in Python because the machine-learning libraries it is built on are
+written in Python. You can keep the rest of your work in R, and the models are still
+reachable, but only from a Python session. If you already write Python and work in virtual
+environments, go straight to [Getting Started](../02-getting-started/index.qmd).
+
+Most of the trouble an R user has with Python is not the language. It is that a package can
+install successfully and then fail to import. The interpreter that ran `pip` and the
+interpreter that ran the script were not the same one. R avoids this by keeping a single
+shared library. Python cannot, because Python projects routinely need conflicting versions
+of the same package. The setup below is arranged to prevent that.
+
+::: {.chapter-outline}
+- [What is Python?](what-is-python.qmd) — indexing, methods, imports, and where R differs.
+- [Python tools](toolchain.qmd) — `pip`, virtual environments, and `uv`.
+- [Installing Python](installing-python.qmd) — `uv`, or the platform route.
+- [Working in VS Code](vscode.qmd) — the editor, the interpreter, and the interactive window.
+- [Environments and packages](environments.qmd) — `.venv`, `uv sync`, and diagnosing a failed import.
+- [Notebooks](notebooks.qmd) — `.ipynb`, kernels, and execution order.
+:::

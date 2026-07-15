@@ -1,0 +1,166 @@
+---
+title: "Nets and dn0"
+---
+
+A net enters both models as two numbers, `dn0_use`, the probability that a mosquito is killed when
+it contacts a treated net, and `itn_use`, the share of the population sleeping under one. Which
+insecticide the net carries, and how resistant the local mosquitoes have become, is compressed
+entirely into `dn0_use` by `calculate_dn0`.
+
+## Net types
+
+`net_types` returns the canonical names of the four formulations alphabetically. That puts `ppf`
+before `pyrrole`.
+
+```{python}
+from estimint import net_types, calculate_dn0
+
+net_types()
+```
+
+Each formulation has a short alias, accepted anywhere a net type is and doubling as the
+keyword-argument name in the wider API, with the canonical names joined by `_` throughout. Both
+spellings are case-insensitive.
+
+| Alias | Canonical name | Formulation |
+|---|---|---|
+| `py_only` | `pyrethroid_only` | Pyrethroid alone |
+| `py_pbo` | `pyrethroid_pbo` | Pyrethroid with PBO |
+| `py_ppf` | `pyrethroid_ppf` | Pyrethroid with pyriproxyfen |
+| `py_pyrrole` | `pyrethroid_pyrrole` | Pyrethroid with chlorfenapyr |
+
+A hyphen therefore raises `ValueError: unknown net type`.
+
+## From a net mix to dn0
+
+`calculate_dn0` takes a resistance level and one keyword per net type, valued by the share of the
+population using it.
+
+```{python}
+net = calculate_dn0(0.30, py_only=0.70)
+net
+```
+
+What comes back is a `DN0Result`, a named tuple of exactly two fields. Both are reachable by
+position or by attribute.
+
+```{python}
+net.dn0, net.itn_use
+```
+
+Passing more than one keyword gives a mix, and shares that fall short of 1.0 leave the rest of
+the population with no net.
+
+```{python}
+mix = calculate_dn0(0.30, py_only=0.40, py_pbo=0.30)
+mix
+```
+
+## dn0 and itn_use
+
+`dn0` is the **usage-weighted average** of the per-net-type `dn0` values across the mix, and the
+weights are normalised over the nets in the mix rather than over the population. A mix covering
+70% of the population therefore has the same `dn0` as one covering 20% in the same proportions.
+
+```{python}
+only = calculate_dn0(0.30, py_only=1.0).dn0
+pbo = calculate_dn0(0.30, py_pbo=1.0).dn0
+
+by_hand = (0.40 * only + 0.30 * pbo) / (0.40 + 0.30)
+round(by_hand, 5), round(mix.dn0, 5)
+```
+
+`itn_use` is the **sum** of the shares, 0.40 + 0.30 = 0.70. That is the total ITN coverage of the
+population.
+
+::: {.callout-warning}
+## A note on `itn_use`
+
+`DN0Result.itn_use` is the finished coverage figure, not a weight awaiting a coverage term.
+Multiplying it by a usage fraction a second time understates the coverage. No error is raised.
+
+```{python}
+net = calculate_dn0(0.30, py_only=0.70)
+
+net.itn_use, round(net.itn_use * 0.70, 3)  # the second value is the mistake
+```
+
+The model then reads a district with 49% net coverage rather than 70%, and understates the EIR the
+setting is judged to need.
+:::
+
+## Resistance and dn0
+
+`dn0` is not a property of a net alone but of a net at a resistance level, so the direction of
+the mapping is (net type, resistance) to `dn0`. The values come from a table that ships with the
+package, `estimint/data/itn_dn0.csv`, which holds a `dn0` for each net type at each of 101
+resistance levels from 0.00 to 1.00.
+
+```{python}
+from pathlib import Path
+import estimint
+import pandas as pd
+
+itn_dn0 = pd.read_csv(Path(estimint.__file__).parent / "data" / "itn_dn0.csv")
+
+print(itn_dn0.groupby("net_type").size().rename("rows").to_string())
+print()
+print(itn_dn0.head(3).to_string(index=False))
+```
+
+`calculate_dn0` reads that table once, fits a spline through the 101 points for each net type, and
+evaluates it at the resistance you pass, so a resistance between two tabulated levels is
+interpolated rather than rounded. Holding usage at 1.0 for one net type at a time traces each
+curve.
+
+```{python}
+levels = [0.0, 0.25, 0.50, 0.75, 1.0]
+
+rows = []
+for nt in net_types():
+    row = {"net type": nt}
+    for r in levels:
+        row[f"{r:.2f}"] = calculate_dn0(r, **{nt: 1.0}).dn0
+    rows.append(row)
+
+table = pd.DataFrame(rows).set_index("net type").round(4)
+table
+```
+
+A pyrethroid-only net falls to zero at full resistance.
+
+The other three do not, with pyrrole nets the most lethal and the flattest, losing about a tenth
+of their `dn0` between resistance 0.0 and 0.75, where a pyrethroid-only net loses nearly a third.
+The PPF effect on the next generation is not represented in `dn0` at all, and reaches the emulator
+through the `lsm` term instead. The curves come from the same source `malariasimulation` uses.
+
+## A net the table does not have
+
+The emulator never sees a net name. It sees `dn0_use` and `dn0_future`, two numbers on a
+continuous scale, so a net the table does not carry is not a new category to the model but a
+different value of a number it already takes. The simplest way to model one is to compute or look
+up its killing probability and pass it as `dn0_use` (and `dn0_future`) straight to the emulator,
+the way [Calling the emulator](../05-statemint/the-emulator.qmd) builds a covariate dictionary by
+hand. `net_types` and `calculate_dn0` are a convenience layer over the table, and you can supply
+the number they would have produced instead.
+
+To register a net as a named type usable from `calculate_dn0` and `Scenario`, add it to the table
+in two places. First, append its curve to `itn_dn0.csv` as one `resistance, dn0, net_type` row per
+resistance level, using the same 0.00 to 1.00 grid the four built-in types use. Second, add its
+name to the alias map `_NET_TYPES` in `estimint/bednet.py`, since `net_types` reads the curve from
+the CSV while `calculate_dn0` validates the keyword against that map. A name present in only one of
+the two is either unusable or invisible. Note that both edits are to the installed package, so
+they belong in a fork rather than in a caller's script.
+
+## Caveats
+
+`dn0` captures neither repellence nor the loss of a net to wear and disuse over a campaign, and one
+net mix is assumed to hold across the whole population. Supply the local pyrethroid resistance at
+the decision point. The curves steepen above 0.75, so vary it in a sensitivity check.
+
+## See also
+
+The two numbers `calculate_dn0` returns feed the inversion set out in
+[Estimating EIR from prevalence](estimating-eir.qmd), and please see
+[Interventions and nets](../03-concepts/interventions.qmd) for the epidemiology behind the four
+formulations.

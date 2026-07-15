@@ -1,0 +1,190 @@
+---
+title: "Accuracy and speed"
+---
+
+stateMINT stands in for `malariasimulation`, so what decides whether it can be used is how
+closely it reproduces the simulator on parameter sets it was never trained on.
+
+{{< include ../_truth-setup.qmd >}}
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+plt.style.use("styles/mint.mplstyle")
+
+traj = pd.read_csv("data/validation/trajectories.csv")
+summary = pd.read_csv("data/validation/summary.csv").iloc[0]
+run_mae = pd.read_csv("data/validation/run_mae.csv")
+latency = pd.read_csv("data/validation/latency.csv")
+```
+
+## The held-out split
+
+The emulator was trained on a library of `malariasimulation` runs, split by parameter set into
+70% training, 15% validation and 15% test. The figures below use the test split only, taken from
+the split file that shipped with the trained weights. The model never saw any of them.
+
+```{python}
+#| echo: false
+print(f"held-out runs      {int(summary['n_runs']):,}")
+print(f"time points        {int(summary['n_points']):,}")
+```
+
+## Trajectories
+
+Five held-out runs spanning the 10th to the 90th percentile of EIR are plotted below. The
+simulator is the dashed white line and the emulator the solid blue one.
+
+```{python}
+#| fig-cap: "Out-of-sample prevalence under five held-out parameter sets. The dashed white line is malariasimulation and the solid blue line is stateMINT."
+#| fig-alt: "Five panels of prevalence over time. In each, the emulator's solid coloured line lies almost exactly under the simulator's dashed white ground-truth line, before and after the campaign."
+panels = sorted(traj["panel"].unique())
+fig, axes = plt.subplots(1, len(panels), figsize=(14.5, 3.1), sharey=True)
+
+for ax, p in zip(axes, panels):
+    d = traj[traj["panel"] == p]
+    ax.plot(d["years_from_campaign"], d["emulator"], color="#3987e5", lw=2.6,
+            label="stateMINT", zorder=2)
+    ax.plot(d["years_from_campaign"], d["truth"], color="#ffffff", lw=1.5,
+            ls=(0, (4, 2.6)), label="malariasimulation", zorder=3)
+    ax.axvline(0, color="#8b93a3", ls="--", lw=0.9, alpha=0.6, zorder=1)
+    ax.set_title(f"EIR {d['eir'].iloc[0]:g}", fontsize=9.5)
+    ax.set_xlabel("years from campaign")
+
+axes[0].set_ylabel("prevalence")
+axes[0].legend(fontsize=8, loc="best")
+plt.tight_layout()
+plt.show()
+```
+
+The white line stays over the blue one across all five panels, and the emulator tracks the
+pre-campaign equilibrium, the drop when the intervention lands, and the shape of the recovery,
+including the sharp annual oscillation of the strongly seasonal setting in the right-hand panel.
+
+An individual-based model produces a stochastic trajectory and the emulator predicts the smooth
+expectation through it. Part of the residual here is the simulator's own Monte Carlo noise, not
+emulator error.
+
+## Pipeline error and emulator error
+
+The figure above gives the emulator the EIR the simulator itself was run at. A user does not have
+that number and has to estimate it from a prevalence survey. The error they see is the error of
+the whole chain, not of the emulator alone.
+
+The white line below is `malariasimulation`, averaged over the stochastic runs drawn in grey
+behind it, and the red line is the full pipeline, which starts from the measured year-9
+prevalence and inverts it to an EIR with estiMINT before running stateMINT forward. The green
+dashed line is stateMINT given the simulator's own EIR. The gap between green and white is the
+cost of the emulation, and the gap between red and green is the cost of the inversion.
+
+```{python}
+#| fig-cap: "Three held-out parameter sets. White is malariasimulation averaged over the grey stochastic runs, red is the full pipeline from a measured prevalence, and green dashed is the emulator given the simulator's own EIR."
+#| fig-alt: "Two rows of three panels, prevalence above and clinical cases below. In each panel the red pipeline line and the green dashed emulator line both track the white simulator average closely, within the spread of the grey individual runs."
+cases = [16, 20, 27]
+fig, axes = plt.subplots(2, 3, figsize=(13.5, 6.0), sharex=True)
+
+for col, cid in enumerate(cases):
+    truth_panel(axes[0, col], cid, "prevalence")
+    truth_panel(axes[1, col], cid, "cases")
+    axes[0, col].set_title(truth_title(cid), fontsize=9)
+    axes[1, col].set_xlabel("years from campaign")
+
+axes[0, 0].set_ylabel("prevalence")
+axes[1, 0].set_ylabel("cases per 1000 per day")
+axes[0, 0].plot([], [], color=TRUTH, lw=3.4, label="malariasimulation")
+axes[0, 0].plot([], [], color=PIPELINE, lw=1.8, label="pipeline")
+axes[0, 0].plot([], [], color=EMULATOR, lw=1.5, ls=(0, (4, 2.6)), label="emulator at true EIR")
+axes[0, 0].legend(fontsize=7.5, loc="best")
+plt.tight_layout()
+plt.show()
+```
+
+In the left panel all three lines coincide, while in the middle panel the red line runs above the
+white one and the green line stays on it, because estiMINT estimated an EIR of 12.5 against a
+true 11.8 and the emulator was then run forward from a transmission intensity that was too high.
+In the right panel red and green coincide, but both sit slightly below the simulator once the
+campaign lands. That residual belongs to the emulator, not the inversion.
+
+```{python}
+#| echo: false
+m = truth_meta[truth_meta.predictor == "prevalence"].copy()
+m["setting"] = m.description.str.replace(" - ", ", ", regex=False)
+m = m[["setting", "true_eir", "est_eir", "mae_emulator", "mae_pipeline"]]
+m.columns = ["setting", "true EIR", "estimated EIR", "MAE, emulator", "MAE, pipeline"]
+m.style.hide(axis="index").format({"true EIR": "{:.2f}", "estimated EIR": "{:.2f}",
+                                   "MAE, emulator": "{:.4f}", "MAE, pipeline": "{:.4f}"})
+```
+
+Where the inversion is accurate the emulator sets the floor on the error, and where the inversion
+is not, it dominates. The prevalence survey matters more than the emulator does.
+
+## Error on the held-out set
+
+```{python}
+#| echo: false
+metrics = pd.DataFrame([
+    ("Mean absolute error",        f"{summary['mae_mean']:.4f}"),
+    ("Median absolute error",      f"{summary['mae_median']:.4f}"),
+    ("90th percentile of MAE",     f"{summary['mae_p90']:.4f}"),
+    ("Worst run",                  f"{summary['mae_max']:.4f}"),
+    ("RMSE",                       f"{summary['rmse_mean']:.4f}"),
+    ("Mean bias",                  f"{summary['bias_mean']:+.5f}"),
+    ("R²",                         f"{summary['r2']:.5f}"),
+], columns=["", "prevalence"])
+metrics.style.hide(axis="index")
+```
+
+These numbers are in prevalence units, so a mean absolute error of 0.0044 means the emulator's
+prevalence is typically within about 0.4 percentage points of the simulator's. The mean bias of
+about −0.0004 says the emulator is not systematically high or low.
+
+```{python}
+#| fig-cap: "Distribution of per-run mean absolute error across the held-out split."
+#| fig-alt: "A histogram of per-run mean absolute error, concentrated near zero with a short right tail."
+fig, ax = plt.subplots(figsize=(7.2, 3.2))
+ax.hist(run_mae["mae"], bins=60, color="#199e70", edgecolor="none")
+ax.axvline(summary["mae_median"], color="#e66767", lw=1.6,
+           label=f"median {summary['mae_median']:.4f}")
+ax.axvline(summary["mae_p90"], color="#c98500", lw=1.6, ls="--",
+           label=f"90th pct {summary['mae_p90']:.4f}")
+ax.set_xlabel("mean absolute error, per held-out run")
+ax.set_ylabel("runs")
+ax.legend()
+plt.show()
+```
+
+The distribution is tight and right-skewed, and the worst single run in the held-out set is off
+by about 0.057. That is under six percentage points of prevalence.
+
+Differences smaller than about half a percentage point of prevalence sit inside the emulator's
+own error. They should not be read as real.
+
+## Speed
+
+A `malariasimulation` run over the same 12 simulated years takes minutes. The emulator is a
+single forward pass.
+
+```{python}
+#| echo: false
+lat = latency.copy()
+lat.columns = ["batch size", "total (ms)", "per scenario (ms)"]
+lat.round(2).style.hide(axis="index")
+```
+
+On CPU a single isolated call costs more per scenario than a batched one, and most of that
+difference is fixed dispatch overhead rather than computation, so passing a list to `predict` or
+`run_scenarios` is cheaper than looping over it. That is why the API takes a list.
+
+On a GPU the same forward pass is roughly six times faster again (measured on an NVIDIA L40S).
+The CPU is adequate for a list of scenarios. The GPU matters when you are sweeping thousands of
+parameter sets.
+
+## See also
+
+What is inside the emulator is described in [The models](models.qmd). The download, the
+compilation and the GPU extra are in
+[Performance and caching](../05-statemint/performance.qmd), and
+[Trajectories and cases](../06-scenarios/comparing.qmd) puts the speed to use.

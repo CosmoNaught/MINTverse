@@ -1,0 +1,29 @@
+---
+title: "The tutorial notebook"
+---
+
+The tutorial notebook covers the whole MINTverse workflow. It starts from a measured prevalence,
+builds four net campaigns and a combination package against a shared setting, and runs estiMINT
+and stateMINT with a single `run_scenarios` call. From there it plots the prevalence and clinical
+case trajectories. It totals the cases each upgrade averts against a like-for-like replacement,
+sweeps mosquito density with `mosquito_delta`, and writes the results to CSV. The trajectory file
+is laid out for `ggplot2` and `dplyr`.
+
+<div class="mint-actions" style="justify-content:flex-start">
+<a class="mint-btn mint-btn-primary" href="https://colab.research.google.com/github/CosmoNaught/MINTverse/blob/main/MINTverse-tutorial.ipynb" target="_blank" rel="noopener">Open the notebook in Colab</a>
+</div>
+
+## Running it in Colab
+
+Colab opens the notebook straight from GitHub and runs it on a free Google machine. Nothing is
+installed locally. The first cell installs `mintstate` and `estimint`, and on a fresh machine it
+also pulls the stateMINT weights from Hugging Face the first time the emulator runs. Accept the
+restart prompt if one appears, then run the cells in order. The copy that opens is the reader's
+own. Saving it goes to their Google Drive, not the repository.
+
+## See also
+
+[Quickstart](quickstart.qmd) runs the first of these campaigns locally, and [Running
+scenarios](../06-scenarios/run-scenarios.qmd) documents every `Scenario` field the notebook
+sets. [Trajectories and cases](../06-scenarios/comparing.qmd) covers the plots and the burden in
+more depth.

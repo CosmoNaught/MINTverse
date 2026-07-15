@@ -1,0 +1,157 @@
+---
+title: "Calling the emulator"
+---
+
+Getting a trajectory out of stateMINT takes two calls, one to fetch a checkpoint from Hugging
+Face and one to run it over a list of scenarios.
+
+## Loading a checkpoint
+
+```{python}
+from stateMINT.model import Mamba2Regressor
+
+prevalence = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence",
+)
+
+print(type(prevalence).__name__)
+print(prevalence.model_config["predictor"])
+```
+
+::: {.callout-note}
+## The return type
+
+The classmethod hangs off `Mamba2Regressor`, but what it hands back is a `ModelArtifact`, a
+container holding the network (`.model`), its architecture (`.model_config`), the input recipe
+(`.preprocessing_config`) and the fitted covariate scaler (`.scaler`). You call `.predict` on the
+artifact, not the network.
+:::
+
+`predictor` selects which of the two checkpoints to fetch, and the two are separately trained
+networks carrying separately fitted scalers. The scalers are not interchangeable.
+
+```{python}
+import numpy as np
+
+cases = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="cases",
+)
+
+print("same scaler means:", np.allclose(prevalence.scaler.mean_, cases.scaler.mean_))
+```
+
+Load the artifact that matches the quantity you want, since both take the same twelve inputs and
+return the same shape, and reading a prevalence prediction as case counts raises no error. It
+returns a wrong answer, scaled for the other target.
+
+## Predicting
+
+`.predict` takes a list of dicts, one per scenario, and returns a `(B, 157)` array. The rows are
+scenarios and the columns are fortnightly windows.
+
+```{python}
+district = {
+    "eir": 31.96,          # from estiMINT, for a measured prevalence of 0.45
+    "dn0_use": 0.311,      # pyrethroid-only nets at 30% resistance
+    "Q0": 0.85,
+    "phi_bednets": 0.80,
+    "seasonal": 0,
+    "routine": 0.0,
+    "itn_use": 0.70,
+    "irs_use": 0.0,
+    "dn0_future": 0.485,   # switch to PBO
+    "itn_future": 0.70,    # same coverage sustained
+    "irs_future": 0.0,
+    "lsm": 0.0,
+}
+
+y = prevalence.predict([district])
+print(y.shape)
+print(f"prevalence at the campaign: {y[0, 78]:.3f}")
+```
+
+Column 78 is the window the campaign lands in, and the value there sits close to the 0.45 given
+to estiMINT, an index that [Covariates and the time grid](covariates.qmd) reads off the checkpoint
+rather than assuming it. Scenarios come back stacked, in the order you supplied them.
+
+```{python}
+campaigns = [
+    dict(district, dn0_future=0.0,   itn_future=0.0),   # nets withdrawn
+    dict(district, dn0_future=0.311, itn_future=0.70),  # like-for-like pyrethroid
+    dict(district, dn0_future=0.485, itn_future=0.70),  # switch to PBO
+]
+
+Y = prevalence.predict(campaigns)
+print(Y.shape)
+print(np.round(Y[:, -1], 3))   # prevalence three years on
+```
+
+## Transformed space
+
+The networks are trained on transformed targets, a logit for prevalence and a `log1p` for cases,
+and `.predict` inverts the transform by default. `transformed=True` suppresses the inversion. You
+want that only when scoring the network against a held-out set in its training space.
+
+```{python}
+raw = prevalence.predict([district], transformed=True)
+inv = prevalence.predict([district])
+
+print("logit space  :", np.round(raw[0, :3], 3))
+print("prevalence   :", np.round(inv[0, :3], 3))
+print("sigmoid(raw) :", np.round(1 / (1 + np.exp(-raw[0, :3])), 3))
+```
+
+## Negative case counts
+
+The inverse of `log1p` is `expm1`, so a prediction slightly below zero in log space becomes a case
+count slightly below zero, by a fraction of a case, and under a strong campaign, where true
+incidence is close to the floor, it happens often.
+
+```{python}
+aggressive = dict(
+    district, dn0_future=0.55, itn_future=0.95, irs_future=0.90, lsm=0.90,
+)
+
+c = cases.predict([aggressive])
+print(f"minimum        : {c.min():.4f}")
+print(f"negative steps : {int((c < 0).sum())} of {c.shape[1]}")
+
+c = np.maximum(c, 0.0)
+print(f"after flooring : {c.min():.4f}")
+```
+
+Floor the case trajectory with `np.maximum` before you plot it or sum it.
+[`run_scenarios`](../06-scenarios/run-scenarios.qmd) applies this floor itself, so only results
+taken straight from a checkpoint need it.
+
+Prevalence needs no such treatment, since a logit inverts through a sigmoid and a sigmoid cannot
+leave `[0, 1]`.
+
+## The raw feature matrix
+
+`.prepare_inputs` runs the first half of `.predict` and stops, expanding the twelve covariates
+onto the time grid and masking the campaign fields before day 3285. It then scales everything and
+appends the time features.
+
+```{python}
+X = prevalence.prepare_inputs(campaigns)
+print(X.shape, X.dtype)
+```
+
+The sixteen channels are the twelve scaled covariates plus four time features locating each window
+in the year and relative to the campaign.
+
+## Pinning the revision
+
+`revision` is optional and defaults to `main`, which moves, so an unpinned analysis may not re-run
+on the weights it ran today. The published tags run from `v1.0.0` to `v1.2.2`. Pass one explicitly.
+
+```python
+Mamba2Regressor.from_pretrained("dide-ic/stateMINT", predictor="cases", revision="v1.2.2")
+```
+
+## See also
+
+The 157 columns go onto a real time axis in [Plotting trajectories](plotting.qmd). Fifty scenarios
+in one call are far cheaper than fifty calls of one. [Performance and caching](performance.qmd)
+has the timings and the cache settings.

@@ -1,0 +1,138 @@
+---
+title: "Mosquito density and EIR"
+---
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.style.use("styles/mint.mplstyle")
+```
+
+`estimate_eir_with_mosquito_delta` covers changes that act on the size of the mosquito population
+rather than through the nets, such as larviciding or a new irrigation scheme, taking a prevalence,
+a setting and a fractional change in density and returning the EIR that follows. That is an
+equilibrium value, not a trajectory.
+
+## The signature
+
+```python
+estimate_eir_with_mosquito_delta(inputs: pd.DataFrame, *, models: dict) -> pd.DataFrame
+```
+
+`inputs` carries one row per scenario and eight columns, `prevalence`, `mosquito_delta`, and the
+six setting covariates `dn0_use`, `Q0`, `phi_bednets`, `seasonal`, `itn_use` and `irs_use`.
+`models` is keyword-only. It must hold all three models, under the keys `"prevalence"`, `"hbr"`
+and `"eir_to_hbr"`.
+
+`mosquito_delta` is a fraction rather than a multiplier, so `0.25` is a 25% increase, `-0.5` a
+halving and `0.0` no change. It must be greater than `-1`.
+
+::: {.callout-warning}
+## A note on the older signature
+
+estiMINT 1.4 accepted loose keyword arguments such as `prevalence=...` and `dn0_use=...`, one
+call per scenario, and loaded the models itself. That form has been removed. The current call
+takes a **DataFrame** and an explicit **`models` dict**, and it is vectorised, so pass every
+scenario as a row of one frame.
+:::
+
+## The ratio method
+
+The method runs in five steps, each justified in [EIR and HBR](eir-and-hbr.qmd).
+
+1. The prevalence and the setting give a **baseline EIR**, via the prevalence model.
+2. That EIR and the setting give a **baseline HBR**, via `eir_to_hbr`.
+3. The **new HBR** is the baseline scaled by the density change, `hbr_new = hbr_baseline * (1 + mosquito_delta)`. Density enters here, and only here.
+4. The `hbr` model predicts an EIR at **both** HBR values.
+5. The **new EIR** is the *baseline* EIR times the **ratio** of those two predictions.
+
+The EIR the `hbr` model predicts at `hbr_new` is not itself the answer, because every prediction
+from that model inherits the bias measured in [EIR and HBR](eir-and-hbr.qmd), where an
+EIR of 13.40 comes back as 14.23. Taking a ratio cancels it.
+
+## A density sweep
+
+The setting from [Estimating EIR from prevalence](estimating-eir.qmd), at a prevalence of 0.30,
+runs over five density changes.
+
+```{python}
+import pandas as pd
+from estimint import load_xgb_model, estimate_eir_with_mosquito_delta
+
+models = {
+    "prevalence": load_xgb_model("prevalence"),
+    "hbr": load_xgb_model("hbr"),
+    "eir_to_hbr": load_xgb_model("eir_to_hbr"),
+}
+
+setting = dict(
+    dn0_use=0.33, Q0=0.87, phi_bednets=0.82,
+    seasonal=0.0, itn_use=0.6, irs_use=0.0,
+)
+
+inputs = pd.DataFrame([
+    {"prevalence": 0.30, "mosquito_delta": d, **setting}
+    for d in [-0.5, -0.25, 0.0, 0.25, 0.6]
+])
+
+result = estimate_eir_with_mosquito_delta(inputs, models=models)
+result.round(3)
+```
+
+The frame comes back on the same index as `inputs`. The delta that produced each row joins back
+on.
+
+```{python}
+summary = inputs[["mosquito_delta"]].join(result[["eir_baseline", "eir_new", "eir_multiplier"]])
+summary.round(3)
+```
+
+`eir_baseline` is identical down the column, because only the mosquitoes changed.
+
+## The EIR multiplier
+
+```{python}
+#| fig-cap: "EIR multiplier against fractional change in mosquito density, compared with a proportional response."
+#| fig-alt: "The EIR multiplier rises from about 0.2 at a 75% reduction in mosquitoes to about 1.9 at a doubling. It tracks the dashed proportional reference line closely near zero but falls clearly below it at both extremes."
+import numpy as np
+
+grid = pd.DataFrame([
+    {"prevalence": 0.30, "mosquito_delta": d, **setting}
+    for d in np.linspace(-0.75, 1.0, 36)
+])
+curve = estimate_eir_with_mosquito_delta(grid, models=models)
+
+fig, ax = plt.subplots()
+ax.plot(grid["mosquito_delta"], curve["eir_multiplier"], label="EIR multiplier")
+ax.plot(grid["mosquito_delta"], 1 + grid["mosquito_delta"], ls="--", label="proportional response")
+ax.axhline(1.0, color="#8b93a3", ls="--", lw=1, alpha=0.7)
+ax.set_xlabel("Mosquito density change (mosquito_delta)")
+ax.set_ylabel("EIR multiplier")
+ax.legend()
+plt.show()
+```
+
+The blue multiplier curve sits on the dashed green proportional line for modest changes either
+side of zero, and within about 10% a proportional response is accurate to a percent or so. At
+both extremes the blue curve drops below the green one, because deep cuts take
+the EIR down faster than they take the mosquitoes, so removing three quarters of them leaves about
+a fifth of the baseline EIR rather than a quarter. Doubling the vectors falls short of doubling
+transmission.
+
+::: {.callout-warning}
+## A note on the input mode
+
+`mosquito_delta` is honoured when the driving input is a **prevalence**. In the scenario API of
+[Running scenarios](../06-scenarios/run-scenarios.qmd), where the input mode is chosen through
+`EirTarget(value, input_mode)`, a non-zero `mosquito_delta` is **ignored** for
+`input_mode="eir"` and `input_mode="hbr"`. No warning is raised, no error is thrown, and the EIR
+comes back unchanged. The ratio needs a baseline EIR that is independent of the HBR models, and
+only a prevalence input supplies one. To apply a density change to an EIR or an HBR you already
+have, scale the HBR yourself and convert.
+:::
+
+## See also
+
+[estiMINT API](api.qmd) sets out every loader, estimator and dataclass the package exposes, and
+[Running scenarios](../06-scenarios/run-scenarios.qmd) carries `mosquito_delta` through a whole
+scenario, from the density change to the case counts.

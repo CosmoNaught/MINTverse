@@ -1,0 +1,16 @@
+---
+title: "stateMINT: the emulator"
+---
+
+stateMINT emulates [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), returning
+the prevalence and clinical-case trajectories the simulator would produce for a given setting and
+campaign. It runs from an EIR that [estiMINT](../04-estimint/index.qmd) supplies, the second stage
+of [the pipeline](../03-concepts/pipeline.qmd).
+
+::: {.chapter-outline}
+- [Covariates and the time grid](covariates.qmd) — the twelve covariates, and the 157 windows.
+- [Calling the emulator](the-emulator.qmd) — `from_pretrained` and `.predict`.
+- [Plotting trajectories](plotting.qmd) — the time axis, and a tidy frame.
+- [Performance and caching](performance.qmd) — load times, batching, and the GPU.
+- [stateMINT API](api.qmd) — `Mamba2Regressor` and `ModelArtifact`.
+:::

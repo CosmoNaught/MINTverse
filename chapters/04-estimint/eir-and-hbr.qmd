@@ -1,0 +1,92 @@
+---
+title: "EIR and HBR"
+---
+
+estiMINT bundles a model in each direction between EIR and the human biting rate. Neither quantity is
+one a programme usually supplies, and the pair exists mainly for the mosquito-density method, which
+routes a change in mosquito numbers through the biting rate.
+
+```{python}
+import pandas as pd
+from estimint import load_xgb_model, run_xgb_model
+
+eir_to_hbr = load_xgb_model("eir_to_hbr")   # eir      -> HBR
+hbr_to_eir = load_xgb_model("hbr")          # hbr_y9   -> EIR
+
+eir_to_hbr["features"], hbr_to_eir["features"]
+```
+
+Both take the same six setting covariates as the prevalence model and differ only in the driving
+column. Note that the model named `"hbr"` takes an HBR as its *input*. It returns an EIR.
+
+## EIR to HBR
+
+The setting carries over from [Estimating EIR from prevalence](estimating-eir.qmd).
+
+```{python}
+setting = dict(
+    dn0_use=0.33, Q0=0.87, phi_bednets=0.82,
+    seasonal=0.0, itn_use=0.6, irs_use=0.0,
+)
+
+prev_model = load_xgb_model("prevalence")
+eir = run_xgb_model(pd.DataFrame([{**setting, "prevalence": 0.30}]), prev_model)[0]
+hbr = run_xgb_model(pd.DataFrame([{**setting, "eir": eir}]), eir_to_hbr)[0]
+
+f"eir = {eir:.2f}, hbr = {hbr:,.0f}"
+```
+
+Across the training data HBR spans roughly `5e3` to `7e7`, against an EIR range of tens to
+hundreds, so the `hbr` model treats its input on a **log scale**. Sweep `hbr_y9` log-spaced rather
+than linearly.
+
+## HBR to EIR
+
+The `hbr` model maps a biting rate to an EIR, entering as `hbr_y9`. This is the direction the density
+method uses to turn a changed biting rate back into an EIR.
+
+```{python}
+back = run_xgb_model(pd.DataFrame([{**setting, "hbr_y9": hbr}]), hbr_to_eir)[0]
+
+f"eir = {back:.2f}"
+```
+
+## Converting back
+
+```{python}
+trip = pd.DataFrame([{
+    "prevalence": 0.30,
+    "eir (from prevalence)": eir,
+    "hbr (from eir)": hbr,
+    "eir (from hbr)": back,
+    "ratio": back / eir,
+}])
+
+trip.round(3)
+```
+
+The EIR that comes back is 6% too high, because the two models were fitted separately, each with
+its own smoothing, and nothing constrains one to be the exact inverse of the other.
+
+Where a prevalence is available the EIR from the prevalence model is the estimate, and converting
+onward to an HBR and back only degrades it. A prevalence-derived EIR and an HBR-derived EIR carry
+different biases. A difference of a few percent between them says more about the models than
+about the districts.
+
+::: {.callout-note}
+## The ratio in the density method
+
+This gap is why [`estimate_eir_with_mosquito_delta`](mosquito-density.qmd) never takes an EIR that
+has been through both models as an answer. It predicts the EIR at *both* the baseline HBR and the changed HBR and keeps only
+the **ratio** of the two, in which the common bias cancels. The ratio is then applied to a baseline
+EIR from the prevalence model, which never went near the HBR models.
+:::
+
+Note that both `hbr_y9` and `prev_y9` are clamped to their training bands, as described in
+[Estimating EIR from prevalence](estimating-eir.qmd).
+
+## See also
+
+The ratio method built on this bias is worked through in [Mosquito density and
+EIR](mosquito-density.qmd), and please see [EIR, HBR, prevalence, and
+cases](../03-concepts/equilibrium.qmd) for how the four quantities relate.

@@ -1,0 +1,121 @@
+---
+title: "Installation"
+---
+
+MINTverse is two packages, with estiMINT mapping a measured prevalence to transmission
+intensity and stateMINT emulating the prevalence and case trajectories that follow an
+intervention. Installing estiMINT with the `scenarios` extra brings in stateMINT and the
+`run_scenarios` pipeline, which is what most work needs.
+
+```bash
+pip install "estimint[scenarios]"
+```
+
+Or, inside a project managed by [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv add "estimint[scenarios]"
+```
+
+Python 3.12 or newer is required.
+
+::: {.callout-note}
+## Distribution name and import name
+
+`stateMINT` is published on PyPI as **`mintstate`**, so you install `mintstate` and you
+import `stateMINT`:
+
+```python
+import stateMINT          # correct
+import mintstate          # ModuleNotFoundError
+```
+
+estiMINT has no such split, and its distribution and module are both `estimint`.
+:::
+
+## Extras
+
+An extra is an optional set of dependencies, named in square brackets after the package.
+Plain `pip install estimint` gives the EIR and HBR models but no emulator and no
+`run_scenarios`, so `scenarios` is the extra most installs want.
+
+| Extra | Command | What it adds |
+|---|---|---|
+| `scenarios` | `pip install "estimint[scenarios]"` | stateMINT, so `run_scenarios` and the emulator are available. |
+| `viz` | `pip install "estimint[viz]"` | matplotlib, for the bundled plotting helpers. |
+| `download` | `pip install "estimint[download]"` | The fetchers used to pull training data. |
+| `train` | `pip install "estimint[train]"` | duckdb, scikit-learn and pyarrow, for refitting the XGBoost models. |
+| `all` | `pip install "estimint[all]"` | The four estiMINT extras above. |
+| `gpu` | `pip install "mintstate[gpu]"` | `jax[cuda12]`, so the emulator runs on an NVIDIA GPU with CUDA 12. |
+
+The CPU build of JAX is fast enough for inference, where a ten-scenario batch takes about
+a second, and the `gpu` extra is only needed if you are training or sweeping thousands of
+scenarios.
+
+## Model weights
+
+estiMINT ships its three XGBoost models (prevalence, HBR and EIR-to-HBR) inside the
+wheel. `load_xgb_model("prevalence")` never needs a network.
+
+stateMINT does need one on first use, because its checkpoints live in the Hugging Face
+repository [`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), with a
+separately trained checkpoint of about 38 MB for each predictor under `prevalence/` and
+`cases/`, and the first call that needs one fetches it and caches it under
+`~/.cache/huggingface`. Every later call reads the cache. `preload_models()` fills
+both caches, loading the XGBoost models and pulling the stateMINT weights.
+
+```python
+from estimint import preload_models
+
+preload_models()
+```
+
+## Working offline
+
+On a cluster node or an air-gapped machine, fill the cache somewhere with a network
+first, then set `HF_HUB_OFFLINE=1` so that Hugging Face never attempts a request and
+resolves everything from `~/.cache/huggingface`:
+
+```bash
+export HF_HUB_OFFLINE=1
+```
+
+If the cache directory itself is unavailable, `from_pretrained` takes a `local_dir` and
+will read a directory laid out like the repository instead of calling the Hub.
+
+```python
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT",
+    predictor="prevalence",
+    local_dir="/shared/models/stateMINT",
+)
+```
+
+## Verify the install
+
+`importlib.metadata` reports the version of an installed distribution rather than of an
+imported module, so the emulator's version is recorded under `mintstate` and not under
+stateMINT. `net_types()` asks estiMINT which net formulations it knows about.
+
+```{python}
+import importlib.metadata as md
+
+import estimint
+import stateMINT
+
+print("estimint  (import estimint) ", md.version("estimint"))
+print("mintstate (import stateMINT)", md.version("mintstate"))
+print()
+print("net types:", estimint.net_types())
+```
+
+Four net formulations and no error confirms both installs.
+
+## See also
+
+[Quickstart](quickstart.qmd) runs a net switch end to end, and
+[Coming from R](coming-from-r.qmd) explains the pandas it uses in R terms. Please see
+[Troubleshooting](../troubleshooting.qmd) for the imports and downloads that fail most
+often.

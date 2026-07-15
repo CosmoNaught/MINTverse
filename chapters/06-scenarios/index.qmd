@@ -1,0 +1,15 @@
+---
+title: "Running Scenarios"
+---
+
+`run_scenarios` drives the whole pipeline from a list of settings and campaigns and returns one
+row for each. It is exported from `estimint` but runs both packages, and nothing is imported
+from `stateMINT` directly. The pages that follow build a `Scenario`, run a grid of campaigns
+against a shared baseline, and compare and export the trajectories and cases that come back.
+
+::: {.chapter-outline}
+- [Running scenarios](run-scenarios.qmd) — `Scenario`, `EirTarget`, and the returned columns.
+- [A list of scenarios](scenario-grid.qmd) — five campaigns against one baseline.
+- [Trajectories and cases](comparing.qmd) — prevalence, clinical incidence, and cases averted.
+- [Exporting results](exporting.qmd) — CSV, and a tidy table R can read.
+:::

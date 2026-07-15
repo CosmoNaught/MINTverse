@@ -1,0 +1,150 @@
+project:
+  type: website
+  output-dir: _book
+  execute-dir: project
+  render:
+    - index.qmd
+    - chapters/
+  resources:
+    - misc/icon-mint.svg
+    - data/
+
+website:
+  title: "MINTverse"
+  favicon: favicon.ico
+  search:
+    location: sidebar
+    type: textbox
+  page-navigation: true
+  page-footer:
+    border: false
+    center: |
+      &copy;&nbsp;2026 Cosmo Santoni and Anmol Thapar &middot; part of the [MINTverse](https://github.com/CosmoNaught).
+  navbar:
+    title: "MINTverse"
+    pinned: true
+    search: false
+    right:
+      - icon: github
+        href: "https://github.com/CosmoNaught/MINTverse"
+        aria-label: GitHub
+  sidebar:
+    style: docked
+    logo: misc/icon-mint.svg
+    title: "MINTverse"
+    collapse-level: 1
+    contents:
+      - href: index.qmd
+        text: "Home"
+      - href: chapters/00-front/overview.qmd
+        text: "Overview"
+      - href: chapters/00-front/reader-guide.qmd
+        text: "Orientation"
+      - section: "Python for Malaria Modellers"
+        href: chapters/01-python/index.qmd
+        contents:
+          - href: chapters/01-python/what-is-python.qmd
+            text: "What is Python?"
+          - href: chapters/01-python/toolchain.qmd
+            text: "Python tools"
+          - href: chapters/01-python/installing-python.qmd
+            text: "Installing Python"
+          - href: chapters/01-python/vscode.qmd
+            text: "Working in VS Code"
+          - href: chapters/01-python/environments.qmd
+            text: "Environments and packages"
+          - href: chapters/01-python/notebooks.qmd
+            text: "Notebooks"
+      - section: "Getting Started"
+        href: chapters/02-getting-started/index.qmd
+        contents:
+          - href: chapters/02-getting-started/installation.qmd
+            text: "Installation"
+          - href: chapters/02-getting-started/quickstart.qmd
+            text: "Quickstart"
+          - href: chapters/02-getting-started/coming-from-r.qmd
+            text: "Coming from R"
+          - href: chapters/02-getting-started/notebook.qmd
+            text: "Colab notebook"
+      - section: "Core Concepts"
+        href: chapters/03-concepts/index.qmd
+        contents:
+          - href: chapters/03-concepts/pipeline.qmd
+            text: "The MINTverse pipeline"
+          - href: chapters/03-concepts/equilibrium.qmd
+            text: "EIR, HBR, prevalence, and cases"
+          - href: chapters/03-concepts/interventions.qmd
+            text: "Interventions and nets"
+          - href: chapters/03-concepts/models.qmd
+            text: "The models"
+          - href: chapters/03-concepts/validation.qmd
+            text: "Accuracy and speed"
+      - section: "estiMINT: EIR and HBR"
+        href: chapters/04-estimint/index.qmd
+        contents:
+          - href: chapters/04-estimint/nets-and-dn0.qmd
+            text: "Nets and dn0"
+          - href: chapters/04-estimint/estimating-eir.qmd
+            text: "Estimating EIR from prevalence"
+          - href: chapters/04-estimint/eir-and-hbr.qmd
+            text: "EIR and HBR"
+          - href: chapters/04-estimint/mosquito-density.qmd
+            text: "Mosquito density and EIR"
+          - href: chapters/04-estimint/api.qmd
+            text: "estiMINT API"
+      - section: "stateMINT: the Emulator"
+        href: chapters/05-statemint/index.qmd
+        contents:
+          - href: chapters/05-statemint/covariates.qmd
+            text: "Covariates and the time grid"
+          - href: chapters/05-statemint/the-emulator.qmd
+            text: "Calling the emulator"
+          - href: chapters/05-statemint/plotting.qmd
+            text: "Plotting trajectories"
+          - href: chapters/05-statemint/performance.qmd
+            text: "Performance and caching"
+          - href: chapters/05-statemint/api.qmd
+            text: "stateMINT API"
+      - section: "Scenarios"
+        href: chapters/06-scenarios/index.qmd
+        contents:
+          - href: chapters/06-scenarios/run-scenarios.qmd
+            text: "Running scenarios"
+          - href: chapters/06-scenarios/scenario-grid.qmd
+            text: "A list of scenarios"
+          - href: chapters/06-scenarios/comparing.qmd
+            text: "Trajectories and cases"
+          - href: chapters/06-scenarios/exporting.qmd
+            text: "Exporting results"
+      - href: chapters/troubleshooting.qmd
+        text: "Troubleshooting"
+
+
+jupyter: python3
+
+execute:
+  freeze: auto
+  eval: true
+  echo: true
+  warning: false
+  error: false
+
+format:
+  html:
+    theme:
+      dark: [darkly, styles/theme-dark.scss]
+      light: [flatly, styles/theme-light.scss]
+    highlight-style: atom-one
+    html-math-method: mathjax
+    include-after-body: _after-body.html
+    link-external-newwindow: true
+    link-external-icon: false
+    toc: true
+    toc-depth: 3
+    toc-title: "On this page"
+    number-sections: false
+    code-copy: true
+    code-overflow: scroll
+    fig-align: left
+    grid:
+      sidebar-width: 300px

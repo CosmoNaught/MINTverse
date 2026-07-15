@@ -1,0 +1,276 @@
+---
+title: "Environments and packages"
+---
+
+R installs packages into one shared library. `install.packages("dplyr")` puts dplyr in a
+directory every R session on the machine can see. There is normally one version of it, and
+every project uses that version. This mostly works, because CRAN enforces that the current
+release of every package works with the current release of every other.
+
+Nothing polices PyPI. A project pinned to an older NumPy and a project needing the newest one
+are both ordinary, and they cannot share a library directory. A Python project therefore gets
+**its own interpreter and its own package directory**, isolated from the system and from
+every other project. That is what a *virtual environment* is. You create one at the start of
+every Python project.
+
+::: {.callout-note .rstudio}
+## RStudio users
+
+This is exactly `renv`, and for exactly the same reason. The difference is that in Python it is not optional.
+:::
+
+## What `pip` is
+
+`pip` is Python's package installer. It fetches a package and puts it where the interpreter
+can find it.
+
+```bash
+pip install pandas
+```
+
+::: {.callout-note .rstudio}
+## RStudio users
+
+This is `install.packages("dplyr")`. The repository it downloads from is [PyPI](https://pypi.org), which is CRAN. `import pandas` is then `library(dplyr)`.
+:::
+
+The critical difference from R is that `pip` installs into **whichever interpreter is running
+it**. If you have three Pythons, you have three `pip`s, and they install into three different
+places. When the wrong one is used, the package is installed but cannot be imported.
+
+Using `uv`, you will rarely type `pip` at all. Every other set of instructions on the
+internet will tell you to, so it helps to know what it is.
+
+## What a `.venv` directory is
+
+A virtual environment is a directory, conventionally `.venv`, inside the project folder:
+
+```{.text .diagram}
+.venv/
+├── bin/            (Scripts/ on Windows)
+│   ├── python      → the interpreter this environment uses
+│   └── pip
+├── lib/
+│   └── python3.12/
+│       └── site-packages/    ← estimint, stateMINT, jax, pandas, ... land here
+└── pyvenv.cfg      → records which base interpreter it was built from
+```
+
+`.venv/bin/python` is a Python that, when it starts, looks for packages in *its own*
+`site-packages` and not in the system's. Deleting the directory removes the environment.
+Rebuilding it from the lockfile restores it identically. It belongs to one project, and it is
+never committed to version control.
+
+::: {.callout-note .rstudio}
+## RStudio users
+
+`.venv/` is `renv/library/`, and it is `.gitignore`d for the same reason.
+:::
+
+## The uv workflow
+
+The whole of it is three commands, with no activation step anywhere:
+
+```bash
+uv init malaria-scenarios
+cd malaria-scenarios
+uv add "estimint[scenarios]"
+```
+
+`uv init` creates the project directory with a `pyproject.toml`. `uv add` creates `.venv` on
+first use, resolves the dependency graph, installs into it, and writes down exactly what it
+got. Run your code with:
+
+```bash
+uv run python main.py
+```
+
+`uv run` guarantees the environment is current before it executes anything. If
+`pyproject.toml` has changed, or `.venv` does not exist, it fixes that first and then runs.
+No interpreter is named by hand, so the wrong one cannot be named.
+
+To add a package later it is `uv add <name>`, to remove one `uv remove <name>`, and to
+reproduce someone else's project after cloning it, `uv sync`.
+
+::: {.callout-note .rstudio}
+## RStudio users
+
+`uv add` is `install.packages()` **and** `renv::snapshot()` in one step. It installs the package and records it. `uv sync` is `renv::restore()`.
+:::
+
+### What it writes
+
+`pyproject.toml` is the project's declaration of intent, hand-editable, and the file you
+commit:
+
+```toml
+[project]
+name = "malaria-scenarios"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "estimint>=1.5.4",
+    "mintstate>=0.3.1",
+]
+```
+
+`uv.lock` is the exact resolution, recording every package including the transitive ones,
+every pinned version, and a hash of each artefact. It is the analogue of `renv.lock`. It is
+what makes the environment reproducible on another machine. Commit it.
+
+::: {.callout-note}
+## What to commit
+
+The two text files fully describe the environment. The `.venv` directory is only a build
+artefact of them, large, platform-specific, and rebuilt in seconds. Put `.venv/` in
+`.gitignore`.
+:::
+
+## The venv and pip workflow
+
+Every Python installation ships `venv` and `pip`, and a great deal of existing documentation
+assumes them. They do the same job with more steps and no real lockfile. Take this route if
+`uv` is not available to you.
+
+Create the environment, naming the interpreter it is built from:
+
+```bash
+python3.12 -m venv .venv
+```
+
+Then **activate** it. This is the step with no `uv` equivalent. It edits the current shell's
+`PATH` so that `python` and `pip` resolve to the ones inside `.venv`:
+
+::: {.panel-tabset group="os"}
+
+## Linux
+
+```bash
+source .venv/bin/activate
+```
+
+## macOS
+
+```bash
+source .venv/bin/activate
+```
+
+## Windows
+
+```powershell
+.venv\Scripts\Activate.ps1        # PowerShell
+.venv\Scripts\activate.bat        # cmd.exe
+```
+
+:::
+
+The prompt gains a `(.venv)` prefix, which is your visible confirmation. Activation lasts for
+that one shell session and is forgotten when the terminal closes. Now install:
+
+```bash
+pip install "estimint[scenarios]"
+```
+
+Then write down the versions you ended up with, so that someone else can reconstruct them:
+
+```bash
+pip freeze > requirements.txt
+```
+
+`requirements.txt` is a weaker lockfile. It lists versions but not hashes, and it records
+what happened to be installed rather than what the project requires. It is enough for a
+colleague to reconstruct the environment with `pip install -r requirements.txt`, which is why
+it remains common.
+
+When you are done, `deactivate` returns the shell to normal.
+
+::: {.callout-warning}
+## Installing with no environment active
+
+If you have not activated, `pip` is the system `pip`, and it will try to write into the
+system `site-packages`. On Linux that now fails with `externally-managed-environment`. On
+macOS and Windows it may succeed, and the packages land in an interpreter you did not
+mean to modify. Check the prompt prefix before you install.
+:::
+
+## Checking the active environment
+
+There are three checks, and they can be trusted in increasing order.
+
+The first is the **prompt**. An activated environment prefixes the shell prompt with
+`(.venv)`, and without that prefix no environment is active. It is the least reliable of the
+three. A prompt can be customised not to display the prefix, and `uv run` does not set one at
+all.
+
+The second is the **interpreter path**. Ask the shell which `python` it will run:
+
+::: {.panel-tabset group="os"}
+
+## Linux
+
+```bash
+which python
+```
+
+## macOS
+
+```bash
+which python
+```
+
+## Windows
+
+```powershell
+where python
+```
+
+:::
+
+The path you want runs through your project's `.venv`. Anything under `/usr/bin`,
+`/usr/local/bin`, `/opt/homebrew/bin` or `C:\Python312\` is a system Python. The packages you
+installed into a project will not be found there.
+
+If the shell's answer is ambiguous, ask Python itself rather than trusting `PATH`:
+
+```bash
+python -c "import sys; print(sys.executable)"
+```
+
+That prints the interpreter actually executing the code, which no `PATH` subtlety can
+misreport.
+
+The third is the **VS Code status bar**, at the bottom-right of the window. It names the
+interpreter the editor will use for *Run*, for the Interactive Window, and for notebooks. It
+is set with `Python: Select Interpreter` from the command palette, which
+[Working in VS Code](vscode.qmd) covers. It is independent of what your terminal has
+activated, and the two often disagree.
+
+## Diagnosing a failed import
+
+Almost every one of these is the wrong interpreter, not a broken package:
+
+- `ModuleNotFoundError: No module named 'estimint'` immediately after a successful install.
+- The install printing `Requirement already satisfied` for a package the script cannot import.
+- Code that runs in the terminal but not in VS Code, or the reverse.
+- Code that runs in a script but not in a notebook, which is the same fault, in the kernel. Please see [Notebooks](notebooks.qmd).
+
+The diagnosis is one line. Print `sys.executable` from the place that fails, print it from
+the place that works, and compare the two:
+
+```bash
+python -c "import sys; print(sys.executable)"
+```
+
+If the two paths differ, that is the fault. The cure is either to install into the
+interpreter that fails, or to stop naming interpreters and let `uv run` do it.
+
+One wrinkle is specific to this stack. You install `mintstate` but import `stateMINT`, so
+`pip list` shows `mintstate` and no stateMINT. That is expected. Please see
+[Installation](../02-getting-started/installation.qmd).
+
+## See also
+
+A notebook kernel is an interpreter like any other, so the question of which one is running
+returns in exactly the form it took here, and [Notebooks](notebooks.qmd) works through it.
+Please see [Installation](../02-getting-started/installation.qmd) for putting MINTverse into
+the environment you have just built.

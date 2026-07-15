@@ -1,0 +1,91 @@
+---
+title: "EIR, HBR, prevalence, and cases"
+---
+
+## The four quantities
+
+The **entomological inoculation rate (EIR)** is infectious bites per person per year, and it
+sets the force of infection, which is why stateMINT runs from it. estiMINT infers it from a
+prevalence or an HBR.
+
+The **human biting rate (HBR)** is bites per person per year, infectious or not, which is the
+EIR divided by the sporozoite rate, so the numbers run to tens or hundreds of thousands per
+year. `mosquito_delta` scales mosquito density and reaches the transmission model through the
+HBR.
+
+Prevalence is reported throughout MINTverse as the under-five value on a 0 to 1 scale.
+
+Cases are clinical malaria episodes, all-age, per 1000 population, and an emulator output only.
+There is no cases-to-anything inversion to run. They are floored at zero.
+
+## Values and series
+
+| Quantity | What it is | Units | Value or series | Produced by |
+|---|---|---|---|---|
+| EIR | transmission intensity | infectious bites / person / year | single value | estiMINT |
+| HBR | biting pressure | bites / person / year | single value | estiMINT |
+| Prevalence | infected share, under-5 | proportion, 0–1 | input value **or** 157-step series | input or stateMINT |
+| Cases | clinical episodes, all-age | per 1000 population | 157-step series | stateMINT |
+
+estiMINT returns an equilibrium, the transmission intensity a setting sustains. It has no time
+axis, so it cannot say what the EIR will be two years after a PBO campaign, only what it would
+be in a setting already settled under one.
+
+Only stateMINT returns a path.
+
+::: {.callout-note}
+## EIR and equilibrium
+
+`estimate_eir_with_mosquito_delta` returns two numbers, `eir_baseline` and `eir_new`. Both are
+equilibria. `eir_new` is the intensity a setting would settle at with a different mosquito
+density, not the EIR at some later date, so the two values do not bracket a trajectory.
+:::
+
+## The time grid
+
+Every trajectory is laid on one grid of 157 fortnightly steps, built around the day the campaign
+lands. The simulations behind stateMINT run a six-year burn-in first, letting the transmission
+model settle into equilibrium. That burn-in is **discarded** and never reaches the emulator.
+
+What remains starts at day 2190, the start of year 6, and the first three years are pre-campaign
+baseline. At day 3285, the start of year 9, the campaign switches on. `dn0_future`, `itn_future`,
+`irs_future`, `lsm` and `routine` take their value from that day onwards. They are zero before
+it.
+
+The grid is written into the artefact.
+
+```{python}
+import numpy as np
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence",
+)
+cfg = artifact.preprocessing_config
+
+abs_t = cfg["model_start_day"] + cfg["window_size"] * np.arange(cfg["n_steps"])
+years = (abs_t - cfg["intervention_day"]) / 365
+idx_y9 = int(np.argmin(np.abs(abs_t - cfg["intervention_day"])))
+
+print(f"steps                {cfg['n_steps']}")
+print(f"window               {cfg['window_size']} days")
+print(f"grid starts          day {abs_t[0]}")
+print(f"campaign             day {cfg['intervention_day']} -> step {idx_y9} (day {abs_t[idx_y9]})")
+print(f"grid ends            day {abs_t[-1]}")
+print(f"years from campaign  {years[0]:+.2f} to {years[-1]:+.2f}")
+```
+
+`prev_y9` is the annual mean under-five prevalence in year 9, the year the campaign lands, so
+passing a measured prevalence to estiMINT asserts that it describes the setting on the day the
+nets are distributed.
+
+The pre-campaign years show the setting under the nets it already has, so a baseline that starts
+somewhere other than the prevalence you supplied means the covariates do not describe your
+setting. Plotting in `years` puts the campaign at zero.
+
+## See also
+
+The interventions that switch on at day 3285 are described in [Interventions and
+nets](interventions.qmd), and the estimators and the emulator in [The models](models.qmd).
+Please see [Estimating EIR from prevalence](../04-estimint/estimating-eir.qmd) for the inversion
+in practice.

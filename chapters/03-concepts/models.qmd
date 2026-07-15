@@ -1,0 +1,124 @@
+---
+title: "The models"
+---
+
+MINTverse ships four trained models, three gradient-boosted trees in estiMINT that convert
+between transmission quantities and one sequence model in stateMINT that produces
+trajectories. Nothing is fitted, tuned or configured at call time.
+
+## The three estiMINT conversions
+
+The three conversions are gradient-boosted trees, fitted with XGBoost. Gradient boosting builds
+an ensemble of shallow decision trees one at a time, each trained on the error the ones before it
+left behind, and sums them into a single regression. It handles the non-linear relationship
+between the covariates and the EIR without any functional form being specified.
+
+The three share the same six covariates describing the setting (`dn0_use`, `Q0`, `phi_bednets`,
+`seasonal`, `itn_use` and `irs_use`). They differ only in what is converted.
+
+| Name | Extra input | Returns |
+|---|---|---|
+| `"prevalence"` | `prev_y9` | EIR |
+| `"hbr"` | `hbr_y9` | EIR |
+| `"eir_to_hbr"` | `eir` | HBR |
+
+What `load_xgb_model` returns is a dictionary rather than a bare booster. The booster is only
+part of the estimator.
+
+```{python}
+from estimint import load_xgb_model
+
+model = load_xgb_model("prevalence")
+
+print("features   ", model["features"])
+print("transform  ", model["preprocess"]["transform"], "->", model["preprocess"]["inverse"])
+print("calibrator ", model["calibrator"]["kind"])
+print("rounds     ", model["best_nrounds"])
+```
+
+The target is $\log_{10}(\mathrm{EIR})$ rather than EIR, because EIR spans several orders of
+magnitude, and `run_xgb_model` inverts the transform (`pow10`) before returning. The EIR comes
+back in natural units.
+
+The quantile-mapping calibrator sits after the booster, because a boosted-tree ensemble regresses
+towards the mean and its predictions come out compressed in the tails, and quantile mapping puts
+the marginal distribution of predictions back onto the distribution of the training targets.
+
+The monotone smoothing pass runs over the calibrated result, because trees are piecewise-constant
+and a raw booster predicting EIR from prevalence produces a staircase that can be locally
+non-monotone. The pass enforces monotonicity along the input being converted.
+
+Calibration and smoothing are baked into the fitted artefact rather than applied batch-wise.
+A single-row query still lands on a smooth, monotone curve.
+
+The models are bundled inside the wheel, so nothing is downloaded. `load_xgb_model` is a local
+file read.
+
+## The stateMINT emulator
+
+stateMINT is a Mamba2 state-space model, implemented in JAX and Flax and trained to reproduce
+[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). A state-space model reads a
+sequence one step at a time and carries a fixed-size hidden vector forward, updating it at each
+step and reading the output off it, so the cost grows with the length of the sequence rather than
+with its square as a transformer's does. Mamba2 is a recent form of that architecture. Here the
+sequence is the 157 fortnightly windows, and the model takes a setting and a campaign and returns
+157 steps of prevalence or 157 steps of cases.
+
+```{python}
+from stateMINT.model import Mamba2Regressor
+
+artifact = Mamba2Regressor.from_pretrained(
+    "dide-ic/stateMINT", predictor="prevalence",
+)
+
+for key, value in artifact.model_config.items():
+    print(f"{key:<12} {value}")
+```
+
+The 16 input channels are the twelve static covariates, with the `after_intervention` ones
+switched on at day 3285, plus the four derived time channels that `prepare_inputs` builds. The
+model is small and runs comfortably on a CPU.
+
+`from_pretrained` returns a **`ModelArtifact`** rather than a `Mamba2Regressor`, so the network
+itself is `artifact.model`, bundled with the scaler and the two config dictionaries. Note that
+`predictor` is baked into the checkpoint, and that prevalence and cases are separately trained
+models with separate scalers. Loading the wrong one returns a prediction for the other quantity.
+No error is raised.
+
+### Causality
+
+The model is **causal**, so the prediction at step $t$ depends only on the inputs at steps
+$1 \dots t$ and never on anything later. The architecture enforces this rather than leaving the
+training to learn it.
+
+The `after_intervention` covariates are zero for every step before day 3285, and the model cannot
+see forward. The first 78 steps are computed as though no campaign were coming. Two scenarios
+that differ only in their campaign share an identical baseline. Any difference between their
+curves is the campaign.
+
+### Model space and natural units
+
+Prevalence is trained in **logit** space and cases in **log1p** space. A proportion trained
+directly on 0–1 can be predicted outside its own bounds, and the logit fixes that. Case counts
+are non-negative and heavily skewed, and `log1p` handles the zeros that a plain log would not.
+
+`predict` inverts the transform by default, so prevalence comes back in $[0, 1]$ and cases come
+back as counts, while passing `transformed=True` returns model space instead, which is what you
+want when computing residuals against training targets.
+
+::: {.callout-note}
+## A note on the word "state"
+
+The *state* in stateMINT is the state of a **state-space model**, a hidden vector carried
+through a linear recurrence that lets the network summarise everything it has seen up to step
+$t$ in fixed memory. `d_state` 128 is the width of that vector.
+
+It is **not** an epidemiological compartment. There is no susceptible, exposed, infected or
+recovered class anywhere in the model. S/I/R dynamics require the simulator.
+:::
+
+## See also
+
+The twelve inputs the emulator takes, and the grid they are laid on, are set out in [Covariates
+and the time grid](../05-statemint/covariates.qmd), and `predict` in practice in [Calling the
+emulator](../05-statemint/the-emulator.qmd).

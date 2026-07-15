@@ -1,0 +1,16 @@
+---
+title: "Core Concepts"
+---
+
+The concepts here are the ideas the two packages rest on, the background a reader wants before
+running any code. They cover how the packages connect, the quantities they move between, the
+interventions they represent, and the models underneath. The rest weighs how far to trust the
+numbers.
+
+::: {.chapter-outline}
+- [The MINTverse pipeline](pipeline.qmd) — the two stages, `run_scenarios`, and the domain limits.
+- [EIR, HBR, prevalence, and cases](equilibrium.qmd) — the four quantities, and which of them are trajectories.
+- [Interventions and nets](interventions.qmd) — the four net types, pyrethroid resistance, and `dn0`.
+- [The models](models.qmd) — three gradient-boosted trees, and one state-space emulator.
+- [Accuracy and speed](validation.qmd) — held-out error against `malariasimulation`, and latency.
+:::

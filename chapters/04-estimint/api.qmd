@@ -1,0 +1,234 @@
+---
+title: "estiMINT API"
+---
+
+```python
+from estimint import (
+    load_xgb_model, run_xgb_model, set_global_model, get_global_model,
+    calculate_dn0, net_types, DN0Result,
+    estimate_eir_with_mosquito_delta,
+    run_scenarios, preload_models,
+)
+from estimint.scenarios import Scenario, EirTarget   # also importable from `estimint`
+```
+
+## Models
+
+### load_xgb_model
+
+```python
+load_xgb_model(path: str | Path | None = None) -> dict
+```
+
+Load one of the three bundled models.
+
+Despite the parameter name, `path` usually takes a **model name**.
+
+| Parameter | Meaning |
+|---|---|
+| `path` | `"prevalence"`, `"hbr"` or `"eir_to_hbr"` to load a bundled model by name. A filesystem path to a `.pkl` file or a JSON model directory also works. `None` loads the prevalence model. |
+
+Returns a dict with keys `class`, `booster`, `calibrator`, `features`, `best_nrounds` and
+`preprocess`. `features` is the authoritative list of the columns that model requires.
+
+| Name | Driving input | Returns |
+|---|---|---|
+| `"prevalence"` | `prev_y9` | EIR |
+| `"eir_to_hbr"` | `eir` | HBR |
+| `"hbr"` | `hbr_y9` | EIR |
+
+```python
+prev_model = load_xgb_model("prevalence")
+prev_model["features"]
+```
+
+Loading unpickles a file, so point `path` only at a model you built.
+
+### run_xgb_model
+
+```python
+run_xgb_model(new_data: pd.DataFrame | dict, model: dict | None = None) -> np.ndarray
+```
+
+Run a loaded model over one or more settings, one prediction per row.
+
+| Parameter | Meaning |
+|---|---|
+| `new_data` | DataFrame (or dict of columns) with the six setting covariates plus that model's driving column. `prevalence` is accepted as an alias for `prev_y9`. |
+| `model` | A model dict from `load_xgb_model`. If `None`, the model registered by `set_global_model` is used, and if none is registered, `ValueError` is raised. |
+
+Returns a `numpy.ndarray` of `float64`, not a Series and not a DataFrame, and a missing column
+raises `ValueError` naming the column it wanted. Extra columns are ignored.
+
+Note that inputs are **clamped** to the range each model was fitted over, with no error raised. `prev_y9` goes
+to `[0.005, 0.80]` and `hbr_y9` to `[5e3, 7e7]`.
+
+```python
+eir = run_xgb_model(
+    pd.DataFrame([{
+        "dn0_use": 0.33, "Q0": 0.87, "phi_bednets": 0.82,
+        "seasonal": 0.0, "itn_use": 0.6, "irs_use": 0.0,
+        "prevalence": 0.30,
+    }]),
+    prev_model,
+)
+```
+
+### set_global_model / get_global_model
+
+```python
+set_global_model(model: dict) -> None
+get_global_model() -> dict | None
+```
+
+Register a default model for `run_xgb_model`, remembering that the slot holds one model. Pass the
+model explicitly if a script touches more than one of the three.
+
+```python
+set_global_model(load_xgb_model("prevalence"))
+run_xgb_model(settings)          # no model argument needed
+```
+
+## Nets
+
+### net_types
+
+```python
+net_types() -> list[str]
+```
+
+The four canonical net names come back in alphabetical order, as
+`['pyrethroid_only', 'pyrethroid_pbo', 'pyrethroid_ppf', 'pyrethroid_pyrrole']`.
+
+### calculate_dn0
+
+```python
+calculate_dn0(resistance_level: float, **usage: float) -> DN0Result
+```
+
+Usage-weighted net lethality for a net mix at a given resistance level.
+
+| Parameter | Meaning |
+|---|---|
+| `resistance_level` | Local pyrethroid resistance, 0 to 1. |
+| `**usage` | One keyword per net type, valued at that type's share of the population. Canonical names and short aliases both work. |
+
+| Alias | Canonical |
+|---|---|
+| `py_only` | `pyrethroid_only` |
+| `py_pbo` | `pyrethroid_pbo` |
+| `py_ppf` | `pyrethroid_ppf` |
+| `py_pyrrole` | `pyrethroid_pyrrole` |
+
+Raises `ValueError` if no net type is supplied, or if a keyword such as the hyphenated
+`"pyrethroid-pbo"` is not a known net type.
+
+```python
+calculate_dn0(0.5, py_pbo=0.6)
+```
+
+### DN0Result
+
+A named tuple with two fields.
+
+| Field | Meaning |
+|---|---|
+| `dn0` | Probability a mosquito dies on contact with a net. The **usage-weighted average** across the mix, so it does not scale with coverage. Feed to `dn0_use`. |
+| `itn_use` | Total ITN coverage. The **sum** of the shares passed in. Feed to `itn_use` as it stands. |
+
+Note that `itn_use` is already the coverage, so multiplying it by a usage fraction a second time
+understates it. The inferred EIR then comes back too low.
+
+## Density
+
+### estimate_eir_with_mosquito_delta
+
+```python
+estimate_eir_with_mosquito_delta(inputs: pd.DataFrame, *, models: dict) -> pd.DataFrame
+```
+
+New equilibrium EIR after a fractional change in mosquito density, by the ratio method in
+[Mosquito density and EIR](mosquito-density.qmd).
+
+| Parameter | Meaning |
+|---|---|
+| `inputs` | One row per scenario, with the columns `prevalence`, `mosquito_delta`, `dn0_use`, `Q0`, `phi_bednets`, `seasonal`, `itn_use` and `irs_use`. |
+| `models` | Keyword-only. A dict holding all three of `"prevalence"`, `"hbr"` and `"eir_to_hbr"`. |
+
+`mosquito_delta` is a fraction greater than `-1`, so `0.25` is a 25% increase and `-0.5` a
+halving, and what comes back is a DataFrame on the index of `inputs`, with the columns
+`eir_baseline`, `eir_new`, `eir_multiplier`, `hbr_baseline` and `hbr_new`.
+
+```python
+models = {
+    "prevalence": load_xgb_model("prevalence"),
+    "hbr": load_xgb_model("hbr"),
+    "eir_to_hbr": load_xgb_model("eir_to_hbr"),
+}
+result = estimate_eir_with_mosquito_delta(inputs, models=models)
+```
+
+## Scenarios
+
+The runner in [Running Scenarios](../06-scenarios/index.qmd) needs stateMINT installed
+alongside estiMINT.
+
+### EirTarget
+
+```python
+EirTarget(input_value: float, input_mode: Literal["prevalence", "eir", "hbr"] = "prevalence")
+```
+
+Note that `mosquito_delta` is honoured only when `input_mode` is `"prevalence"`, and is
+ignored otherwise.
+
+```python
+EirTarget(0.45, "prevalence")
+```
+
+### Scenario
+
+```python
+Scenario(
+    name: str, res_use: float, Q0: float, phi: float, seasonal: float, irs: float,
+    eir_target: EirTarget,
+    py_only=0.0, py_pbo=0.0, py_pyrrole=0.0, py_ppf=0.0,
+    mosquito_delta=0.0,
+    itn_future=0.0, net_type_future=None,
+    irs_future=0.0, routine=0.0, lsm=0.0,
+)
+```
+
+The first seven fields are required, in that order, where `res_use` is the resistance level,
+`phi` is `phi_bednets`, and `irs` is current IRS coverage. The `py_*` fields give the current
+net mix.
+
+Note that the `_future` fields do **not** carry the present forward, so leaving `itn_future` at 0
+models nets being withdrawn at the campaign. `net_type_future` must be underscored, either
+`"py_pbo"` or `"pyrethroid_pbo"`.
+
+### run_scenarios
+
+```python
+run_scenarios(scenarios: list[Scenario], *, hf_repo: str = "dide-ic/stateMINT") -> pd.DataFrame
+```
+
+Run the whole pipeline, one row per scenario, where the `prevalence` and `cases` columns come back
+holding 157-element NumPy arrays in the cells rather than in tidy long form.
+
+```python
+results = run_scenarios([scenario_a, scenario_b])
+```
+
+### preload_models
+
+```python
+preload_models(*, hf_repo: str = "dide-ic/stateMINT") -> tuple[dict, dict]
+```
+
+Load the XGBoost models into memory and fetch the stateMINT weights before the first `run_scenarios` call.
+
+## See also
+
+Please see [stateMINT](../05-statemint/index.qmd) for prevalence and cases, and [The
+models](../03-concepts/models.qmd) for the calibration and smoothing behind these functions.

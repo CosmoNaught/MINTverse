@@ -1,0 +1,13 @@
+---
+title: "estiMINT: EIR and HBR"
+---
+
+estiMINT inverts a measured prevalence or human biting rate into the EIR that would sustain it, and converts between EIR and HBR in both directions. It is the first stage of the [pipeline](../03-concepts/pipeline.qmd), supplying the EIR that stateMINT runs forward. The pages here work through its models, the `calculate_dn0` step behind the net covariates, the mosquito-density route, and the full API.
+
+::: {.chapter-outline}
+- [Nets and dn0](nets-and-dn0.qmd) — `calculate_dn0`, `net_types`, and resistance.
+- [Estimating EIR from prevalence](estimating-eir.qmd) — the `prevalence` model.
+- [EIR and HBR](eir-and-hbr.qmd) — the `hbr` and `eir_to_hbr` models, and the error in converting back.
+- [Mosquito density and EIR](mosquito-density.qmd) — `estimate_eir_with_mosquito_delta`.
+- [estiMINT API](api.qmd) — every function and dataclass.
+:::

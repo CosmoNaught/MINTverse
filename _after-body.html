@@ -1,0 +1,18 @@
+<!-- Move the page breadcrumb into the header bar, after the brand. -->
+<script>
+(function () {
+  function moveBreadcrumb() {
+    var brand = document.querySelector("#quarto-header .navbar-brand-container");
+    var crumbs = document.querySelector("#title-block-header nav.quarto-title-breadcrumbs");
+    if (brand && crumbs && !brand.contains(crumbs)) {
+      crumbs.classList.add("mint-navbar-breadcrumbs");
+      brand.appendChild(crumbs);
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", moveBreadcrumb);
+  } else {
+    moveBreadcrumb();
+  }
+})();
+</script>

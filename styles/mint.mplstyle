@@ -1,0 +1,48 @@
+# Figure style for the MINTverse site. Panels are transparent so the page
+# background shows through.
+
+figure.facecolor:  none
+axes.facecolor:    none
+savefig.facecolor: none
+savefig.transparent: True
+savefig.bbox:      tight
+savefig.dpi:       160
+figure.figsize:    7.2, 4.0
+
+axes.prop_cycle: cycler('color', ['3987e5', '199e70', 'c98500', '9085e9', 'e66767', 'd55181'])
+
+axes.edgecolor:   3a4150
+axes.labelcolor:  c9ccd4
+axes.titlecolor:  f5f5f7
+axes.titlesize:   11
+axes.titleweight: 600
+axes.titlelocation: left
+axes.titlepad:    10
+axes.labelsize:   10
+axes.spines.top:   False
+axes.spines.right: False
+
+axes.grid:      True
+grid.color:     2a3040
+grid.linewidth: 0.7
+grid.alpha:     0.9
+
+text.color:      f5f5f7
+xtick.color:     8b93a3
+ytick.color:     8b93a3
+xtick.labelcolor: c9ccd4
+ytick.labelcolor: c9ccd4
+xtick.labelsize: 9
+ytick.labelsize: 9
+xtick.direction: out
+ytick.direction: out
+
+lines.linewidth:  2.0
+lines.markersize: 5.5
+lines.solid_capstyle: round
+
+legend.frameon:    False
+legend.fontsize:   9
+legend.labelcolor: c9ccd4
+
+font.size: 10

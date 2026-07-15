@@ -1,0 +1,18 @@
+// Shared bootstrap var overrides; imported after each theme's palette vars.
+
+$body-bg:    $page-bg;
+$body-color: $body-text;
+$primary:    $accent;
+$link-color: $accent;
+$link-hover-color: $accent-hover;
+
+$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+$font-family-monospace: SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+$headings-font-weight: 600;
+
+$navbar-bg: $chrome-bg;
+$navbar-fg: $chrome-fg;
+
+$code-color: $inline-code-fg;
+$code-bg: $inline-code-bg;
+$border-color: $border;

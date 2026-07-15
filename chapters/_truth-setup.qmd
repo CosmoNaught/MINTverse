@@ -1,0 +1,41 @@
+```{python}
+#| include: false
+# Data exported by misc/export_truth.py. Not regenerated at render time.
+import matplotlib.pyplot as plt
+import pandas as pd
+
+plt.style.use("styles/mint.mplstyle")
+
+TRUTH = "#f5f5f7"       # malariasimulation, averaged over its stochastic runs
+PIPELINE = "#e66767"    # measured prevalence -> estiMINT -> stateMINT
+EMULATOR = "#199e70"    # stateMINT given the simulator's own EIR
+RUNS = "#8b93a3"        # the individual stochastic runs
+
+truth = pd.read_csv("data/truth/edge_cases.csv")
+truth_meta = pd.read_csv("data/truth/edge_cases_meta.csv")
+
+
+def truth_panel(ax, case_id, predictor="prevalence", emulator=True, runs=True):
+    """Draw one held-out parameter set: the simulator, the pipeline, and the emulator."""
+    d = truth[(truth.case_id == case_id) & (truth.predictor == predictor)]
+
+    if runs:
+        for _, g in d[d.series == "run"].groupby("run_id"):
+            ax.plot(g.years_from_campaign, g.value, color=RUNS, alpha=0.3, lw=0.7, zorder=1)
+
+    # The simulator is drawn widest and underneath, so it reads as a band.
+    layers = [("malariasim", TRUTH, 3.4, "-", 2), ("pipeline", PIPELINE, 1.8, "-", 4)]
+    if emulator:
+        layers.append(("emulator", EMULATOR, 1.5, (0, (4, 2.6)), 5))
+    for series, colour, lw, ls, z in layers:
+        g = d[d.series == series]
+        ax.plot(g.years_from_campaign, g.value, color=colour, lw=lw, ls=ls, zorder=z)
+
+    ax.axvline(0, color=RUNS, ls="--", lw=0.9, alpha=0.7, zorder=2)
+    return ax
+
+
+def truth_title(case_id):
+    row = truth_meta[truth_meta.case_id == case_id].iloc[0]
+    return row.description.replace(" - ", ", ")
+```

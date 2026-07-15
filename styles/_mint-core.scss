@@ -1,0 +1,737 @@
+// Shared rules for both themes; colours are palette vars from theme-{dark,light}.scss.
+// $term-* surfaces and .mint-hero stay dark in both modes.
+
+body {
+  background-color: $page-bg;
+}
+
+// ---- navbar brand: "MINTverse" wordmark, matches the header chrome ----
+.navbar .navbar-brand,
+.navbar .navbar-brand:hover,
+.navbar .navbar-brand:focus,
+.navbar .navbar-brand .navbar-title,
+.navbar .navbar-brand:hover .navbar-title,
+.navbar .navbar-brand:focus .navbar-title {
+  color: $chrome-fg !important;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+.navbar .navbar-brand .navbar-logo {
+  max-height: 30px;
+  width: auto;
+  margin-right: 0.6rem;
+}
+// gradient wordmark in the header (the sidebar's copy is hidden)
+.navbar .navbar-brand .navbar-title {
+  background: linear-gradient(90deg, $mint 0%, $mint-bright 55%, $blue 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+// the wordmark links home
+.navbar .navbar-brand { cursor: pointer; }
+// navbar tools (GitHub icon, colour-scheme toggle): chrome at rest, accent on hover
+.navbar .nav-link,
+.navbar .quarto-navigation-tool,
+.navbar .quarto-color-scheme-toggle { color: $chrome-fg !important; }
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .quarto-navigation-tool:hover,
+.navbar .quarto-navigation-tool:focus,
+.navbar .quarto-color-scheme-toggle:hover,
+.navbar .quarto-color-scheme-toggle:focus { color: $accent !important; }
+
+// Toggle icon: show the ON switch in dark mode and the OFF switch in light,
+// keyed on the body's mode class rather than Quarto's primary/alternate scheme.
+// The icon is a filled SVG background `color` can't tint, so mask its shape and
+// paint it — chrome colour at rest, accent on hover (matching the GitHub icon).
+body.quarto-dark .navbar .quarto-color-scheme-toggle .bi::before,
+body.quarto-light .navbar .quarto-color-scheme-toggle .bi::before {
+  background-image: none;
+  background-color: $chrome-fg;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem 1rem;
+  mask-size: 1rem 1rem;
+}
+body.quarto-dark .navbar .quarto-color-scheme-toggle .bi::before {
+  -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>');
+  mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>');
+}
+body.quarto-light .navbar .quarto-color-scheme-toggle .bi::before {
+  -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/></svg>');
+  mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/></svg>');
+}
+body.quarto-dark .navbar .quarto-color-scheme-toggle:hover .bi::before,
+body.quarto-dark .navbar .quarto-color-scheme-toggle:focus .bi::before,
+body.quarto-light .navbar .quarto-color-scheme-toggle:hover .bi::before,
+body.quarto-light .navbar .quarto-color-scheme-toggle:focus .bi::before {
+  background-color: $accent;
+}
+
+// the header bar stays put on scroll (neutralise Quarto's headroom.js slide)
+#quarto-header.headroom { transition: none !important; }
+#quarto-header.headroom--unpinned,
+#quarto-header.headroom--pinned { transform: none !important; }
+
+// ---- page breadcrumb, pulled into the header by _after-body.html ----
+.navbar .navbar-brand-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  column-gap: 0.5rem;
+}
+.navbar .mint-navbar-breadcrumbs { min-width: 0; }
+.navbar .mint-navbar-breadcrumbs .breadcrumb {
+  --bs-breadcrumb-divider-color: #{$muted-text};
+  margin: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  font-size: 1.0rem;
+  font-weight: 600;
+}
+.navbar .mint-navbar-breadcrumbs .breadcrumb-item:first-child::before {
+  content: ">";
+  float: none;
+  color: $muted-text;
+  padding-right: 0.5rem;
+}
+.navbar .mint-navbar-breadcrumbs .breadcrumb-item a,
+.navbar .mint-navbar-breadcrumbs .breadcrumb li:last-of-type a {
+  color: $chrome-fg !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.navbar .mint-navbar-breadcrumbs .breadcrumb-item a:hover,
+.navbar .mint-navbar-breadcrumbs .breadcrumb li:last-of-type a:hover { color: $accent !important; text-decoration: none; }
+
+// titles / headings; section numbers in the accent
+main h1, h1.title,
+main h2,
+main h3, main h4       { color: $heading-text; }
+.header-section-number { color: $accent; }
+
+// links in the accent, brighter on hover
+a        { color: $accent; }
+a:hover  { color: $accent-hover; }
+
+// active sidebar item picks up the accent
+.sidebar-item-text.active,
+.sidebar-item .active { color: $accent !important; font-weight: 600; }
+.sidebar nav[role="doc-toc"] ul > li > a.active,
+.sidebar nav[role="doc-toc"] ul > li > ul > li > a.active,
+#TOC .nav-link.active {
+  color: $accent !important;
+  border-left-color: $accent !important;
+  font-weight: 700;
+}
+.sidebar nav[role="doc-toc"] ul > li > a:hover,
+#TOC .nav-link:hover { color: $accent !important; }
+
+// wide display equations stay inside the text column
+.math.display {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+mjx-container[display="true"] { max-width: 100%; }
+
+// a little more line height for prose
+main p { line-height: 1.7; }
+
+// ---- callouts: tint the default Quarto callouts to the MINTverse palette ----
+div.callout { border-radius: 10px; background: $surface; }
+div.callout.callout-style-default > .callout-header { background: $overlay-subtle; }
+.callout.callout-note  { border-left-color: $blue; }
+.callout.callout-tip   { border-left-color: $mint; }
+.callout.callout-important { border-left-color: $violet; }
+.callout.callout-warning, .callout.callout-caution { border-left-color: #d9a441; }
+
+// ---- RStudio asides: violet spine, exclamation badge, no Quarto icon ----
+.callout.callout-note.rstudio { border-left-color: $violet; }
+.callout-note.rstudio .callout-icon-container { display: none; }
+.callout-note.rstudio .callout-title-container { display: flex; align-items: center; }
+.callout-note.rstudio .callout-title-container::before {
+  content: "!";
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: $violet;
+  color: #fff;
+  font-family: $font-family-sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+// tables
+.table { --bs-table-color: #{$body-text}; --bs-table-border-color: #{$border}; }
+thead th { color: $heading-text; border-bottom-color: $mint !important; }
+
+// ---- chapter / part landing-page outline (contents list) ----
+// no bullets, no underlines, a mint rule down the left
+.chapter-outline > ul {
+  list-style: none !important;
+  margin: 0.75rem 0 0 0;
+  padding-left: 1.1rem;
+  border-left: 3px solid $mint !important;
+}
+.chapter-outline ul ul {
+  list-style: none !important;
+  margin: 0.2rem 0;
+  padding-left: 1.4rem;
+  border-left: none;
+}
+.chapter-outline li { margin: 0.3rem 0; }
+.chapter-outline a { text-decoration: none !important; color: $body-text; }
+.chapter-outline a:hover { color: $accent; text-decoration: none !important; }
+.chapter-outline > ul > li > a { font-size: 1.15rem; font-weight: 600; }
+.chapter-outline ul ul a { font-size: 0.95rem; font-weight: 400; }
+
+// ---- platform tabsets (Linux / macOS / Windows), grouped on `os` ----
+.panel-tabset > .nav-tabs {
+  gap: 0.25rem;
+  border-bottom: 1px solid $border;
+}
+.panel-tabset > .nav-tabs .nav-link {
+  padding: 0.4rem 0.85rem;
+  color: $muted-text;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.panel-tabset > .nav-tabs .nav-link:hover { color: $body-text; border-bottom-color: $border; }
+.panel-tabset > .nav-tabs .nav-link.active {
+  color: $accent;
+  background: none;
+  border-bottom-color: $accent;
+}
+.panel-tabset > .tab-content {
+  padding: 0.9rem 0 0;
+  border: none;
+  background: none;
+}
+.panel-tabset > .tab-content > .tab-pane > :first-child { margin-top: 0; }
+.panel-tabset > .tab-content > .tab-pane > :last-child { margin-bottom: 0; }
+
+// ---- code: panels with a mint spine; token colours come from the adaptive
+//      atom-one highlight style, so the source panel follows the mode ----
+div.sourceCode {
+  background: $surface-2 !important;
+  border: 1px solid $border;
+  border-left: 3px solid $mint;
+  border-radius: 8px;
+}
+pre.sourceCode, pre { background: transparent !important; }
+:not(pre) > code { background: $code-bg; color: $code-color; border-radius: 4px; padding: 0.1em 0.35em; }
+
+// ---- executed code cells: set OUTPUT apart from SOURCE (Jupyter style).
+//      $term-* is the same dark "terminal" surface in both modes. ----
+.cell { margin: 1.15rem 0; }
+.cell > div.sourceCode { margin-bottom: 0; }
+.cell-output {
+  margin: 0;
+  background: $term-bg;
+  border: 1px solid $term-border;
+  border-left: 3px solid $blue;        // blue spine = "this is output"
+  border-radius: 0 0 8px 8px;
+  overflow-x: auto;
+}
+
+// `echo: false` cells have no source block above, so round all four corners.
+.cell > .cell-output:first-child { border-radius: 8px 8px 0 0; }
+
+// A cell that prints and then displays emits two sibling outputs. Collapse into one panel.
+.cell > .cell-output + .cell-output { border-top: none; }
+.cell > .cell-output:not(:last-child) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.cell > .cell-output:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.cell-output::before {
+  content: "Output";
+  display: block;
+  font-family: $font-family-sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $term-muted;
+  padding: 0.4rem 0.9rem 0;
+}
+.cell > .cell-output + .cell-output::before { content: none; padding: 0; }
+
+// text output pads itself
+.cell-output > pre,
+.cell-output pre {
+  margin: 0;
+  padding: 0.4rem 0.9rem 0.7rem;
+  background: none !important;
+  border: none !important;
+  font-family: $font-family-monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: $term-fg;
+  white-space: pre;
+}
+
+// non-<pre> output (DataFrame div, Styler table, figure) pads here instead
+.cell-output-display > div,
+.cell-output-display > table { padding: 0 0.9rem 0.75rem; margin: 0; }
+
+// tables sit on the terminal panel, so no border or background of their own
+.cell-output-display table.dataframe,
+.cell-output-display table.table {
+  margin: 0.15rem 0 0;
+  width: auto;
+  max-width: 100%;
+  border: none;
+  color: $term-fg;
+  --bs-table-color: #{$term-fg};
+  --bs-table-border-color: #{$term-border};
+  --bs-table-bg: transparent;
+  --bs-table-accent-bg: transparent;
+  --bs-table-striped-bg: #{$term-stripe};
+  --bs-table-striped-color: #{$term-fg};
+}
+.cell-output-display table th,
+.cell-output-display table td {
+  border-color: $term-border;
+  white-space: nowrap;
+}
+
+// mint.mplstyle figures are transparent, so the panel is the figure background
+.cell-output-display .quarto-figure,
+.cell-output-display figure.figure,
+.cell-output-display figure.figure > p { margin: 0; }
+.cell-output-display .figure-img { margin-bottom: 0; }
+.cell-output-display figcaption {
+  margin: 0.55rem 0 0;
+  color: $term-muted;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+// ---- static output blocks (```text fences): same panel and label as a live result ----
+pre.text {
+  background: $term-bg !important;
+  border: 1px solid $term-border;
+  border-left: 3px solid $blue;
+  border-radius: 8px;
+  margin: 0.5rem 0 1.2rem;
+  padding: 0;
+  overflow-x: auto;
+  font-family: $font-family-monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: $term-fg;
+}
+pre.text::before {
+  content: "Output";
+  display: block;
+  font-family: $font-family-sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $term-muted;
+  padding: 0.4rem 0.9rem 0;
+}
+pre.text > code {
+  display: block;
+  padding: 0.4rem 0.9rem 0.7rem;
+  background: none !important;
+  color: inherit;
+  white-space: pre;
+}
+
+// ---- diagrams (```{.text .diagram}): panel, violet spine, no "Output" label ----
+pre.text.diagram {
+  background: $term-bg-2 !important;
+  border-left-color: $violet;
+  padding: 0.55rem 0.9rem;
+}
+pre.text.diagram::before { content: none; padding: 0; }
+pre.text.diagram > code { padding: 0; }
+
+// ---- bottom prev/next navigation, a mint gradient bar (both modes) ----
+.page-navigation {
+  display: flex;
+  margin-top: 3rem;
+  background: linear-gradient(90deg, $blue 0%, $mint 100%);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.page-navigation .nav-page { flex: 1 1 0; }
+.page-navigation .nav-page-next { text-align: right; }
+.page-navigation .nav-page a {
+  display: block;
+  padding: 0.9rem 1.25rem;
+  color: #04221c !important;            // dark ink reads well on the mint bar
+  text-decoration: none !important;
+  font-weight: 700;
+}
+.page-navigation .nav-page a:hover { color: #000 !important; text-decoration: underline !important; }
+
+// ---- page footer: a chrome bar across the bottom of every page ----
+.nav-footer {
+  background: $chrome-bg;
+  border-top: 1px solid $border;
+  color: $muted-text;
+  font-size: 0.9rem;
+}
+.nav-footer a { color: $accent; text-decoration: none; }
+.nav-footer a:hover { color: $accent-hover; text-decoration: underline; }
+
+// ===========================================================================
+//  HOME / LANDING PAGE
+// ===========================================================================
+.mint-landing {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0.5rem 0 3rem;
+  color: $body-text;
+  text-align: center;
+}
+
+// hero: a glass card, dark in both modes (its gradient endpoints and tints need a dark surface)
+.mint-hero {
+  position: relative;
+  margin: 1rem auto 0;
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 3rem);
+  border-radius: 24px;
+  border: 1px solid $term-border;
+  background:
+    linear-gradient(135deg, rgba(0, 212, 170, 0.06), rgba(0, 113, 227, 0.03)),
+    #0b0e13;
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.mint-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px 240px at 50% -10%, rgba(0, 212, 170, 0.18), transparent 70%);
+  pointer-events: none;
+}
+.mint-eyebrow {
+  position: relative;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: $mint;
+  margin: 0 0 0.9rem;
+}
+.mint-wordmark {
+  position: relative;
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0;
+  background: linear-gradient(90deg, #fff 0%, $mint 30%, $mint-bright 50%, $blue 75%, #fff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(0, 212, 170, 0.25));
+}
+.mint-subtitle {
+  position: relative;
+  color: $term-fg;
+  font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 1rem auto 0;
+  max-width: 620px;
+}
+.mint-edition {
+  position: relative;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: $term-muted;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+.mint-pill-version {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #04221c;
+  background: linear-gradient(135deg, $mint, $mint-bright);
+}
+
+// action buttons (on the dark hero in both modes)
+.mint-actions { position: relative; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-top: 1.75rem; }
+.mint-btn {
+  display: inline-block;
+  padding: 0.7rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none !important;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.mint-btn-primary {
+  background: linear-gradient(135deg, $mint, $mint-bright);
+  color: #04221c !important;
+  box-shadow: 0 4px 24px rgba(0, 212, 170, 0.3);
+}
+.mint-btn-primary:hover,
+.mint-btn-primary:focus { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(0, 212, 170, 0.45); color: #000 !important; }
+.mint-btn-ghost {
+  background: rgba(0, 113, 227, 0.06);
+  color: $term-fg !important;
+  border-color: rgba(0, 113, 227, 0.5);
+}
+.mint-btn-ghost:hover,
+.mint-btn-ghost:focus { transform: translateY(-2px); color: $mint !important; border-color: rgba(0, 212, 170, 0.6); background: rgba(0, 212, 170, 0.06); }
+
+// feature cards row (follows the mode)
+.mint-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 2.75rem;
+}
+.mint-card {
+  text-align: left;
+  padding: 1.5rem;
+  border-radius: 18px;
+  border: 1px solid $border;
+  background: linear-gradient(135deg, $card-tint-1, $card-tint-2);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1), border-color .35s ease, box-shadow .35s ease;
+}
+.mint-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0, 212, 170, 0.3);
+  box-shadow: 0 18px 40px rgba(0, 212, 170, 0.12);
+}
+.mint-card h3 { color: $accent !important; font-size: 1.05rem; font-weight: 700; margin: 0 0 0.5rem; }
+.mint-card p  { color: $muted-text; font-size: 0.92rem; line-height: 1.55; margin: 0; }
+
+// full-width sections below the hero
+.mint-section { margin-top: 3.5rem; }
+.mint-section-heading { color: $heading-text; font-size: 1.55rem; font-weight: 600; margin: 0 0 1.1rem; text-align: center; }
+.mint-section-heading-accent { color: $accent !important; }
+
+// changelog — accent bracketed date + mint left rule
+.mint-changelog { list-style: none; margin: 0; padding: 0; text-align: left; }
+.mint-changelog-item {
+  margin: 0 0 1rem;
+  padding: 0.1rem 0 0.1rem 1.1rem;
+  border-left: 3px solid $mint;
+  line-height: 1.6;
+}
+.mint-changelog-item:last-child { margin-bottom: 0; }
+.mint-changelog-date { color: $accent; font-weight: 700; margin-right: 0.4rem; white-space: nowrap; }
+.mint-changelog-body { color: $body-text; }
+
+// landing table of contents — full width, left-aligned, mint left rules
+.mint-toc { max-width: none; margin: 0; text-align: left; }
+.mint-toc a { color: $body-text; text-decoration: none; }
+.mint-toc a:hover { color: $accent; text-decoration: underline; }
+.mint-toc-num { color: $accent; font-weight: 700; display: inline-block; min-width: 2.4rem; }
+.mint-toc-front, .mint-toc-back { list-style: none; padding: 0; margin: 0; }
+.mint-toc-front {
+  margin: 0 0 1.4rem;
+  padding-left: 1.1rem;
+  border-left: 3px solid $mint;
+}
+.mint-toc-front li { margin: 0.45rem 0; }
+.mint-toc-front a { font-size: 1.1rem; font-weight: 600; }
+.mint-toc-chapters { list-style: none; padding: 0; margin: 0; border-left: 3px solid $mint; }
+.mint-toc-ch { padding-left: 1.1rem; margin: 0.7rem 0; }
+.mint-toc-ch > a { font-size: 1.1rem; font-weight: 600; }
+.mint-toc-back {
+  margin-top: 1.4rem;
+  padding-left: 1.1rem;
+  border-left: 3px solid $mint;
+}
+.mint-toc-back a { font-size: 1.1rem; font-weight: 600; }
+
+// landing install + BibTeX blocks
+.mint-codeblock {
+  background: $surface-2;
+  border: 1px solid $border;
+  border-left: 3px solid $mint;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 0 auto;
+  max-width: 680px;
+  text-align: left;
+  overflow-x: auto;
+}
+.mint-codeblock code {
+  font-family: $font-family-monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: $body-text;
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
+// shared keyboard focus ring
+.mint-landing a:focus-visible { outline: 3px solid rgba(0, 212, 170, 0.5); outline-offset: 2px; border-radius: 6px; }
+
+// responsive: stack on narrow screens
+@media (max-width: 820px) {
+  .mint-features { grid-template-columns: 1fr; }
+}
+
+// Full-width fixed header; sidebar fixed below it. The !important flags beat
+// Quarto's .sidebar{will-change:top} containing-block trap and quarto-nav.js's
+// inline top/maxHeight writes.
+$mint-sidebar-w: 300px;
+$mint-header-h: 3.9rem;
+
+@media (min-width: 992px) {
+  // the sidebar starts BELOW the header line and fills the rest of the viewport
+  #quarto-sidebar.docked {
+    position: fixed !important;
+    top: $mint-header-h !important;
+    left: 0 !important;
+    width: $mint-sidebar-w !important;
+    min-width: $mint-sidebar-w !important;
+    max-width: $mint-sidebar-w !important;
+    height: calc(100vh - #{$mint-header-h}) !important;
+    height: calc(100dvh - #{$mint-header-h}) !important;
+    max-height: calc(100vh - #{$mint-header-h}) !important;
+    max-height: calc(100dvh - #{$mint-header-h}) !important;
+    display: flex;
+    flex-direction: column;
+    will-change: auto !important;
+    transition: none !important;
+    overflow: hidden !important;
+    border-right: none !important;
+    background: $chrome-bg;
+    z-index: 1029;
+  }
+
+  // the header spans the full width across the top
+  #quarto-header.fixed-top { left: 0; }
+  #quarto-header.fixed-top,
+  #quarto-header.fixed-top .navbar {
+    height: $mint-header-h !important;
+    min-height: $mint-header-h !important;
+    border-bottom: 1px solid $border;
+    box-shadow: 0 1px 0 rgba(0, 212, 170, 0.18);
+  }
+
+  // the site brand lives in the header now, so the sidebar's own copy is hidden
+  #quarto-sidebar .sidebar-header { display: none !important; }
+
+  // brand + breadcrumb sit at the top-left of the full-width header
+  .navbar .navbar-brand-container {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+
+  // only the nav list scrolls; the search box stays pinned at the sidebar top
+  #quarto-sidebar .sidebar-menu-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  // landing content (full layout): span the grid and inset by the sidebar
+  // width so the centred `.mint-landing` sits dead-centre of the visible zone.
+  .page-layout-full #quarto-document-content {
+    grid-column: 1 / -1 !important;
+    max-width: none !important;
+    padding-left: $mint-sidebar-w !important;
+    padding-right: 0 !important;
+  }
+
+  // every other page: rebuild the grid with flexible gutters on both sides of
+  // the body+TOC block so it sits dead-centre of the zone right of the sidebar.
+  #quarto-content.page-columns:not(.page-layout-full) {
+    grid-template-columns:
+      [screen-start screen-start-inset page-start page-start-inset body-start-outset] #{$mint-sidebar-w}
+      [body-start] minmax(2em, 1fr)
+      [body-content-start] minmax(0, 860px)
+      [body-content-end] minmax(2.5em, 4em)
+      [body-end] minmax(0, 240px)
+      [body-end-outset page-end-inset page-end] minmax(2em, 1fr)
+      [screen-end-inset screen-end] !important;
+  }
+
+  // right-hand TOC pinned just under the banner, scrolls internally when long
+  #quarto-margin-sidebar {
+    position: sticky !important;
+    top: calc(#{$mint-header-h} + 1rem);
+    align-self: start;
+    max-height: calc(100vh - #{$mint-header-h} - 2rem);
+    overflow-y: auto;
+    background: transparent;
+    z-index: 1;
+  }
+
+  // footer: full-bleed chrome bar across the whole page width
+  .nav-footer {
+    grid-column: 1 / -1 !important;
+    width: 100%;
+    max-width: none !important;
+    height: $mint-header-h !important;
+    min-height: $mint-header-h !important;
+    padding: 0 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  // prev/next bar: stretch from the sidebar edge to the page edge
+  .page-navigation {
+    grid-column: 1 / -1 !important;
+    margin-left: #{$mint-sidebar-w} !important;
+  }
+}
+
+// docked sidebar surface
+#quarto-sidebar.docked { background: $chrome-bg; }
+.sidebar-navigation .sidebar-item-text { color: $body-text; }
+.sidebar-navigation .sidebar-item-text:hover { color: $accent; }
+.sidebar .sidebar-section .sidebar-item { color: $body-text; }
+
+// sidebar brand: wordmark only; the icon is hidden but still used as the favicon
+.sidebar-header .sidebar-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none !important;
+}
+.sidebar-header .sidebar-logo { display: none !important; }
+.sidebar-header .sidebar-logo-link::after {
+  content: "MINTverse";
+  background: linear-gradient(90deg, $mint 0%, $mint-bright 60%, $blue 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
