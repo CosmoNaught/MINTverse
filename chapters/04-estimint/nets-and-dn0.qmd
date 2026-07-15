@@ -91,11 +91,29 @@ setting is judged to need.
 
 ## Resistance and dn0
 
-Holding usage at 1.0 isolates each formulation's resistance response.
+`dn0` is not a property of a net alone but of a net at a resistance level, so the direction of
+the mapping is (net type, resistance) to `dn0`. The values come from a table that ships with the
+package, `estimint/data/itn_dn0.csv`, which holds a `dn0` for each net type at each of 101
+resistance levels from 0.00 to 1.00.
 
 ```{python}
+from pathlib import Path
+import estimint
 import pandas as pd
 
+itn_dn0 = pd.read_csv(Path(estimint.__file__).parent / "data" / "itn_dn0.csv")
+
+print(itn_dn0.groupby("net_type").size().rename("rows").to_string())
+print()
+print(itn_dn0.head(3).to_string(index=False))
+```
+
+`calculate_dn0` reads that table once, fits a spline through the 101 points for each net type, and
+evaluates it at the resistance you pass, so a resistance between two tabulated levels is
+interpolated rather than rounded. Holding usage at 1.0 for one net type at a time traces each
+curve.
+
+```{python}
 levels = [0.0, 0.25, 0.50, 0.75, 1.0]
 
 table = pd.DataFrame(
@@ -119,21 +137,20 @@ through the `lsm` term instead. The curves come from the same source `malariasim
 ## A net the table does not have
 
 The emulator never sees a net name. It sees `dn0_use` and `dn0_future`, two numbers on a
-continuous scale, so a net the resistance table does not carry is not a new category to the model
-but a different value of a number it already takes.
+continuous scale, so a net the table does not carry is not a new category to the model but a
+different value of a number it already takes. The simplest way to model one is to compute or look
+up its killing probability and pass it as `dn0_use` (and `dn0_future`) straight to the emulator,
+the way [Calling the emulator](../05-statemint/the-emulator.qmd) builds a covariate dictionary by
+hand. `net_types` and `calculate_dn0` are a convenience layer over the table, and you can supply
+the number they would have produced instead.
 
-To model one, compute or look up its killing probability and pass it as `dn0_use` (and
-`dn0_future`) straight to the emulator, the way [Calling the
-emulator](../05-statemint/the-emulator.qmd) builds a covariate dictionary by hand. `net_types` and
-`calculate_dn0` are the convenience layer that turns a named mix into that number, and you can
-supply the number directly instead.
-
-To register a net as a named type usable from `calculate_dn0` and `Scenario`, add its
-resistance-to-`dn0` curve as rows in `estimint/data/itn_dn0.csv`, one `resistance, dn0, net_type`
-triple per point, and add the name to the alias map in `estimint/bednet.py`. `net_types` reads the
-curve from the CSV, while `calculate_dn0` validates the keyword against the alias map, so a name
-present in only one of the two is either unusable or invisible. Note that this edits the installed
-package, so it belongs in a fork rather than in a caller's script.
+To register a net as a named type usable from `calculate_dn0` and `Scenario`, add it to the table
+in two places. First, append its curve to `itn_dn0.csv` as one `resistance, dn0, net_type` row per
+resistance level, using the same 0.00 to 1.00 grid the four built-in types use. Second, add its
+name to the alias map `_NET_TYPES` in `estimint/bednet.py`, since `net_types` reads the curve from
+the CSV while `calculate_dn0` validates the keyword against that map. A name present in only one of
+the two is either unusable or invisible. Note that both edits are to the installed package, so
+they belong in a fork rather than in a caller's script.
 
 ## Caveats
 
