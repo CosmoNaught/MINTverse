@@ -2,11 +2,7 @@
 title: "estiMINT: EIR and HBR"
 ---
 
-estiMINT supplies the EIR the emulator runs from. It inverts a prevalence or an HBR into the
-EIR that would sustain it, and converts between EIR and HBR in both directions.
-
-Everything it returns is an equilibrium value at the campaign. The trajectories come from
-[stateMINT](../05-statemint/index.qmd).
+estiMINT inverts a measured prevalence or human biting rate into the EIR that would sustain it, and converts between EIR and HBR in both directions. It is the first stage of the [pipeline](../03-concepts/pipeline.qmd), supplying the EIR that stateMINT runs forward. The pages here work through its models, the `calculate_dn0` step behind the net covariates, the mosquito-density route, and the full API.
 
 ::: {.chapter-outline}
 - [Nets and dn0](nets-and-dn0.qmd) — `calculate_dn0`, `net_types`, and resistance.
@@ -15,23 +11,3 @@ Everything it returns is an equilibrium value at the campaign. The trajectories 
 - [Mosquito density and EIR](mosquito-density.qmd) — `estimate_eir_with_mosquito_delta`.
 - [estiMINT API](api.qmd) — every function and dataclass.
 :::
-
-## The three models
-
-estiMINT ships three gradient-boosted models inside the wheel, each mapping one driving input
-to one output while holding the same six covariates fixed. Nothing is downloaded. Pick the model
-whose driving input you measured.
-
-| Model name | Driving input | Output |
-|---|---|---|
-| `"prevalence"` | `prev_y9` (parasite prevalence) | EIR |
-| `"eir_to_hbr"` | `eir` | HBR |
-| `"hbr"` | `hbr_y9` (human biting rate) | EIR |
-
-Each model is named for its *input*, so the model named `"hbr"` takes an HBR and returns an EIR.
-
-All three are loaded by name with `load_xgb_model` and called with `run_xgb_model`, and the six
-shared covariates (`dn0_use`, `Q0`, `phi_bednets`, `seasonal`, `itn_use` and `irs_use`) describe
-the setting, though two of them are not survey quantities at all and come out of `calculate_dn0`
-instead. Most errors made with the package start there. Please see
-[Nets and dn0](nets-and-dn0.qmd) for that calculation.

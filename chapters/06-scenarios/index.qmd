@@ -2,13 +2,10 @@
 title: "Running Scenarios"
 ---
 
-`run_scenarios` takes a list of settings and campaigns and returns one row for each, with the
-scalar summaries and the full trajectories side by side. It derives `dn0` from the net mix and
-the resistance level, inverts whatever transmission measure was supplied, applies any
-mosquito-density adjustment, and runs the emulator over the 157-window grid.
-
-It is exported from `estimint` but drives both packages. Nothing is imported from `stateMINT`
-directly.
+`run_scenarios` drives the whole pipeline from a list of settings and campaigns and returns one
+row for each. It is exported from `estimint` but drives both packages, and nothing is imported
+from `stateMINT` directly. The pages that follow build a `Scenario`, run a grid of campaigns
+against a shared baseline, and compare and export the trajectories and cases that come back.
 
 ::: {.chapter-outline}
 - [Running scenarios](run-scenarios.qmd) — `Scenario`, `EirTarget`, and the returned columns.
@@ -16,11 +13,3 @@ directly.
 - [Trajectories and cases](comparing.qmd) — prevalence, clinical incidence, and cases averted.
 - [Exporting results](exporting.qmd) — CSV, and a tidy table R can read.
 :::
-
-Two ways of driving the API run through the pages that follow, the first varying every axis at
-once, with all three input modes, all four net products, both seasonality settings, and
-mosquito-density adjustments in either direction. The second holds one setting fixed and varies
-only the campaign, so that any difference between the rows is caused by the campaign and nothing
-else, that setting being under-5 prevalence 0.45, pyrethroid resistance 0.30, pyrethroid-only
-nets at 0.70 coverage, `Q0 = 0.85`, `phi_bednets = 0.80`, perennial transmission, and neither IRS
-nor LSM in place. It is the same district throughout.

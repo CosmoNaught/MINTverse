@@ -2,18 +2,10 @@
 title: "stateMINT: the emulator"
 ---
 
-stateMINT takes an EIR, the setting it belongs to, and the campaign under evaluation, and
-returns prevalence and clinical-case trajectories over six years, three before the campaign and
-three after. The EIR comes from [estiMINT](../04-estimint/index.qmd).
-
-It emulates [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), which takes
-minutes per scenario. Trained on a library of those runs, stateMINT reproduces their output in
-milliseconds, so a fifty-scenario batch runs in under a second on a laptop CPU. Like any
-emulator it is trustworthy only inside the range it was trained on.
-
-The weights live on Hugging Face at
-[`dide-ic/stateMINT`](https://huggingface.co/dide-ic/stateMINT), two checkpoints of about 38 MB,
-one for prevalence and one for cases. The first call downloads and caches them.
+stateMINT emulates [`malariasimulation`](https://mrc-ide.github.io/malariasimulation/), returning
+the prevalence and clinical-case trajectories the simulator would produce for a given setting and
+campaign. It runs from an EIR that [estiMINT](../04-estimint/index.qmd) supplies, the second stage
+of [the pipeline](../03-concepts/pipeline.qmd).
 
 ::: {.chapter-outline}
 - [Covariates and the time grid](covariates.qmd) — the twelve covariates, and the 157 windows.
@@ -22,15 +14,3 @@ one for prevalence and one for cases. The first call downloads and caches them.
 - [Performance and caching](performance.qmd) — cold start, batching, and the GPU.
 - [stateMINT API](api.qmd) — `Mamba2Regressor` and `ModelArtifact`.
 :::
-
-## Inputs and outputs
-
-The input is twelve scalars rather than a time series, describing the setting and the campaign.
-The emulator reconstructs the time grid from them. The output is an array of shape `(B, 157)`,
-one row per scenario and 157 fortnightly windows spanning day 2190 to day 4374, where the campaign
-lands at day 3285, which puts three pre-campaign years at the front of every row and three response
-years at the back.
-
-Prevalence and cases are separately trained checkpoints, so asking for both means loading both and
-calling each once. No single call returns the pair. Please see
-[Running Scenarios](../06-scenarios/index.qmd) for a pipeline that does both.

@@ -22,8 +22,9 @@ print("estiMINT :", list(eir_models))
 print("stateMINT:", list(emulator_models))
 ```
 
-On a cold machine most of that time is the download, roughly 38 MB per predictor. On a warm one
-it is deserialisation from disk. `preload_models` tracks `main` rather than a pinned tag, so load
+On a cold machine most of that time is the download of the weights, whose size is given in
+[Installation](../02-getting-started/installation.qmd). On a warm one it is deserialisation from
+disk. `preload_models` tracks `main` rather than a pinned tag, so load
 the checkpoints yourself with [`from_pretrained(..., revision=...)`](the-emulator.qmd) when the
 exact weights matter. Call `preload_models` once at the top of a script.
 
@@ -113,10 +114,9 @@ cells, so trust the ratio rather than the milliseconds.
 ## CPU and GPU
 
 The timings above are CPU timings, and a CPU is adequate at the scale of a list of scenarios, since
-the emulator is small. It is two Mamba2 layers with `d_model` 256. On a GPU the same forward pass
-is roughly six times faster, measured on an NVIDIA L40S, and both sit orders of magnitude below
-the minutes a `malariasimulation` run of the same twelve simulated years takes. The measurements,
-and what the speed costs in accuracy, are in [Accuracy and speed](../03-concepts/validation.qmd).
+the emulator is small. It is two Mamba2 layers with `d_model` 256. A GPU runs the same forward pass
+faster still, with the measured figures, the comparison against a full `malariasimulation` run, and
+what the speed costs in accuracy set out in [Accuracy and speed](../03-concepts/validation.qmd).
 
 For a sweep of thousands of scenarios, a CUDA 12 build of JAX is available as an extra.
 

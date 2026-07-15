@@ -4,11 +4,9 @@ title: "Orientation"
 
 ## Two packages
 
-`estiMINT` estimates transmission intensity from a measured prevalence and the setting it was measured in, meaning the net mix, the resistance level, and the local vector's biting behaviour, returning the EIR and the human biting rate that EIR implies. Everything it produces is a single equilibrium value.
+`estiMINT` estimates transmission intensity from a measured prevalence and the setting it was measured in, returning a single [equilibrium value](../03-concepts/equilibrium.qmd), the EIR and the human biting rate it implies. `stateMINT` emulates the individual-based model and returns the prevalence or clinical-case trajectory that follows a campaign.
 
-`stateMINT` emulates the individual-based model, and given twelve covariates describing the setting and the campaign it returns 157 fortnightly values of prevalence, or of clinical cases, over three years either side of the campaign. The emulator is the only source of trajectories.
-
-`run_scenarios`, in estiMINT, runs both, converting a net mix into net effectiveness, estimating the baseline EIR, and calling the emulator. The order is forced, because the emulator takes an EIR and a user almost never has one. Use it unless you need one of the models on its own.
+`run_scenarios`, exported from estiMINT, [runs both models](../06-scenarios/index.qmd). It chains them in the order the [two-stage pipeline](../03-concepts/pipeline.qmd) forces, so use it unless you need one of the models on its own.
 
 ## Reading paths
 
@@ -16,9 +14,7 @@ Readers new to Python should start at [Python for Malaria Modellers](../01-pytho
 
 ## Conventions
 
-Python blocks are executed, and the output below each one is what the code produced. Shell blocks, and the occasional R block shown for comparison, are transcripts.
-
-`pip install "estimint[scenarios]"` installs both packages, though you install `mintstate` and import `stateMINT`, with the capitals, a mismatch that is the commonest cause of a failed import. It is the first entry in [Troubleshooting](../troubleshooting.qmd).
+Python blocks are executed and the output below each one is what the code produced, while shell blocks and the occasional R block shown for comparison are transcripts. Note that the package's install name and import name differ, which [Installation](../02-getting-started/installation.qmd) explains.
 
 ## Entry points
 

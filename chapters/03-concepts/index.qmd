@@ -2,12 +2,10 @@
 title: "Core Concepts"
 ---
 
-MINTverse runs in two stages. estiMINT inverts a measured prevalence or biting rate into the
-EIR that would sustain it, and stateMINT runs the campaign forward from that EIR over six
-years, three before it and three after.
-
-Both stages have a training domain, and neither raises when you leave it. Nothing is fitted at call
-time.
+The concepts here are the ideas the two packages rest on, the background a reader wants before
+running any code. They cover how the packages connect, the quantities they move between, the
+interventions they represent, and the models underneath. The rest weighs how far to trust the
+numbers.
 
 ::: {.chapter-outline}
 - [The MINTverse pipeline](pipeline.qmd) — the two stages, `run_scenarios`, and the domain limits.

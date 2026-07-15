@@ -81,12 +81,11 @@ the **ratio** of the two, in which the common bias cancels. The ratio is then ap
 EIR from the prevalence model, which never went near the HBR models.
 :::
 
-Note that `hbr_y9` is clamped to `[5e3, 7e7]` and `prev_y9` the same way to
-`[0.005, 0.80]`, so a biting rate below five thousand returns the EIR for five thousand.
+Note that both `hbr_y9` and `prev_y9` are clamped to their training bands, as described in
+[Estimating EIR from prevalence](estimating-eir.qmd).
 
 ## See also
 
 The ratio method built on this bias is worked through in [Mosquito density and
 EIR](mosquito-density.qmd), and please see [EIR, HBR, prevalence, and
-cases](../03-concepts/equilibrium.qmd) for why all four are equilibrium values rather than
-trajectories.
+cases](../03-concepts/equilibrium.qmd) for how the four quantities relate.

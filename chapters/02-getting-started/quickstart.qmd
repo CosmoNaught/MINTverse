@@ -14,8 +14,8 @@ We take one district from a measured prevalence to a plotted trajectory.
 
 A `Scenario` holds one candidate campaign, the setting as it stands and the intervention that
 switches on at the campaign, where `EirTarget(0.45, "prevalence")` tells `run_scenarios` that
-0.45 is a measured prevalence rather than an EIR. That prevalence is inverted into a baseline
-EIR first. The emulator never sees the prevalence.
+0.45 is a measured prevalence rather than an EIR, so it is [inverted into a baseline
+EIR](../03-concepts/pipeline.qmd) before the emulator runs.
 
 ```{python}
 from estimint import Scenario, EirTarget, run_scenarios
@@ -36,14 +36,9 @@ pbo = Scenario(
 )
 ```
 
-::: {.callout-important}
-## Future coverage must be set explicitly
-
-`itn_future=0.70` does not mean "keep the nets you have". Leave it out and both `dn0_future`
-and `itn_future` are set to zero, which models the nets being **withdrawn** at the campaign.
-`irs_future` does not inherit `irs` either. Every intervention you want to persist past the
-campaign must be restated in its `_future` field.
-:::
+Note that `itn_future=0.70` has to be set explicitly, since a `Scenario` that leaves its
+`_future` fields out [withdraws the intervention at the campaign](../05-statemint/covariates.qmd)
+rather than keeping the nets in place.
 
 ## Run the scenario
 

@@ -2,14 +2,11 @@
 title: "Getting Started"
 ---
 
-Both packages come from PyPI, and `pip install "estimint[scenarios]"` brings in the pair.
-`stateMINT` is published under the distribution name `mintstate`, so the name in the install
-command is not the name in the import. Python 3.12 is the minimum.
-
-The emulator's weights are not shipped in the wheel. They are fetched from Hugging Face on first
-use and cached under `~/.cache/huggingface`, which makes the first `run_scenarios` of a new
-install slower than every call that follows it. Please see
-[Python for Malaria Modellers](../01-python/index.qmd) if virtual environments are new.
+Getting from an empty environment to a first plotted trajectory takes three steps. Install the two
+packages, run one scenario from a measured prevalence to a curve, and translate the R idioms a
+malaria modeller already knows into their pandas equivalents. The last of those has its own
+translation table. Please see [Installation](installation.qmd) for the install command and where
+the model weights live.
 
 ::: {.chapter-outline}
 - [Installation](installation.qmd) — `pip install "estimint[scenarios]"`, the extras, and the weights.
