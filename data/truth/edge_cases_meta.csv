@@ -1,0 +1,7 @@
+case_id,predictor,description,split,true_eir,est_eir,prev_y9,n_runs,mae_pipeline,mae_emulator
+16,prevalence,Seasonal - ITN Only - Low EIR - Low dn0,test,1.9849,1.9907,0.1084,4,0.00365,0.00388
+16,cases,Seasonal - ITN Only - Low EIR - Low dn0,test,1.9849,1.9907,0.1084,4,0.01772,0.01791
+20,prevalence,Perennial - IRS Only - Mid EIR,test,11.7805,12.5016,0.0669,4,0.00702,0.00251
+20,cases,Perennial - IRS Only - Mid EIR,validate,11.7805,12.5016,0.0669,4,0.02381,0.01193
+27,prevalence,Perennial - ITN+IRS - Low EIR - Low dn0,validate,1.9547,1.9468,0.0635,4,0.00563,0.00546
+27,cases,Perennial - ITN+IRS - Low EIR - Low dn0,validate,1.9547,1.9468,0.0635,4,0.0412,0.04024

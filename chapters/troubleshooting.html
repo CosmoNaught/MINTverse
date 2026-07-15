@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Troubleshooting – MINTverse</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/06-scenarios/exporting.html" rel="prev">
+<link href="../favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bca83f0072c3bf8ec79303ae993838ba.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-51fa5c2019ae01d55d975056213813d5.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-58e81590b2c8b11451a07fa2605efb6b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-925776b32d917dbaf4f5455fc59d7725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">MINTverse</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/CosmoNaught/MINTverse"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/troubleshooting.html">Troubleshooting</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../misc/icon-mint.svg" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/00-front/overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/00-front/reader-guide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Orientation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../chapters/01-python/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Python for Malaria Modellers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-python/what-is-python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">What is Python?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-python/toolchain.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Python tools</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-python/installing-python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing Python</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-python/vscode.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Working in VS Code</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-python/environments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environments and packages</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-python/notebooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Notebooks</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../chapters/02-getting-started/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-getting-started/installation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-getting-started/quickstart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quickstart</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-getting-started/coming-from-r.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Coming from R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-getting-started/notebook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Colab notebook</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../chapters/03-concepts/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Core Concepts</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-concepts/pipeline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The MINTverse pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-concepts/equilibrium.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">EIR, HBR, prevalence, and cases</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-concepts/interventions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interventions and nets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-concepts/models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-concepts/validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Accuracy and speed</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../chapters/04-estimint/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">estiMINT: EIR and HBR</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-estimint/nets-and-dn0.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nets and dn0</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-estimint/estimating-eir.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating EIR from prevalence</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-estimint/eir-and-hbr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">EIR and HBR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-estimint/mosquito-density.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mosquito density and EIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-estimint/api.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">estiMINT API</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../chapters/05-statemint/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">stateMINT: the Emulator</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-statemint/covariates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Covariates and the time grid</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-statemint/the-emulator.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Calling the emulator</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-statemint/plotting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plotting trajectories</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-statemint/performance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance and caching</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-statemint/api.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">stateMINT API</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../chapters/06-scenarios/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenarios</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-scenarios/run-scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running scenarios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-scenarios/scenario-grid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A list of scenarios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-scenarios/comparing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Trajectories and cases</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-scenarios/exporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exporting results</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/troubleshooting.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Troubleshooting</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#installed-versions" id="toc-installed-versions" class="nav-link active" data-scroll-target="#installed-versions">Installed versions</a></li>
+  <li><a href="#installation-and-imports" id="toc-installation-and-imports" class="nav-link" data-scroll-target="#installation-and-imports">Installation and imports</a>
+  <ul class="collapse">
+  <li><a href="#modulenotfounderror-no-module-named-statemint" id="toc-modulenotfounderror-no-module-named-statemint" class="nav-link" data-scroll-target="#modulenotfounderror-no-module-named-statemint"><code>ModuleNotFoundError: No module named 'stateMINT'</code></a></li>
+  <li><a href="#no-distribution-named-statemint" id="toc-no-distribution-named-statemint" class="nav-link" data-scroll-target="#no-distribution-named-statemint">No distribution named <code>statemint</code></a></li>
+  <li><a href="#an-interpreter-older-than-3.12" id="toc-an-interpreter-older-than-3.12" class="nav-link" data-scroll-target="#an-interpreter-older-than-3.12">An interpreter older than 3.12</a></li>
+  </ul></li>
+  <li><a href="#inputs-the-models-reject" id="toc-inputs-the-models-reject" class="nav-link" data-scroll-target="#inputs-the-models-reject">Inputs the models reject</a>
+  <ul class="collapse">
+  <li><a href="#valueerror-unknown-net-type" id="toc-valueerror-unknown-net-type" class="nav-link" data-scroll-target="#valueerror-unknown-net-type"><code>ValueError: unknown net type</code></a></li>
+  <li><a href="#valueerror-missing-static-covariates" id="toc-valueerror-missing-static-covariates" class="nav-link" data-scroll-target="#valueerror-missing-static-covariates"><code>ValueError: Missing static covariates</code></a></li>
+  <li><a href="#valueerror-missing-required-columns" id="toc-valueerror-missing-required-columns" class="nav-link" data-scroll-target="#valueerror-missing-required-columns"><code>ValueError: Missing required columns</code></a></li>
+  </ul></li>
+  <li><a href="#a-slow-first-run" id="toc-a-slow-first-run" class="nav-link" data-scroll-target="#a-slow-first-run">A slow first run</a></li>
+  <li><a href="#warnings-you-can-ignore" id="toc-warnings-you-can-ignore" class="nav-link" data-scroll-target="#warnings-you-can-ignore">Warnings you can ignore</a>
+  <ul class="collapse">
+  <li><a href="#the-xgboost-serialisation-warning" id="toc-the-xgboost-serialisation-warning" class="nav-link" data-scroll-target="#the-xgboost-serialisation-warning">The XGBoost serialisation warning</a></li>
+  <li><a href="#the-jax-cuda-warning" id="toc-the-jax-cuda-warning" class="nav-link" data-scroll-target="#the-jax-cuda-warning">The JAX CUDA warning</a></li>
+  </ul></li>
+  <li><a href="#results-that-look-wrong" id="toc-results-that-look-wrong" class="nav-link" data-scroll-target="#results-that-look-wrong">Results that look wrong</a>
+  <ul class="collapse">
+  <li><a href="#a-flat-or-pinned-trajectory" id="toc-a-flat-or-pinned-trajectory" class="nav-link" data-scroll-target="#a-flat-or-pinned-trajectory">A flat or pinned trajectory</a></li>
+  <li><a href="#an-unexpected-rebound-in-prevalence" id="toc-an-unexpected-rebound-in-prevalence" class="nav-link" data-scroll-target="#an-unexpected-rebound-in-prevalence">An unexpected rebound in prevalence</a></li>
+  <li><a href="#nan-in-hbr_baseline-and-hbr_new" id="toc-nan-in-hbr_baseline-and-hbr_new" class="nav-link" data-scroll-target="#nan-in-hbr_baseline-and-hbr_new"><code>NaN</code> in <code>hbr_baseline</code> and <code>hbr_new</code></a></li>
+  <li><a href="#an-lsm-different-from-the-one-passed" id="toc-an-lsm-different-from-the-one-passed" class="nav-link" data-scroll-target="#an-lsm-different-from-the-one-passed">An <code>lsm</code> different from the one passed</a></li>
+  </ul></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See also</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Troubleshooting</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="installed-versions" class="level2">
+<h2 class="anchored" data-anchor-id="installed-versions">Installed versions</h2>
+<p>Most installation problems come down to a mismatch between the interpreter that installed the packages and the interpreter that is importing them, which these four lines will show.</p>
+<div id="6792f8f9" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.metadata <span class="im">import</span> version</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"python    "</span>, sys.version.split()[<span class="dv">0</span>])</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"executable"</span>, sys.executable)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"estimint  "</span>, version(<span class="st">"estimint"</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mintstate "</span>, version(<span class="st">"mintstate"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>python     3.12.11
+executable /home/cosmo/Documents/Repos/MINTverse/.venv/bin/python
+estimint   1.5.4
+mintstate  0.3.1</code></pre>
+</div>
+</div>
+<p>In a notebook <code>sys.executable</code> belongs to the kernel rather than to whatever the terminal has activated. If it is not the environment you installed into, the kernel is the problem and the packages are fine.</p>
+</section>
+<section id="installation-and-imports" class="level2">
+<h2 class="anchored" data-anchor-id="installation-and-imports">Installation and imports</h2>
+<section id="modulenotfounderror-no-module-named-statemint" class="level3">
+<h3 class="anchored" data-anchor-id="modulenotfounderror-no-module-named-statemint"><code>ModuleNotFoundError: No module named 'stateMINT'</code></h3>
+<pre class="text"><code>ModuleNotFoundError: No module named 'stateMINT'</code></pre>
+<p>There are two causes. The first is that estiMINT was installed without the emulator, since plain <code>pip install estimint</code> gives you the EIR and HBR models and nothing else. The <code>scenarios</code> extra pulls the emulator in.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">"estimint[scenarios]"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The second cause is that the interpreter running your code is not the interpreter you installed into, which is the usual explanation when the install succeeded and the import still fails. Please see <a href="../chapters/01-python/environments.html">Environments and packages</a> and <a href="../chapters/01-python/notebooks.html">Notebooks</a>.</p>
+</section>
+<section id="no-distribution-named-statemint" class="level3">
+<h3 class="anchored" data-anchor-id="no-distribution-named-statemint">No distribution named <code>statemint</code></h3>
+<pre class="text"><code>ERROR: Could not find a version that satisfies the requirement statemint
+ERROR: No matching distribution found for statemint</code></pre>
+<p>The distribution is called <strong><code>mintstate</code></strong> and the module it installs is called <strong><code>stateMINT</code></strong>. The capitals matter to the import.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install mintstate            <span class="co"># the emulator on its own</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">"estimint[scenarios]"</span>  <span class="co"># both packages, what you normally want</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="an-interpreter-older-than-3.12" class="level3">
+<h3 class="anchored" data-anchor-id="an-interpreter-older-than-3.12">An interpreter older than 3.12</h3>
+<p>Both packages require Python 3.12 or newer. On an older interpreter pip either refuses to install or resolves to an earlier release that predates the requirement.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If that prints 3.11 or below, build a new environment on 3.12 rather than upgrading in place. Please see <a href="../chapters/01-python/installing-python.html">Installing Python</a>.</p>
+</section>
+</section>
+<section id="inputs-the-models-reject" class="level2">
+<h2 class="anchored" data-anchor-id="inputs-the-models-reject">Inputs the models reject</h2>
+<section id="valueerror-unknown-net-type" class="level3">
+<h3 class="anchored" data-anchor-id="valueerror-unknown-net-type"><code>ValueError: unknown net type</code></h3>
+<pre class="text"><code>ValueError: unknown net type: 'pyrethroid-pbo' (have ['py_only', 'py_pbo', 'py_ppf',
+'py_pyrrole', 'pyrethroid_only', 'pyrethroid_pbo', 'pyrethroid_ppf', 'pyrethroid_pyrrole'])</code></pre>
+<p>The net types are Python identifiers, so a name written with a hyphen where the accepted strings carry <code>_</code> is rejected. The message lists the eight strings that work, four full names and four short aliases.</p>
+</section>
+<section id="valueerror-missing-static-covariates" class="level3">
+<h3 class="anchored" data-anchor-id="valueerror-missing-static-covariates"><code>ValueError: Missing static covariates</code></h3>
+<pre class="text"><code>ValueError: Missing static covariates: ['lsm']</code></pre>
+<p>All twelve static covariates are mandatory and none has a default. Passing <code>lsm=0.0</code> means no larviciding, while omitting <code>lsm</code> means an incomplete input. The twelve, in order, are <code>eir</code>, <code>dn0_use</code>, <code>dn0_future</code>, <code>Q0</code>, <code>phi_bednets</code>, <code>seasonal</code>, <code>routine</code>, <code>itn_use</code>, <code>irs_use</code>, <code>itn_future</code>, <code>irs_future</code> and <code>lsm</code>. <a href="../chapters/05-statemint/covariates.html">Covariates and the time grid</a> takes them one at a time.</p>
+</section>
+<section id="valueerror-missing-required-columns" class="level3">
+<h3 class="anchored" data-anchor-id="valueerror-missing-required-columns"><code>ValueError: Missing required columns</code></h3>
+<pre class="text"><code>ValueError: Missing required columns: irs_use, itn_use, phi_bednets, prev_y9, seasonal</code></pre>
+<p><code>run_xgb_model</code> raises this when the DataFrame lacks a column the model was trained on. Each model carries its own feature list, readable off the loaded model.</p>
+<div id="e18bf0b9" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> estimint <span class="im">import</span> load_xgb_model</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(load_xgb_model(<span class="st">"prevalence"</span>)[<span class="st">"features"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['dn0_use', 'Q0', 'phi_bednets', 'seasonal', 'itn_use', 'irs_use', 'prev_y9']</code></pre>
+</div>
+</div>
+<p>The prevalence column must be named <code>prev_y9</code>, with <code>prevalence</code> accepted as an alias and nothing else.</p>
+</section>
+</section>
+<section id="a-slow-first-run" class="level2">
+<h2 class="anchored" data-anchor-id="a-slow-first-run">A slow first run</h2>
+<p>The XGBoost models ship inside the estiMINT wheel and load instantly. The emulator weights live on the Hugging Face Hub at <code>dide-ic/stateMINT</code> and are fetched on first use, roughly 38 MB per predictor. They then sit under <code>~/.cache/huggingface</code> and are never fetched again.</p>
+<p>Pay the download up front if the wait is inconvenient.</p>
+<div id="e8e85a9a" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> estimint <span class="im">import</span> preload_models</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>preload_models()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>({'prevalence': {'class': 'estiMINT_model',
+   'booster': &lt;xgboost.core.Booster at 0x7fa558190680&gt;,
+   'calibrator': {'kind': 'qmap+scale',
+    'qmap': {'xq': array([4.92082924e-01, 5.08736263e-01, 5.15917185e-01, ...,
+            4.91688733e+02, 4.97695909e+02, 5.53270569e+02], shape=(1024,)),
+     'yq': array([  0.50277175,   0.50826802,   0.51678258, ..., 492.46471518,
+            497.17948618, 498.76760326], shape=(1024,))},
+    'scale': np.float64(1.0004966152605534)},
+   'features': ['dn0_use',
+    'Q0',
+    'phi_bednets',
+    'seasonal',
+    'itn_use',
+    'irs_use',
+    'prev_y9'],
+   'best_nrounds': 3382,
+   'preprocess': {'features': ['dn0_use',
+     'Q0',
+     'phi_bednets',
+     'seasonal',
+     'itn_use',
+     'irs_use',
+     'prev_y9'],
+    'target': 'eir',
+    'transform': 'log10',
+    'inverse': 'pow10',
+    'prevalence_filter': {'min_prev_input': 0.02,
+     'note': 'Trained on MINTelligence data with prev &gt;= 0.02'},
+    'training_data': {'source': 'MINTelligence malaria_simulations_4096.duckdb',
+     'n_rows': 12429,
+     'n_params': 3122},
+    'cv': {'K': 10,
+     'stratify_by': 'strat_bin (k-means on log10(EIR), centers=16)',
+     'best_iteration_median': 3382}}},
+  'hbr': {'class': 'estiMINT_HBR_model',
+   'booster': &lt;xgboost.core.Booster at 0x7fa49f249940&gt;,
+   'calibrator': {'kind': 'qmap+scale',
+    'qmap': {'xq': array([5.08448929e-02, 7.88109408e-02, 9.63397659e-02, ...,
+            4.85768127e+02, 4.90127920e+02, 5.07243958e+02], shape=(1024,)),
+     'yq': array([  0.50124624,   0.50277381,   0.50468261, ..., 490.64325984,
+            496.71453703, 498.76760326], shape=(1024,))},
+    'scale': np.float64(0.998817814339553)},
+   'features': ['dn0_use',
+    'Q0',
+    'phi_bednets',
+    'seasonal',
+    'itn_use',
+    'irs_use',
+    'hbr_y9'],
+   'best_nrounds': 2056,
+   'preprocess': {'features': ['dn0_use',
+     'Q0',
+     'phi_bednets',
+     'seasonal',
+     'itn_use',
+     'irs_use',
+     'hbr_y9'],
+    'target': 'eir',
+    'transform': 'log10',
+    'inverse': 'pow10',
+    'hbr_filter': {'note': 'Trained on MINTelligence data, HBR &gt; 0 (Im &gt; 0)'},
+    'training_data': {'source': 'MINTelligence HBR_malaria_simulations_4096.duckdb',
+     'n_rows': 16384,
+     'n_params': 4096},
+    'cv': {'K': 10,
+     'stratify_by': 'strat_bin (k-means on log10(EIR), centers=16)',
+     'best_iteration_median': 2056}}},
+  'eir_to_hbr': {'class': 'estiMINT_EIR_to_HBR_model',
+   'booster': &lt;xgboost.core.Booster at 0x7fa49f249e20&gt;,
+   'calibrator': {'kind': 'qmap+scale',
+    'qmap': {'xq': array([   17239.49609375,    18828.35925758,    18899.65238671, ...,
+            10785096.00879765, 10940766.        , 11249918.        ],
+           shape=(1024,)),
+     'yq': array([   17226.44209519,    18794.25603442,    18866.22134417, ...,
+            10776298.1685966 , 10940210.52983362, 11259525.78602804],
+           shape=(1024,))},
+    'scale': np.float64(1.000678262727661)},
+   'features': ['eir',
+    'dn0_use',
+    'Q0',
+    'phi_bednets',
+    'seasonal',
+    'itn_use',
+    'irs_use'],
+   'best_nrounds': 4566,
+   'preprocess': {'features': ['eir',
+     'dn0_use',
+     'Q0',
+     'phi_bednets',
+     'seasonal',
+     'itn_use',
+     'irs_use'],
+    'target': 'hbr_y9',
+    'transform': 'log10',
+    'inverse': 'pow10',
+    'training_data': {'source': 'MINTelligence malaria_simulations_4096.duckdb + HBR_malaria_simulations_4096.duckdb',
+     'n_rows': 12429,
+     'n_params': 3122},
+    'cv': {'K': 10,
+     'stratify_by': 'strat_bin (k-means on log10(HBR), centers=16)',
+     'best_iteration_median': 4566}}}},
+ {'prevalence': ModelArtifact(model=Mamba2Regressor( # RngState: 2 (12 B), Param: 935,985 (3.7 MB), Total: 935,987 (3.7 MB)
+    input_proj=Linear( # Param: 4,352 (17.4 KB)
+      kernel=Param( # 4,096 (16.4 KB)
+        value=Array(shape=(16, 256), dtype=dtype('float32'))
+      ),
+      bias=Param( # 256 (1.0 KB)
+        value=Array(shape=(256,), dtype=dtype('float32'))
+      ),
+      in_features=16,
+      out_features=256,
+      use_bias=True,
+      dtype=None,
+      param_dtype=float32,
+      precision=None,
+      dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+      promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+      preferred_element_type=None
+    ),
+    mamba2=Mamba2Model( # Param: 931,376 (3.7 MB)
+      cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+      embedder=Embed( # Param: 256 (1.0 KB)
+        embedding=Param( # 256 (1.0 KB)
+          value=Array(shape=(1, 256), dtype=dtype('float32'))
+        ),
+        num_embeddings=1,
+        features=256,
+        dtype=dtype('float32'),
+        param_dtype=float32,
+        promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;
+      ),
+      layers=List([
+        Mamba2Block( # Param: 465,432 (1.9 MB)
+          cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+          residual_in_fp32=True,
+          norm=RMSNorm( # Param: 256 (1.0 KB)
+            hidden_size=256,
+            eps=1e-05,
+            gate_residual=False,
+            weight=Param( # 256 (1.0 KB)
+              value=Array(shape=(256,), dtype=dtype('float32'))
+            )
+          ),
+          mixer=Mamba2Mixer( # Param: 465,176 (1.9 MB)
+            cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+            layer_idx=0,
+            hidden_size=256,
+            ssm_state_size=128,
+            intermediate_size=512,
+            head_dim=64,
+            num_heads=8,
+            chunk_size=256,
+            dt_min=0.0,
+            dt_max=inf,
+            act=&lt;PjitFunction of &lt;function silu at 0x7fa49dd3b7e0&gt;&gt;,
+            in_proj=Linear( # Param: 329,728 (1.3 MB)
+              kernel=Param( # 329,728 (1.3 MB)
+                value=Array(shape=(256, 1288), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=256,
+              out_features=1288,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            ),
+            conv1d=DepthwiseConv1d( # Param: 3,840 (15.4 KB)
+              features=768,
+              kernel_size=4,
+              conv=Conv( # Param: 3,840 (15.4 KB)
+                kernel_shape=(4, 1, 768),
+                kernel=Param( # 3,072 (12.3 KB)
+                  value=Array(shape=(4, 1, 768), dtype=dtype('float32'))
+                ),
+                bias=Param( # 768 (3.1 KB)
+                  value=Array(shape=(768,), dtype=dtype('float32'))
+                ),
+                in_features=768,
+                out_features=768,
+                kernel_size=(4,),
+                strides=1,
+                padding=((0, 0),),
+                input_dilation=1,
+                kernel_dilation=1,
+                feature_group_count=768,
+                use_bias=True,
+                mask=None,
+                dtype=None,
+                param_dtype=float32,
+                precision=None,
+                conv_general_dilated=&lt;function conv_general_dilated at 0x7fa49e37c680&gt;,
+                promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+                preferred_element_type=None
+              )
+            ),
+            dt_bias=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            A_log=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            D=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            norm=RMSNorm( # Param: 512 (2.0 KB)
+              hidden_size=512,
+              eps=1e-05,
+              gate_residual=True,
+              weight=Param( # 512 (2.0 KB)
+                value=Array(shape=(512,), dtype=dtype('float32'))
+              )
+            ),
+            out_proj=Linear( # Param: 131,072 (524.3 KB)
+              kernel=Param( # 131,072 (524.3 KB)
+                value=Array(shape=(512, 256), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=512,
+              out_features=256,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            )
+          )
+        ),
+        Mamba2Block( # Param: 465,432 (1.9 MB)
+          cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+          residual_in_fp32=True,
+          norm=RMSNorm( # Param: 256 (1.0 KB)
+            hidden_size=256,
+            eps=1e-05,
+            gate_residual=False,
+            weight=Param( # 256 (1.0 KB)
+              value=Array(shape=(256,), dtype=dtype('float32'))
+            )
+          ),
+          mixer=Mamba2Mixer( # Param: 465,176 (1.9 MB)
+            cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+            layer_idx=1,
+            hidden_size=256,
+            ssm_state_size=128,
+            intermediate_size=512,
+            head_dim=64,
+            num_heads=8,
+            chunk_size=256,
+            dt_min=0.0,
+            dt_max=inf,
+            act=&lt;PjitFunction of &lt;function silu at 0x7fa49dd3b7e0&gt;&gt;,
+            in_proj=Linear( # Param: 329,728 (1.3 MB)
+              kernel=Param( # 329,728 (1.3 MB)
+                value=Array(shape=(256, 1288), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=256,
+              out_features=1288,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            ),
+            conv1d=DepthwiseConv1d( # Param: 3,840 (15.4 KB)
+              features=768,
+              kernel_size=4,
+              conv=Conv( # Param: 3,840 (15.4 KB)
+                kernel_shape=(4, 1, 768),
+                kernel=Param( # 3,072 (12.3 KB)
+                  value=Array(shape=(4, 1, 768), dtype=dtype('float32'))
+                ),
+                bias=Param( # 768 (3.1 KB)
+                  value=Array(shape=(768,), dtype=dtype('float32'))
+                ),
+                in_features=768,
+                out_features=768,
+                kernel_size=(4,),
+                strides=1,
+                padding=((0, 0),),
+                input_dilation=1,
+                kernel_dilation=1,
+                feature_group_count=768,
+                use_bias=True,
+                mask=None,
+                dtype=None,
+                param_dtype=float32,
+                precision=None,
+                conv_general_dilated=&lt;function conv_general_dilated at 0x7fa49e37c680&gt;,
+                promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+                preferred_element_type=None
+              )
+            ),
+            dt_bias=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            A_log=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            D=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            norm=RMSNorm( # Param: 512 (2.0 KB)
+              hidden_size=512,
+              eps=1e-05,
+              gate_residual=True,
+              weight=Param( # 512 (2.0 KB)
+                value=Array(shape=(512,), dtype=dtype('float32'))
+              )
+            ),
+            out_proj=Linear( # Param: 131,072 (524.3 KB)
+              kernel=Param( # 131,072 (524.3 KB)
+                value=Array(shape=(512, 256), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=512,
+              out_features=256,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            )
+          )
+        )
+      ]),
+      final_norm=RMSNorm( # Param: 256 (1.0 KB)
+        hidden_size=256,
+        eps=1e-05,
+        gate_residual=False,
+        weight=Param( # 256 (1.0 KB)
+          value=Array(shape=(256,), dtype=dtype('float32'))
+        )
+      )
+    ),
+    dropout=Dropout( # RngState: 2 (12 B)
+      rate=0.24,
+      broadcast_dims=(),
+      deterministic=True,
+      rng_collection='dropout',
+      rngs=RngStream( # RngState: 2 (12 B)
+        tag='default',
+        key=RngKey( # 1 (8 B)
+          value=Array((), dtype=key&lt;fry&gt;) overlaying:
+          [ 991576401 3935454969],
+          tag='default'
+        ),
+        count=RngCount( # 1 (4 B)
+          value=Array(19099, dtype=uint32),
+          tag='default'
+        )
+      )
+    ),
+    output_proj=Linear( # Param: 257 (1.0 KB)
+      kernel=Param( # 256 (1.0 KB)
+        value=Array(shape=(256, 1), dtype=dtype('float32'))
+      ),
+      bias=Param( # 1 (4 B)
+        value=Array([-0.11879815], dtype=float32)
+      ),
+      in_features=256,
+      out_features=1,
+      use_bias=True,
+      dtype=None,
+      param_dtype=float32,
+      precision=None,
+      dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+      promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+      preferred_element_type=None
+    )
+  ), model_config={'model_type': 'Mamba2Regressor', 'predictor': 'prevalence', 'input_size': 16, 'd_model': 256, 'n_layers': 2, 'd_state': 128, 'd_conv': 4, 'expand': 2, 'head_dim': 64, 'chunk_size': 256, 'output_dim': 1, 'dropout': 0.24}, preprocessing_config={'static_covars': ['eir', 'dn0_use', 'dn0_future', 'Q0', 'phi_bednets', 'seasonal', 'routine', 'itn_use', 'irs_use', 'itn_future', 'irs_future', 'lsm'], 'after_intervention': ['dn0_future', 'itn_future', 'irs_future', 'lsm', 'routine'], 'intervention_day': 3285, 'n_steps': 157, 'model_start_day': 2190, 'window_size': 14, 'use_cyclical_time': True, 'predictor': 'prevalence', 'eps_prevalence': 1e-05, 'scaler_mean': [58.74008560180664, 0.31604108214378357, 0.3175233006477356, 0.7978994250297546, 0.6636720895767212, 0.482501357793808, 0.48787713050842285, 0.25194787979125977, 0.15634511411190033, 0.25312861800193787, 0.17558598518371582, 0.24548254907131195], 'scaler_scale': [104.59117126464844, 0.16008581221103668, 0.15946531295776367, 0.11743186414241791, 0.16026772558689117, 0.49969369173049927, 0.4998529851436615, 0.32460200786590576, 0.26269596815109253, 0.32312172651290894, 0.2886512279510498, 0.32189667224884033]}, scaler=&lt;stateMINT.data.features.StandardScaler object at 0x7fa46c6d9190&gt;),
+  'cases': ModelArtifact(model=Mamba2Regressor( # RngState: 2 (12 B), Param: 935,985 (3.7 MB), Total: 935,987 (3.7 MB)
+    input_proj=Linear( # Param: 4,352 (17.4 KB)
+      kernel=Param( # 4,096 (16.4 KB)
+        value=Array(shape=(16, 256), dtype=dtype('float32'))
+      ),
+      bias=Param( # 256 (1.0 KB)
+        value=Array(shape=(256,), dtype=dtype('float32'))
+      ),
+      in_features=16,
+      out_features=256,
+      use_bias=True,
+      dtype=None,
+      param_dtype=float32,
+      precision=None,
+      dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+      promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+      preferred_element_type=None
+    ),
+    mamba2=Mamba2Model( # Param: 931,376 (3.7 MB)
+      cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+      embedder=Embed( # Param: 256 (1.0 KB)
+        embedding=Param( # 256 (1.0 KB)
+          value=Array(shape=(1, 256), dtype=dtype('float32'))
+        ),
+        num_embeddings=1,
+        features=256,
+        dtype=dtype('float32'),
+        param_dtype=float32,
+        promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;
+      ),
+      layers=List([
+        Mamba2Block( # Param: 465,432 (1.9 MB)
+          cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+          residual_in_fp32=True,
+          norm=RMSNorm( # Param: 256 (1.0 KB)
+            hidden_size=256,
+            eps=1e-05,
+            gate_residual=False,
+            weight=Param( # 256 (1.0 KB)
+              value=Array(shape=(256,), dtype=dtype('float32'))
+            )
+          ),
+          mixer=Mamba2Mixer( # Param: 465,176 (1.9 MB)
+            cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+            layer_idx=0,
+            hidden_size=256,
+            ssm_state_size=128,
+            intermediate_size=512,
+            head_dim=64,
+            num_heads=8,
+            chunk_size=256,
+            dt_min=0.0,
+            dt_max=inf,
+            act=&lt;PjitFunction of &lt;function silu at 0x7fa49dd3b7e0&gt;&gt;,
+            in_proj=Linear( # Param: 329,728 (1.3 MB)
+              kernel=Param( # 329,728 (1.3 MB)
+                value=Array(shape=(256, 1288), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=256,
+              out_features=1288,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            ),
+            conv1d=DepthwiseConv1d( # Param: 3,840 (15.4 KB)
+              features=768,
+              kernel_size=4,
+              conv=Conv( # Param: 3,840 (15.4 KB)
+                kernel_shape=(4, 1, 768),
+                kernel=Param( # 3,072 (12.3 KB)
+                  value=Array(shape=(4, 1, 768), dtype=dtype('float32'))
+                ),
+                bias=Param( # 768 (3.1 KB)
+                  value=Array(shape=(768,), dtype=dtype('float32'))
+                ),
+                in_features=768,
+                out_features=768,
+                kernel_size=(4,),
+                strides=1,
+                padding=((0, 0),),
+                input_dilation=1,
+                kernel_dilation=1,
+                feature_group_count=768,
+                use_bias=True,
+                mask=None,
+                dtype=None,
+                param_dtype=float32,
+                precision=None,
+                conv_general_dilated=&lt;function conv_general_dilated at 0x7fa49e37c680&gt;,
+                promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+                preferred_element_type=None
+              )
+            ),
+            dt_bias=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            A_log=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            D=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            norm=RMSNorm( # Param: 512 (2.0 KB)
+              hidden_size=512,
+              eps=1e-05,
+              gate_residual=True,
+              weight=Param( # 512 (2.0 KB)
+                value=Array(shape=(512,), dtype=dtype('float32'))
+              )
+            ),
+            out_proj=Linear( # Param: 131,072 (524.3 KB)
+              kernel=Param( # 131,072 (524.3 KB)
+                value=Array(shape=(512, 256), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=512,
+              out_features=256,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            )
+          )
+        ),
+        Mamba2Block( # Param: 465,432 (1.9 MB)
+          cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+          residual_in_fp32=True,
+          norm=RMSNorm( # Param: 256 (1.0 KB)
+            hidden_size=256,
+            eps=1e-05,
+            gate_residual=False,
+            weight=Param( # 256 (1.0 KB)
+              value=Array(shape=(256,), dtype=dtype('float32'))
+            )
+          ),
+          mixer=Mamba2Mixer( # Param: 465,176 (1.9 MB)
+            cfg=Mamba2Config(vocab_size=1, pad_token_id=0, bos_token_id=0, eos_token_id=0, hidden_size=256, state_size=128, head_dim=64, chunk_size=256, expand=2, conv_kernel=4, num_hidden_layers=2, layer_norm_epsilon=1e-05, use_bias=False, use_conv_bias=True, hidden_act='silu', emb_initializer_range=0.02, A_initializer_range=(1.0, 16.0), time_step_min=0.001, time_step_max=0.1, time_step_floor=0.0001, time_step_limit=(0.0, inf), residual_in_fp32=True, tie_word_embeddings=True),
+            layer_idx=1,
+            hidden_size=256,
+            ssm_state_size=128,
+            intermediate_size=512,
+            head_dim=64,
+            num_heads=8,
+            chunk_size=256,
+            dt_min=0.0,
+            dt_max=inf,
+            act=&lt;PjitFunction of &lt;function silu at 0x7fa49dd3b7e0&gt;&gt;,
+            in_proj=Linear( # Param: 329,728 (1.3 MB)
+              kernel=Param( # 329,728 (1.3 MB)
+                value=Array(shape=(256, 1288), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=256,
+              out_features=1288,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            ),
+            conv1d=DepthwiseConv1d( # Param: 3,840 (15.4 KB)
+              features=768,
+              kernel_size=4,
+              conv=Conv( # Param: 3,840 (15.4 KB)
+                kernel_shape=(4, 1, 768),
+                kernel=Param( # 3,072 (12.3 KB)
+                  value=Array(shape=(4, 1, 768), dtype=dtype('float32'))
+                ),
+                bias=Param( # 768 (3.1 KB)
+                  value=Array(shape=(768,), dtype=dtype('float32'))
+                ),
+                in_features=768,
+                out_features=768,
+                kernel_size=(4,),
+                strides=1,
+                padding=((0, 0),),
+                input_dilation=1,
+                kernel_dilation=1,
+                feature_group_count=768,
+                use_bias=True,
+                mask=None,
+                dtype=None,
+                param_dtype=float32,
+                precision=None,
+                conv_general_dilated=&lt;function conv_general_dilated at 0x7fa49e37c680&gt;,
+                promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+                preferred_element_type=None
+              )
+            ),
+            dt_bias=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            A_log=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            D=Param( # 8 (32 B)
+              value=Array(shape=(8,), dtype=dtype('float32'))
+            ),
+            norm=RMSNorm( # Param: 512 (2.0 KB)
+              hidden_size=512,
+              eps=1e-05,
+              gate_residual=True,
+              weight=Param( # 512 (2.0 KB)
+                value=Array(shape=(512,), dtype=dtype('float32'))
+              )
+            ),
+            out_proj=Linear( # Param: 131,072 (524.3 KB)
+              kernel=Param( # 131,072 (524.3 KB)
+                value=Array(shape=(512, 256), dtype=dtype('float32'))
+              ),
+              bias=None,
+              in_features=512,
+              out_features=256,
+              use_bias=False,
+              dtype=None,
+              param_dtype=float32,
+              precision=None,
+              dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+              promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+              preferred_element_type=None
+            )
+          )
+        )
+      ]),
+      final_norm=RMSNorm( # Param: 256 (1.0 KB)
+        hidden_size=256,
+        eps=1e-05,
+        gate_residual=False,
+        weight=Param( # 256 (1.0 KB)
+          value=Array(shape=(256,), dtype=dtype('float32'))
+        )
+      )
+    ),
+    dropout=Dropout( # RngState: 2 (12 B)
+      rate=0.29,
+      broadcast_dims=(),
+      deterministic=True,
+      rng_collection='dropout',
+      rngs=RngStream( # RngState: 2 (12 B)
+        tag='default',
+        key=RngKey( # 1 (8 B)
+          value=Array((), dtype=key&lt;fry&gt;) overlaying:
+          [ 991576401 3935454969],
+          tag='default'
+        ),
+        count=RngCount( # 1 (4 B)
+          value=Array(18975, dtype=uint32),
+          tag='default'
+        )
+      )
+    ),
+    output_proj=Linear( # Param: 257 (1.0 KB)
+      kernel=Param( # 256 (1.0 KB)
+        value=Array(shape=(256, 1), dtype=dtype('float32'))
+      ),
+      bias=Param( # 1 (4 B)
+        value=Array([1.203977], dtype=float32)
+      ),
+      in_features=256,
+      out_features=1,
+      use_bias=True,
+      dtype=None,
+      param_dtype=float32,
+      precision=None,
+      dot_general=&lt;function dot_general at 0x7fa49e4d1440&gt;,
+      promote_dtype=&lt;function promote_dtype at 0x7fa488f76f20&gt;,
+      preferred_element_type=None
+    )
+  ), model_config={'model_type': 'Mamba2Regressor', 'predictor': 'cases', 'input_size': 16, 'd_model': 256, 'n_layers': 2, 'd_state': 128, 'd_conv': 4, 'expand': 2, 'head_dim': 64, 'chunk_size': 256, 'output_dim': 1, 'dropout': 0.29}, preprocessing_config={'static_covars': ['eir', 'dn0_use', 'dn0_future', 'Q0', 'phi_bednets', 'seasonal', 'routine', 'itn_use', 'irs_use', 'itn_future', 'irs_future', 'lsm'], 'after_intervention': ['dn0_future', 'itn_future', 'irs_future', 'lsm', 'routine'], 'intervention_day': 3285, 'n_steps': 157, 'model_start_day': 2190, 'window_size': 14, 'use_cyclical_time': True, 'predictor': 'cases', 'eps_prevalence': 1e-05, 'scaler_mean': [60.51631164550781, 0.31146252155303955, 0.31284299492836, 0.7976113557815552, 0.6653553247451782, 0.48366013169288635, 0.4886184334754944, 0.23791441321372986, 0.15165917575359344, 0.24229221045970917, 0.16674715280532837, 0.24511298537254333], 'scaler_scale': [106.9460678100586, 0.15838344395160675, 0.15984433889389038, 0.11796369403600693, 0.15915901958942413, 0.49973297119140625, 0.4998704493045807, 0.32026830315589905, 0.26206621527671814, 0.31967467069625854, 0.2816891670227051, 0.32141491770744324]}, scaler=&lt;stateMINT.data.features.StandardScaler object at 0x7fa45c12f290&gt;)})</code></pre>
+</div>
+</div>
+<p>On a machine with no outbound network, fetch the weights once somewhere that has one, copy the cache across, and set <code>HF_HUB_OFFLINE=1</code> so the Hub client never attempts a call.</p>
+</section>
+<section id="warnings-you-can-ignore" class="level2">
+<h2 class="anchored" data-anchor-id="warnings-you-can-ignore">Warnings you can ignore</h2>
+<section id="the-xgboost-serialisation-warning" class="level3">
+<h3 class="anchored" data-anchor-id="the-xgboost-serialisation-warning">The XGBoost serialisation warning</h3>
+<pre class="text"><code>WARNING: If you are loading a serialized model (like pickle in Python, RDS in R) or
+configuration generated by an older version of XGBoost, please export the model by
+calling `Booster.save_model` from that version first, then load it back in current
+version.</code></pre>
+<p>The bundled models were serialised by an earlier XGBoost than the one you have. XGBoost loads them correctly and warns anyway, and predictions are unaffected.</p>
+</section>
+<section id="the-jax-cuda-warning" class="level3">
+<h3 class="anchored" data-anchor-id="the-jax-cuda-warning">The JAX CUDA warning</h3>
+<pre class="text"><code>WARNING:jax._src.xla_bridge:An NVIDIA GPU may be present on this machine, but a
+CUDA-enabled jaxlib is not installed. Falling back to cpu.</code></pre>
+<p>The emulator runs on JAX, and a machine with no GPU, or with a GPU but a CPU-only <code>jaxlib</code>, gets the absence reported once. JAX falls back to the CPU, where ten scenarios take about a second. Install <code>"mintstate[gpu]"</code> only if you have CUDA 12 and a batch large enough to earn it.</p>
+</section>
+</section>
+<section id="results-that-look-wrong" class="level2">
+<h2 class="anchored" data-anchor-id="results-that-look-wrong">Results that look wrong</h2>
+<section id="a-flat-or-pinned-trajectory" class="level3">
+<h3 class="anchored" data-anchor-id="a-flat-or-pinned-trajectory">A flat or pinned trajectory</h3>
+<p>estiMINT clamps its inputs and raises nothing. The models were fitted on a bounded range, so <code>prev_y9</code> is held to <span class="math inline">\([0.005, 0.80]\)</span> and <code>hbr_y9</code> to <span class="math inline">\([5 \times 10^{3}, 7 \times 10^{7}]\)</span>. A prevalence of 0.92 arrives at the model as 0.80 and a prevalence of 0.001 arrives as 0.005, with no warning.</p>
+<p>A trajectory that is implausibly flat, or that will not move when you change an input that should move it, usually means the inputs sit outside the calibrated domain, either at the clamp or in a corner of covariate space the emulator never saw in training.</p>
+</section>
+<section id="an-unexpected-rebound-in-prevalence" class="level3">
+<h3 class="anchored" data-anchor-id="an-unexpected-rebound-in-prevalence">An unexpected rebound in prevalence</h3>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Future coverage must be set explicitly
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>itn_future</code>, <code>net_type_future</code> and <code>irs_future</code> describe the campaign rather than the status quo. If <code>itn_future</code> is 0 or <code>net_type_future</code> is <code>None</code>, then <code>dn0_future</code> and <code>itn_future</code> are both set to 0, which models the nets being <strong>withdrawn</strong> at the campaign. <code>irs_future</code> does not inherit from <code>irs</code> either.</p>
+<p>To hold an intervention steady, restate it.</p>
+<div id="7320fae5" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> estimint <span class="im">import</span> Scenario, EirTarget</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>hold <span class="op">=</span> Scenario(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    name<span class="op">=</span><span class="st">"hold"</span>, res_use<span class="op">=</span><span class="fl">0.30</span>, Q0<span class="op">=</span><span class="fl">0.85</span>, phi<span class="op">=</span><span class="fl">0.80</span>, seasonal<span class="op">=</span><span class="fl">0.0</span>, irs<span class="op">=</span><span class="fl">0.60</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    eir_target<span class="op">=</span>EirTarget(<span class="fl">0.45</span>, <span class="st">"prevalence"</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    py_only<span class="op">=</span><span class="fl">0.70</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    itn_future<span class="op">=</span><span class="fl">0.70</span>, net_type_future<span class="op">=</span><span class="st">"pyrethroid_only"</span>,  <span class="co"># restate the nets</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    irs_future<span class="op">=</span><span class="fl">0.60</span>,                                     <span class="co"># restate the spraying</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="nan-in-hbr_baseline-and-hbr_new" class="level3">
+<h3 class="anchored" data-anchor-id="nan-in-hbr_baseline-and-hbr_new"><code>NaN</code> in <code>hbr_baseline</code> and <code>hbr_new</code></h3>
+<p><code>run_scenarios</code> fills those two columns only when the scenario used a prevalence input and a non-zero <code>mosquito_delta</code>. <code>mosquito_delta</code> is ignored when <code>input_mode</code> is <code>"eir"</code> or <code>"hbr"</code>, the density adjustment being defined on the prevalence pathway alone.</p>
+</section>
+<section id="an-lsm-different-from-the-one-passed" class="level3">
+<h3 class="anchored" data-anchor-id="an-lsm-different-from-the-one-passed">An <code>lsm</code> different from the one passed</h3>
+<p><code>run_scenarios</code> folds a PPF net mix into effective larval source management before the emulator runs, by <code>lsm_eff = min(py_ppf * 0.248 + lsm, 1.0)</code>. The reported <code>lsm</code> is <code>lsm_eff</code>. Please see <a href="../chapters/03-concepts/interventions.html">Interventions and nets</a>.</p>
+</section>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See also</h2>
+<ul>
+<li><a href="../chapters/01-python/environments.html">Environments and packages</a>, on which interpreter finds a package.</li>
+<li><a href="../chapters/05-statemint/performance.html">Performance and caching</a>, on the first run before the weights are cached, and offline use.</li>
+<li><a href="../chapters/06-scenarios/run-scenarios.html">Running scenarios</a>, on the campaign fields in context.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<!-- Move the page breadcrumb into the header bar, after the brand. -->
+<script>
+(function () {
+  function moveBreadcrumb() {
+    var brand = document.querySelector("#quarto-header .navbar-brand-container");
+    var crumbs = document.querySelector("#title-block-header nav.quarto-title-breadcrumbs");
+    if (brand && crumbs && !brand.contains(crumbs)) {
+      crumbs.classList.add("mint-navbar-breadcrumbs");
+      brand.appendChild(crumbs);
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", moveBreadcrumb);
+  } else {
+    moveBreadcrumb();
+  }
+})();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = true;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/CosmoNaught\.github\.io\/MINTverse\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/06-scenarios/exporting.html" class="pagination-link" aria-label="Exporting results">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Exporting results</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>©&nbsp;2026 Cosmo Santoni and Anmol Thapar · part of the <a href="https://github.com/CosmoNaught">MINTverse</a>.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
