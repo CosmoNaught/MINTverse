@@ -59,7 +59,7 @@ pip install "estimint[scenarios]"  # both packages, what you normally want
 
 ### An interpreter older than 3.12
 
-Both packages require Python 3.12 or newer. On an older interpreter pip either refuses the wheel
+Both packages require Python 3.12 or newer. On an older interpreter pip either refuses to install
 or resolves to an earlier release that predates the requirement.
 
 ```bash

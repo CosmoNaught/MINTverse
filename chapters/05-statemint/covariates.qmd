@@ -154,13 +154,13 @@ not a flat equilibrium. The shape they do have is plotted in
 [Plotting trajectories](plotting.qmd).
 
 ::: {.callout-warning}
-## The time grid is fixed, and provisional
+## The training window
 
-The current model reproduces a fixed slice of a twelve-year simulation. The first six years are
-burn-in, discarded so immunity can settle, and only the last six are emulated: the 157 fortnightly
-(14-day) averages returned here, with the campaign at day 3285. These dimensions — the twelve-year
-run, the six-year burn-in, the 157-step fortnightly grid, the campaign day — belong to this
-training set, and may change when the model is retrained.
+The simulation behind the training data runs for 12 years. The first 6 are burn-in, discarded so
+immunity settles before the campaign. The emulator reproduces the last 6, the 157 fortnightly
+windows returned here, with the campaign at day 3285 from the start of the simulation. The 12-year
+run, the 6-year burn-in, the 157 windows, and the campaign day are fixed by the current training
+set. A later model may use a different window.
 :::
 
 ## See also

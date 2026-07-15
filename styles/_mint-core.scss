@@ -41,25 +41,32 @@ body {
 .navbar .quarto-color-scheme-toggle:hover,
 .navbar .quarto-color-scheme-toggle:focus { color: $accent !important; }
 
-// the toggle icon is a filled SVG background, not a glyph, so `color` can't tint
-// it on hover; mask its shape and paint with the accent instead
-.navbar .quarto-color-scheme-toggle:not(.alternate):hover .bi::before,
-.navbar .quarto-color-scheme-toggle:not(.alternate):focus .bi::before {
+// Toggle icon: show the ON switch in dark mode and the OFF switch in light,
+// keyed on the body's mode class rather than Quarto's primary/alternate scheme.
+// The icon is a filled SVG background `color` can't tint, so mask its shape and
+// paint it — chrome colour at rest, accent on hover (matching the GitHub icon).
+body.quarto-dark .navbar .quarto-color-scheme-toggle .bi::before,
+body.quarto-light .navbar .quarto-color-scheme-toggle .bi::before {
   background-image: none;
-  background-color: $accent;
-  -webkit-mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/></svg>') no-repeat;
-  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/></svg>') no-repeat;
+  background-color: $chrome-fg;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   -webkit-mask-size: 1rem 1rem;
   mask-size: 1rem 1rem;
 }
-.navbar .quarto-color-scheme-toggle.alternate:hover .bi::before,
-.navbar .quarto-color-scheme-toggle.alternate:focus .bi::before {
-  background-image: none;
+body.quarto-dark .navbar .quarto-color-scheme-toggle .bi::before {
+  -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>');
+  mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>');
+}
+body.quarto-light .navbar .quarto-color-scheme-toggle .bi::before {
+  -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/></svg>');
+  mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/></svg>');
+}
+body.quarto-dark .navbar .quarto-color-scheme-toggle:hover .bi::before,
+body.quarto-dark .navbar .quarto-color-scheme-toggle:focus .bi::before,
+body.quarto-light .navbar .quarto-color-scheme-toggle:hover .bi::before,
+body.quarto-light .navbar .quarto-color-scheme-toggle:focus .bi::before {
   background-color: $accent;
-  -webkit-mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>') no-repeat;
-  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>') no-repeat;
-  -webkit-mask-size: 1rem 1rem;
-  mask-size: 1rem 1rem;
 }
 
 // the header bar stays put on scroll (neutralise Quarto's headroom.js slide)

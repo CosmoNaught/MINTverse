@@ -214,7 +214,7 @@ cells first. [Exporting results](exporting.qmd) deals with both.
 
 The 157 windows are a property of the emulator, so read the grid off the artefact rather than
 hard-coding it. `preload_models` returns the three estiMINT XGBoost models and the two
-stateMINT artefacts. Calling it once up front warms the caches and pulls the weights from
+stateMINT artefacts. Calling it once up front fills the caches and pulls the weights from
 Hugging Face before the first run.
 
 ```{python}
