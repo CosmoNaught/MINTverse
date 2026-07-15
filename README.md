@@ -4,7 +4,7 @@
 
 **Malaria intervention modelling from Python.**
 
-[**Documentation**](https://cosmonaught.github.io/MINTverse) · MRC Centre for Global Infectious Disease Analysis · Imperial College London
+[**Documentation**](https://cosmonaught.github.io/MINTverse)
 
 </div>
 
@@ -90,26 +90,7 @@ each upgrade averts, sweeps mosquito density, and exports the results to CSV.
 <https://cosmonaught.github.io/MINTverse>
 
 The documentation is seven chapters, running from a standing start in Python through to
-the internals of the two packages. Every code block on the site is executed when the
-site is built.
-
-## Building the docs
-
-The site is [Quarto](https://quarto.org). Code cells execute at render, so the build
-needs the packages installed.
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install "estimint[scenarios]" matplotlib jupyter
-./render.sh
-```
-
-`./render.sh` builds into `_book/`. `./render.sh --preview` serves a live-reloading
-local preview, and `./render.sh index.qmd` renders a single file. The first build
-downloads the emulator weights (about 38 MB per predictor) from
-[Hugging Face](https://huggingface.co/dide-ic/stateMINT) and caches them; subsequent
-builds are much faster, and `_freeze/` caches executed output.
+the internals of the two packages.
 
 ## Cite MINTverse
 
