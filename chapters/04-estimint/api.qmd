@@ -226,6 +226,5 @@ Warm the XGBoost models and fetch the stateMINT weights before the first `run_sc
 
 ## See also
 
-Please see [stateMINT](../05-statemint/index.qmd) for prevalence and cases, and
-[estiMINT internals](../07-under-the-hood/estimint-internals.qmd) for the smoothing, the clamps
-and the pickle boundary behind these functions.
+Please see [stateMINT](../05-statemint/index.qmd) for prevalence and cases, and [The
+models](../03-concepts/models.qmd) for the calibration and smoothing behind these functions.

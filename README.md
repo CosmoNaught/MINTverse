@@ -30,7 +30,7 @@ range still returns an answer. The documentation gives the ranges.
 ## Install
 
 ```bash
-pip install estimint mintstate
+pip install "estimint[scenarios]"
 ```
 
 Both packages require Python 3.12 or newer, and the command above installs both. You
@@ -93,7 +93,7 @@ needs the packages installed.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install estimint mintstate matplotlib jupyter
+pip install "estimint[scenarios]" matplotlib jupyter
 ./render.sh
 ```
 

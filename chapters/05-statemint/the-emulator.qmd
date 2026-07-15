@@ -11,7 +11,7 @@ Face and one to run it over a list of scenarios.
 from stateMINT.model import Mamba2Regressor
 
 prevalence = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="prevalence",
 )
 
 print(type(prevalence).__name__)
@@ -34,7 +34,7 @@ networks carrying separately fitted scalers. The scalers are not interchangeable
 import numpy as np
 
 cases = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="cases", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="cases",
 )
 
 print("same scaler means:", np.allclose(prevalence.scaler.mean_, cases.scaler.mean_))
@@ -139,8 +139,7 @@ print(X.shape, X.dtype)
 ```
 
 The sixteen channels are the twelve scaled covariates plus four time features locating each window
-in the year and relative to the campaign. The order of the channels is set out in
-[stateMINT internals](../07-under-the-hood/statemint-internals.qmd).
+in the year and relative to the campaign.
 
 ## Pinning the revision
 

@@ -120,6 +120,30 @@ absorbing far more infectious bites than one that holds it with no nets. Underst
 `itn_use` therefore biases the EIR downwards. Please see [Nets and dn0](nets-and-dn0.qmd) for
 that error.
 
+`irs_use` acts the same way and far more strongly.
+
+```{python}
+irs = pd.DataFrame(
+    [{"dn0_use": 0.40, "Q0": 0.85, "phi_bednets": 0.80, "seasonal": 0.0,
+      "itn_use": 0.50, "irs_use": v, "prevalence": 0.30} for v in [0.0, 0.2, 0.4, 0.6, 0.8]]
+)
+irs["eir"] = run_xgb_model(irs, prev_model)
+irs[["irs_use", "prevalence", "eir"]].round(2)
+```
+
+::: {.callout-warning}
+## High IRS inflates the estimated EIR
+
+Holding prevalence fixed, the inferred EIR climbs steeply with `irs_use`, from about 12 with no
+spraying to about 200 at 80% coverage. Indoor spraying suppresses transmission hard, so a setting
+that still shows 30% prevalence under heavy IRS is read as one with a very high underlying EIR.
+
+The estimate is only as good as the `irs_use` you supply, and a value that is too high, or a
+scenario that pairs a high prevalence with heavy spraying, pushes the EIR into the top of the
+training range or past it, where it is then clamped. Check the estimated EIR before trusting a
+trajectory built on it.
+:::
+
 ## The global model
 
 `set_global_model` registers a model as the default, after which `run_xgb_model` may be called

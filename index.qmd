@@ -41,7 +41,7 @@ anchor-sections: false
 
   <section class="mint-section" aria-labelledby="mint-install-heading">
     <h2 class="mint-section-heading mint-section-heading-accent" id="mint-install-heading">Install</h2>
-    <pre class="mint-codeblock"><code>pip install estimint mintstate</code></pre>
+    <pre class="mint-codeblock"><code>pip install "estimint[scenarios]"</code></pre>
   </section>
 
   <section class="mint-section" aria-labelledby="mint-toc-heading">
@@ -58,7 +58,6 @@ anchor-sections: false
         <li class="mint-toc-ch"><a href="chapters/04-estimint/index.html">estiMINT: EIR and HBR</a></li>
         <li class="mint-toc-ch"><a href="chapters/05-statemint/index.html">stateMINT: the Emulator</a></li>
         <li class="mint-toc-ch"><a href="chapters/06-scenarios/index.html">Running Scenarios</a></li>
-        <li class="mint-toc-ch"><a href="chapters/07-under-the-hood/index.html">Internals</a></li>
       </ul>
       <ul class="mint-toc-back">
         <li><a href="chapters/troubleshooting.html">Troubleshooting</a></li>

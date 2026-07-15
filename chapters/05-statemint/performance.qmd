@@ -59,7 +59,7 @@ import numpy as np
 from stateMINT.model import Mamba2Regressor
 
 prevalence = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="prevalence",
 )
 
 district = {
@@ -106,13 +106,13 @@ print(f"speed-up               : {looped / second:.1f}x")
 A call enters the compiled forward pass once, whatever the batch size. The loop pays it fifty
 times over.
 
-A grid of a few hundred rows is still a single call, and still under a second. Build the whole
+A list of a few hundred rows is still a single call, and still under a second. Build the whole
 list first and then call `.predict` once. The timings came off whatever machine rendered the
 cells, so trust the ratio rather than the milliseconds.
 
 ## CPU and GPU
 
-The timings above are CPU timings, and a CPU is adequate at the scale of a scenario grid, since
+The timings above are CPU timings, and a CPU is adequate at the scale of a list of scenarios, since
 the emulator is small. It is two Mamba2 layers with `d_model` 256. On a GPU the same forward pass
 is roughly six times faster, measured on an NVIDIA L40S, and both sit orders of magnitude below
 the minutes a `malariasimulation` run of the same twelve simulated years takes. The measurements,
@@ -130,6 +130,6 @@ sign the GPU is not in use.
 
 ## See also
 
-[A scenario grid](../06-scenarios/scenario-grid.qmd) batches a cross product of campaigns and
+[A list of scenarios](../06-scenarios/scenario-grid.qmd) runs several campaigns against one baseline and
 settings into one call. [stateMINT API](api.qmd) documents the inference surface argument by
 argument.

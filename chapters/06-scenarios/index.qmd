@@ -12,7 +12,7 @@ directly.
 
 ::: {.chapter-outline}
 - [Running scenarios](run-scenarios.qmd) — `Scenario`, `EirTarget`, and the returned columns.
-- [A scenario grid](scenario-grid.qmd) — five campaigns against one baseline.
+- [A list of scenarios](scenario-grid.qmd) — five campaigns against one baseline.
 - [Trajectories and cases](comparing.qmd) — prevalence, clinical incidence, and cases averted.
 - [Exporting results](exporting.qmd) — CSV, and a tidy table R can read.
 :::

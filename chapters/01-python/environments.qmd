@@ -74,7 +74,7 @@ The whole of it is three commands, with no activation step anywhere:
 ```bash
 uv init malaria-scenarios
 cd malaria-scenarios
-uv add estimint mintstate
+uv add "estimint[scenarios]"
 ```
 
 `uv init` creates the project directory with a `pyproject.toml`. `uv add` creates `.venv` on
@@ -168,7 +168,7 @@ The prompt gains a `(.venv)` prefix, which is your visible confirmation. Activat
 that one shell session and is forgotten when the terminal closes. Now install:
 
 ```bash
-pip install estimint mintstate
+pip install "estimint[scenarios]"
 ```
 
 Then write down the versions you ended up with, so that someone else can reconstruct them:

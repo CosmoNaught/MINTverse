@@ -59,7 +59,7 @@ import numpy as np
 from stateMINT.model import Mamba2Regressor
 
 artifact = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="prevalence",
 )
 cfg = artifact.preprocessing_config
 

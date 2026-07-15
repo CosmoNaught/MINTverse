@@ -2,7 +2,7 @@
 title: "Getting Started"
 ---
 
-Both packages come from PyPI, and `pip install estimint mintstate` brings in the pair.
+Both packages come from PyPI, and `pip install "estimint[scenarios]"` brings in the pair.
 `stateMINT` is published under the distribution name `mintstate`, so the name in the install
 command is not the name in the import. Python 3.12 is the minimum.
 
@@ -12,7 +12,7 @@ install slower than every call that follows it. Please see
 [Python for Malaria Modellers](../01-python/index.qmd) if virtual environments are new.
 
 ::: {.chapter-outline}
-- [Installation](installation.qmd) — `pip install estimint mintstate`, the extras, and the weights.
+- [Installation](installation.qmd) — `pip install "estimint[scenarios]"`, the extras, and the weights.
 - [Quickstart](quickstart.qmd) — one scenario, from a prevalence to a trajectory.
 - [Coming from R](coming-from-r.qmd) — the pandas translation table, and dataclasses.
 :::

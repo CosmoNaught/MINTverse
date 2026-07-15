@@ -30,10 +30,11 @@ ModuleNotFoundError: No module named 'stateMINT'
 ```
 
 There are two causes. The first is that estiMINT was installed without the emulator, since
-plain `pip install estimint` gives you the EIR and HBR models and nothing else.
+plain `pip install estimint` gives you the EIR and HBR models and nothing else. The `scenarios`
+extra pulls the emulator in.
 
 ```bash
-pip install estimint mintstate
+pip install "estimint[scenarios]"
 ```
 
 The second cause is that the interpreter running your code is not the interpreter you installed
@@ -53,7 +54,7 @@ The capitals matter to the import.
 
 ```bash
 pip install mintstate            # the emulator on its own
-pip install estimint mintstate   # both packages, what you normally want
+pip install "estimint[scenarios]"  # both packages, what you normally want
 ```
 
 ### An interpreter older than 3.12
@@ -201,7 +202,7 @@ the density adjustment being defined on the prevalence pathway alone.
 
 `run_scenarios` folds a PPF net mix into effective larval source management before the emulator
 runs, by `lsm_eff = min(py_ppf * 0.248 + lsm, 1.0)`. The reported `lsm` is `lsm_eff`. Please see
-[estiMINT internals](07-under-the-hood/estimint-internals.qmd).
+[Interventions and nets](03-concepts/interventions.qmd).
 
 ## See also
 

@@ -1,8 +1,8 @@
 ---
-title: "A scenario grid"
+title: "A list of scenarios"
 ---
 
-A scenario grid holds several campaigns run against one shared setting. The five scenarios below all
+A list of scenarios runs several campaigns against one shared setting in a single call. The five below all
 start from the same district, at under-5 prevalence 0.45, pyrethroid resistance 0.30, and
 pyrethroid-only nets at 0.70 coverage.
 
@@ -15,7 +15,7 @@ pyrethroid-only nets at 0.70 coverage.
 Every scenario carries the same `EirTarget`, so the baseline EIR is inverted from the same prevalence
 under the same current net mix. Any difference is caused by the campaign alone.
 
-## Building the grid
+## Building the list
 
 The shared fields go in a dictionary and are splatted into each `Scenario`, an idiom R writes as
 `do.call(Scenario, c(district, list(name = "PBO", ...)))`.
@@ -31,7 +31,7 @@ district = dict(
     eir_target=EirTarget(0.45, "prevalence"),
 )
 
-grid = [
+scenarios = [
     Scenario(name="Withdraw", **district),
     Scenario(name="Pyrethroid-only", itn_future=0.70,
              net_type_future="pyrethroid_only", **district),
@@ -43,7 +43,7 @@ grid = [
              net_type_future="pyrethroid_pbo", irs_future=0.60, lsm=0.30, **district),
 ]
 
-len(grid)
+len(scenarios)
 ```
 
 ## One call
@@ -52,7 +52,7 @@ len(grid)
 emulator as a single batch. Five scenarios cost barely more than one.
 
 ```{python}
-res = run_scenarios(grid)
+res = run_scenarios(scenarios)
 res.shape
 ```
 
@@ -116,5 +116,5 @@ two is considerably larger, as [Trajectories and cases](comparing.qmd) works out
 ## See also
 
 [Trajectories and cases](comparing.qmd) plots the five scenarios and integrates the burden each
-campaign averts, and [Exporting results](exporting.qmd) gets the grid out of Python. Please see
+campaign averts, and [Exporting results](exporting.qmd) gets the scenarios out of Python. Please see
 [Nets and dn0](../04-estimint/nets-and-dn0.qmd) for the resistance curves behind `dn0_future`.

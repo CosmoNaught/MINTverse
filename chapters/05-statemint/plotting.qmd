@@ -44,10 +44,10 @@ and each restates `itn_future`. Leaving it at zero would withdraw the nets.
 from stateMINT.model import Mamba2Regressor
 
 prevalence = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="prevalence",
 )
 cases = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="cases", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="cases",
 )
 
 base = {

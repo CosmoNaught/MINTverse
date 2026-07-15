@@ -196,5 +196,5 @@ Passing `candidates` to `run_scenarios` returns one row of results per scenario,
 ## See also
 
 [Quickstart](quickstart.qmd) runs one scenario end to end, and every field of `Scenario` in
-full is in [Running scenarios](../06-scenarios/run-scenarios.qmd). A grid rather than a list is
-[A scenario grid](../06-scenarios/scenario-grid.qmd).
+full is in [Running scenarios](../06-scenarios/run-scenarios.qmd), and
+[A list of scenarios](../06-scenarios/scenario-grid.qmd) runs several at once.

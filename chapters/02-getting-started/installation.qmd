@@ -4,16 +4,17 @@ title: "Installation"
 
 MINTverse is two packages, with estiMINT mapping a measured prevalence to transmission
 intensity and stateMINT emulating the prevalence and case trajectories that follow an
-intervention. Install both:
+intervention. Installing estiMINT with the `scenarios` extra brings in stateMINT and the
+`run_scenarios` pipeline, which is what most work needs.
 
 ```bash
-pip install estimint mintstate
+pip install "estimint[scenarios]"
 ```
 
 Or, inside a project managed by [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add estimint mintstate
+uv add "estimint[scenarios]"
 ```
 
 Python 3.12 or newer is required.
@@ -35,11 +36,12 @@ estiMINT has no such split, and its distribution and module are both `estimint`.
 ## Extras
 
 An extra is an optional set of dependencies, named in square brackets after the package.
-estiMINT on its own gives you the EIR and HBR models but no emulator.
+Plain `pip install estimint` gives the EIR and HBR models but no emulator and no
+`run_scenarios`, so `scenarios` is the extra most installs want.
 
 | Extra | Command | What it adds |
 |---|---|---|
-| `scenarios` | `pip install "estimint[scenarios]"` | `mintstate`, the same result as naming it yourself. |
+| `scenarios` | `pip install "estimint[scenarios]"` | stateMINT, so `run_scenarios` and the emulator are available. |
 | `viz` | `pip install "estimint[viz]"` | matplotlib, for the bundled plotting helpers. |
 | `download` | `pip install "estimint[download]"` | The fetchers used to pull training data. |
 | `train` | `pip install "estimint[train]"` | duckdb, scikit-learn and pyarrow, for refitting the XGBoost models. |
@@ -47,8 +49,8 @@ estiMINT on its own gives you the EIR and HBR models but no emulator.
 | `gpu` | `pip install "mintstate[gpu]"` | `jax[cuda12]`, so the emulator runs on an NVIDIA GPU with CUDA 12. |
 
 The CPU build of JAX is fast enough for inference, where a ten-scenario batch takes about
-a second, and the `gpu` extra is only needed if you are training or sweeping a grid of
-thousands.
+a second, and the `gpu` extra is only needed if you are training or sweeping thousands of
+scenarios.
 
 ## Model weights
 
@@ -87,7 +89,6 @@ from stateMINT.model import Mamba2Regressor
 artifact = Mamba2Regressor.from_pretrained(
     "dide-ic/stateMINT",
     predictor="prevalence",
-    revision="v1.2.2",
     local_dir="/shared/models/stateMINT",
 )
 ```

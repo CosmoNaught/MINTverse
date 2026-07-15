@@ -116,6 +116,25 @@ of their `dn0` between resistance 0.0 and 0.75, where a pyrethroid-only net lose
 The PPF effect on the next generation is not represented in `dn0` at all, and reaches the emulator
 through the `lsm` term instead. The curves come from the same source `malariasimulation` uses.
 
+## A net the table does not have
+
+The emulator never sees a net name. It sees `dn0_use` and `dn0_future`, two numbers on a
+continuous scale, so a net the resistance table does not carry is not a new category to the model
+but a different value of a number it already takes.
+
+To model one, compute or look up its killing probability and pass it as `dn0_use` (and
+`dn0_future`) straight to the emulator, the way [Calling the
+emulator](../05-statemint/the-emulator.qmd) builds a covariate dictionary by hand. `net_types` and
+`calculate_dn0` are the convenience layer that turns a named mix into that number, and you can
+supply the number directly instead.
+
+To register a net as a named type usable from `calculate_dn0` and `Scenario`, add its
+resistance-to-`dn0` curve as rows in `estimint/data/itn_dn0.csv`, one `resistance, dn0, net_type`
+triple per point, and add the name to the alias map in `estimint/bednet.py`. `net_types` reads the
+curve from the CSV, while `calculate_dn0` validates the keyword against the alias map, so a name
+present in only one of the two is either unusable or invisible. Note that this edits the installed
+package, so it belongs in a fork rather than in a caller's script.
+
 ## Caveats
 
 `dn0` captures neither repellence nor the loss of a net to wear and disuse over a campaign, and one

@@ -133,7 +133,7 @@ The whole loop, `uv` and VS Code together, starts in a terminal:
 ```bash
 uv init malaria-scenarios       # create the project
 cd malaria-scenarios
-uv add estimint mintstate       # install both packages into its own .venv
+uv add "estimint[scenarios]"    # install estiMINT + stateMINT into its own .venv
 ```
 
 Then in VS Code:

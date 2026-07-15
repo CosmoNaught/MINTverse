@@ -13,8 +13,8 @@ trained models that stand in for a full individual-based simulation.
 
 You can simply call the built-in function `run_scenarios` to chain the functionality of these packages.
 
-`pip install estimint mintstate` installs both packages, though the distribution is called
-`mintstate` while the module you import is `stateMINT`.
+`pip install "estimint[scenarios]"` installs both packages. The distribution you install is
+called `mintstate` and the module you import is `stateMINT`.
 
 ## Why an emulator
 
@@ -56,50 +56,62 @@ covariates and raises nothing, so a setting far beyond it still returns an answe
 
 ## What you need to run it
 
-`run_scenarios` derives several of the emulator's twelve covariates from the ones below.
+A `Scenario` is built from the inputs below, and `run_scenarios` derives the emulator's twelve
+covariates from them. Seven fields are required and the rest default to zero or `None`.
 
-Transmission enters through an `EirTarget`, which takes one of three measures.
+Transmission enters through one measure wrapped in an `EirTarget`. The mode decides how much
+estiMINT does before the emulator, and the value it returns is an equilibrium at the campaign
+rather than a trajectory.
 
-| Measure | `EirTarget` | Source |
+| Field | Meaning | Source |
 |---|---|---|
-| Under-5 prevalence before the campaign | `EirTarget(0.45, "prevalence")` | Cross-sectional survey (DHS, MIS) |
-| Human biting rate | `EirTarget(250000, "hbr")` | Entomological trapping |
-| EIR | `EirTarget(20, "eir")` | A previous calibration |
+| `eir_target` | `EirTarget(0.45, "prevalence")` | Cross-sectional survey (DHS, MIS) |
+| | `EirTarget(250000, "hbr")` | Entomological trapping |
+| | `EirTarget(20, "eir")` | A previous calibration |
 
-The EIR and HBR estiMINT reports are equilibrium values at the campaign, not trajectories.
-Please see [EIR, HBR, prevalence, and cases](../03-concepts/equilibrium.qmd) for how the four
-quantities move through the pipeline.
+The setting is six required fields describing the district and its mosquitoes.
 
-Four numbers describe the setting and its mosquitoes.
-
-| Input | What it is | Source |
+| Field | Meaning | Source |
 |---|---|---|
-| `Q0` | Human blood index | The local vector species |
+| `Q0` | Human blood index, 0 to 1 | The local vector species |
 | `phi` | Proportion of bites taken while people are in bed | Vector species and human behaviour |
 | `seasonal` | 0 for perennial transmission, 1 for strongly seasonal | Known for the setting |
 | `res_use` | Pyrethroid resistance, 0 to 1 | Bioassay data on the local vector population |
+| `irs` | IRS coverage in place now, 0 to 1 | Known for the setting |
+| `name` | A label carried into the results | Yours |
 
-The interventions already in place are the current net mix, given as usage shares by net type
-(`py_only`, `py_pbo`, `py_pyrrole`, `py_ppf`), and the current IRS coverage (`irs`). Leave the
-net keys out if there are no nets. `calculate_dn0` turns the mix and the resistance level into
-the `dn0` covariate, so the net killing effect is not supplied.
+The nets in place now are usage shares by net type, each defaulting to zero, so leave them all
+out if there are no nets. `calculate_dn0` turns the mix and `res_use` into the `dn0` the model
+reads, and the killing effect is not supplied directly.
 
-The campaign is the net type and coverage from the campaign onwards (`net_type_future`,
-`itn_future`), together with any spraying, larviciding or routine distribution that comes with
-it (`irs_future`, `lsm`, `routine`). Everything else is optional, including `mosquito_delta`,
-a change in mosquito density, which has no effect at its default of zero.
+| Field | Meaning | Default |
+|---|---|---|
+| `py_only` | Pyrethroid-only coverage | `0.0` |
+| `py_pbo` | Pyrethroid-PBO coverage | `0.0` |
+| `py_pyrrole` | Pyrethroid-pyrrole coverage | `0.0` |
+| `py_ppf` | Pyrethroid-PPF coverage | `0.0` |
+
+The campaign is what changes from day 3285 onwards, each field defaulting to nothing, which
+withdraws the nets. Please see the callout below.
+
+| Field | Meaning | Default |
+|---|---|---|
+| `net_type_future` | Net product from the campaign | `None` |
+| `itn_future` | Net coverage from the campaign | `0.0` |
+| `irs_future` | IRS coverage from the campaign | `0.0` |
+| `lsm` | Larval source management coverage | `0.0` |
+| `routine` | Continuous net distribution | `0.0` |
+| `mosquito_delta` | Proportional change in mosquito density (prevalence input only) | `0.0` |
 
 Running it needs no GPU, no `malariasimulation` installation, no R, and no training data.
-Installation pulls the estiMINT models with the wheel, and the emulator weights download once
-from Hugging Face on first use.
 
 ::: {.callout-important}
 ## Future coverage must be set explicitly
 
-`itn_future`, `net_type_future` and `irs_future` describe what happens **from** the campaign,
-not what is already there. Left unset, they tell the model to treat the existing nets and
-spraying as **withdrawn** at the campaign. To hold an intervention steady you must restate it
-in the future keys. Please see [Covariates and the time grid](../05-statemint/covariates.qmd).
+`itn_future`, `net_type_future` and `irs_future` describe what happens **from** the campaign, not
+what is already there. Left unset, they model the existing nets and spraying being **withdrawn**
+at the campaign. To hold an intervention steady, restate it in the future fields. Please see
+[Covariates and the time grid](../05-statemint/covariates.qmd).
 :::
 
 ## MINTweb

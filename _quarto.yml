@@ -115,20 +115,11 @@ website:
           - href: chapters/06-scenarios/run-scenarios.qmd
             text: "Running scenarios"
           - href: chapters/06-scenarios/scenario-grid.qmd
-            text: "A scenario grid"
+            text: "A list of scenarios"
           - href: chapters/06-scenarios/comparing.qmd
             text: "Trajectories and cases"
           - href: chapters/06-scenarios/exporting.qmd
             text: "Exporting results"
-      - section: "Internals"
-        href: chapters/07-under-the-hood/index.qmd
-        contents:
-          - href: chapters/07-under-the-hood/architecture.qmd
-            text: "Pipeline architecture"
-          - href: chapters/07-under-the-hood/estimint-internals.qmd
-            text: "estiMINT internals"
-          - href: chapters/07-under-the-hood/statemint-internals.qmd
-            text: "stateMINT internals"
       - href: chapters/troubleshooting.qmd
         text: "Troubleshooting"
 

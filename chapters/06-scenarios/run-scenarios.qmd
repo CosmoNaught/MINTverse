@@ -97,7 +97,7 @@ import pandas as pd
 from estimint import run_scenarios
 from estimint.scenarios import Scenario, EirTarget
 
-grid = [
+scenarios = [
     # A prevalence survey, pyrethroid-only nets held at their current coverage.
     Scenario(name="Pyrethroid-only, prevalence", res_use=0.30, Q0=0.85, phi=0.80,
              seasonal=0.0, irs=0.0, eir_target=EirTarget(0.45, "prevalence"),
@@ -126,7 +126,7 @@ grid = [
              irs_future=0.60),
 ]
 
-res = run_scenarios(grid)
+res = run_scenarios(scenarios)
 res.shape
 ```
 
@@ -166,7 +166,7 @@ res[[
 
 Note that `lsm` is not always the `lsm` you passed, since `run_scenarios` folds PPF net coverage
 into effective larval source management, under the rule set out in
-[Pipeline architecture](../07-under-the-hood/architecture.qmd). The fourth row passed none and
+[Interventions and nets](../03-concepts/interventions.qmd). The fourth row passed none and
 comes back with one.
 
 The third group is transmission intensity, where `eir_baseline` is what the inversion produced
@@ -265,7 +265,7 @@ Both `run_scenarios` and `preload_models` take an `hf_repo` argument, defaulting
 `"dide-ic/stateMINT"`.
 
 ```python
-res = run_scenarios(grid, hf_repo="dide-ic/stateMINT")
+res = run_scenarios(scenarios, hf_repo="dide-ic/stateMINT")
 ```
 
 Change it to run against a fork or a local snapshot. Note that `run_scenarios` tracks whatever
@@ -275,7 +275,7 @@ record the weight version alongside the results, or drive the emulator directly 
 
 ## See also
 
-[A scenario grid](scenario-grid.qmd) builds five campaigns against one shared baseline, and
+[A list of scenarios](scenario-grid.qmd) runs five campaigns against one shared baseline, and
 [Trajectories and cases](comparing.qmd) plots and integrates what comes back. Please see
 [Covariates and the time grid](../05-statemint/covariates.qmd) for what the emulator sees, and
 [Nets and dn0](../04-estimint/nets-and-dn0.qmd) for `dn0_use` and `dn0_future`.

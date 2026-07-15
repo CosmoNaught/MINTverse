@@ -13,7 +13,7 @@ The checkpoint carries the names and their canonical order.
 from stateMINT.model import Mamba2Regressor
 
 artifact = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="prevalence",
 )
 
 for i, name in enumerate(artifact.preprocessing_config["static_covars"], start=1):

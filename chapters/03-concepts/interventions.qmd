@@ -36,25 +36,31 @@ net_types()
 
 Short aliases are accepted everywhere the long forms are.
 
+## Present and future
+
+Every intervention enters the emulator twice, once for the state of the district before the
+campaign and once for the state from the campaign onwards. Nets carry a `dn0_use` and an
+`itn_use` for the nets already in the field, and a `dn0_future` and an `itn_future` for the nets
+the campaign distributes. IRS carries `irs_use` and `irs_future` the same way. The campaign lands
+at day 3285, and the present values hold up to it while the future values hold after it.
+
+The two do not have to match, which is what a campaign is. You can keep the same product at the
+same coverage by restating it, switch pyrethroid-only nets to PBO or pyrrole, raise or lower the
+coverage, add spraying or larviciding that was not there before, or withdraw the nets by leaving
+the future fields unset. `stateMINT` sees the change at day 3285 and nowhere earlier, so the three
+years before the campaign are identical for any two scenarios that share a present and differ only
+in the campaign.
+
+Note that the future fields do not inherit the present. Leaving `itn_future` at zero, or
+`net_type_future` at `None`, models the nets being withdrawn rather than held, which is set out in
+[Covariates and the time grid](../05-statemint/covariates.qmd).
+
 ## Net effectiveness and dn0
 
-`dn0` is the probability that a mosquito is killed when it contacts a treated net, and it
-depends on the insecticide and on the local level of pyrethroid resistance. `calculate_dn0`
-takes a resistance level and a net mix, and returns the usage-weighted `dn0` with the total
-coverage.
-
-```{python}
-mix = calculate_dn0(0.5, py_only=0.4, py_pbo=0.2)
-mix
-```
-
-::: {.callout-warning}
-## `itn_use` is already the total coverage
-
-`DN0Result.itn_use` is the **sum of the shares you passed**, which here is 0.4 + 0.2 =
-0.6. Multiplying it by a usage figure a second time halves the coverage. No warning is
-issued.
-:::
+`dn0` is the probability that a mosquito is killed when it contacts a treated net, and it depends
+on the insecticide and on the local level of pyrethroid resistance. `calculate_dn0` turns a net
+mix and a resistance level into that number, and into the total coverage `itn_use`, which is
+worked through in [Nets and dn0](../04-estimint/nets-and-dn0.qmd).
 
 ## Resistance response
 

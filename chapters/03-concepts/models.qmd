@@ -8,8 +8,13 @@ trajectories. Nothing is fitted, tuned or configured at call time.
 
 ## The three estiMINT conversions
 
-The three conversions share the same six covariates describing the setting (`dn0_use`, `Q0`,
-`phi_bednets`, `seasonal`, `itn_use` and `irs_use`). They differ only in what is converted.
+The three conversions are gradient-boosted trees, fitted with XGBoost. Gradient boosting builds
+an ensemble of shallow decision trees one at a time, each trained on the error the ones before it
+left behind, and sums them into a single regression. It handles the non-linear relationship
+between the covariates and the EIR without any functional form being specified.
+
+The three share the same six covariates describing the setting (`dn0_use`, `Q0`, `phi_bednets`,
+`seasonal`, `itn_use` and `irs_use`). They differ only in what is converted.
 
 | Name | Extra input | Returns |
 |---|---|---|
@@ -52,14 +57,18 @@ file read.
 ## The stateMINT emulator
 
 stateMINT is a Mamba2 state-space model, implemented in JAX and Flax and trained to reproduce
-[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). It takes a setting and a
-campaign, and returns 157 steps of prevalence or 157 steps of cases.
+[`malariasimulation`](https://mrc-ide.github.io/malariasimulation/). A state-space model reads a
+sequence one step at a time and carries a fixed-size hidden vector forward, updating it at each
+step and reading the output off it, so the cost grows with the length of the sequence rather than
+with its square as a transformer's does. Mamba2 is a recent form of that architecture. Here the
+sequence is the 157 fortnightly windows, and the model takes a setting and a campaign and returns
+157 steps of prevalence or 157 steps of cases.
 
 ```{python}
 from stateMINT.model import Mamba2Regressor
 
 artifact = Mamba2Regressor.from_pretrained(
-    "dide-ic/stateMINT", predictor="prevalence", revision="v1.2.2",
+    "dide-ic/stateMINT", predictor="prevalence",
 )
 
 for key, value in artifact.model_config.items():
@@ -112,5 +121,4 @@ recovered class anywhere in the model. S/I/R dynamics require the simulator.
 
 The twelve inputs the emulator takes, and the grid they are laid on, are set out in [Covariates
 and the time grid](../05-statemint/covariates.qmd), and `predict` in practice in [Calling the
-emulator](../05-statemint/the-emulator.qmd). Please see [estiMINT
-internals](../07-under-the-hood/estimint-internals.qmd) for the calibration pipeline in full.
+emulator](../05-statemint/the-emulator.qmd).

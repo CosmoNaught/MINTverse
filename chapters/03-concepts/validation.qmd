@@ -179,7 +179,7 @@ difference is fixed dispatch overhead rather than computation, so passing a list
 `run_scenarios` is cheaper than looping over it. That is why the API takes a list.
 
 On a GPU the same forward pass is roughly six times faster again (measured on an NVIDIA L40S).
-The CPU is adequate for a scenario grid. The GPU matters when you are sweeping thousands of
+The CPU is adequate for a list of scenarios. The GPU matters when you are sweeping thousands of
 parameter sets.
 
 ## See also

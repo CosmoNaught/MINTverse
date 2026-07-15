@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 plt.style.use("styles/mint.mplstyle")
 ```
 
-The grid from [A scenario grid](scenario-grid.qmd) holds five campaigns run against one shared
+The list from [A list of scenarios](scenario-grid.qmd) holds five campaigns run against one shared
 baseline. What comes back is five rows of scalars and five pairs of 157-step trajectories, and
 rebuilding it takes the same setting and the same five `Scenario` objects.
 
@@ -24,7 +24,7 @@ setting = dict(
     eir_target=EirTarget(0.45, "prevalence"),
 )
 
-grid = [
+scenarios = [
     Scenario(name="Withdraw", **setting),
     Scenario(name="Pyrethroid-only", itn_future=0.70,
              net_type_future="pyrethroid_only", **setting),
@@ -36,7 +36,7 @@ grid = [
              net_type_future="pyrethroid_pbo", irs_future=0.60, lsm=0.30, **setting),
 ]
 
-res = run_scenarios(grid)
+res = run_scenarios(scenarios)
 ```
 
 The time grid comes off the emulator's own configuration rather than being hard-coded.
@@ -182,7 +182,7 @@ prevalence points.
 The ordering of the net scenarios follows `dn0_future` and nothing else, so it is only as good as the
 resistance level supplied, and at a resistance of 0.30 the pyrethroid-only and the pyrrole net
 are far apart, while at 0.0 they are much closer. A resistance estimate carries error. Re-run the
-grid across its plausible range to see how much of the ordering survives it.
+scenarios across its plausible range to see how much of the ordering survives it.
 
 ## See also
 
